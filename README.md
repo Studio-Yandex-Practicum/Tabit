@@ -1,2 +1,6 @@
 # Tabit
-Online service for hr and conpany owners which helps: to measure the emotional climate in the company , to see employees who are burning out, to learn about the internal problems of the company , to track the main indicators of the company (staff turnover, the level of conflict and trust in the team, etc.)
+Онлайн сервис для HR и собственников компаний который помогает:
+- измерять эмоциональный климат в компании;
+- увидеть выгорающих сотрудников;
+- узнать о внутренних проблемах компании;
+- отслеживать основные показатели компании (текучесть кадров, уровень конфликтности и доверия в коллективе и др.);
