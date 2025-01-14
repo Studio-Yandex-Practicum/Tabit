@@ -1,13 +1,11 @@
 ---
 name: Docs template
-about: Describe this issue template's purpose here.
+about: Оформление Readme и документации
 title: ''
 labels: documentation
 assignees: ''
 
 ---
-
-Оформление Readme и документации
 
 # Что нужно описать?
 
