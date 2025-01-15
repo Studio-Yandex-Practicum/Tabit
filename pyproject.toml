@@ -12,6 +12,7 @@ alembic = "^1.14.0"
 pydantic = {extras = ["email"], version = "^2.10.4"}
 pydantic-settings = "^2.7.0"
 uvicorn = "^0.34.0"
+black = "^24.10.0"
 
 
 [tool.poetry.group.dev.dependencies]
