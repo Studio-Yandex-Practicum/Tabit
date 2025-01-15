@@ -3,14 +3,13 @@ import uvicorn
 from fastapi import FastAPI
 
 from src.api.v1.routers import main_router
-from src.config import Settings
+from src.config import settings
 
 app_v1 = FastAPI(
-    title=Settings.app_title,
-    description=Settings.description,
-    version=Settings.version
+    title=settings.app_title,
+    description=settings.description,
+    version=settings.version
 )
-
 app_v1.include_router(main_router)
 
 if __name__ == "__main__":
