@@ -1,8 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.companies.models import User
-from src.tabit_management.constants import FAKER_USER_COUNT
-from src.utils.faker_instance import fake
+
 from .base_seeder import BaseSeeder
+from .constants import FAKER_USER_COUNT
+from .faker_instance import fake
 
 
 class UserSeeder(BaseSeeder):
