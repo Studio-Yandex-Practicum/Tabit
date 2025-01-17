@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     app_title: str = 'Tabit'
     description: str = 'Tabit platform'
-
+    version: str = '1.0.0'
     db_type: str = 'postgres'
     db_api: str = 'asyncpg'
     db_user: str = 'username'
