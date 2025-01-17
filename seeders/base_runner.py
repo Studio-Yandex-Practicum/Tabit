@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from seeders.constants import FAKER_USER_COUNT
 from seeders.user_seeder import UserSeeder
 
 

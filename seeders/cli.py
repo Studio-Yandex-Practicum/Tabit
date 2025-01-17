@@ -11,6 +11,7 @@ def seed_all_data():
     """
     Генерация тестовых данных для всех сущностей.
     """
+
     async def run():
         async with async_session() as session:
             await seed_all(session)
