@@ -1,55 +1,18 @@
 from datetime import date
-from typing import Optional, List
+from typing import List, Optional
 
-from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTableUUID
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.db import BaseTabitModel
-from src.companies.models import Department, Company
-
-# Нужно место, где это будет хранится.
-LENGTH_NAME_USER: int = 746
-LENGTH_SMALL_NAME: int = 30
-LENGTH_TELEGRAM_USERNAME = 100
-
-
-class BaseUser(SQLAlchemyBaseUserTableUUID, BaseTabitModel):
-    """Базовая модель пользователей. Абстрактная модель"""
-
-    name: Mapped[str] = mapped_column(String(LENGTH_NAME_USER))
-    surname: Mapped[str] = mapped_column(String(LENGTH_NAME_USER))
-    patronymic: Mapped[str] = mapped_column(String(LENGTH_NAME_USER))
-    phone_number: Mapped[str]
-
-    def __repr__(self):
-        return (
-            f'{self.__class__.__name__}('
-            f'id={self.id},'
-            f'name={self.name},'
-            f'surname={self.surname},'
-            f'patronymic={self.patronymic})'
-        )
-
-
-class BaseTag(BaseTabitModel):
-    """Базовая модель тэгов. Абстрактная модель"""
-
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
-    name: Mapped[str] = mapped_column(String(LENGTH_SMALL_NAME))
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}(id={self.id}, name={self.name})'
+from src.companies.models import Company, Department
+from src.constants import LENGTH_TELEGRAM_USERNAME
+from src.models import BaseTabitModel, BaseTag, BaseUser, int_pk
 
 
 class AssociationUserTags(BaseTabitModel):
     """Связная таблица UserTabit и Tag."""
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    id: Mapped[int_pk]
     left_id: Mapped[int] = mapped_column(
         ForeignKey('left_table.id'), primary_key=True
     )
@@ -108,9 +71,3 @@ class UserTabit(BaseUser):
 
     department_transition_date: Mapped[date]
     employee_position: Mapped[str]
-
-
-class TabitAdminUser(BaseUser):
-    """Модель пользователей-админов сервиса Tabit."""
-
-    pass
