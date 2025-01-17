@@ -11,7 +11,7 @@ authors = [
     "Антон Стремоусов <stremousoff@gmail.com>",
     "Александр Хмылов <a.a.hm@yandex.ru>",
     "Лев Акчурин <levisserena@yandex.ru>",
-    "Никита Пономаренко <nicros23@yandex.ru>",
+    "Никита Пономаренко <nicros23@yandex.ru>"
 ]
 readme = "README.md"
 packages = [
