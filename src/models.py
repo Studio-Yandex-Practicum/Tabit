@@ -1,56 +1,46 @@
+from datetime import date
 import uuid
-from datetime import datetime
-from typing import Optional
 
-from sqlalchemy import Integer, String, TIMESTAMP, Text, ForeignKey
-from sqlalchemy.orm import Mapped, declarative_base, mapped_column
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
-
-
-class PreBase:
-    @declared_attr
-    def __tablename__(cls):
-        return cls.__name__.lower()
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP)
-
-
-BaseTabitModel = declarative_base(cls=PreBase)
+from .database import BaseTabitModel, str_uniq, str_null_true, int_pk
 
 
 class BaseUser(BaseTabitModel):
+    """Base model is used for all users in Tabit app"""
+
+    __abstract__ = True
+
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, unique=True, default=uuid.uuid4
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    name: Mapped[str] = mapped_column(String)
-    surname: Mapped[str] = mapped_column(String)
-    patronymic: Mapped[str] = mapped_column(String)
-    email: Mapped[str] = mapped_column(String)
-    phone_number: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    hashed_password: Mapped[str] = mapped_column(String)
+    name: Mapped[str]
+    surname: Mapped[str]
+    patronymic: Mapped[str]
+    email: Mapped[str_uniq]
+    phone_number: Mapped[str_null_true]
+    hashed_password: Mapped[str]
+
+    def __str__(self):
+        return (
+            f"{self.__class__.__name__}({self.id=}), "
+            f"{self.name=}, "
+            f"{self.surname=}"
+        )
+
+    def __repr__(self):
+        return str(self)
 
 
-class BaseActivity(BaseTabitModel):
-    name: Mapped[str] = mapped_column(String)
-    description: Mapped[str] = mapped_column(Text)
+class TabitAdminUser(BaseUser):
+    """Tabit Admin User Model"""
+
+    pass
 
 
-class BaseFieldName(BaseTabitModel):
-    name: Mapped[str] = mapped_column(String)
+class LicenseType(BaseUser):
+    """License Type Model"""
 
-
-class LicenseType(BaseTabitModel):
-    name: Mapped[str] = mapped_column(String)
-    license_term: Mapped[datetime] = mapped_column(TIMESTAMP)
-
-
-class BulletinBoard(BaseFieldName):
-    title: Mapped[str] = mapped_column(Text)
-    description: Mapped[str] = mapped_column(Text)
-
-
-class BaseLinkedTable(BaseTabitModel):
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("user.id"))
+    id: Mapped[int_pk]
+    name: Mapped[str_uniq]
+    license_term: Mapped[date]

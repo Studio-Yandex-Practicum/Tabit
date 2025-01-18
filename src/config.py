@@ -1,4 +1,3 @@
-from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
 
@@ -9,8 +8,9 @@ class Settings(BaseSettings):
     db_type: str = "postgres"
     db_api: str = "asyncpg"
     db_user: str = "username"
-    db_password: SecretStr = "password"
+    db_password: str = "password"
     db_host: str = "localhost"
+    db_port: str = "5433"
     db_name: str = "db_tabit"
 
     @property
