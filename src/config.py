@@ -8,17 +8,19 @@ class Settings(BaseSettings):
     version: str = '1.0.0'
     db_type: str = 'postgres'
     db_api: str = 'asyncpg'
-    db_user: str = 'username'
-    db_password: SecretStr = 'password'
+    postgres_user: str = 'username'
+    postgres_password: SecretStr = 'password'
+    postgres_db: str = 'db_tabit'
+    port_bd_postgres: str = '5433'
     db_host: str = 'localhost'
-    db_name: str = 'db_tabit'
+
 
     @property
     def database_url(self):
         return (
             f'{self.db_type}+{self.db_api}://'
-            f'{self.db_user}:{self.db_password}@{self.db_host}'
-            f'/{self.db_name}'
+            f'{self.postgres_user}:{self.postgres_password}@{self.db_host}'
+            f'/{self.postgres_db}'
         )
 
     class Config:
