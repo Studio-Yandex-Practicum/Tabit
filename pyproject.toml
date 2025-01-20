@@ -30,6 +30,8 @@ uvicorn = "^0.34.0"
 black = "^24.10.0"
 ruff = "^0.8.4"
 pre-commit = "^4.0.1"
+faker = "^33.3.1"
+factory-boy = "^3.3.1"
 
 [build-system]
 requires = ["poetry-core"]
