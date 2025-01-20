@@ -25,6 +25,9 @@ alembic = "^1.14.0"
 pydantic = {extras = ["email"], version = "^2.10.4"}
 pydantic-settings = "^2.7.0"
 uvicorn = "^0.34.0"
+fastapi-users = "^14.0.1"
+sqlalchemy = "^2.0.37"
+asyncpg = "^0.30.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"

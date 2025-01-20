@@ -1,5 +1,6 @@
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
+from fastapi_users.authentication import JWTStrategy, AuthenticationBackend
 
 
 class Settings(BaseSettings):
@@ -12,6 +13,9 @@ class Settings(BaseSettings):
     db_password: SecretStr = 'password'
     db_host: str = 'localhost'
     db_name: str = 'db_tabit'
+
+    jwt_secret: SecretStr = 'SUPERSECRETKEY'
+    jwt_lifetime_seconds: int = 3600
 
     @property
     def database_url(self):
@@ -26,3 +30,17 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def get_jwt_strategy() -> JWTStrategy:
+    return JWTStrategy(
+        secret=settings.jwt_secret.get_secret_value(),
+        lifetime_seconds=settings.jwt_lifetime_seconds,
+    )
+
+
+jwt_auth_backend = AuthenticationBackend(
+    name='jwt',
+    transport=None,
+    get_strategy=get_jwt_strategy,
+)
