@@ -1,5 +1,6 @@
 from datetime import date
 from typing import List, Optional
+from uuid import UUID
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -13,11 +14,11 @@ class AssociationUserTags(BaseTabitModel):
     """Связная таблица UserTabit и Tag."""
 
     id: Mapped[int_pk]
-    left_id: Mapped[int] = mapped_column(
-        ForeignKey('left_table.id'), primary_key=True
+    left_id: Mapped[UUID] = mapped_column(
+        ForeignKey('usertabit.uuid'), primary_key=True
     )
     right_id: Mapped[int] = mapped_column(
-        ForeignKey('right_table.id'), primary_key=True
+        ForeignKey('tag.id'), primary_key=True
     )
     user: Mapped['UserTabit'] = relationship(back_populates='tags')
     tag: Mapped['Tag'] = relationship(back_populates='user')
