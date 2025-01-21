@@ -3,11 +3,11 @@ from fastapi import APIRouter
 router = APIRouter()
 
 
-@router.get("/")
+@router.get('/')
 async def main_page() -> str:
     """
     Представление главной страницы сайта
 
     Пока здесь ничего нет - в работе...
     """
-    return "Main page"
+    return 'Main page'
