@@ -764,7 +764,7 @@
 			"description": "Профили пользователей"
 		},
 		{
-			"name": "SuperAdmin or CRUD companies",
+			"name": "CRUD companies",
 			"item": [
 				{
 					"name": "super admin companies",
@@ -772,7 +772,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/super_admin/companies/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/companies/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -780,12 +780,11 @@
 							"path": [
 								"api",
 								"v1",
-								"super_admin",
 								"companies",
 								""
 							]
 						},
-						"description": "Список всех компаний"
+						"description": "Список всех компаний. Доступно только супер-юзеру."
 					},
 					"response": []
 				},
@@ -795,7 +794,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/super_admin/companies/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/companies/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -803,12 +802,11 @@
 							"path": [
 								"api",
 								"v1",
-								"super_admin",
 								"companies",
 								""
 							]
 						},
-						"description": "Создать новую компанию"
+						"description": "Создать новую компанию. Доступно только супер-юзеру."
 					},
 					"response": []
 				},
@@ -818,7 +816,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/super_admin/companies//{{company_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/companies//{{company_id}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -826,14 +824,37 @@
 							"path": [
 								"api",
 								"v1",
-								"super_admin",
 								"companies",
 								"",
 								"{{company_id}}",
 								""
 							]
 						},
-						"description": "Просмотр карточки компании"
+						"description": "Просмотр карточки компании. Доступно только супер-юзеру."
+					},
+					"response": []
+				},
+				{
+					"name": "user company",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/companies//my/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"companies",
+								"",
+								"my",
+								""
+							]
+						},
+						"description": "Просмотр карточки компании в которой работает сотрудник сделавший запрос."
 					},
 					"response": []
 				},
@@ -843,7 +864,7 @@
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/super_admin/companies/{{company_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/companies/{{company_id}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -851,13 +872,12 @@
 							"path": [
 								"api",
 								"v1",
-								"super_admin",
 								"companies",
 								"{{company_id}}",
 								""
 							]
 						},
-						"description": "Редактирование карточки компании"
+						"description": "Редактирование карточки компании. Доступно только супер-юзеру."
 					},
 					"response": []
 				},
@@ -867,7 +887,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/super_admin/companies/{{company_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/companies/{{company_id}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -875,29 +895,28 @@
 							"path": [
 								"api",
 								"v1",
-								"super_admin",
 								"companies",
 								"{{company_id}}",
 								""
 							]
 						},
-						"description": "Удаление компании"
+						"description": "Удаление компании. Доступно только супер-юзеру."
 					},
 					"response": []
 				}
 			],
-			"description": "Эндпоинты \"Суперадмин - Список всех компаний\""
+			"description": "Эндпоинты для управлением \"Компаниями\""
 		},
 		{
-			"name": "CRUD employees",
+			"name": "CRUD users",
 			"item": [
 				{
-					"name": "employees",
+					"name": "users",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/employees/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/users/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -905,7 +924,7 @@
 							"path": [
 								"api",
 								"v1",
-								"employees",
+								"users",
 								""
 							]
 						},
@@ -914,12 +933,12 @@
 					"response": []
 				},
 				{
-					"name": "employee",
+					"name": "user",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/employees/{{user_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/users/{{user_id}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -927,7 +946,7 @@
 							"path": [
 								"api",
 								"v1",
-								"employees",
+								"users",
 								"{{user_id}}",
 								""
 							]
@@ -937,12 +956,12 @@
 					"response": []
 				},
 				{
-					"name": "employee",
+					"name": "user",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/employees/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/users/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -950,7 +969,7 @@
 							"path": [
 								"api",
 								"v1",
-								"employees",
+								"users",
 								""
 							]
 						},
@@ -959,35 +978,12 @@
 					"response": []
 				},
 				{
-					"name": "employee",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/employees/{{user_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"employees",
-								"{{user_id}}",
-								""
-							]
-						},
-						"description": "Полное обновление данных сотрудника."
-					},
-					"response": []
-				},
-				{
-					"name": "employee",
+					"name": "user",
 					"request": {
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/employees/{{user_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/users/{{user_id}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -995,7 +991,7 @@
 							"path": [
 								"api",
 								"v1",
-								"employees",
+								"users",
 								"{{user_id}}",
 								""
 							]
@@ -1005,12 +1001,12 @@
 					"response": []
 				},
 				{
-					"name": "employee",
+					"name": "user",
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/employees/{{user_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/users/{{user_id}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1018,7 +1014,7 @@
 							"path": [
 								"api",
 								"v1",
-								"employees",
+								"users",
 								"{{user_id}}",
 								""
 							]
