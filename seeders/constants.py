@@ -2,3 +2,4 @@
 
 FAKER_USER_COUNT = 10  # Число пользователей для генерации
 FAKER_COMPANY_COUNT = 5  # Число компаний для генерации
+FAKER_DEPARTMENT_COUNT = 10  # Число отделов для генерации
