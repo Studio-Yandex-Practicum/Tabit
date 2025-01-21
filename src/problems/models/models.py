@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import BaseTabitModel
 from src.models import UserTabit
+from .enums import ConfirmationStatus
 
 
 class Problem(BaseTabitModel):
@@ -12,22 +13,19 @@ class Problem(BaseTabitModel):
 
     problem_name: Mapped[str] = mapped_column(unique=True)
     description: Mapped[str]
-    color_id: Mapped[int] = mapped_column(ForeignKey('colorproblem.id'))
-    color: Mapped['ColorProblem'] = relationship(back_populates='problem_color')
-    type_id: Mapped[int] = mapped_column(ForeignKey('typeproblem.id'))
-    type: Mapped['TypeProblem'] = relationship(back_populates='problem_type')
+    color: Mapped[str] = mapped_column(unique=True)
+    type: Mapped[str] = mapped_column(unique=True)
     owner_id: Mapped[int] = mapped_column(ForeignKey('usertabit.uuid'))
     owner: Mapped['UserTabit'] = relationship(back_populates='problem_owner')
     members: Mapped[List['UserTabit']] = relationship(
         secondary='ProblemUser', back_populates='problem'
     )
-    status_id: Mapped[int] = mapped_column(ForeignKey('statusproblem.id'))
-    status: Mapped['StatusProblem'] = relationship(back_populates='problem_status')
+    status: Mapped[str] = mapped_column(unique=True)
+    file: Mapped[List['FileProblem']] = relationship(back_populates='problem_files')
     confirmation: Mapped['ConfirmationParticipation'] = relationship(
         back_populates='problem_confirmation'
     )
     __table_args__ = UniqueConstraint(('type_id'), ('owner_id'), ('status_id'))
-    # TODO добавить поле file, пока не понятно где будет храниться модель.
 
 
 class ProblemUser(BaseTabitModel):
@@ -37,27 +35,6 @@ class ProblemUser(BaseTabitModel):
     problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'))
 
 
-class TypeProblem(BaseTabitModel):
-    """Модель для типов проблем."""
-
-    type_name: Mapped[str] = mapped_column(unique=True)
-    problem: Mapped['Problem'] = relationship(back_populates='type')
-
-
-class ColorProblem(BaseTabitModel):
-    """Модель для цветов проблем."""
-
-    color_name: Mapped[str] = mapped_column(unique=True)
-    problem: Mapped[List['Problem']] = relationship(back_populates='color')
-
-
-class StatusProblem(BaseTabitModel):
-    """Модель для статуса проблем."""
-
-    status_name: Mapped[str] = mapped_column(unique=True)
-    problem: Mapped[List['Problem']] = relationship(back_populates='status')
-
-
 class ConfirmationParticipation(BaseTabitModel):
     """Модель для подтверждение участия в проблеме."""
 
@@ -65,7 +42,7 @@ class ConfirmationParticipation(BaseTabitModel):
     problem: Mapped['Problem'] = relationship(back_populates='comfirmation')
     user_id: Mapped[int] = mapped_column(ForeignKey('usertabit.uuid'))
     user: Mapped['UserTabit'] = relationship(back_populates='comfirmations')
-    status: Mapped[str]
+    status: Mapped['ConfirmationStatus']
     __table_args__ = UniqueConstraint(
         ('problem_id'),
         ('user_id'),
@@ -83,16 +60,24 @@ class Task(BaseTabitModel):
     owner: Mapped['UserTabit'] = relationship(back_populates='task_owner')
     executor_id: Mapped[int] = mapped_column(ForeignKey('usertabit.uuid'))
     executor: Mapped['UserTabit'] = relationship(back_populates='task_executor')
-    status_id: Mapped[int] = mapped_column(ForeignKey('statusproblem.id'))
-    status: Mapped['StatusTask'] = relationship(back_populates='task_status')
-    # TODO добавить поле file, пока не понятно где будет храниться модель.
+    status: Mapped[str] = mapped_column(unique=True)
+    file: Mapped[List['FileTask']] = relationship(back_populates='task_files')
     __table_args__ = UniqueConstraint(
         ('owner_id'),
     )
 
 
-class StatusTask(BaseTabitModel):
-    """Модель для статусов задач."""
+class FileProblem(BaseTabitModel):
+    """Модель файлов проблем."""
 
-    status_name: Mapped[str] = mapped_column(unique=True)
-    task: Mapped[List['Task']] = relationship(back_populates='status')
+    link: Mapped[str]
+    problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'))
+    problem: Mapped['Problem'] = relationship(back_populates='problem_file')
+
+
+class FileTask(BaseTabitModel):
+    """Модель файлов задач."""
+
+    link: Mapped[str]
+    task_id: Mapped[int] = mapped_column(ForeignKey('task.id'))
+    task: Mapped['Task'] = relationship(back_populates='task_file')
