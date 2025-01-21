@@ -2,8 +2,21 @@
 name = "tabit"
 version = "0.1.0"
 description = "Online service for hr and conpany owners"
-authors = ["Your Name <you@example.com>"]
+authors = [
+    "Максим Караськин <mac7simka@yandex.ru>",
+    "Татьяна Харченко <mistlenok@yandex.ru>",
+    "Дмитрий Бурмагин <dmitryodinov@yandex.ru>",
+    "Максим Березин <mms2000@mail.ru>",
+    "Александр Колганов <greykol501@yandex.ru>",
+    "Антон Стремоусов <stremousoff@gmail.com>",
+    "Александр Хмылов <a.a.hm@yandex.ru>",
+    "Лев Акчурин <levisserena@yandex.ru>",
+    "Никита Пономаренко <nicros23@yandex.ru>"
+]
 readme = "README.md"
+packages = [
+    { include = "src" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.12"

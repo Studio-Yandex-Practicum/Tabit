@@ -2,151 +2,177 @@ from sqlalchemy import (Boolean,
                         Date,
                         DateTime,
                         Integer,
+                        ForeignKey,
                         String,
+                        Table,
                         Text)
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from src.database import BaseModel
+from database import BaseFieldName, BaseModel, BaseLinkedTable, BaseTabitModel
+# импорт моделей это пока заглушки
 
 
-class BaseActivity(BaseModel):
-    """
-    Базовая модель для деятельности.
-    """
-    __abstract__ = True
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True,
-                                    autoincrement=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=True)
-    created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
-
-
-class BaseFieldName(BaseModel):
-    """
-    Базовая модель для справочных данных.
-    """
-    __abstract__ = True
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True,
-                                    autoincrement=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
+meeting_members = Table(
+    'meeting_members',
+    BaseTabitModel.metadata,
+    mapped_column('meeting_id',
+                  Integer, ForeignKey('meeting.id'),
+                  primary_key=True),
+    mapped_column('user_id', Integer,
+                  ForeignKey('user_tabit.uuid'),
+                  primary_key=True)
+)
 
 
-class Meeting(BaseActivity):
+class Meeting(BaseTabitModel):
     """
     Модель для мероприятий.
     """
-    __tablename__ = "meeting"
+    __tablename__ = 'meeting'
 
-    owner: Mapped[int] = mapped_column(Integer, nullable=False)
-    date: Mapped[Date] = mapped_column(Date, nullable=False)
-    status: Mapped[int] = mapped_column(Integer, nullable=False)
-    place: Mapped[str] = mapped_column(Text, nullable=True)
-    file: Mapped[str] = mapped_column(Text, nullable=True)
-    comments = relationship("CommentMeeting", back_populates="meeting")
-    messages = relationship("MessageMeeting", back_populates="meeting")
+    id: Mapped[int] = mapped_column(Integer,
+                                    primary_key=True,
+                                    autoincrement=True)
+    name: Mapped[str] = mapped_column(String)
+    description: Mapped[str | None] = mapped_column(Text)
+    owner: Mapped[int] = mapped_column(Integer,
+                                       ForeignKey('user_tabit.uuid'))
+    date: Mapped[Date] = mapped_column(Date)
+    status: Mapped[int] = mapped_column(Integer,
+                                        ForeignKey('status_meeting.id'))
+    place: Mapped[str | None] = mapped_column(Text)
+    result: Mapped[str | None] = mapped_column(String)
+    interest: Mapped[bool] = mapped_column(Boolean,
+                                           default=False)
+    found_solution: Mapped[bool] = mapped_column(Boolean,
+                                                 default=False)
+    file: Mapped[int | None] = mapped_column(Integer,
+                                             ForeignKey('file_meeting.id'))
+    comments = relationship('CommentMeeting',
+                            back_populates='meeting')
+    members = relationship('UserTabit',
+                           secondary=meeting_members,
+                           back_populates='meetings')
 
 
-class StatusMeeting(BaseFieldName):
+class StatusMeeting(BaseTabitModel):
     """
     Модель статус мероприятия.
     """
-    __tablename__ = "status_meeting"
+    __tablename__ = 'status_meeting'
+
+    id: Mapped[int] = mapped_column(Integer,
+                                    primary_key=True,
+                                    autoincrement=True)
+    name: Mapped[str] = mapped_column(String)
 
 
-class ResultMeeting(BaseFieldName):
+class ResultMeeting(BaseTabitModel):
+
     """
     Модель результаты мероприятия.
     """
-    __tablename__ = "result_meeting"
+    __tablename__ = 'result_meeting'
+
+    id: Mapped[int] = mapped_column(Integer,
+                                    primary_key=True,
+                                    autoincrement=True)
+    name: Mapped[str] = mapped_column(String)
+
+
+class CommentMeeting(BaseTabitModel):
+    """
+    Модель, комментарии к мероприятиям.
+    """
+    __tablename__ = 'comment_meeting'
+
+    id: Mapped[int] = mapped_column(Integer,
+                                    primary_key=True,
+                                    autoincrement=True)
+    owner: Mapped[int] = mapped_column(Integer,
+                                       ForeignKey('user_tabit.uuid'))
+    result: Mapped[int | None] = mapped_column(Integer,
+                                               ForeignKey('result_meeting.id'))
+    meeting_id: Mapped[int] = mapped_column(Integer,
+                                            ForeignKey('meeting.id'))
+    interest: Mapped[bool] = mapped_column(Boolean,
+                                           default=False)
+    found_solution: Mapped[bool] = mapped_column(Boolean,
+                                                 default=False)
+    comment: Mapped[str] = mapped_column(Text)
+    meeting = relationship('Meeting',
+                           back_populates='comments')
 
 
 class Survey(BaseModel):
     """
     Модель для опросов.
     """
-    __tablename__ = "survey"
+    __tablename__ = 'survey'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True,
+    id: Mapped[int] = mapped_column(Integer,
+                                    primary_key=True,
                                     autoincrement=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=True)
-    slug: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    status: Mapped[int] = mapped_column(Integer, nullable=False)
-    result: Mapped[int] = mapped_column(Integer, nullable=True)
-    created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
-    users = relationship("SurveyUser", back_populates="survey")
+    name: Mapped[str] = mapped_column(String)
+    description: Mapped[str | None] = mapped_column(Text)
+    slug: Mapped[str] = mapped_column(String,
+                                      unique=True)
+    status: Mapped[int] = mapped_column(Integer,
+                                        ForeignKey('status_survey.id'))
+    result: Mapped[int | None] = mapped_column(Integer,
+                                               ForeignKey('result_survey.id'))
+    created_at: Mapped[DateTime] = mapped_column(DateTime)
 
 
-class SurveyUser(BaseModel):
+class SurveyUser(BaseLinkedTable):
+
     """
     Модель связи между опросами и пользователями.
     """
-    __tablename__ = "survey_user"
+    __tablename__ = 'survey_user'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True,
+    id: Mapped[int] = mapped_column(Integer,
+                                    primary_key=True,
                                     autoincrement=True)
-    survey_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    survey = relationship("Survey", back_populates="users")
+    survey_id: Mapped[int] = mapped_column(Integer,
+                                           ForeignKey('survey.id'))
+    user_id: Mapped[int] = mapped_column(Integer,
+                                         ForeignKey('user_tabit.uuid'))
 
 
 class DateSurvey(BaseModel):
     """
     Модель даты связанные с опросами.
     """
-    __tablename__ = "date_survey"
+    __tablename__ = 'date_survey'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True,
+    id: Mapped[int] = mapped_column(Integer,
+                                    primary_key=True,
                                     autoincrement=True)
-    date: Mapped[Date] = mapped_column(Date, nullable=False)
-    survey: Mapped[int] = mapped_column(Integer, nullable=False)
+    date: Mapped[Date] = mapped_column(Date)
+    survey_id: Mapped[int] = mapped_column(Integer,
+                                           ForeignKey('survey.id'))
 
 
 class StatusSurvey(BaseFieldName):
     """
     Модель статуса опроса.
     """
-    __tablename__ = "status_survey"
+    __tablename__ = 'status_survey'
+
+    id: Mapped[int] = mapped_column(Integer,
+                                    primary_key=True,
+                                    autoincrement=True)
+    name: Mapped[str] = mapped_column(String)
 
 
 class ResultSurvey(BaseFieldName):
     """
     Модель, результаты опросов.
     """
-    __tablename__ = "result_survey"
+    __tablename__ = 'result_survey'
 
-
-class CommentMeeting(BaseModel):
-    """
-    Модель, комментарии к мероприятиям.
-    """
-    __tablename__ = "comment_meeting"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True,
+    id: Mapped[int] = mapped_column(Integer,
+                                    primary_key=True,
                                     autoincrement=True)
-    result: Mapped[int] = mapped_column(Integer, nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    meeting_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    interest: Mapped[bool] = mapped_column(Boolean, nullable=False,
-                                           default=False)
-    found_solution: Mapped[bool] = mapped_column(Boolean, nullable=False,
-                                                 default=False)
-    comment: Mapped[str] = mapped_column(Text, nullable=False)
-    meeting = relationship("Meeting", back_populates="comments")
-
-
-class MessageMeeting(BaseModel):
-    """
-    Модель сообщения, связанные с мероприятиями.
-    """
-    __tablename__ = "message_meeting"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True,
-                                    autoincrement=True)
-    owner: Mapped[int] = mapped_column(Integer, nullable=False)
-    meeting_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    text: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
-    meeting = relationship("Meeting", back_populates="messages")
+    name: Mapped[str] = mapped_column(String)
