@@ -58,8 +58,8 @@ class MeetingUpdateSchema(MeetingBaseSchema):
 
 class MeetingSchema(MeetingBaseSchema):
     id: int
-    comments: List["CommentMeetingSchema"] = []
-    messages: List["MessageMeetingSchema"] = []
+    comments: List['CommentMeetingSchema'] = []
+    messages: List['MessageMeetingSchema'] = []
 
     class Config:
         orm_mode = True
