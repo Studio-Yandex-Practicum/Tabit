@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 
 load_dotenv()
 
+
 class Settings(BaseSettings):
     app_title: str = 'Tabit'
     description: str = 'Tabit platform'
