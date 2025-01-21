@@ -6,10 +6,10 @@ from typing import Annotated
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTableUUID
 from sqlalchemy import String, func
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr,
-                            mapped_column)
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 
 from src.constants import LENGTH_NAME_USER, LENGTH_SMALL_NAME
+from src.database.database import Base
 
 int_pk = Annotated[int, mapped_column(primary_key=True)]
 name_field = Annotated[str, mapped_column(String(LENGTH_NAME_USER))]
@@ -20,7 +20,7 @@ updated_at = Annotated[
 ]
 
 
-class BaseTabitModel(AsyncAttrs, DeclarativeBase):
+class BaseTabitModel(AsyncAttrs, Base):
     """Базовая модель проекта."""
 
     __abstract__ = True
