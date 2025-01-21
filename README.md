@@ -411,3 +411,25 @@ docker stop data-base
 - Пароль: 'zTudS8LBSquBMwvS3ky5'
 
 После нажмите `Тест соединения`, и если нет ошибок, нажмите `Готово`. Пользоваться.
+
+
+## Логирование
+Логирование реализовано в двух режимах:
+- логирование всех запосов через middleware;
+- логирование через функцию logger.
+
+Для логирования необходимо импортировать logger:
+```
+from src.logger import logger
+```
+Добавление лога:
+```
+logger.trace("A trace message.")
+logger.debug("A debug message.")
+logger.info("An info message.")
+logger.success("A success message.")
+logger.warning("A warning message.")
+logger.error("An error message.")
+logger.critical("A critical message.")
+```
+Уровень логирования задается в .env файле. Подробности в .env.example

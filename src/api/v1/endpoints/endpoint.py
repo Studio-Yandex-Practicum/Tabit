@@ -1,13 +1,16 @@
 from fastapi import APIRouter
+from src.logger import logger
 
 router = APIRouter()
 
 
-@router.get("/")
+@router.get('/')
 async def main_page() -> str:
     """
     Представление главной страницы сайта
 
     Пока здесь ничего нет - в работе...
     """
-    return "Main page"
+    logger.info('Main Page')
+
+    return 'Main page'
