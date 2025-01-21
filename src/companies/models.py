@@ -1,18 +1,21 @@
 from datetime import date
 
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, List, Table
+from sqlalchemy import ForeignKey, Integer, List
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import BaseTabitModel
 
-from src.models import BaseLinkedTable, UserTabit
+from src.models import BaseLinkedTable, LicenseType, UserTabit
 
-company_department = Table(
-    'association_table',
-    BaseTabitModel.metadata,
-    Column('company_id', ForeignKey('company.id'), primary_key=True),
-    Column('department_id', ForeignKey('department.id'), primary_key=True),
-)
+
+class CompanyDepartment(BaseTabitModel):
+    """Модель, связывающая компанию с отделом."""
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+    department_id: Mapped[int] = mapped_column(ForeignKey('department.id'))
+    company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
 
 
 class Company(BaseTabitModel):
@@ -21,11 +24,14 @@ class Company(BaseTabitModel):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True
     )
-    company_name: Mapped[str] = mapped_column(unique=True)
+    name: Mapped[str] = mapped_column(unique=True)
     description: Mapped[str]
-    license_id: Mapped[int] = mapped_column(ForeignKey('license.id'))
+    license: Mapped['LicenseType'] = relationship(back_populates='company')
+    # TODO Следующие поля добавить в модель LicenseType
+    # company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
+    # company: Mapped['Company'] = relationship(back_populates='licensetype')
     employees: Mapped['UserTabit'] = relationship(back_populates='company')
-    # Следующие поля добавить в модель UserTabit
+    # TODO Следующие поля добавить в модель UserTabit
     # company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
     # company: Mapped['Company'] = relationship(
     #     back_populates="employee", single_parent=True
@@ -33,18 +39,12 @@ class Company(BaseTabitModel):
     # __table_args__ = (UniqueConstraint('company_id'),)
 
     departments: Mapped[List['Department']] = relationship(
-        secondary=company_department, back_populates='companies'
+        secondary=CompanyDepartment, back_populates='companies'
     )
     max_admins_count = Mapped[int]
     max_employees_count = Mapped[int]
     start_license_time: Mapped[date]
     end_license_time: Mapped[date]
-    # В ERD этих полей нет! Есть в Figma.
-    demo_mode: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False
-    )
-    test_cycle_duration = Mapped[int]
-    day_for_testing = Mapped[int]
 
 
 class Department(BaseTabitModel):
