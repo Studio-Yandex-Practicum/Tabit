@@ -11,9 +11,7 @@ from src.models import BaseLinkedTable, LicenseType, UserTabit
 class CompanyDepartment(BaseTabitModel):
     """Модель, связывающая компанию с отделом."""
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     department_id: Mapped[int] = mapped_column(ForeignKey('department.id'))
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
 
@@ -21,9 +19,7 @@ class CompanyDepartment(BaseTabitModel):
 class Company(BaseTabitModel):
     """Модель компании."""
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(unique=True)
     description: Mapped[str]
     license: Mapped['LicenseType'] = relationship(back_populates='company')
@@ -50,21 +46,15 @@ class Company(BaseTabitModel):
 class Department(BaseTabitModel):
     """Модель отдела."""
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     department_name: Mapped[str] = mapped_column(unique=True)
     supervisor_id: Mapped[int] = mapped_column(ForeignKey('usertabit.uuid'))
-    employees: Mapped[List['UserTabit']] = relationship(
-        back_populates='department'
-    )
+    employees: Mapped[List['UserTabit']] = relationship(back_populates='department')
 
 
 class Department_User(BaseLinkedTable):
     """Модель, связывающая пользователя с отделом."""
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     department_id: Mapped[int] = mapped_column(ForeignKey('department.id'))
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
