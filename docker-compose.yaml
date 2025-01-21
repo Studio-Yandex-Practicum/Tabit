@@ -9,7 +9,7 @@ services:
   db:
     container_name: data-base
     image: postgres:13.10
-    env_file: ../.env
+    env_file: .env
     restart: on-failure
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]

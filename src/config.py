@@ -1,6 +1,9 @@
-from pydantic import SecretStr
+import os
+
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
+load_dotenv()
 
 class Settings(BaseSettings):
     app_title: str = 'Tabit'
@@ -8,11 +11,11 @@ class Settings(BaseSettings):
     version: str = '1.0.0'
     db_type: str = 'postgres'
     db_api: str = 'asyncpg'
-    db_host: str = 'localhost'
-    postgres_user: str = 'username'
-    postgres_password: SecretStr = 'password'
-    postgres_db: str = 'db_tabit'
-    port_bd_postgres: str = '5433'
+    db_host: str = os.getenv('DB_HOST')
+    postgres_user: str = os.getenv('POSTGRES_USER')
+    postgres_password: str = os.getenv('POSTGRES_PASSWORD')
+    postgres_db: str = os.getenv('POSTGRES_DB')
+    port_bd_postgres: str = os.getenv('PORT_BD_POSTGRES')
 
     @property
     def database_url(self):
