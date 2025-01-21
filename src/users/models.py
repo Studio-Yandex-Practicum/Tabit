@@ -51,9 +51,10 @@ class UserTabit(BaseUser):
     telegram_username: Mapped[str] = mapped_column(
         String(LENGTH_TELEGRAM_USERNAME), unique=True
     )
+    birthday: Mapped[date]
     start_date_employment: Mapped[date]
     end_date_employment: Mapped[date]
-    birthday: Mapped[date]
+
 
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
     company: Mapped['Company'] = relationship(back_populated='user')
