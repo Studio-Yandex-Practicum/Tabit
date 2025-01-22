@@ -17,9 +17,7 @@ class AssociationUserTags(BaseTabitModel):
     left_id: Mapped[UUID] = mapped_column(
         ForeignKey('usertabit.uuid'), primary_key=True
     )
-    right_id: Mapped[int] = mapped_column(
-        ForeignKey('tag.id'), primary_key=True
-    )
+    right_id: Mapped[int] = mapped_column(ForeignKey('tag.id'), primary_key=True)
     user: Mapped['UserTabit'] = relationship(back_populates='tags')
     tag: Mapped['Tag'] = relationship(back_populates='user')
 
@@ -33,9 +31,7 @@ class Role(BaseTag):
 class Tag(BaseTag):
     """Модель тэгов пользователей."""
 
-    user: Mapped[List['AssociationUserTags']] = relationship(
-        back_populates='tag'
-    )
+    user: Mapped[List['AssociationUserTags']] = relationship(back_populates='tag')
 
 
 class UserTabit(BaseUser):
@@ -44,9 +40,7 @@ class UserTabit(BaseUser):
     role_id: Mapped[int] = mapped_column(ForeignKey('role.id'))
     role: Mapped['Role'] = relationship(back_populates='user')
 
-    tags: Mapped[List['AssociationUserTags']] = relationship(
-        back_populates='user'
-    )
+    tags: Mapped[List['AssociationUserTags']] = relationship(back_populates='user')
 
     telegram_username: Mapped[str] = mapped_column(
         String(LENGTH_TELEGRAM_USERNAME), unique=True
@@ -55,21 +49,16 @@ class UserTabit(BaseUser):
     start_date_employment: Mapped[date]
     end_date_employment: Mapped[date]
 
-
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
     company: Mapped['Company'] = relationship(back_populated='user')
-    current_department_id: Mapped[int] = mapped_column(
-        ForeignKey('department.id')
-    )
+    current_department_id: Mapped[int] = mapped_column(ForeignKey('department.id'))
     current_department: Mapped['Department'] = relationship(
         back_populates='department.id'
     )
     last_department_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('department.id')
     )
-    last_department: Mapped['Department'] = relationship(
-        back_populates='department.id'
-    )
+    last_department: Mapped['Department'] = relationship(back_populates='department.id')
 
     department_transition_date: Mapped[date]
     employee_position: Mapped[str]
