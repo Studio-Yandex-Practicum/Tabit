@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(frozen=True)
 class Endpoints:
     """Эндпоинты проекта."""
 
@@ -10,7 +10,7 @@ class Endpoints:
     DEPARTMENT = '/department'
 
 
-@dataclass
+@dataclass(frozen=True)
 class Tag:
     """Теги для эндпоинтов проекта."""
 
@@ -18,8 +18,10 @@ class Tag:
     USERS = 'Users'
     COMPANIES = 'Companies'
 
-    
-    
+
 LENGTH_NAME_USER: int = 100
 LENGTH_SMALL_NAME: int = 30
 LENGTH_TELEGRAM_USERNAME: int = 100
+
+endpoints = Endpoints()
+tag = Tag()
