@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "d1c6707d-5dd7-4f08-844f-94b04206f9cf",
+		"_postman_id": "cbe408bc-bb32-40af-90eb-55bf03eeb3e5",
 		"name": "Tabit",
 		"description": "Коллекция запросов к API-bakend проекта Tabit.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "34844245"
+		"_exporter_id": "41360727"
 	},
 	"item": [
 		{
@@ -1025,6 +1025,248 @@
 				}
 			],
 			"description": "**Управление компанией - Сотрудники**"
+		},
+		{
+			"name": "CRUD Problems and Tasks",
+			"item": [
+				{
+					"name": "all_problems",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/problem/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"problem",
+								""
+							]
+						},
+						"description": "Cписок всех проблем"
+					},
+					"response": []
+				},
+				{
+					"name": "problem",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/problem/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"problem",
+								""
+							]
+						},
+						"description": "Cоздание проблемы"
+					},
+					"response": []
+				},
+				{
+					"name": "problem",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"problem",
+								"{{problem_id}}",
+								""
+							]
+						},
+						"description": "Просмотр проблемы"
+					},
+					"response": []
+				},
+				{
+					"name": "problem",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"problem",
+								"{{problem_id}}",
+								""
+							]
+						},
+						"description": "Редактирование проблемы"
+					},
+					"response": []
+				},
+				{
+					"name": "problem",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"problem",
+								"{{problem_id}}",
+								""
+							]
+						},
+						"description": "Удаление проблемы"
+					},
+					"response": []
+				},
+				{
+					"name": "all_tasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/task/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"problem",
+								"{{problem_id}}",
+								"task",
+								""
+							]
+						},
+						"description": "Cписок всех задач, созданных по проблеме"
+					},
+					"response": []
+				},
+				{
+					"name": "task",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/task/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"problem",
+								"{{problem_id}}",
+								"task",
+								""
+							]
+						},
+						"description": "Cоздание новой задачи"
+					},
+					"response": []
+				},
+				{
+					"name": "task",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/task/{{task_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"problem",
+								"{{problem_id}}",
+								"task",
+								"{{task_id}}",
+								""
+							]
+						},
+						"description": "Просмотр задачи"
+					},
+					"response": []
+				},
+				{
+					"name": "task",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/task/{{task_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"problem",
+								"{{problem_id}}",
+								"task",
+								"{{task_id}}",
+								""
+							]
+						},
+						"description": "Редактирование задачи"
+					},
+					"response": []
+				},
+				{
+					"name": "task",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/task/{{task_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"problem",
+								"{{problem_id}}",
+								"task",
+								"{{task_id}}",
+								""
+							]
+						},
+						"description": "Удаление задачи"
+					},
+					"response": []
+				}
+			],
+			"description": "**Управление компанией - Проблемы и Задачи**"
 		},
 		{
 			"name": "index",
