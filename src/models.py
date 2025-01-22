@@ -6,8 +6,7 @@ from typing import Annotated
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTableUUID
 from sqlalchemy import String, func
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr,
-                            mapped_column)
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 
 from src.constants import LENGTH_NAME_USER, LENGTH_SMALL_NAME
 
@@ -63,3 +62,15 @@ class BaseTag(BaseTabitModel):
 
     def __repr__(self):
         return f'{self.__class__.__name__}(id={self.id!r}, name={self.name!r})'
+
+
+class BaseFileLink(BaseTabitModel):
+    """Базовая модель хранения ссылок на файлы. Абстрактная модель"""
+
+    __abstract__ = True
+
+    id: Mapped[int_pk]
+    link: Mapped[str]
+
+    def __repr__(self):
+        return f'Ссылка на файл {self.link.split("/")[-1]}'
