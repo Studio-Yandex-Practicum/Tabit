@@ -67,6 +67,7 @@ class Task(BaseTabitModel):
     )
 
 
+# TODO обновить в соотвестивии с BaseLinkModel
 class FileProblem(BaseTabitModel):
     """Модель файлов проблем."""
 
@@ -75,6 +76,7 @@ class FileProblem(BaseTabitModel):
     problem: Mapped['Problem'] = relationship(back_populates='problem_file')
 
 
+# TODO обновить в соотвестивии с BaseLinkModel
 class FileTask(BaseTabitModel):
     """Модель файлов задач."""
 
