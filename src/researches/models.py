@@ -21,17 +21,16 @@ class Meeting(BaseTabitModel):
     __tablename__ = 'meeting'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String)
+    title: Mapped[str] = mapped_column(String)
     description: Mapped[str | None] = mapped_column(Text)
     owner: Mapped[int] = mapped_column(Integer, ForeignKey('user_tabit.uuid'))
     date: Mapped[Date] = mapped_column(Date)
     status: Mapped[int] = mapped_column(Integer, ForeignKey('status_meeting.id'))
     place: Mapped[str | None] = mapped_column(Text)
-    result: Mapped[str | None] = mapped_column(String)
-    interest: Mapped[bool] = mapped_column(Boolean, default=False)
-    found_solution: Mapped[bool] = mapped_column(Boolean, default=False)
+    result: Mapped[int | None] = mapped_column(Integer, ForeignKey('result_meeting.id'))
+    transfer_counter: Mapped[int] = mapped_column(Integer, default=0)
     file: Mapped[int | None] = mapped_column(Integer, ForeignKey('file_meeting.id'))
-    comments = relationship('CommentMeeting', back_populates='meeting')
+    problem_id: Mapped[int | None] = mapped_column(Integer, ForeignKey('problem.id'))
     members = relationship(
         'UserTabit', secondary=meeting_members, back_populates='meetings'
     )
@@ -56,7 +55,10 @@ class ResultMeeting(BaseTabitModel):
     __tablename__ = 'result_meeting'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String)
+    meeting_result: Mapped[str] = mapped_column(String)
+    participant_engagement: Mapped[str] = mapped_column(String)
+    problem_solution: Mapped[str] = mapped_column(String)
+    meeting_feedback: Mapped[str] = mapped_column(Text)
 
 
 class CommentMeeting(BaseTabitModel):
@@ -122,17 +124,6 @@ class StatusSurvey(BaseFieldName):
     """
 
     __tablename__ = 'status_survey'
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String)
-
-
-class ResultSurvey(BaseFieldName):
-    """
-    Модель, результаты опросов.
-    """
-
-    __tablename__ = 'result_survey'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String)
