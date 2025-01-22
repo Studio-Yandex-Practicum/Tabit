@@ -20,7 +20,7 @@ async def get_meetings(session: AsyncSession = Depends(get_async_session)):
     summary='Получить информацию о встрече',
     dependencies=[Depends(get_async_session)]
 )
-async def get_meetings(
+async def get_meeting(
     meeting_id: int,
     session: AsyncSession = Depends(get_async_session)
 ):
