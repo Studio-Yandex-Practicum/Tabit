@@ -8,12 +8,13 @@ from sqlalchemy import String, func
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 
-from src.constants import LENGTH_NAME_USER, LENGTH_SMALL_NAME
+from src.constants import LENGTH_NAME_USER, LENGTH_SMALL_NAME, LENGTH_FILE_LINK
 from src.database.database import Base
 
 int_pk = Annotated[int, mapped_column(primary_key=True)]
 name_field = Annotated[str, mapped_column(String(LENGTH_NAME_USER))]
 tag_name_field = Annotated[str, mapped_column(String(LENGTH_SMALL_NAME))]
+url_link_field = Annotated[str, mapped_column(String(LENGTH_FILE_LINK))]
 created_at = Annotated[datetime, mapped_column(server_default=func.now())]
 updated_at = Annotated[
     datetime, mapped_column(server_default=func.now(), onupdate=datetime.now)
@@ -63,3 +64,15 @@ class BaseTag(BaseTabitModel):
 
     def __repr__(self):
         return f'{self.__class__.__name__}(id={self.id!r}, name={self.name!r})'
+
+
+class BaseFileLink(BaseTabitModel):
+    """Базовая модель файлов. Абстрактная модель"""
+
+    __abstract__ = True
+
+    id: Mapped[int_pk]
+    file_path: Mapped[url_link_field]
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(id={self.id!r}, name={self.file_path!r})'

@@ -1,7 +1,7 @@
 from sqlalchemy import Date, Enum, Integer, ForeignKey, String, Table, Text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from src.models import BaseTabitModel
+from src.models import BaseTabitModel, BaseFileLink
 from src.problems.schemas import (
     MeetingStatus,
     MeetingResult,
@@ -34,9 +34,8 @@ class Meeting(BaseTabitModel):
         Enum(MeetingStatus), default=MeetingStatus.NEW
     )
     place: Mapped[str | None] = mapped_column(String)
-    result: Mapped[str | None] = mapped_column(Integer, ForeignKey('result_meeting.id'))
+    result: Mapped[int | None] = mapped_column(Integer, ForeignKey('result_meeting.id'))
     transfer_counter: Mapped[int] = mapped_column(Integer, default=0)
-    # TODO Реализовать file модель
     file: Mapped[int | None] = mapped_column(Integer, ForeignKey('file_meeting.id'))
     members = relationship(
         'UserTabit', secondary=meeting_members, back_populates='meetings'
@@ -61,3 +60,11 @@ class ResultMeeting(BaseTabitModel):
         Enum(MeetingProblemSolution), default=MeetingProblemSolution.YES
     )
     meeting_feedback: Mapped[str] = mapped_column(Text)
+
+
+class MeetingFileLink(BaseFileLink):
+    """
+    Модель файлов мероприятий.
+    """
+
+    __tablename__ = 'file_meeting'
