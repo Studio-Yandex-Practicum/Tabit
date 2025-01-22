@@ -1,60 +1,74 @@
-from datetime import date
+"""
+Модели для компании и департамента.
+"""
 
-from sqlalchemy import ForeignKey, Integer, List
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import List, Optional
+from sqlalchemy import UniqueConstraint
+from sqlalchemy.orm import Mapped, relationship
 
-from src.database import BaseTabitModel
+from src.models import BaseTabitModel
+from src.users.models import UserTabit
 
-from src.models import BaseLinkedTable, LicenseType, UserTabit
-
-
-class CompanyDepartment(BaseTabitModel):
-    """Модель, связывающая компанию с отделом."""
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    department_id: Mapped[int] = mapped_column(ForeignKey('department.id'))
-    company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
+from .types import (
+    id_pk,
+    company_name,
+    department_name,
+    license_id,
+    company_id,
+    user_id,
+    description,
+    logo,
+    max_admins_count,
+    max_employees_count,
+    nullable_timestamp,
+)
 
 
 class Company(BaseTabitModel):
-    """Модель компании."""
+    """
+    Модель компании.
+    """
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(unique=True)
-    description: Mapped[str]
-    license: Mapped['LicenseType'] = relationship(back_populates='company')
-    # TODO Следующие поля добавить в модель LicenseType
-    # company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
-    # company: Mapped['Company'] = relationship(back_populates='licensetype')
-    employees: Mapped['UserTabit'] = relationship(back_populates='company')
-    # TODO Следующие поля добавить в модель UserTabit
-    # company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
-    # company: Mapped['Company'] = relationship(
-    #     back_populates="employee", single_parent=True
-    # )
-    # __table_args__ = (UniqueConstraint('company_id'),)
+    id: Mapped[id_pk]
+    name: Mapped[company_name]
+    description: Mapped[description]
+    logo: Mapped[logo]
+    license_id: Mapped[license_id]
+    max_admins_count: Mapped[max_admins_count]
+    max_employees_count: Mapped[max_employees_count]
+    start_license_time: Mapped[nullable_timestamp]
+    end_license_time: Mapped[nullable_timestamp]
 
+    # TODO: Обсудить каскадное удаление департаментов при удалении компании или отправляем в архив
     departments: Mapped[List['Department']] = relationship(
-        secondary=CompanyDepartment, back_populates='companies'
+        'Department', back_populates='company', cascade='all'
     )
-    max_admins_count = Mapped[int]
-    max_employees_count = Mapped[int]
-    start_license_time: Mapped[date]
-    end_license_time: Mapped[date]
+
+    # TODO: Уточнить необходимость каскадного удаления сотрудников при удалении компании или в архив
+    employees: Mapped[List['UserTabit']] = relationship(
+        'UserTabit', back_populates='company', cascade='all', lazy='selectin'
+    )
 
 
 class Department(BaseTabitModel):
-    """Модель отдела."""
+    """
+    Модель департамента.
+    """
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    department_name: Mapped[str] = mapped_column(unique=True)
-    supervisor_id: Mapped[int] = mapped_column(ForeignKey('usertabit.uuid'))
-    employees: Mapped[List['UserTabit']] = relationship(back_populates='department')
+    id: Mapped[id_pk]
+    name: Mapped[department_name]
+    company_id: Mapped[company_id]
+    supervisor_id: Mapped[Optional[user_id]]  # TODO: Уточнить обязательность поля
 
+    # Связь с компанией
+    company: Mapped['Company'] = relationship('Company', back_populates='departments')
 
-class Department_User(BaseLinkedTable):
-    """Модель, связывающая пользователя с отделом."""
+    # TODO: Уточнить поведение при удалении департамента: каскадное или запрет удаления?
+    employees: Mapped[List['UserTabit']] = relationship(
+        'UserTabit', back_populates='department'
+    )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    department_id: Mapped[int] = mapped_column(ForeignKey('department.id'))
-    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
+    # Ограничение на уникальность названия департамента в рамках компании
+    __table_args__ = (
+        UniqueConstraint('company_id', 'name', name='uq_company_department_name'),
+    )
