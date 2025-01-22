@@ -1,2 +1,4 @@
+exclude = ["alembic"]
+
 [format]
 quote-style = "single"
