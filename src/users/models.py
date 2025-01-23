@@ -32,6 +32,7 @@ class Tag(BaseTag):
     user: Mapped[List['AssociationUserTags']] = relationship(back_populates='tag')
 
 
+# TODO так как мы используем fastapi-users, посмотреть в доках https://fastapi-users.github.io/fastapi-users/latest/configuration/databases/sqlalchemy/
 class UserTabit(BaseUser):
     """Модель пользователей ресурс Tabit."""
 

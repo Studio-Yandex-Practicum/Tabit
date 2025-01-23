@@ -1,7 +1,9 @@
 import os
 
 from dotenv import load_dotenv
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings
+from fastapi_users.authentication import JWTStrategy, AuthenticationBackend
 
 
 load_dotenv()
@@ -20,6 +22,9 @@ class Settings(BaseSettings):
     port_bd_postgres: str = os.getenv('PORT_BD_POSTGRES')
     log_level: str = 'DEBUG'
 
+    jwt_secret: SecretStr = 'SUPERSECRETKEY'
+    jwt_lifetime_seconds: int = 3600
+
     @property
     def database_url(self):
         return (
@@ -34,3 +39,17 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def get_jwt_strategy() -> JWTStrategy:
+    return JWTStrategy(
+        secret=settings.jwt_secret.get_secret_value(),
+        lifetime_seconds=settings.jwt_lifetime_seconds,
+    )
+
+
+jwt_auth_backend = AuthenticationBackend(
+    name='jwt',
+    transport=None,
+    get_strategy=get_jwt_strategy,
+)
