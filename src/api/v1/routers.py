@@ -8,6 +8,7 @@ from src.api.v1.endpoints import (
     # superuser_router,
     # admin_router,
     department_reports_router,
+    survey_company_router,
 )
 
 main_router = APIRouter()
@@ -19,3 +20,4 @@ main_router.include_router(problem_router, prefix='/problem', tags=['Problems'])
 # main_router.include_router(superuser_router, prefix='/superuser', tags=['Superuser'])
 # main_router.include_router(admin_router, prefix='/admin', tags=['Admin'])
 main_router.include_router(department_reports_router, prefix='/survey', tags=['Survey Reports'])
+main_router.include_router(survey_company_router, prefix='/survey', tags=['Survey Company'])
