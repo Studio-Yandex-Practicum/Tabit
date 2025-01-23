@@ -12,5 +12,4 @@ async def main_page() -> str:
     Пока здесь ничего нет - в работе...
     """
     logger.info('Main Page')
-
     return 'Main page'
