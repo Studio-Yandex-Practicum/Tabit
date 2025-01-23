@@ -5,7 +5,7 @@ from uuid import UUID
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.companies.models import Company, Department
+from src.companies.models.models import Company, Department
 from src.constants import LENGTH_TELEGRAM_USERNAME
 from src.models import BaseTabitModel, BaseTag, BaseUser, int_pk
 

@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.companies.models import User
+from src.companies.models.models import User
 
 from .base_seeder import BaseSeeder
 from .constants import FAKER_USER_COUNT

@@ -14,7 +14,7 @@ from .types import id_pk, nullable_timestamp
 from sqlalchemy import String, Integer, ForeignKey, Text
 from sqlalchemy.orm import mapped_column
 
-from .constants import (
+from ..constants import (
     COMPANY_NAME_LENGTH,
     DEPARTMENT_NAME_LENGTH,
     MAX_ADMINS_COUNT_DEFAULT,
