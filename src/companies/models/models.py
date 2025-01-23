@@ -2,12 +2,14 @@
 Модели для компании и департамента.
 """
 
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import Mapped, relationship
 
 from src.models import BaseTabitModel
-from src.users.models import UserTabit
+
+if TYPE_CHECKING:
+    from src.users.models import UserTabit
 
 from .types import id_pk, nullable_timestamp
 
@@ -45,15 +47,11 @@ class Company(BaseTabitModel):
     """
 
     id: Mapped[id_pk]
-    name: Mapped[str] = mapped_column(
-        String(COMPANY_NAME_LENGTH), nullable=False, unique=True
-    )
+    name: Mapped[str] = mapped_column(String(COMPANY_NAME_LENGTH), nullable=False, unique=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     logo: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     # TODO: обсудить опциональность лицензий
-    license_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('licensetype.id'), nullable=True
-    )
+    license_id: Mapped[Optional[int]] = mapped_column(ForeignKey('licensetype.id'), nullable=True)
     max_admins_count: Mapped[int] = mapped_column(
         Integer, nullable=False, default=MAX_ADMINS_COUNT_DEFAULT
     )
@@ -102,11 +100,7 @@ class Department(BaseTabitModel):
     company: Mapped['Company'] = relationship('Company', back_populates='departments')
 
     # TODO: Уточнить поведение при удалении департамента: каскадное или запрет удаления?
-    employees: Mapped[List['UserTabit']] = relationship(
-        'UserTabit', back_populates='department'
-    )
+    employees: Mapped[List['UserTabit']] = relationship('UserTabit', back_populates='department')
 
     # Ограничение на уникальность названия департамента в рамках компании
-    __table_args__ = (
-        UniqueConstraint('company_id', 'name', name='uq_company_department_name'),
-    )
+    __table_args__ = (UniqueConstraint('company_id', 'name', name='uq_company_department_name'),)

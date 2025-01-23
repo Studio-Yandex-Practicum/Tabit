@@ -14,9 +14,7 @@ class AssociationUserTags(BaseTabitModel):
     """Связная таблица UserTabit и Tag."""
 
     id: Mapped[int_pk]
-    left_id: Mapped[UUID] = mapped_column(
-        ForeignKey('usertabit.uuid'), primary_key=True
-    )
+    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.uuid'), primary_key=True)
     right_id: Mapped[int] = mapped_column(ForeignKey('tag.id'), primary_key=True)
     user: Mapped['UserTabit'] = relationship(back_populates='tags')
     tag: Mapped['Tag'] = relationship(back_populates='user')
@@ -42,22 +40,16 @@ class UserTabit(BaseUser):
 
     tags: Mapped[List['AssociationUserTags']] = relationship(back_populates='user')
 
-    telegram_username: Mapped[str] = mapped_column(
-        String(LENGTH_TELEGRAM_USERNAME), unique=True
-    )
+    telegram_username: Mapped[str] = mapped_column(String(LENGTH_TELEGRAM_USERNAME), unique=True)
     birthday: Mapped[date]
     start_date_employment: Mapped[date]
     end_date_employment: Mapped[date]
 
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
-    company: Mapped['Company'] = relationship(back_populated='user')
+    company: Mapped['Company'] = relationship(back_populates='company.id')
     current_department_id: Mapped[int] = mapped_column(ForeignKey('department.id'))
-    current_department: Mapped['Department'] = relationship(
-        back_populates='department.id'
-    )
-    last_department_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('department.id')
-    )
+    current_department: Mapped['Department'] = relationship(back_populates='department.id')
+    last_department_id: Mapped[Optional[int]] = mapped_column(ForeignKey('department.id'))
     last_department: Mapped['Department'] = relationship(back_populates='department.id')
 
     department_transition_date: Mapped[date]
