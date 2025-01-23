@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer
-from sqlalchemy.orm import declared_attr, declarative_base
+from sqlalchemy.orm import declarative_base, declared_attr
 
 
 class PreBase:

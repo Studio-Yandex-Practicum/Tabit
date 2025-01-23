@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.companies.models import Department
+from src.companies.models.models import Department
 from .base_seeder import BaseSeeder
 from .constants import FAKER_DEPARTMENT_COUNT
 from .faker_instance import fake

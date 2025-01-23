@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
+
 load_dotenv()
 
 
@@ -17,6 +18,7 @@ class Settings(BaseSettings):
     postgres_password: str = os.getenv('POSTGRES_PASSWORD')
     postgres_db: str = os.getenv('POSTGRES_DB')
     port_bd_postgres: str = os.getenv('PORT_BD_POSTGRES')
+    log_level: str = 'DEBUG'
 
     @property
     def database_url(self):
