@@ -1,2 +1,5 @@
+line-length = 99
+exclude = ["alembic"]
+
 [format]
 quote-style = "single"
