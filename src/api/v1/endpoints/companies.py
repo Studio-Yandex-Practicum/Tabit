@@ -20,7 +20,7 @@ router = APIRouter()
 @router.get(
     '/',
     response_model=list[CompanyDB],
-    dependencies=[Depends(current_superuser)],
+    # dependencies=[Depends(current_superuser)],
     summary='Получить список всех компаний. Только для суперюзера.',
 )
 async def get_all_companies(session: AsyncSession = Depends(get_async_session)):
@@ -39,7 +39,7 @@ async def get_all_companies(session: AsyncSession = Depends(get_async_session)):
 @router.get(
     '/{company_id}',
     response_model=CompanyDB,
-    dependencies=[Depends(current_superuser)],
+    # dependencies=[Depends(current_superuser)],
 )
 async def get_company_by_id(
     company_id: int,
@@ -67,7 +67,7 @@ async def create_company(
 @router.patch(
     '/{company_id}',
     response_model=CompanyUpdate,
-    dependencies=[Depends(current_superuser)],
+    # dependencies=[Depends(current_superuser)],
 )
 async def partially_update_company(
     company_id: int,
@@ -81,7 +81,7 @@ async def partially_update_company(
 @router.delete(
     '/{company_id}',
     response_model=CompanyDB,
-    dependencies=[Depends(current_superuser)],
+    # dependencies=[Depends(current_superuser)],
 )
 async def remove_company(
     company_id: int,
@@ -96,7 +96,7 @@ async def remove_company(
 @router.get(
     '/my',
     response_model=CompanyDBForUser,
-    dependencies=[Depends(current_user)],
+    # dependencies=[Depends(current_user)],
 )
 async def get_my_company(
     user: UserTabit = Depends(current_user),
@@ -112,7 +112,7 @@ async def get_my_company(
 @router.patch(
     '/my',
     response_model=CompanyUpdateForUser,
-    dependencies=[Depends(current_user)],
+    # dependencies=[Depends(current_user)],
 )
 async def partially_update_my_company(
     user: UserTabit = Depends(current_user),

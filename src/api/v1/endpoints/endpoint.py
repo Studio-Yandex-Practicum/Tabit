@@ -1,45 +1,48 @@
-from fastapi import APIRouter, Depends
-from src.api.v1.dependencies import current_superuser, fastapi_users
-from src.logger import logger
-
-main_router = APIRouter()
+# TODO Пересмотреть весь файл
 
 
-@main_router.get('/')
-async def main_page() -> str:
-    """
-    Представление главной страницы сайта
-    """
-    logger.info('Main Page')
-    return 'Main page'
+# from fastapi import APIRouter, Depends
+# from src.api.v1.permissions import current_superuser
+# from src.logger import logger
+
+# main_router = APIRouter()
 
 
-superuser_router = APIRouter(prefix='/superuser', tags=['superuser'])
+# @main_router.get('/')
+# async def main_page() -> str:
+#     """
+#     Представление главной страницы сайта
+#     """
+#     logger.info('Main Page')
+#     return 'Main page'
 
 
-@superuser_router.get('/dashboard', dependencies=[Depends(current_superuser)])
-async def superuser_dashboard():
-    """
-    Эндпоинт панели управления для суперпользователей
-    """
-    return {'message': 'Для суперпользователя'}
+# superuser_router = APIRouter(prefix='/superuser', tags=['superuser'])
 
 
-@superuser_router.get('/users', dependencies=[Depends(current_superuser)])
-async def list_all_users():
-    """
-    Список всех пользователей для суперпользователя
-    """
-    users = await fastapi_users.get_all_users()
-    return users
+# @superuser_router.get('/dashboard', dependencies=[Depends(current_superuser)])
+# async def superuser_dashboard():
+#     """
+#     Эндпоинт панели управления для суперпользователей
+#     """
+#     return {'message': 'Для суперпользователя'}
 
 
-admin_router = APIRouter(prefix='/admin', tags=['admin'])
+# @superuser_router.get('/users', dependencies=[Depends(current_superuser)])
+# async def list_all_users():
+#     """
+#     Список всех пользователей для суперпользователя
+#     """
+#     users = await fastapi_users.get_all_users()
+#     return users
 
 
-@admin_router.get('/profile', dependencies=[Depends(fastapi_users.current_user(active=True))])
-async def get_admin_profile():
-    """
-    Получение профиля текущего администратора
-    """
-    return {'message': 'Профиль администратора'}
+# admin_router = APIRouter(prefix='/admin', tags=['admin'])
+
+
+# @admin_router.get('/profile', dependencies=[Depends(fastapi_users.current_user(active=True))])
+# async def get_admin_profile():
+#     """
+#     Получение профиля текущего администратора
+#     """
+#     return {'message': 'Профиль администратора'}
