@@ -16,9 +16,7 @@ name_field = Annotated[str, mapped_column(String(LENGTH_NAME_USER))]
 tag_name_field = Annotated[str, mapped_column(String(LENGTH_SMALL_NAME))]
 url_link_field = Annotated[str, mapped_column(String(LENGTH_FILE_LINK))]
 created_at = Annotated[datetime, mapped_column(server_default=func.now())]
-updated_at = Annotated[
-    datetime, mapped_column(server_default=func.now(), onupdate=datetime.now)
-]
+updated_at = Annotated[datetime, mapped_column(server_default=func.now(), onupdate=datetime.now)]
 
 
 class BaseTabitModel(AsyncAttrs, Base):
