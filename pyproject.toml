@@ -28,6 +28,7 @@ uvicorn = "^0.34.0"
 fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.1"}
 loguru = "^0.7.3"
 asyncpg = "^0.30.0"
+sqlalchemy = "^2.0.37"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"

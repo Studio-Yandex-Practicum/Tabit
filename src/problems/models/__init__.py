@@ -1,1 +1,17 @@
-from .models import Problem, ProblemUser, Task  # noqa
+from src.problems.models.models import (
+    AssociationUserProblem,
+    AssociationUserMeeting,
+    AssociationUserTask,
+    Problem,
+    Meeting,
+    ResultMeeting,
+    Task,
+    MessageFeed,
+    CommentFeed,
+    VotingFeed,
+    VotingByUser,
+    FileProblem,
+    FileMeeting,
+    FileTask,
+    FileMessage,
+)  # noqa: F401

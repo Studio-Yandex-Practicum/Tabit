@@ -2,29 +2,26 @@
 Модели для компании и департамента.
 """
 
-from typing import List, Optional, TYPE_CHECKING
-from sqlalchemy import UniqueConstraint
-from sqlalchemy.orm import Mapped, relationship
+from typing import List, Optional
 
-from src.models import BaseTabitModel
+from sqlalchemy import String, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-if TYPE_CHECKING:
-    from src.users.models import UserTabit
-
-from .types import id_pk, nullable_timestamp
-
-from sqlalchemy import String, Integer, ForeignKey, Text
-from sqlalchemy.orm import mapped_column
-
-from ..constants import (
-    COMPANY_NAME_LENGTH,
-    DEPARTMENT_NAME_LENGTH,
-    MAX_ADMINS_COUNT_DEFAULT,
-    MAX_EMPLOYEES_COUNT_DEFAULT,
+from src.constants import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
+from src.models import (
+    BaseTabitModel,
+    description,
+    int_pk,
+    nullable_timestamp,
+    url_link_field,
+    int_zero,
 )
 
 
 class Company(BaseTabitModel):
+    # TODO: Проверить тут докстринг и во всех моделях сделать подобный.
+    # TODO: У всех моделей должен быть __repr__.
+    # TODO: У всех моделей разобраться с полями datetime и их производных. Возможны ошибки.
     """
     Модель компании.
 
@@ -46,30 +43,23 @@ class Company(BaseTabitModel):
         employees: Список сотрудников, связанных с компанией.
     """
 
-    id: Mapped[id_pk]
-    name: Mapped[str] = mapped_column(String(COMPANY_NAME_LENGTH), nullable=False, unique=True)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    logo: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    # TODO: обсудить опциональность лицензий
+    id: Mapped[int_pk]
+    name: Mapped[str] = mapped_column(String(LENGTH_NAME_COMPANY), nullable=False)
+    description: Mapped[description]
+    logo: Mapped[url_link_field]
+    departments: Mapped[List['Department']] = relationship(
+        back_populates='company', cascade='all, delete'
+    )
+    employees: Mapped[List['UserTabit']] = relationship(
+        back_populates='company', cascade='all, delete', lazy='selectin'
+    )
     license_id: Mapped[Optional[int]] = mapped_column(ForeignKey('licensetype.id'), nullable=True)
-    max_admins_count: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=MAX_ADMINS_COUNT_DEFAULT
-    )
-    max_employees_count: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=MAX_EMPLOYEES_COUNT_DEFAULT
-    )
+    license: Mapped['LicenseType'] = relationship(back_populates='companies')
+    max_admins_count: Mapped[int_zero]
+    max_employees_count: Mapped[int_zero]
     start_license_time: Mapped[nullable_timestamp]
     end_license_time: Mapped[nullable_timestamp]
-
-    # TODO: Обсудить каскадное удаление департаментов при удалении компании или отправляем в архив
-    departments: Mapped[List['Department']] = relationship(
-        'Department', back_populates='company', cascade='all'
-    )
-
-    # TODO: Уточнить необходимость каскадного удаления сотрудников при удалении компании или в архив
-    employees: Mapped[List['UserTabit']] = relationship(
-        'UserTabit', back_populates='company', cascade='all', lazy='selectin'
-    )
+    is_active: Mapped[bool] = mapped_column(default=False)
 
 
 class Department(BaseTabitModel):
@@ -88,19 +78,12 @@ class Department(BaseTabitModel):
         employees: Список сотрудников, входящих в департамент.
     """
 
-    id: Mapped[id_pk]
-    name: Mapped[str] = mapped_column(String(DEPARTMENT_NAME_LENGTH), nullable=False)
+    id: Mapped[int_pk]
+    name: Mapped[str] = mapped_column(String(LENGTH_NAME_DEPARTMENT), nullable=False)
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'), nullable=False)
-    # TODO: Уточнить опциональность поля
-    supervisor_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('usertabit.uuid'), nullable=True
-    )
-
-    # Связь с компанией
-    company: Mapped['Company'] = relationship('Company', back_populates='departments')
-
-    # TODO: Уточнить поведение при удалении департамента: каскадное или запрет удаления?
-    employees: Mapped[List['UserTabit']] = relationship('UserTabit', back_populates='department')
-
-    # Ограничение на уникальность названия департамента в рамках компании
+    company: Mapped['Company'] = relationship(back_populates='departments')
+    supervisor_id: Mapped[Optional[int]] = mapped_column(ForeignKey('usertabit.id'), nullable=True)
+    supervisor: Mapped['UserTabit'] = relationship(back_populates='supervisor')
+    employees: Mapped[List['UserTabit']] = relationship(back_populates='current_department')
+    employees_lost: Mapped[List['UserTabit']] = relationship(back_populates='last_department')
     __table_args__ = (UniqueConstraint('company_id', 'name', name='uq_company_department_name'),)

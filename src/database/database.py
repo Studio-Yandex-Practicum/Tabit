@@ -1,13 +1,21 @@
-from sqlalchemy import Column, Integer
-from sqlalchemy.orm import declarative_base, declared_attr
-
-
-class PreBase:
-    @declared_attr
-    def __tablename__(cls):
-        return cls.__name__.lower()
-
-    id = Column(Integer, primary_key=True)
-
-
-Base = declarative_base(cls=PreBase)
+from src.models import BaseTabitModel as Base  # noqa: F401
+from src.tabit_management.models import LicenseType, TabitAdminUser  # noqa: F401
+from src.users.models import AssociationUserTags, TagUser, UserTabit  # noqa: F401
+from src.companies.models import Company, Department  # noqa: F401
+from src.problems.models.models import (
+    AssociationUserProblem,
+    AssociationUserMeeting,
+    AssociationUserTask,
+    Problem,
+    Meeting,
+    ResultMeeting,
+    Task,
+    MessageFeed,
+    CommentFeed,
+    VotingFeed,
+    VotingByUser,
+    FileProblem,
+    FileMeeting,
+    FileTask,
+    FileMessage,
+)  # noqa: F401
