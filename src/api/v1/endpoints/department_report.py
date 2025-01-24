@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 @router.get(
-    '/survey/{survey_id}/company/{company_id}/department_report',
+    '/{survey_id}/company/{company_id}/department_report',
     summary='Общий отчет по отделу',
 )
 async def get_department_report(
@@ -33,7 +33,7 @@ async def get_department_report(
 
 
 @router.get(
-    '/survey/{survey_id}/company/{company_id}/department_report_conflict',
+    '/{survey_id}/company/{company_id}/department_report_conflict',
     summary='Отчет по конфликтности сотрудников отдела',
 )
 async def get_department_report_conflict(
@@ -57,7 +57,7 @@ async def get_department_report_conflict(
 
 
 @router.get(
-    '/survey/{survey_id}/company/{company_id}/department_report_trust',
+    '/{survey_id}/company/{company_id}/department_report_trust',
     summary='Отчет по доверию сотрудников отдела',
 )
 async def get_department_report_trust(
@@ -81,7 +81,7 @@ async def get_department_report_trust(
 
 
 @router.get(
-    '/survey/{survey_id}/company/{company_id}/department_report_results',
+    '/{survey_id}/company/{company_id}/department_report_results',
     summary='Общий результат тестирования отдела',
 )
 async def get_department_report_results(
