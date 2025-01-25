@@ -39,23 +39,31 @@ class UserTabit(BaseUser):
     tags: Mapped[List['AssociationUserTags']] = relationship(back_populates='user')
 
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
-    company: Mapped['Company'] = relationship(back_populates='employees')
+    company: Mapped['Company'] = relationship(back_populates='employees')  # noqa: F821
 
     current_department_id: Mapped[int] = mapped_column(ForeignKey('department.id'))
-    current_department: Mapped['Department'] = relationship(back_populates='employees')
+    current_department: Mapped['Department'] = relationship(  # noqa: F821
+        back_populates='employees'
+    )
     last_department_id: Mapped[Optional[int]] = mapped_column(ForeignKey('department.id'))
-    last_department: Mapped['Department'] = relationship(back_populates='employees_lost')
-    supervisor: Mapped['Department'] = relationship(back_populates='supervisor')
+    last_department: Mapped['Department'] = relationship(  # noqa: F821
+        back_populates='employees_lost'
+    )
+    supervisor: Mapped['Department'] = relationship(back_populates='supervisor')  # noqa: F821
 
-    problem_owner: Mapped[List['Problem']] = relationship(back_populates='owner')
-    problems: Mapped[List['AssociationUserProblem']] = relationship(back_populates='user')
-    meeting_owner: Mapped[List['Meeting']] = relationship(back_populates='owner')
-    meetings: Mapped[List['AssociationUserMeeting']] = relationship(back_populates='user')
-    meeting_result: Mapped['ResultMeeting'] = relationship(back_populates='owner')
-    tasks: Mapped[List['AssociationUserTask']] = relationship(back_populates='user')
-    message: Mapped['MessageFeed'] = relationship(back_populates='owner')
-    comment: Mapped['CommentFeed'] = relationship(back_populates='owner')
-    voting_by: Mapped['VotingByUser'] = relationship(back_populates='user')
+    problem_owner: Mapped[List['Problem']] = relationship(back_populates='owner')  # noqa: F821
+    problems: Mapped[List['AssociationUserProblem']] = relationship(  # noqa: F821
+        back_populates='user'
+    )
+    meeting_owner: Mapped[List['Meeting']] = relationship(back_populates='owner')  # noqa: F821
+    meetings: Mapped[List['AssociationUserMeeting']] = relationship(  # noqa: F821
+        back_populates='user'
+    )
+    meeting_result: Mapped['ResultMeeting'] = relationship(back_populates='owner')  # noqa: F821
+    tasks: Mapped[List['AssociationUserTask']] = relationship(back_populates='user')  # noqa: F821
+    message: Mapped['MessageFeed'] = relationship(back_populates='owner')  # noqa: F821
+    comment: Mapped['CommentFeed'] = relationship(back_populates='owner')  # noqa: F821
+    voting_by: Mapped['VotingByUser'] = relationship(back_populates='user')  # noqa: F821
 
     department_transition_date: Mapped[date]
     employee_position: Mapped[str]

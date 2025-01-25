@@ -14,4 +14,23 @@ from src.problems.models.models import (
     FileMeeting,
     FileTask,
     FileMessage,
-)  # noqa: F401
+)
+
+
+__all__ = [
+    'AssociationUserProblem',
+    'AssociationUserMeeting',
+    'AssociationUserTask',
+    'Problem',
+    'Meeting',
+    'ResultMeeting',
+    'Task',
+    'MessageFeed',
+    'CommentFeed',
+    'VotingFeed',
+    'VotingByUser',
+    'FileProblem',
+    'FileMeeting',
+    'FileTask',
+    'FileMessage',
+]

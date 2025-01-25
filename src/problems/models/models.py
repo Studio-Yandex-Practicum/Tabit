@@ -25,7 +25,7 @@ class AssociationUserProblem(BaseTabitModel):
     id: Mapped[int_pk]
     left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
     right_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
-    user: Mapped['UserTabit'] = relationship(back_populates='problems')
+    user: Mapped['UserTabit'] = relationship(back_populates='problems')  # noqa: F821
     problem: Mapped['Problem'] = relationship(back_populates='members')
     status: Mapped[bool] = mapped_column(default=False)
 
@@ -36,7 +36,7 @@ class AssociationUserMeeting(BaseTabitModel):
     id: Mapped[int_pk]
     left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
     right_id: Mapped[int] = mapped_column(ForeignKey('meeting.id'), primary_key=True)
-    user: Mapped['UserTabit'] = relationship(back_populates='meetings')
+    user: Mapped['UserTabit'] = relationship(back_populates='meetings')  # noqa: F821
     meeting: Mapped['Meeting'] = relationship(back_populates='members')
 
 
@@ -46,7 +46,7 @@ class AssociationUserTask(BaseTabitModel):
     id: Mapped[int_pk]
     left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
     right_id: Mapped[int] = mapped_column(ForeignKey('task.id'), primary_key=True)
-    user: Mapped['UserTabit'] = relationship(back_populates='tasks')
+    user: Mapped['UserTabit'] = relationship(back_populates='tasks')  # noqa: F821
     task: Mapped['Task'] = relationship(back_populates='executors')
 
 
@@ -62,7 +62,7 @@ class Problem(BaseTabitModel):
     # TODO: Не думаю, что нужно удалять проблему, если будет удален пользователь, создавший её.
     # Но вот если удалят компанию - должна удалятся. Сложно.
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='problem_owner')
+    owner: Mapped['UserTabit'] = relationship(back_populates='problem_owner')  # noqa: F821
     members: Mapped[List['AssociationUserProblem']] = relationship(
         back_populates='problem', cascade='all, delete-orphan'
     )
@@ -89,7 +89,7 @@ class Meeting(BaseTabitModel):
     problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
     problem: Mapped['Problem'] = relationship(back_populates='meetings')
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='meeting_owner')
+    owner: Mapped['UserTabit'] = relationship(back_populates='meeting_owner')  # noqa: F821
     date_meeting: Mapped[date] = mapped_column(nullable=False)
     status: Mapped['StatusMeeting']
     place: Mapped[str] = mapped_column(String(LENGTH_NAME_MEETING_PLACE), nullable=False)
@@ -112,7 +112,7 @@ class ResultMeeting(BaseTabitModel):
     meeting_id: Mapped[int] = mapped_column(ForeignKey('meeting.id'), primary_key=True)
     meeting: Mapped['Meeting'] = relationship(back_populates='result')
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='meeting_result')
+    owner: Mapped['UserTabit'] = relationship(back_populates='meeting_result')  # noqa: F821
     meeting_result: Mapped['ResultMeetingEnum']
     participant_engagement: Mapped[bool] = mapped_column(nullable=False)
     problem_solution: Mapped[bool] = mapped_column(nullable=False)
@@ -127,7 +127,7 @@ class Task(BaseTabitModel):
     description: Mapped[description]
     date_completion: Mapped[date] = mapped_column(nullable=False)
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='task')
+    owner: Mapped['UserTabit'] = relationship(back_populates='task')  # noqa: F821
     problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
     problem: Mapped['Problem'] = relationship(back_populates='tasks')
     executors: Mapped[List['AssociationUserTask']] = relationship(back_populates='task')
@@ -144,7 +144,7 @@ class MessageFeed(BaseTabitModel):
     problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'))
     problem: Mapped['Problem'] = relationship(back_populates='messages')
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='message')
+    owner: Mapped['UserTabit'] = relationship(back_populates='message')  # noqa: F821
     text: Mapped[str]
     important: Mapped[bool] = mapped_column(default=False)
     comments: Mapped[List['CommentFeed']] = relationship(
@@ -165,7 +165,7 @@ class CommentFeed(BaseTabitModel):
     message_id: Mapped[int] = mapped_column(ForeignKey('messagefeed.id'))
     message: Mapped['MessageFeed'] = relationship(back_populates='comments')
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='comment')
+    owner: Mapped['UserTabit'] = relationship(back_populates='comment')  # noqa: F821
     text: Mapped[str]
 
 
@@ -186,7 +186,7 @@ class VotingByUser(BaseTabitModel):
 
     id: Mapped[int_pk]
     user_id: Mapped[owner]
-    user: Mapped['UserTabit'] = relationship(back_populates='voting_by')
+    user: Mapped['UserTabit'] = relationship(back_populates='voting_by')  # noqa: F821
     voting_id: Mapped[int] = mapped_column(ForeignKey('votingfeed.id'))
     voting: Mapped['VotingFeed'] = relationship(back_populates='by_user')
 

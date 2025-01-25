@@ -50,11 +50,11 @@ class Company(BaseTabitModel):
     departments: Mapped[List['Department']] = relationship(
         back_populates='company', cascade='all, delete'
     )
-    employees: Mapped[List['UserTabit']] = relationship(
+    employees: Mapped[List['UserTabit']] = relationship(  # noqa: F821
         back_populates='company', cascade='all, delete', lazy='selectin'
     )
     license_id: Mapped[Optional[int]] = mapped_column(ForeignKey('licensetype.id'), nullable=True)
-    license: Mapped['LicenseType'] = relationship(back_populates='companies')
+    license: Mapped['LicenseType'] = relationship(back_populates='companies')  # noqa: F821
     max_admins_count: Mapped[int_zero]
     max_employees_count: Mapped[int_zero]
     start_license_time: Mapped[nullable_timestamp]
@@ -83,7 +83,7 @@ class Department(BaseTabitModel):
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'), nullable=False)
     company: Mapped['Company'] = relationship(back_populates='departments')
     supervisor_id: Mapped[Optional[int]] = mapped_column(ForeignKey('usertabit.id'), nullable=True)
-    supervisor: Mapped['UserTabit'] = relationship(back_populates='supervisor')
-    employees: Mapped[List['UserTabit']] = relationship(back_populates='current_department')
-    employees_lost: Mapped[List['UserTabit']] = relationship(back_populates='last_department')
+    supervisor: Mapped['UserTabit'] = relationship(back_populates='supervisor')  # noqa: F821
+    employees: Mapped[List['UserTabit']] = relationship(back_populates='current_department')  # noqa: F821
+    employees_lost: Mapped[List['UserTabit']] = relationship(back_populates='last_department')  # noqa: F821
     __table_args__ = (UniqueConstraint('company_id', 'name', name='uq_company_department_name'),)

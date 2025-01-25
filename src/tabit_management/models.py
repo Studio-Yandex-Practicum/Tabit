@@ -22,4 +22,4 @@ class LicenseType(BaseTabitModel):
     max_admins_count: Mapped[int]
     max_employees_count: Mapped[int]
 
-    companies: Mapped[List['Company']] = relationship(back_populates='license')
+    companies: Mapped[List['Company']] = relationship(back_populates='license')  # noqa: F821
