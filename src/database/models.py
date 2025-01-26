@@ -37,7 +37,7 @@ class BaseTabitModel(AsyncAttrs, DeclarativeBase):
 class BaseUser(BaseTabitModel, SQLAlchemyBaseUserTableUUID):
     """
     Базовая модель пользователей. Абстрактная модель.
-    
+
     Поля:
         id: Идентификационный номер пользователя - UUID.
         name: Имя пользователя.

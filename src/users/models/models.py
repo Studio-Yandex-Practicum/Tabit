@@ -6,7 +6,8 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.constants import LENGTH_TELEGRAM_USERNAME
-from src.database.models import BaseTabitModel, BaseTag, BaseUser, int_pk, url_link_field
+from src.database.annotations import int_pk, url_link_field
+from src.database.models import BaseTabitModel, BaseTag, BaseUser
 from src.users.models.enum import RoleUserTabit
 
 if TYPE_CHECKING:

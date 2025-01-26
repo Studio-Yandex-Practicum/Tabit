@@ -3,7 +3,8 @@ from typing import List, TYPE_CHECKING
 from sqlalchemy import Interval
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.models import BaseTabitModel, BaseUser, int_pk, name_field
+from src.database.annotations import int_pk, name_field
+from src.database.models import BaseTabitModel, BaseUser
 from src.tabit_management.constants import DEFAULT_NUMBER_DEY_LICENSE
 
 

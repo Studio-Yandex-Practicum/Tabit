@@ -44,7 +44,7 @@ class Company(BaseTabitModel):
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
-    Связи (поле - Модель):
+    Связи (атрибут - Модель):
         departments - Department;
         employees - UserTabit;
         license - LicenseType;
