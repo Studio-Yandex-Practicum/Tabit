@@ -1,1 +1,1 @@
-Generic single-database configuration with an async dbapi.
+В миграции попадают не все изменения. Код модели может быть рабочим, а вот в миграции не попасть.
