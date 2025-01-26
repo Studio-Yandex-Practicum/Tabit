@@ -1,1 +1,4 @@
-from src.companies.models.models import Company, Department  # noqa: F401
+from src.companies.models.models import Company, Department
+
+
+__all__ = ['Company', 'Department']
