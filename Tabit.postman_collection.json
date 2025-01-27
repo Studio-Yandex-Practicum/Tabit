@@ -1,368 +1,44 @@
 {
 	"info": {
-		"_postman_id": "cbe408bc-bb32-40af-90eb-55bf03eeb3e5",
-		"name": "Tabit",
-		"description": "Коллекция запросов к API-bakend проекта Tabit.",
+		"_postman_id": "00915016-82ae-4e7f-9509-e7722b4e2408",
+		"name": "Tabit v1",
+		"description": "Коллекция запросов к API-bakend проекта Tabit.  \napi/v1/\n\n(версия 0.2.0)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "41360727"
+		"_exporter_id": "13909339"
 	},
 	"item": [
 		{
-			"name": "Result sulvey company",
+			"name": "Tabit Admin User Auth",
 			"item": [
 				{
-					"name": "survey report conflict",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
+					"name": "auth",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"auth",
+								""
+							]
 						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/summary_report_conflict/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"summary_report_conflict",
-								""
-							]
-						},
-						"description": "Общие итоги проведения тестов в компании по конфликтности"
 					},
 					"response": []
 				},
 				{
-					"name": "survey report trust",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/summary_report_trust",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"summary_report_trust"
-							]
-						},
-						"description": "Общие итоги проведения тестов в компании по доверию"
-					},
-					"response": []
-				},
-				{
-					"name": "survey report results",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/summary_report_results",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"summary_report_results"
-							]
-						},
-						"description": "Общий результат проведения тестов в компании"
-					},
-					"response": []
-				},
-				{
-					"name": "survey personal report",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/personal_report",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"personal_report"
-							]
-						},
-						"description": "Cписок итогов проведения тестов сотрудников в компании"
-					},
-					"response": []
-				},
-				{
-					"name": "survey personal report conflict",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/personal_report_conflict",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"personal_report_conflict"
-							]
-						},
-						"description": "Итоги проведения тестов в компании сотрудников на уровень конфликтности"
-					},
-					"response": []
-				},
-				{
-					"name": "survey personal report trust",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/personal_report_trust",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"personal_report_trust"
-							]
-						},
-						"description": "Итоги проведения тестов в компании сотрудников на уровень доверия"
-					},
-					"response": []
-				},
-				{
-					"name": "survey personal report results",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/personal_report_results",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"personal_report_results"
-							]
-						},
-						"description": "Общий результат проведения тестов в компании сотрудников"
-					},
-					"response": []
-				}
-			],
-			"description": "Результаты тестирования компании - страница с тремя вкладками (Общая информация, Персонализированная информация, Динамика). Для каждого графика создается свой endpoint.",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"packages": {},
-						"exec": [
-							"// pm.collectionVariables.set(\"survey_id\", \"1\");\r",
-							"// pm.collectionVariables.set(\"company_id\", \"1\");\r",
-							""
-						]
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"packages": {},
-						"exec": [
-							""
-						]
-					}
-				}
-			]
-		},
-		{
-			"name": "Result sulvey department",
-			"item": [
-				{
-					"name": "survey department report",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/department_report",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"department_report"
-							]
-						},
-						"description": "Cписок итогов проведения тестов сотрудников в отделе"
-					},
-					"response": []
-				},
-				{
-					"name": "survey department report conflict",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/department_report_conflict",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"department_report_conflict"
-							]
-						},
-						"description": "Итоги проведения тестов в отделе сотрудников на уровень конфликтности"
-					},
-					"response": []
-				},
-				{
-					"name": "survey department report trust",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/department_report_trust",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"department_report_trust"
-							]
-						},
-						"description": "Итоги проведения тестов в отделе сотрудников на уровень доверия"
-					},
-					"response": []
-				},
-				{
-					"name": "survey department report results",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/company/{{company_id}}/department_report_results",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								"{{survey_id}}",
-								"company",
-								"{{company_id}}",
-								"department_report_results"
-							]
-						},
-						"description": "Общий результат проведения тестов в отделе сотрудников"
-					},
-					"response": []
-				}
-			],
-			"description": "Результаты тестирования отдела компании - Персонализированная информация проведения тестов по отделам. Для каждого графика создается свой endpoint."
-		},
-		{
-			"name": "CRUD survey",
-			"item": [
-				{
-					"name": "survey",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"survey",
-								""
-							]
-						},
-						"description": "Возвращает список с проведенными тестами"
-					},
-					"response": []
-				},
-				{
-					"name": "survey",
+					"name": "auth login",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/login/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -370,21 +46,215 @@
 							"path": [
 								"api",
 								"v1",
-								"survey",
+								"admin",
+								"auth",
+								"login",
 								""
 							]
 						},
-						"description": "Добавить тестирование"
+						"description": "Авторизация"
 					},
 					"response": []
 				},
 				{
-					"name": "survey",
+					"name": "auth logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/logout/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"auth",
+								"logout",
+								""
+							]
+						},
+						"description": "Выход"
+					},
+					"response": []
+				},
+				{
+					"name": "auth refresh-token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/refresh-token/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"auth",
+								"refresh-token",
+								""
+							]
+						},
+						"description": "Обновление JWT-токена"
+					},
+					"response": []
+				},
+				{
+					"name": "auth resetpassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/resetpassword/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"auth",
+								"resetpassword",
+								""
+							]
+						},
+						"description": "Сброс пароля"
+					},
+					"response": []
+				}
+			],
+			"description": "Эндпоинты для Администрации сервиса.\n\nТут будут еще ручки JWT, по обновлению токена и тд"
+		},
+		{
+			"name": "Tabit Managment",
+			"item": [
+				{
+					"name": "admin",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								""
+							]
+						},
+						"description": "на этой ручке общая информация (например сколько всего компаний и сотрудников в системе.)"
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								""
+							]
+						},
+						"description": "на эту ручку можем вешать POST запрос создания нового сотрудника"
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								""
+							]
+						},
+						"description": "на эту ручку можем вешать POST запрос создания нового сотрудника"
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{admin_slug}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								"{{admin_slug}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff slug",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{admin_slug}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								"{{admin_slug}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff slug",
 					"request": {
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{admin_slug}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -392,22 +262,22 @@
 							"path": [
 								"api",
 								"v1",
-								"survey",
-								"{{survey_id}}",
+								"admin",
+								"staff",
+								"{{admin_slug}}",
 								""
 							]
-						},
-						"description": "Обновить данные тестирования"
+						}
 					},
 					"response": []
 				},
 				{
-					"name": "survey",
+					"name": "admin staff slug",
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/survey/{{survey_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{admin_slug}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -415,50 +285,22 @@
 							"path": [
 								"api",
 								"v1",
-								"survey",
-								"{{survey_id}}",
+								"admin",
+								"staff",
+								"{{admin_slug}}",
 								""
 							]
-						},
-						"description": "Удалить тестирование"
-					},
-					"response": []
-				}
-			],
-			"description": "Управление тестированиями - страница со списком историй проведения тестов в компании и кнопкой \"Создать новый тест\""
-		},
-		{
-			"name": "CRUD department",
-			"item": [
-				{
-					"name": "departments",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/department/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"department",
-								""
-							]
-						},
-						"description": "Cписок всех отделов"
+						}
 					},
 					"response": []
 				},
 				{
-					"name": "department",
+					"name": "admin staff slug resetpassword",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/department/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{admin_slug}}/resetpassword/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -466,21 +308,30 @@
 							"path": [
 								"api",
 								"v1",
-								"department",
+								"admin",
+								"staff",
+								"{{admin_slug}}",
+								"resetpassword",
 								""
 							]
 						},
-						"description": "Cоздание нового отдела"
+						"description": "Сброс пароля админа компании"
 					},
 					"response": []
-				},
+				}
+			],
+			"description": "Упровление админами ресурса."
+		},
+		{
+			"name": "Tabit Management - companies",
+			"item": [
 				{
-					"name": "department",
+					"name": "admin companies",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/department/{{department_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/companies/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -488,22 +339,45 @@
 							"path": [
 								"api",
 								"v1",
-								"department",
-								"{{department_id}}",
+								"admin",
+								"companies",
 								""
 							]
 						},
-						"description": "Просмотр карточки отдела"
+						"description": "Список всех компаний"
 					},
 					"response": []
 				},
 				{
-					"name": "department",
+					"name": "admin companies",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/companies/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"companies",
+								""
+							]
+						},
+						"description": "Создание новой компании"
+					},
+					"response": []
+				},
+				{
+					"name": "admin companie slug",
 					"request": {
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/department/{{department_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/companies/{{company_slug}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -511,22 +385,23 @@
 							"path": [
 								"api",
 								"v1",
-								"department",
-								"{{department_id}}",
+								"admin",
+								"companies",
+								"{{company_slug}}",
 								""
 							]
 						},
-						"description": "Редактирование отдела"
+						"description": "Изменение компании (Сюда можно сразу прикрутить возможность приостановки доступа компании)"
 					},
 					"response": []
 				},
 				{
-					"name": "department",
+					"name": "admin companie slug",
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/department/{{department_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/companies/{{company_slug}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -534,27 +409,29 @@
 							"path": [
 								"api",
 								"v1",
-								"department",
-								"{{department_id}}",
+								"admin",
+								"companies",
+								"{{company_slug}}",
 								""
 							]
 						},
-						"description": "Eдаление отдела"
+						"description": "Удаление компании"
 					},
 					"response": []
 				}
-			]
+			],
+			"description": "Управление компаниями."
 		},
 		{
-			"name": "CRUD messages",
+			"name": "Tabit management - licenses",
 			"item": [
 				{
-					"name": "messages",
+					"name": "admin licenses",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/messages/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -562,21 +439,22 @@
 							"path": [
 								"api",
 								"v1",
-								"messages",
+								"admin",
+								"licenses",
 								""
 							]
 						},
-						"description": "Cписок сообщений"
+						"description": "Список всех лицензий"
 					},
 					"response": []
 				},
 				{
-					"name": "message",
+					"name": "admin licenses",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/messages/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -584,21 +462,46 @@
 							"path": [
 								"api",
 								"v1",
-								"messages",
+								"admin",
+								"licenses",
 								""
 							]
 						},
-						"description": "Cоздать сообщение"
+						"description": "Создание новой лицензии"
 					},
 					"response": []
 				},
 				{
-					"name": "message",
+					"name": "admin license slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/{{license_slug}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"licenses",
+								"{{license_slug}}",
+								""
+							]
+						},
+						"description": "Информация о конкретной лицензии"
+					},
+					"response": []
+				},
+				{
+					"name": "admin license slug",
 					"request": {
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/messages/{{message_id}}",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/{{license_slug}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -606,21 +509,23 @@
 							"path": [
 								"api",
 								"v1",
-								"messages",
-								"{{message_id}}"
+								"admin",
+								"licenses",
+								"{{license_slug}}",
+								""
 							]
 						},
-						"description": "Редактирование сообщения"
+						"description": "Изменить информацию конкретной лицензии"
 					},
 					"response": []
 				},
 				{
-					"name": "message",
+					"name": "admin license slug",
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/messages/{{message_id}}",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/{{license_slug}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -628,50 +533,29 @@
 							"path": [
 								"api",
 								"v1",
-								"messages",
-								"{{message_id}}"
+								"admin",
+								"licenses",
+								"{{license_slug}}",
+								""
 							]
 						},
-						"description": "Удаление сообщения"
+						"description": "Удалить конкретную лицензию"
 					},
 					"response": []
 				}
 			],
-			"description": "Эндпоинты ленты сообщений"
+			"description": "Управление лицензиями."
 		},
 		{
-			"name": "Completing the survey",
+			"name": "Company User User Auth",
 			"item": [
 				{
-					"name": "testing",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/testing/{{survey_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"testing",
-								"{{survey_id}}",
-								""
-							]
-						},
-						"description": "Начать тестирование"
-					},
-					"response": []
-				},
-				{
-					"name": "testing",
+					"name": "auth",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/testing/{{survey_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -679,252 +563,7 @@
 							"path": [
 								"api",
 								"v1",
-								"testing",
-								"{{survey_id}}",
-								""
-							]
-						},
-						"description": "Результат тестирования"
-					},
-					"response": []
-				},
-				{
-					"name": "testing",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/testing/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"testing",
-								""
-							]
-						},
-						"description": "Получить историю всех тестирований"
-					},
-					"response": []
-				}
-			],
-			"description": "Энпоинты для прохождения тестирования пользователем."
-		},
-		{
-			"name": "Profile",
-			"item": [
-				{
-					"name": "profile",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/profile/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"profile",
-								""
-							]
-						},
-						"description": "Получить данные профиля."
-					},
-					"response": []
-				},
-				{
-					"name": "profile",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/profile/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"profile",
-								""
-							]
-						},
-						"description": "Отредактировать профиль"
-					},
-					"response": []
-				}
-			],
-			"description": "Профили пользователей"
-		},
-		{
-			"name": "CRUD companies",
-			"item": [
-				{
-					"name": "super admin companies",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/companies/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"companies",
-								""
-							]
-						},
-						"description": "Список всех компаний. Доступно только супер-юзеру."
-					},
-					"response": []
-				},
-				{
-					"name": "super admin company",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/companies/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"companies",
-								""
-							]
-						},
-						"description": "Создать новую компанию. Доступно только супер-юзеру."
-					},
-					"response": []
-				},
-				{
-					"name": "super admin company",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/companies//{{company_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"companies",
-								"",
-								"{{company_id}}",
-								""
-							]
-						},
-						"description": "Просмотр карточки компании. Доступно только супер-юзеру."
-					},
-					"response": []
-				},
-				{
-					"name": "user company",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/companies//my/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"companies",
-								"",
-								"my",
-								""
-							]
-						},
-						"description": "Просмотр карточки компании в которой работает сотрудник сделавший запрос."
-					},
-					"response": []
-				},
-				{
-					"name": "super admin company",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/companies/{{company_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"companies",
-								"{{company_id}}",
-								""
-							]
-						},
-						"description": "Редактирование карточки компании. Доступно только супер-юзеру."
-					},
-					"response": []
-				},
-				{
-					"name": "super admin company",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/companies/{{company_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"companies",
-								"{{company_id}}",
-								""
-							]
-						},
-						"description": "Удаление компании. Доступно только супер-юзеру."
-					},
-					"response": []
-				}
-			],
-			"description": "Эндпоинты для управлением \"Компаниями\""
-		},
-		{
-			"name": "CRUD users",
-			"item": [
-				{
-					"name": "users",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/users/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"users",
+								"auth",
 								""
 							]
 						},
@@ -933,35 +572,12 @@
 					"response": []
 				},
 				{
-					"name": "user",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/users/{{user_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"users",
-								"{{user_id}}",
-								""
-							]
-						},
-						"description": "Получение карточки сотрудника."
-					},
-					"response": []
-				},
-				{
-					"name": "user",
+					"name": "auth login",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/users/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/login/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -969,21 +585,22 @@
 							"path": [
 								"api",
 								"v1",
-								"users",
+								"auth",
+								"login",
 								""
 							]
 						},
-						"description": "Создание сотрудника."
+						"description": "Авторизация"
 					},
 					"response": []
 				},
 				{
-					"name": "user",
+					"name": "auth logout",
 					"request": {
-						"method": "PATCH",
+						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/users/{{user_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/logout/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -991,22 +608,22 @@
 							"path": [
 								"api",
 								"v1",
-								"users",
-								"{{user_id}}",
+								"auth",
+								"logout",
 								""
 							]
 						},
-						"description": "Частичное обновление данных сотрудника."
+						"description": "выход"
 					},
 					"response": []
 				},
 				{
-					"name": "user",
+					"name": "auth refresh-token",
 					"request": {
-						"method": "DELETE",
+						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/users/{{user_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/refresh-token/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1014,28 +631,51 @@
 							"path": [
 								"api",
 								"v1",
-								"users",
-								"{{user_id}}",
+								"auth",
+								"refresh-token",
 								""
 							]
 						},
-						"description": "Удаление сотрудника"
+						"description": "Ручка для обновления токена JWT"
+					},
+					"response": []
+				},
+				{
+					"name": "auth resetpassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/resetpassword/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"resetpassword",
+								""
+							]
+						},
+						"description": "Сброс пароля"
 					},
 					"response": []
 				}
 			],
-			"description": "**Управление компанией - Сотрудники**"
+			"description": "Вход, выход, сброс пароля пользователя.\n\nТут будут еще ручки JWT, по обновлению токена и тд"
 		},
 		{
-			"name": "CRUD Problems and Tasks",
+			"name": "Landing Page",
 			"item": [
 				{
-					"name": "all_problems",
+					"name": "auth info",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/problem/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/info/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1043,21 +683,22 @@
 							"path": [
 								"api",
 								"v1",
-								"problem",
+								"auth",
+								"info",
 								""
 							]
 						},
-						"description": "Cписок всех проблем"
+						"description": "Получение цены, контактов и тд. для landing page"
 					},
 					"response": []
 				},
 				{
-					"name": "problem",
+					"name": "auth demo",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/problem/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/demo/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1065,227 +706,1200 @@
 							"path": [
 								"api",
 								"v1",
-								"problem",
+								"auth",
+								"demo",
 								""
 							]
 						},
-						"description": "Cоздание проблемы"
-					},
-					"response": []
-				},
-				{
-					"name": "problem",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"problem",
-								"{{problem_id}}",
-								""
-							]
-						},
-						"description": "Просмотр проблемы"
-					},
-					"response": []
-				},
-				{
-					"name": "problem",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"problem",
-								"{{problem_id}}",
-								""
-							]
-						},
-						"description": "Редактирование проблемы"
-					},
-					"response": []
-				},
-				{
-					"name": "problem",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"problem",
-								"{{problem_id}}",
-								""
-							]
-						},
-						"description": "Удаление проблемы"
-					},
-					"response": []
-				},
-				{
-					"name": "all_tasks",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/task/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"problem",
-								"{{problem_id}}",
-								"task",
-								""
-							]
-						},
-						"description": "Cписок всех задач, созданных по проблеме"
-					},
-					"response": []
-				},
-				{
-					"name": "task",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/task/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"problem",
-								"{{problem_id}}",
-								"task",
-								""
-							]
-						},
-						"description": "Cоздание новой задачи"
-					},
-					"response": []
-				},
-				{
-					"name": "task",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/task/{{task_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"problem",
-								"{{problem_id}}",
-								"task",
-								"{{task_id}}",
-								""
-							]
-						},
-						"description": "Просмотр задачи"
-					},
-					"response": []
-				},
-				{
-					"name": "task",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/task/{{task_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"problem",
-								"{{problem_id}}",
-								"task",
-								"{{task_id}}",
-								""
-							]
-						},
-						"description": "Редактирование задачи"
-					},
-					"response": []
-				},
-				{
-					"name": "task",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/problem/{{problem_id}}/task/{{task_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"problem",
-								"{{problem_id}}",
-								"task",
-								"{{task_id}}",
-								""
-							]
-						},
-						"description": "Удаление задачи"
+						"description": "Получить демо из формы landing page (Если нам надо будет менять динамически стоимость лицензии, контакты и любую другую информацию на landing page, то можно добавить одну ручку, которая будет выдавать эту всю информацию)"
 					},
 					"response": []
 				}
 			],
-			"description": "**Управление компанией - Проблемы и Задачи**"
+			"description": "Страница захвата потенциальных клиентов"
 		},
 		{
-			"name": "index",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{domain}}/",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						""
-					]
+			"name": "Company User",
+			"item": [
+				{
+					"name": "company user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/{{uuid}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"{{uuid}}",
+								""
+							]
+						},
+						"description": "Личный кабинет пользователя"
+					},
+					"response": []
 				},
-				"description": "Стартовая страница. Для тестирования."
-			},
-			"response": []
+				{
+					"name": "company user",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/{{uuid}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"{{uuid}}",
+								""
+							]
+						},
+						"description": "Редактирование профиля"
+					},
+					"response": []
+				},
+				{
+					"name": "feedback",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/feedback/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"feedback",
+								""
+							]
+						},
+						"description": "Задать вопрос в разделе “Помощь”"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Company",
+			"item": [
+				{
+					"name": "сompany",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								""
+							]
+						},
+						"description": "Информация о компании"
+					},
+					"response": []
+				},
+				{
+					"name": "departments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"departments",
+								""
+							]
+						},
+						"description": "Список всех отделов компании"
+					},
+					"response": []
+				},
+				{
+					"name": "departments",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"departments",
+								""
+							]
+						},
+						"description": "Добавить отдел"
+					},
+					"response": []
+				},
+				{
+					"name": "departments import",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/import/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"departments",
+								"import",
+								""
+							]
+						},
+						"description": "Импорт из файла список отделов"
+					},
+					"response": []
+				},
+				{
+					"name": "department",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/{{department_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"departments",
+								"{{department_id}}",
+								""
+							]
+						},
+						"description": "Детальная информация об отделе"
+					},
+					"response": []
+				},
+				{
+					"name": "department",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/{{department_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"departments",
+								"{{department_id}}",
+								""
+							]
+						},
+						"description": "Редактировать отдел"
+					},
+					"response": []
+				},
+				{
+					"name": "department",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/{{department_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"departments",
+								"{{department_id}}",
+								""
+							]
+						},
+						"description": "Удалить отдел"
+					},
+					"response": []
+				},
+				{
+					"name": "employees",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"employees",
+								""
+							]
+						},
+						"description": "Список всех сотрудников компании"
+					},
+					"response": []
+				},
+				{
+					"name": "employees",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"employees",
+								""
+							]
+						},
+						"description": "Добавить сотрудника в отдел"
+					},
+					"response": []
+				},
+				{
+					"name": "employees import",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/import/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"employees",
+								"import",
+								""
+							]
+						},
+						"description": "Импорт из файла списка сотрудников"
+					},
+					"response": []
+				},
+				{
+					"name": "employee",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/{{uuid}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"employees",
+								"{{uuid}}",
+								""
+							]
+						},
+						"description": "Детальная информация о сотруднике"
+					},
+					"response": []
+				},
+				{
+					"name": "employee",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/{{uuid}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"employees",
+								"{{uuid}}",
+								""
+							]
+						},
+						"description": "Изменить отдел сотрудника"
+					},
+					"response": []
+				},
+				{
+					"name": "employee",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/{{uuid}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"employees",
+								"{{uuid}}",
+								""
+							]
+						},
+						"description": "Удалить сотрудника из отдела"
+					},
+					"response": []
+				}
+			],
+			"description": "Компании."
+		},
+		{
+			"name": "Problems",
+			"item": [
+				{
+					"name": "problems",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								""
+							]
+						},
+						"description": "Главная страница со всеми проблемами"
+					},
+					"response": []
+				},
+				{
+					"name": "problems",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								""
+							]
+						},
+						"description": "Создать проблему"
+					},
+					"response": []
+				},
+				{
+					"name": "problem",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								""
+							]
+						},
+						"description": "Информация о проблеме (должна ещё выходить инфа с лентой сообщений у этой проблемы)"
+					},
+					"response": []
+				},
+				{
+					"name": "problem",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								""
+							]
+						},
+						"description": "Обновить информацию о проблеме"
+					},
+					"response": []
+				},
+				{
+					"name": "problem",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								""
+							]
+						},
+						"description": "Удалить проблему"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Meetings",
+			"item": [
+				{
+					"name": "meetings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"meetings",
+								""
+							]
+						},
+						"description": "Общая страница с встречами"
+					},
+					"response": []
+				},
+				{
+					"name": "meetings",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"meetings",
+								""
+							]
+						},
+						"description": "Создать встречу"
+					},
+					"response": []
+				},
+				{
+					"name": "meeting",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"meetings",
+								"{{meeting_id}}",
+								""
+							]
+						},
+						"description": "Отправить заполненную форму-опрос после встречи"
+					},
+					"response": []
+				},
+				{
+					"name": "meeting",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"meetings",
+								"{{meeting_id}}",
+								""
+							]
+						},
+						"description": "Отправить заполненную форму-опрос после встречи"
+					},
+					"response": []
+				},
+				{
+					"name": "meeting",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"meetings",
+								"{{meeting_id}}",
+								""
+							]
+						},
+						"description": "Удаление встречи"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tasks",
+			"item": [
+				{
+					"name": "tasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/tasks/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"tasks",
+								""
+							]
+						},
+						"description": "Общая информацию с задачами"
+					},
+					"response": []
+				},
+				{
+					"name": "tasks",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/tasks/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"tasks",
+								""
+							]
+						},
+						"description": "Создать задачу"
+					},
+					"response": []
+				},
+				{
+					"name": "task",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/tasks/{{task_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"tasks",
+								"{{task_id}}",
+								""
+							]
+						},
+						"description": "Изменить задачу."
+					},
+					"response": []
+				},
+				{
+					"name": "task",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/tasks/{{task_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"tasks",
+								"{{task_id}}",
+								""
+							]
+						},
+						"description": "Изменить задачу."
+					},
+					"response": []
+				},
+				{
+					"name": "task",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/tasks/{{task_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"tasks",
+								"{{task_id}}",
+								""
+							]
+						},
+						"description": "Удалить задачу"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Problem Feeds",
+			"item": [
+				{
+					"name": "thread",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/thread/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"thread",
+								""
+							]
+						},
+						"description": "Получить всю ленту. С коментариями."
+					},
+					"response": []
+				},
+				{
+					"name": "thread",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/thread/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"thread",
+								""
+							]
+						},
+						"description": "Создать тред в ленте"
+					},
+					"response": []
+				},
+				{
+					"name": "comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comment/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"{{thread_id}}",
+								"comment",
+								""
+							]
+						},
+						"description": "Оставить коментарий на треде"
+					},
+					"response": []
+				},
+				{
+					"name": "comment",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comment/{{comment_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"{{thread_id}}",
+								"comment",
+								"{{comment_id}}"
+							]
+						},
+						"description": "Оставить коментарий на треде"
+					},
+					"response": []
+				},
+				{
+					"name": "comment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comment/{{comment_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"{{thread_id}}",
+								"comment",
+								"{{comment_id}}"
+							]
+						},
+						"description": "Оставить коментарий на треде"
+					},
+					"response": []
+				},
+				{
+					"name": "like",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/{{comment_id}}/like/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"{{thread_id}}",
+								"{{comment_id}}",
+								"like",
+								""
+							]
+						},
+						"description": "Поставить лайк на тред"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Surveys",
+			"item": [
+				{
+					"name": "surveys",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								""
+							]
+						},
+						"description": "Общая информация о тестированиях"
+					},
+					"response": []
+				},
+				{
+					"name": "surveys",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								""
+							]
+						},
+						"description": "Создать новый тест (пока наверное заглушка, так как непонятно как будет реализовано добавление новых типов тестов)"
+					},
+					"response": []
+				},
+				{
+					"name": "surveys user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/{{uuid}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"{{uuid}}",
+								""
+							]
+						},
+						"description": "История тестирований пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "survey user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/{{uuid}}/{{survey_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"{{uuid}}",
+								"{{survey_id}}",
+								""
+							]
+						},
+						"description": "Подробная информация о конкретном тестировании у конкретного пользователя (либо можем зашить всё в общей истории тестирований пользователя)"
+					},
+					"response": []
+				},
+				{
+					"name": "survey",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/{{survey_id}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"{{survey_id}}",
+								""
+							]
+						},
+						"description": "Отправить обратную связь о тестировании"
+					},
+					"response": []
+				},
+				{
+					"name": "survey general",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/results/general/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"results",
+								"general",
+								""
+							]
+						},
+						"description": "Общая информация о результатах"
+					},
+					"response": []
+				},
+				{
+					"name": "survey personalized",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/results/personalized/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"results",
+								"personalized",
+								""
+							]
+						},
+						"description": "Персонализированная информация"
+					},
+					"response": []
+				},
+				{
+					"name": "survey dynamics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/results/dynamics/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"results",
+								"dynamics",
+								""
+							]
+						},
+						"description": "Динамика тестирования"
+					},
+					"response": []
+				},
+				{
+					"name": "survey manage",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/manage/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"manage",
+								""
+							]
+						},
+						"description": "Создать тестирование"
+					},
+					"response": []
+				},
+				{
+					"name": "survey manage",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/manage/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"manage",
+								""
+							]
+						},
+						"description": "Удалить тестирование"
+					},
+					"response": []
+				}
+			],
+			"description": "Ручки для тестирования пользователей на сервисе.  \nЧерновой вариант (версия 0.2.0)"
 		}
 	],
 	"event": [
@@ -1331,7 +1945,8 @@
 		},
 		{
 			"key": "company_id",
-			"value": "1"
+			"value": "1",
+			"disabled": true
 		},
 		{
 			"key": "department_id",
@@ -1341,12 +1956,59 @@
 		{
 			"key": "message_id",
 			"value": "1",
-			"type": "string"
+			"type": "string",
+			"disabled": true
 		},
 		{
 			"key": "user_id",
 			"value": "1",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "admin_slug",
+			"value": "admin_slug",
 			"type": "string"
+		},
+		{
+			"key": "company_slug",
+			"value": "company_slug",
+			"type": "string"
+		},
+		{
+			"key": "license_slug",
+			"value": "license_slug",
+			"type": "string"
+		},
+		{
+			"key": "uuid",
+			"value": "uuid",
+			"type": "string"
+		},
+		{
+			"key": "problem_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "meeting_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "task_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "thread_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "comment_id",
+			"value": "1",
+			"type": "default"
 		}
 	]
 }
