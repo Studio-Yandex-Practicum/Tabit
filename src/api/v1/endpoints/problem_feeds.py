@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 @router.get(
-    '/{company_slug}/problems/{problem_id}/thread/',
+    '/thread',
     summary='Получить список всех тредов по проблеме.',
     dependencies=[Depends(get_async_session)],
 )
@@ -19,7 +19,7 @@ async def get_all_threads(
 
 
 @router.post(
-    '/{company_slug}/problems/{problem_id}/thread/',
+    '/thread',
     summary='Создать тред по проблеме.',
     dependencies=[Depends(get_async_session)],
 )
@@ -33,7 +33,7 @@ async def create_problem_thread(
 
 
 @router.post(
-    '{company_slug}/problems/{problem_id}/{thread_id}/comment/',
+    '/{thread_id}/comment',
     summary='Создать комментарий в треде.',
     dependencies=[Depends(get_async_session)],
 )
@@ -48,7 +48,7 @@ async def create_thread_comment(
 
 
 @router.patch(
-    '{company_slug}/problems/{problem_id}/{thread_id}/comment/',
+    '/{thread_id}/comment',
     summary='Обновить комментарий в треде.',
     dependencies=[Depends(get_async_session)],
 )
@@ -63,7 +63,7 @@ async def update_thread_comment(
 
 
 @router.delete(
-    '{company_slug}/problems/{problem_id}/{thread_id}/comment/',
+    '/{thread_id}/comment',
     summary='Удалить комментарий в треде.',
     dependencies=[Depends(get_async_session)],
 )
@@ -78,7 +78,7 @@ async def delete_thread_comment(
 
 
 @router.post(
-    '{company_slug}/problems/{problem_id}/{thread_id}/{comment_id}/like/',
+    '/{thread_id}/{comment_id}/like',
     summary='Поставить лайк комментарию в треде.',
     dependencies=[Depends(get_async_session)],
 )
