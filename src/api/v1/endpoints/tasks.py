@@ -64,12 +64,13 @@ async def update_task(
     task: TaskUpdateSchema,
     company_slug: str,
     problem_id: int,
-    # session: AsyncSession = Depends(get_async_session)
+    task_id: int,
+    session: AsyncSession = Depends(get_async_session),
 ):
     """Обновляет информацию задачи"""
-    # # TODO: Реализовать получение задачи из БД
+    # TODO: Реализовать получение задачи из БД
     task_from_db = {
-        'id': 1,
+        'id': task_id,
         'name': f'Задача №1 у компании {company_slug}',
         'description': 'Описание задачи #1',
         'date_completion': '2030-01-01',
@@ -77,8 +78,33 @@ async def update_task(
         'problem_id': problem_id,
         'status': StatusTask.NEW,
     }
-    # # TODO: Реализовать обновление задачи в БД
+    # TODO: Реализовать обновление задачи в БД
     task_to_update = task.model_dump(exclude_none=True)
     task_from_db.update(task_to_update)
     task_schema = TaskDBSchema(**task_from_db)
     return task_schema
+
+
+@router.delete(
+    '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
+    response_model=TaskDBSchema,
+    response_model_exclude_none=True,
+    summary='Обновить информацию о задаче',
+    dependencies=[Depends(get_async_session)],
+)
+async def delete_task(
+    company_slug: str,
+    problem_id: int,
+    task_id: int,
+):
+    # TODO: Реализовать удаление задачи из БД
+    task_from_db = {
+        'id': task_id,
+        'name': f'Задача №1 у компании {company_slug}',
+        'description': 'Описание задачи #1',
+        'date_completion': '2030-01-01',
+        'owner_id': 1,
+        'problem_id': problem_id,
+        'status': StatusTask.NEW,
+    }
+    return TaskDBSchema(**task_from_db)
