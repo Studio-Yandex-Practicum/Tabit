@@ -53,6 +53,31 @@ async def create_task(
     return task_schema
 
 
+@router.get(
+    '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
+    summary='Получить информацию о задаче',
+    dependencies=[Depends(get_async_session)],
+)
+async def get_task(
+    company_slug: str,
+    problem_id: int,
+    task_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Получает информацию о задаче"""
+    # TODO: Реализовать получение задачи из БД
+    task_from_db = {
+        'id': task_id,
+        'name': f'Задача №1 у компании {company_slug}',
+        'description': 'Описание задачи #1',
+        'date_completion': '2030-01-01',
+        'owner_id': 1,
+        'problem_id': problem_id,
+        'status': StatusTask.NEW,
+    }
+    return task_from_db
+
+
 @router.patch(
     '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
     response_model=TaskDBSchema,

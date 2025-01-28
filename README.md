@@ -380,26 +380,95 @@ pre-commit install
 </details>
 
 
-## Postgres контейнер<a id="docker-local-bd"></a>:
+# Makefile команды
 
-Для разворачивания контейнера с БД на локальном компьютере надо настроить файл `.env`, он должен находиться в корне проекта на одном уровне с директорией `src`. Пример заполнения с пояснениями смотрите в `.env.example` раздел `Настройка БД`
+Для разворачивания контейнера с БД на локальном компьютере нужно настроить файл `.env`. Он должен находиться в корне проекта на одном уровне с директорией `src`.
 
-Далее, в терминале, находясь в корне проекта, введите команду:
+### 1. `make up`
+Запускает контейнеры Docker в фоновом режиме с помощью Docker Compose. Используется для поднятия всех необходимых сервисов.
 
-```
-docker compose up
-```
-будет запущен контейнер с базой данных. Чтобы остановить контейнер в терминале нажмите комбинацию клавиш `Ctrl+Z`
+### 2. `make down`
+Останавливает и удаляет контейнеры Docker, остановив все запущенные сервисы.
 
-Команда с флагом `-d` запустит контейнер в фоновом режиме, не блокируя терминал.
-```
-docker compose up -d
-```
-Чтобы остановить контейнер введите команду:
-```
-docker stop data-base
-```
-где `data-base` - название контейнера.
+### 3. `make logs`
+Выводит логи всех контейнеров Docker, чтобы наблюдать за их состоянием в реальном времени.
+
+### 4. `make init-migrations`
+Создает новую миграцию для базы данных с автогенерацией изменений с помощью Alembic.
+
+### 5. `make apply-migrations`
+Применяет все миграции базы данных, чтобы привести её в актуальное состояние.
+
+### 6. `make drop-db`
+Удаляет базу данных PostgreSQL и создает её заново, используя команды psql в контейнере Docker.
+
+### 7. `make reset-db`
+Сбрасывает базу данных (с помощью команды `drop-db`) и применяет все миграции для восстановления структуры.
+
+### 8. `make init-db`
+Запускает контейнеры Docker, создает миграцию и применяет её, инициализируя базу данных для первого запуска.
+
+### 9. `make run`
+Запускает приложение с использованием Uvicorn на порту 8000 с флагом `--reload` для автообновления при изменении кода.
+
+
+<details>
+
+<summary>Инструкция по установке Make на Windows</summary>
+
+Для установки Make и работы с проектом на Windows, выполните следующие шаги:
+
+1. **Проверить наличие WSL в системе:**
+   Следуй инструкциям:
+   [Инструкция по установке и настройке WSL](https://code.s3.yandex.net/backend-developer/learning-materials/Инструкция_по_установке_и_настройке_WSL.pdf)
+
+2. **Установить Docker Desktop:**
+   Скачайте и установите Docker Desktop для Windows:
+   [Скачать Docker Desktop](https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module&_gl=1*1n1mv4y*_ga*MTA0MDU1NzU4NC4xNzAxODkwMjk5*_ga_XJWPQMJYHQ*MTcwNjgxNDkxNS41LjEuMTcwNjgxNDkxOS41Ni4wLjA)
+
+3. **Установить Chocolatey:**
+   Откройте Windows Shell от имени администратора и вставьте в консоль следующий код:
+   ```powershell
+   Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+   ```
+
+4. **Установить VS Code (или PyCharm):**
+Если у вас нет установленного VS Code, скачайте и установите его: скачайте и установите его: [Скачать VS Code](https://code.visualstudio.com/)
+Если нет Python, скачайте и установите: [Скачать Python](https://www.python.org/)
+
+5. Клонировать репозиторий: После установки программ, клонируйте репозиторий:
+    ```
+    git clone git@github.com:Studio-Yandex-Practicum/adaptive_hockey_federation.git
+    ```
+6. Открыть консоль WSL: В VS Code или другой IDE, откройте консоль и выберите "wsl" вместо PowerShell.
+7. Установить Make: В консоли WSL введите команду:
+    ```bash
+    choco install make
+    ```
+8. Перезагрузить компьютер: (или поменять местами шаги 4 и 5)
+9. Установить Poetry: Для установки Poetry, следуйте инструкциям: [Установка Poetry](https://python-poetry.org/docs/#installing-with-pipx)
+Рекомендуется установить Poetry глобально.
+10. Настроить Poetry: Введите команду:
+    ```bash
+    poetry config virtualenvs.in-project true
+    ```
+11. Установить зависимости: Установите все зависимости и создайте виртуальное окружение:
+    ```bash
+    poetry install
+    ```
+12. Активировать виртуальное окружение: Введите команду:
+    ```bash
+    poetry shell
+    ```
+13. Работа с Make: Убедитесь, что Docker запущен, и по очереди вводите команды:
+    ```bash
+    make start-db
+    make init-app
+    make fill-test-db
+    make run
+    ```
+
+</details>
 
 ## DBeaver
 Подключится и проверить БД можно через [DBeaver](https://dbeaver.io/). Создайте новое подключение `Ctrl+Shift+N`. В открывшемся окне выберите PostgresSQL (возможно понадобится установить драйвер), в новом окне заполните поля (варианты взяты из `.env.example`, нужно указать свои из `.env`):
