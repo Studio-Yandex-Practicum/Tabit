@@ -1,7 +1,7 @@
 """TabitAdminUser, LicenseType
 
 Revision ID: 01
-Revises: 
+Revises:
 Create Date: 2025-01-25 02:10:39.764740
 
 """
