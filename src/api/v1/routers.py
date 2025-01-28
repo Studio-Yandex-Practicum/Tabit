@@ -9,6 +9,7 @@ from src.api.v1.endpoints import (
     # superuser_router,
     # admin_router,
     department_reports_router,
+    tabit_management_router,
     problem_feeds_router,
     tabit_admin_auth_router,
 )
@@ -25,6 +26,7 @@ main_router.include_router(
 # main_router.include_router(superuser_router, prefix='/superuser', tags=['Superuser'])
 # main_router.include_router(admin_router, prefix='/admin', tags=['Admin'])
 main_router.include_router(department_reports_router, prefix='/survey', tags=['Survey Reports'])
+main_router.include_router(tabit_management_router, prefix='/admin', tags=['Tabit Management'])
 
 main_router.include_router(auth_employees, prefix='/auth', tags=['Auth Employees'])
 main_router.include_router(
