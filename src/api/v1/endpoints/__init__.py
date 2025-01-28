@@ -1,5 +1,5 @@
 from src.api.v1.endpoints.company_user_auth import router as auth_employees
-from .companies import router as companies_router
+from .company import router as companies_router
 from .department import router as department_router
 from .tabit_management import router as tabit_management_router
 from .problem_feeds import router as problem_feeds_router
