@@ -12,6 +12,7 @@ from src.constants import (
     LENGTH_NAME_USER,
     LENGTH_SMALL_NAME,
     LENGTH_FILE_LINK,
+    LENGTH_SLUG,
     ZERO,
 )
 
@@ -28,3 +29,4 @@ owner = Annotated[Optional[UUID], mapped_column(ForeignKey('usertabit.id'), null
 int_zero = Annotated[int, mapped_column(Integer, nullable=False, default=ZERO)]
 nullable_timestamp = Annotated[Optional[DateTime], mapped_column(DateTime, nullable=True)]
 name_problem = Annotated[str, mapped_column(String(LENGTH_NAME_PROBLEM), nullable=False)]
+slug = Annotated[str, mapped_column(String(LENGTH_SLUG), nullable=False, unique=True)]
