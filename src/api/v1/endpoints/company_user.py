@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.dependencies import get_async_session
+from src.database.db_depends import get_async_session
 
 
 router = APIRouter()
 
 
 @router.get('/{company_slug}/{uuid}/', response_model=dict)
-def get_company_user(company_slug: str, uuid: str, session: AsyncSession = Depends(get_async_session)):
+def get_company_user(
+    company_slug: str, uuid: str, session: AsyncSession = Depends(get_async_session)
+):
     """
     Личный кабинет пользователя.
     """
@@ -17,7 +19,9 @@ def get_company_user(company_slug: str, uuid: str, session: AsyncSession = Depen
 
 
 @router.patch('/{company_slug}/{uuid}/', response_model=dict)
-def patch_company_user(company_slug: str, uuid: str, session: AsyncSession = Depends(get_async_session)):
+def patch_company_user(
+    company_slug: str, uuid: str, session: AsyncSession = Depends(get_async_session)
+):
     """
     Редактирование профиля.
     """

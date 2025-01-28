@@ -15,6 +15,4 @@ class BaseSeeder:
         Метод, который должен быть реализован в каждом дочернем классе.
         :param session: асинхронная сессия SQLAlchemy
         """
-        raise NotImplementedError(
-            'Метод "run" должен быть реализован в дочернем классе'
-        )
+        raise NotImplementedError('Метод "run" должен быть реализован в дочернем классе')
