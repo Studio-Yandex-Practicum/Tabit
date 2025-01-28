@@ -33,7 +33,7 @@ async def create_problem_thread(
 
 
 @router.post(
-    '/{thread_id}/comment',
+    '/{thread_id}/comments',
     summary='Создать комментарий в треде.',
     dependencies=[Depends(get_async_session)],
 )
@@ -48,7 +48,7 @@ async def create_thread_comment(
 
 
 @router.patch(
-    '/{thread_id}/comment',
+    '/{thread_id}/comments/{comment_id}',
     summary='Обновить комментарий в треде.',
     dependencies=[Depends(get_async_session)],
 )
@@ -56,6 +56,7 @@ async def update_thread_comment(
     company_slug: str,
     problem_id: int,
     thread_id: int,
+    comment_id: int,
     session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление комментария в треде."""
@@ -63,7 +64,7 @@ async def update_thread_comment(
 
 
 @router.delete(
-    '/{thread_id}/comment',
+    '/{thread_id}/comments/{comment_id}',
     summary='Удалить комментарий в треде.',
     dependencies=[Depends(get_async_session)],
 )
@@ -71,6 +72,7 @@ async def delete_thread_comment(
     company_slug: str,
     problem_id: int,
     thread_id: int,
+    comment_id: int,
     session: AsyncSession = Depends(get_async_session),
 ):
     """Удаление комментария в треде."""
@@ -78,7 +80,7 @@ async def delete_thread_comment(
 
 
 @router.post(
-    '/{thread_id}/{comment_id}/like',
+    '/{thread_id}/comments/{comment_id}/like',
     summary='Поставить лайк комментарию в треде.',
     dependencies=[Depends(get_async_session)],
 )
