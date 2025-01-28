@@ -6,7 +6,7 @@ from src.database.db_depends import get_async_session
 router = APIRouter()
 
 @router.get(
-    '/{{company_slug}}/problems/{{problem_id}}/meetings',
+    '/{company_slug}/problems/{problem_id}/meetings',
     summary='Получить список всех встреч',
     dependencies=[Depends(get_async_session)],
 )
@@ -19,7 +19,7 @@ async def meetings(
     return {'message': 'Список встреч пока пуст'}
 
 @router.post(
-    '/{{company_slug}}/problems/{{problem_id}}/meetings',
+    '/{company_slug}/problems/{problem_id}/meetings',
     summary='Создать встречу',
     dependencies=[Depends(get_async_session)],
 )
@@ -34,7 +34,7 @@ async def create_meeting(
     return {'message': 'Создание встречи пока недоступно'}
 
 @router.get(
-    '/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}',
+    '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}',
     summary='Получить информацию о встрече',
     dependencies=[Depends(get_async_session)],
 )
@@ -49,7 +49,7 @@ async def get_meeting(
     return {'message': 'Информация о встрече пока недоступна'}
 
 @router.patch(
-    '/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}',
+    '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}',
     summary='Обновить информацию о встрече',
     dependencies=[Depends(get_async_session)],
 )
@@ -66,7 +66,7 @@ async def update_meeting(
     return {'message': 'Обновление встречи пока недоступно'}
 
 @router.delete(
-    '/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}',
+    '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}',
     summary='Удалить встречу',
     dependencies=[Depends(get_async_session)],
 )
