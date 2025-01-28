@@ -65,21 +65,6 @@ async def get_employee_survey_info(
     # TODO: Проверить существование опроса
     return {'message': 'Информация об опросе сотрудника компании пока недоступна'}
 
-@router.post(
-    '{company_slug}/surveys/{survey_id}',
-    summary='Создать новый опрос для компании',
-    dependencies=[Depends(get_async_session)],
-)
-async def create_survey(
-        company_slug: str,
-        survey_id: int,
-        session: AsyncSession = Depends(get_async_session)
-):
-    """Создает новый опрос."""
-    # TODO: Проверить существование компании
-    # TODO: Проверить существование опроса
-    return {'message': 'Создание опроса для компании временно недоступно'}
-
 @router.get(
     '{company_slug}/surveys/results/general',
     summary='Получить общий результат опросов компании',
