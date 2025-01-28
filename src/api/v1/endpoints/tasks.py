@@ -89,7 +89,7 @@ async def update_task(
     '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
     response_model=TaskDBSchema,
     response_model_exclude_none=True,
-    summary='Обновить информацию о задаче',
+    summary='Удалить задачу',
     dependencies=[Depends(get_async_session)],
 )
 async def delete_task(
@@ -97,6 +97,7 @@ async def delete_task(
     problem_id: int,
     task_id: int,
 ):
+    """Удаляет задачу"""
     # TODO: Реализовать удаление задачи из БД
     task_from_db = {
         'id': task_id,
