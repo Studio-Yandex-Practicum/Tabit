@@ -18,7 +18,7 @@ main_router.include_router(department_router, prefix='/department', tags=['Depar
 main_router.include_router(user_router, prefix='/users', tags=['Tabit Users'])
 main_router.include_router(problem_router, prefix='/problem', tags=['Problems'])
 main_router.include_router(
-    problem_feeds_router, prefix='/{company_slug}/problems/{problem_id}', tags=['Problems']
+    problem_feeds_router, prefix='/{company_slug}/problems/{problem_id}', tags=['Problems Feeds']
 )
 # main_router.include_router(superuser_router, prefix='/superuser', tags=['Superuser'])
 # main_router.include_router(admin_router, prefix='/admin', tags=['Admin'])
