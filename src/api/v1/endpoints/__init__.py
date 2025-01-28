@@ -1,3 +1,4 @@
+from src.api.v1.endpoints.company_user_auth import router as auth_employees
 from .companies import router as companies_router
 from .department import router as department_router
 from .department_report import router as department_reports_router
@@ -8,6 +9,7 @@ from .meetings import router as meeting_router
 
 
 __all__ = [
+    'auth_employees',
     'main_page_router',
     'department_router',
     'companies_router',
