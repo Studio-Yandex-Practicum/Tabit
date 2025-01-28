@@ -11,9 +11,10 @@ from src.constants import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
 from src.database.annotations import (
     description,
     int_pk,
-    nullable_timestamp,
-    url_link_field,
     int_zero,
+    nullable_timestamp,
+    slug,
+    url_link_field,
 )
 from src.database.models import BaseTabitModel
 
@@ -41,6 +42,7 @@ class Company(BaseTabitModel):
         start_license_time: Дата начала действия лицензии (если есть).
         end_license_time: Дата окончания действия лицензии (если есть).
         is_active: bool - активна ли лицензия.
+        slug: Короткая строка для пути к эндпоинту.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
@@ -71,6 +73,7 @@ class Company(BaseTabitModel):
     tags_users: Mapped[List['TagUser']] = relationship(
         back_populates='company', cascade='all, delete-orphan'
     )
+    slug: Mapped[slug]
 
     def __repr__(self):
         return (
@@ -93,6 +96,7 @@ class Department(BaseTabitModel):
         name: Название департамента.
         company_id: Идентификатор компании, к которой относится департамент.
         supervisor_id: Идентификатор руководителя (если есть).
+        slug: Короткая строка для пути к эндпоинту.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
@@ -111,6 +115,7 @@ class Department(BaseTabitModel):
     supervisor: Mapped['UserTabit'] = relationship(back_populates='supervisor')
     employees: Mapped[List['UserTabit']] = relationship(back_populates='current_department')
     employees_lost: Mapped[List['UserTabit']] = relationship(back_populates='last_department')
+    slug: Mapped[slug]
 
     __table_args__ = (UniqueConstraint('company_id', 'name', name='uq_company_department_name'),)
 
