@@ -13,6 +13,7 @@ from src.api.v1.endpoints import (
     tabit_management_router,
     problem_feeds_router,
     tabit_admin_auth_router,
+    surveys_router,
 )
 
 main_router = APIRouter(prefix='/api/v1')
@@ -41,3 +42,5 @@ main_router.include_router(
 )
 # TODO Дописать Companies Surveys Endpoints
 main_router.include_router(landing_page_router, prefix='/landing', tags=['Landing Page'])
+
+main_router.include_router(surveys_router, prefix='', tags=['Surveys'])
