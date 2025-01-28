@@ -8,7 +8,8 @@ from src.api.v1.endpoints import (
     user_router,
     # superuser_router,
     # admin_router,
-    department_reports_router,
+    landing_page_router,
+    company_user_router,
     meeting_router,
     licenses_router,
     companies_management_router,
@@ -28,7 +29,8 @@ main_router.include_router(
 )
 # main_router.include_router(superuser_router, prefix='/superuser', tags=['Superuser'])
 # main_router.include_router(admin_router, prefi='/admin', tags=['Admin'])
-main_router.include_router(department_reports_router, prefix='/survey', tags=['Survey Reports'])
+main_router.include_router(landing_page_router, prefix='/landing', tags=['Landing Page'])
+main_router.include_router(company_user_router, tags=['Company User'])
 main_router.include_router(tabit_management_router, prefix='/admin', tags=['Tabit Management'])
 
 main_router.include_router(meeting_router, prefix='', tags=['Meetings'])
