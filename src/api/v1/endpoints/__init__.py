@@ -6,6 +6,7 @@ from .tabit_management import router as tabit_management_router
 from .problem_feeds import router as problem_feeds_router
 from .tabit_admin_auth import router as tabit_admin_auth_router
 from .users import router as user_router
+from .meetings import router as meeting_router
 from .problems import router as problems_router
 
 # from .endpoint import main_router, superuser_router, admin_router  # noqa: F401
@@ -25,6 +26,7 @@ __all__ = [
     'superuser_router',
     'admin_router',
     'department_reports_router',
+    'meeting_router',
     'licenses_router',
     'companies_management_router',
     'tabit_management_router',
