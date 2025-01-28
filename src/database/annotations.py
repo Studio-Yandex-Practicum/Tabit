@@ -8,7 +8,12 @@ from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import mapped_column
 
 from src.constants import (
-    LENGTH_NAME_PROBLEM, LENGTH_NAME_USER, LENGTH_SMALL_NAME, LENGTH_FILE_LINK, LENGTH_SLUG, ZERO
+    LENGTH_NAME_PROBLEM,
+    LENGTH_NAME_USER,
+    LENGTH_SMALL_NAME,
+    LENGTH_FILE_LINK,
+    LENGTH_SLUG,
+    ZERO,
 )
 
 int_pk = Annotated[int, mapped_column(primary_key=True, unique=True)]

@@ -35,18 +35,14 @@ async def login_employee(session: AsyncSession = Depends(get_async_session)):
     }
 
 
-@router.post(
-    '/logout'
-)
+@router.post('/logout')
 async def logout_employee(session: AsyncSession = Depends(get_async_session)):
     """Выход из сервиса пользователя."""
 
     return {}
 
 
-@router.post(
-    '/refresh-token'
-)
+@router.post('/refresh-token')
 async def refresh_token_employee(session: AsyncSession = Depends(get_async_session)):
     """Эндпоинт для обновления токена JWT."""
 
@@ -62,6 +58,4 @@ async def refresh_token_employee(session: AsyncSession = Depends(get_async_sessi
 async def resetpassword_employee(session: AsyncSession = Depends(get_async_session)):
     """Сброс пароля пользователя."""
 
-    return {
-        'message': 'Пароль изменен'
-    }
+    return {'message': 'Пароль изменен'}
