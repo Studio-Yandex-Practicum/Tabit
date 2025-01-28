@@ -23,4 +23,6 @@ main_router.include_router(problem_router, prefix='/problem', tags=['Problems'])
 main_router.include_router(department_reports_router, prefix='/survey', tags=['Survey Reports'])
 
 main_router.include_router(auth_employees, prefix='/auth', tags=['Auth Employees'])
-main_router.include_router(licenses_router, prefix='/admin/licenses', tags=['Licenses'])
+main_router.include_router(
+    licenses_router, prefix='/admin/licenses', tags=[' Tabit Management - licenses']
+)
