@@ -11,6 +11,8 @@ from .problems import router as problems_router
 # from .endpoint import main_router, superuser_router, admin_router  # noqa: F401
 from .tabit_management_companies import router as companies_management_router
 
+from .tabit_management_licenses import router as licenses_router
+
 
 __all__ = [
     'auth_employees',
@@ -23,6 +25,7 @@ __all__ = [
     'superuser_router',
     'admin_router',
     'department_reports_router',
+    'licenses_router',
     'companies_management_router',
     'tabit_management_router',
     'tabit_admin_auth_router',
