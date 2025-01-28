@@ -1,4 +1,4 @@
-.PHONY: up down logs init-migrations apply-migrations drop-db reset-db init-db run
+.PHONY: up down logs init-migrations apply-migrations reset-db init-db run clean-volumes
 
 # Docker Compose команды
 up:
@@ -18,18 +18,18 @@ init-migrations:
 apply-migrations:
 	poetry run alembic upgrade head
 
-# Удаление базы данных (только с использованием psql)
-drop-db:
-	docker exec -i postgres_local psql -U $(POSTGRES_USER) -d postgres -c "DROP DATABASE IF EXISTS $(POSTGRES_DB);"
-	docker exec -i postgres_local psql -U $(POSTGRES_USER) postgres -c "CREATE DATABASE $(POSTGRES_DB);"
-
 # Полный сброс базы данных
-reset-db: drop-db apply-migrations
+reset-db: clean-volumes up apply-migrations
 	@echo "Database reset and migrations applied."
+
+# Удаление Docker volumes (очистка данных базы)
+clean-volumes:
+	docker compose -f infra/docker-compose.local.yaml down -v
+	@echo "Docker volumes removed. Database data reset."
 
 # Полный процесс инициализации базы данных
 init-db: up init-migrations apply-migrations
-	@echo "Database initialized and migrations applied." logs
+	@echo "Database initialized and migrations applied."
 
 # Запуск приложения с uvicorn
 run:
