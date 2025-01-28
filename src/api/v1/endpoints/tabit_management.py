@@ -18,28 +18,28 @@ async def get_all_info(session: AsyncSession = Depends(get_async_session)):
 
 @router.get(
     '/staff',
-    summary='Получить информацию по всем администраторам компаний.',
+    summary='Получить информацию по всем сотрудникам компаний.',
     dependencies=[Depends(get_async_session)],
 )
 async def get_all_staff(session: AsyncSession = Depends(get_async_session)):
-    """Получает информацию по всем администраторам компаний."""
+    """Получает информацию по всем сотрудникам компаний."""
     return {'message': 'Здесь будет какая-то информация.'}
 
 
 @router.post(
     '/staff',
-    summary='Создать нового администратора компании.',
+    summary='Создать нового сотрудника компании.',
     dependencies=[Depends(get_async_session)],
 )
 async def create_staff(
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Создание нового администратора компании."""
+    """Создание нового сотрудника компании."""
     return {'message': 'Здесь будет какая-то информация.'}
 
 
 @router.get(
-    'staff/{admin_slug}',
+    '/staff/{admin_slug}',
     summary='Получить информацию об администраторе.',
     dependencies=[Depends(get_async_session)],
 )
@@ -49,7 +49,7 @@ async def get_staff(admin_slug: str, session: AsyncSession = Depends(get_async_s
 
 
 @router.put(
-    'staff/{admin_slug}',
+    '/staff/{admin_slug}',
     summary='Полностью изменить информацию об администраторе.',
     dependencies=[Depends(get_async_session)],
 )
@@ -59,7 +59,7 @@ async def full_update_staff(admin_slug: str, session: AsyncSession = Depends(get
 
 
 @router.patch(
-    'staff/{admin_slug}',
+    '/staff/{admin_slug}',
     summary='Частично изменить информацию об администраторе.',
     dependencies=[Depends(get_async_session)],
 )
@@ -69,7 +69,7 @@ async def update_staff(admin_slug: str, session: AsyncSession = Depends(get_asyn
 
 
 @router.delete(
-    'staff/{admin_slug}',
+    '/staff/{admin_slug}',
     summary='Удалить информацию об администраторе.',
     dependencies=[Depends(get_async_session)],
 )
@@ -79,7 +79,7 @@ async def delete_staff(admin_slug: str, session: AsyncSession = Depends(get_asyn
 
 
 @router.post(
-    'staff/{admin_slug}/resetpassword',
+    '/staff/{admin_slug}/resetpassword',
     summary='Сброс пароля администратора.',
     dependencies=[Depends(get_async_session)],
 )
