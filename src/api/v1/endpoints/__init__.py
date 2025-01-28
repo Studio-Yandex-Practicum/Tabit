@@ -16,4 +16,5 @@ __all__ = [
     'superuser_router',
     'admin_router',
     'department_reports_router',
+    'problems_router'
 ]
