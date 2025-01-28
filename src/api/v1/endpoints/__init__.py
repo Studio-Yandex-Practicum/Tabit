@@ -4,7 +4,9 @@ from .department import router as department_router
 from .department_report import router as department_reports_router
 from .problem import router as problem_router
 from .users import router as user_router
+
 # from .endpoint import main_router, superuser_router, admin_router  # noqa: F401
+from .tabit_management_companies import router as companies_management_router
 
 
 __all__ = [
@@ -17,4 +19,5 @@ __all__ = [
     'superuser_router',
     'admin_router',
     'department_reports_router',
+    'companies_management_router',
 ]
