@@ -11,3 +11,8 @@ LENGTH_FILE_LINK: int = 2048
 LENGTH_SLUG: int = 25
 
 ZERO: int = 0
+
+# crud
+DEFAULT_SKIP = 0  # Значение по умолчанию для пропуска записей
+DEFAULT_LIMIT = 100  # Ограничение количества записей
+DEFAULT_AUTO_COMMIT = True  # для crud

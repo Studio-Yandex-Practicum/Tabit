@@ -11,10 +11,7 @@ router = APIRouter()
     summary='Получить список всех проблем',
     dependencies=[Depends(get_async_session)],
 )
-async def get_all_problems(
-        company_slug: str,
-        session: AsyncSession = Depends(get_async_session)
-):
+async def get_all_problems(company_slug: str, session: AsyncSession = Depends(get_async_session)):
     """Получает список всех проблем."""
     # TODO: Проверить существование компании и возвращать список проблем
     return {'message': 'Список проблем пока пуст'}
