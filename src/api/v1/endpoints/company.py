@@ -119,14 +119,14 @@ async def get_all_employees(
 
 @router.post(
     '/{company_slug}/employees',
-    summary='Создать нового сотрудника компании',
+    summary='Добавить сотрудника в отдел компании',
     dependencies=[Depends(get_async_session)],
 )
-async def create_employee(
+async def add_employee_to_department(
         company_slug: str,
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Создание нового сотрудника компании."""
+    """Добавление сотрудника в отдел компании."""
     # TODO: Проверить существование компании
     return {'message': 'Создание сотрудника компании временно недоступно'}
 
@@ -161,10 +161,10 @@ async def get_employee(
 
 @router.patch(
     '/{company_slug}/employees/{uuid}',
-    summary='Обновить информацию о сотруднике компании',
+    summary='Изменить отдел сотрудника компании',
     dependencies=[Depends(get_async_session)],
 )
-async def update_employee(
+async def change_department_of_employee(
         company_slug: str,
         employee_id: UUID,
         session: AsyncSession = Depends(get_async_session),
@@ -176,10 +176,10 @@ async def update_employee(
 
 @router.delete(
     '/{company_slug}/employees/{uuid}',
-    summary='Удалить сотрудника компании',
+    summary='Удалить сотрудника из департамента компании',
     dependencies=[Depends(get_async_session)],
 )
-async def delete_employee(
+async def delete_employee_from_department(
         company_slug: str,
         employee_id: UUID,
         session: AsyncSession = Depends(get_async_session),
