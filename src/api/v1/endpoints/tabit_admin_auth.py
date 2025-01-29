@@ -8,6 +8,8 @@ router = APIRouter()
 
 @router.get(
     '/',
+    # TODO Уточнить целесообразность ручки
+    # summary='',
 )
 async def get_tabit_admin(session: AsyncSession = Depends(get_async_session)):
     """Возвращает список администраторов."""
@@ -17,6 +19,7 @@ async def get_tabit_admin(session: AsyncSession = Depends(get_async_session)):
 
 @router.post(
     '/login',
+    summary='Вход в сервис для сотрудника Табит',
 )
 async def login_tabit_admin(session: AsyncSession = Depends(get_async_session)):
     """Авторизация администратора на сервисе."""
@@ -27,14 +30,20 @@ async def login_tabit_admin(session: AsyncSession = Depends(get_async_session)):
     }
 
 
-@router.post('/logout')
+@router.post(
+    '/logout',
+    summary='Выход из сервиса для сотрудника Табит',
+)
 async def logout_tabit_admin(session: AsyncSession = Depends(get_async_session)):
     """Выход для администратора."""
 
     return {}
 
 
-@router.post('/refresh-token')
+@router.post(
+    '/refresh-token',
+    summary='Обновить токен',
+)
 async def refresh_token_tabit_admin(session: AsyncSession = Depends(get_async_session)):
     """Эндпоинт для обновления токена JWT."""
 
@@ -46,6 +55,7 @@ async def refresh_token_tabit_admin(session: AsyncSession = Depends(get_async_se
 
 @router.post(
     '/resetpassword',
+    summary='Сбросить пароль',
 )
 async def resetpassword_tabit_admin(session: AsyncSession = Depends(get_async_session)):
     """Сброс пароля администратора."""
