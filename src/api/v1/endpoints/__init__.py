@@ -11,6 +11,7 @@ from .landing_page import router as landing_page_router
 from .company_user import router as company_user_router
 from .tabit_management_companies import router as companies_management_router
 from .tabit_management_licenses import router as licenses_router
+from .surveys import router as surveys_router
 
 
 __all__ = [
@@ -28,4 +29,5 @@ __all__ = [
     'companies_management_router',
     'tabit_management_router',
     'tabit_admin_auth_router',
+    'surveys_router',
 ]
