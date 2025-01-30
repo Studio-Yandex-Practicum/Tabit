@@ -1,6 +1,8 @@
 # TODO: создать класс Length, декорировать dataclass. Все длины упаковать в этот класс, из названий
 # констант удалить слово LENGTH
+MIN_LENGTH_NAME: int = 2
 LENGTH_NAME_USER: int = 100
+LENGTH_NAME_LICENSE: int = 100
 LENGTH_NAME_COMPANY: int = 255
 LENGTH_NAME_DEPARTMENT: int = 255
 LENGTH_NAME_PROBLEM: int = 255
