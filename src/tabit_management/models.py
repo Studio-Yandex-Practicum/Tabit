@@ -3,7 +3,7 @@ from typing import List, Optional, TYPE_CHECKING
 from sqlalchemy import Interval
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import int_pk, name_field
+from src.database.annotations import int_pk, license_name_field
 from src.database.models import BaseTabitModel, BaseUser
 from src.tabit_management.constants import DEFAULT_NUMBER_DEY_LICENSE
 
@@ -58,7 +58,7 @@ class LicenseType(BaseTabitModel):
     """
 
     id: Mapped[int_pk]
-    name: Mapped[name_field]
+    name: Mapped[license_name_field]
     license_term: Mapped[Interval] = mapped_column(
         Interval(day_precision=DEFAULT_NUMBER_DEY_LICENSE)
     )
