@@ -29,62 +29,6 @@ CreateSchemaType = TypeVar('CreateSchemaType')
 UpdateSchemaType = TypeVar('UpdateSchemaType')
 
 
-def apply_filters(query: Select, model: Type[ModelType], filters: dict[str, Any]) -> Select:
-    """
-    "Добавляет простые условия равенства (WHERE) к запросу на основе словаря.
-
-    Назначение:
-        Фильтрует результат по полям модели. Если поля нет в модели,
-        он игнорируется.
-    Параметры:
-        query: Исходный SQLAlchemy Select.
-        model: Класс модели для запроса.
-        filters: Словарь вида {имя_поля: значение}.
-    Возвращаемое значение:
-        Обновлённый запрос c наложенными условиями.
-    Пример:
-        filters = {'status': 'active', 'user_id': 10}
-        query = select(User)
-        query = apply_filters(query, User, filters)
-        # WHERE user.status='active' AND user.user_id=10
-    """
-    # TODO: Добавить поддержку операций >, <, LIKE, IN, BETWEEN и т.д.
-    for field_name, field_value in filters.items():
-        column = getattr(model, field_name, None)
-        if column is not None:
-            query = query.where(column == field_value)
-    return query
-
-
-def apply_order_by(query: Select, model: Type[ModelType], order_by: list[str]) -> Select:
-    """
-    "Добавляет сортировку (ORDER BY) к запросу, поддерживая '-' для убывания.
-
-    Назначение:
-        Упорядочивает результат по указанным полям. Если поле начинается
-        с '-', применяется сортировка по убыванию. Если поля нет в модели,
-        он игнорируется.
-    Параметры:
-        query: Исходный SQLAlchemy Select.
-        model: Класс модели для запроса.
-        order_by: Список имён полей; '-' в начале означает DESC.
-    Возвращаемое значение:
-        Обновлённый запрос с сортировкой.
-    Пример:
-        order = ['-created_at', 'id']
-        query = select(User)
-        query = apply_order_by(query, User, order)
-        # ORDER BY user.created_at DESC, user.id ASC
-    """
-    for field_name in order_by:
-        desc = field_name.startswith('-')
-        actual_field_name = field_name[1:] if desc else field_name
-        column = getattr(model, actual_field_name, None)
-        if column is not None:
-            query = query.order_by(column.desc() if desc else column.asc())
-    return query
-
-
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """
     "Универсальный базовый класс для CRUD операций.
@@ -156,10 +100,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         query = select(self.model)
 
         if filters:
-            query = apply_filters(query, self.model, filters)
+            query = self._apply_filters(query, filters)
 
         if order_by:
-            query = apply_order_by(query, self.model, order_by)
+            query = self._apply_order_by(query, order_by)
 
         query = query.offset(skip).limit(limit)
         result = await session.execute(query)
@@ -261,3 +205,55 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail='Ошибка сервера при удалении объекта.',
             )
+
+    def _apply_filters(self, query: Select, filters: dict[str, Any]) -> Select:
+        """
+        "Добавляет простые условия равенства (WHERE) к запросу на основе словаря.
+
+        Назначение:
+            Фильтрует результат по полям self.model. Если поля нет в модели,
+            он игнорируется.
+        Параметры:
+            query: Исходный SQLAlchemy Select.
+            filters: Словарь вида {имя_поля: значение}.
+        Возвращаемое значение:
+            Обновлённый запрос c наложенными условиями.
+        Пример:
+            filters = {'status': 'active', 'user_id': 10}
+            query = select(self.model)
+            query = self._apply_filters(query, filters)
+            # WHERE model.status='active' AND model.user_id=10
+        """
+        # TODO: Добавить поддержку операций >, <, LIKE, IN, BETWEEN и т.д.
+        for field_name, field_value in filters.items():
+            column = getattr(self.model, field_name, None)
+            if column is not None:
+                query = query.where(column == field_value)
+        return query
+
+    def _apply_order_by(self, query: Select, order_by: list[str]) -> Select:
+        """
+        "Добавляет сортировку (ORDER BY) к запросу, поддерживая '-' для убывания.
+
+        Назначение:
+            Упорядочивает результат по указанным полям модели. Если поле
+            начинается с '-', применяется сортировка по убыванию. Если
+            поля нет в модели, он игнорируется.
+        Параметры:
+            query: Исходный SQLAlchemy Select.
+            order_by: Список имён полей; '-' в начале означает DESC.
+        Возвращаемое значение:
+            Обновлённый запрос с сортировкой.
+        Пример:
+            order = ['-created_at', 'id']
+            query = select(self.model)
+            query = self._apply_order_by(query, order)
+            # ORDER BY model.created_at DESC, model.id ASC
+        """
+        for field_name in order_by:
+            desc = field_name.startswith('-')
+            actual_field_name = field_name[1:] if desc else field_name
+            column = getattr(self.model, actual_field_name, None)
+            if column is not None:
+                query = query.order_by(column.desc() if desc else column.asc())
+        return query
