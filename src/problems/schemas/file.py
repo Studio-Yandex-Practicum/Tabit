@@ -3,8 +3,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, field_validator
 
-allowed_file_extensions = ('.pdf', '.doc', '.docx', '.PDF', '.DOC', '.DOCX')
-allowed_size_file = 10 * 1024 * 1024 #10Mb
+ALLOWED_FILE_EXTENSIONS = ('.pdf', '.doc', '.docx')
+ALLOWED_SIZE_FILE = 10 * 1024 * 1024 #10Mb
 
 
 class BaseFileSchema(BaseModel):
@@ -18,16 +18,16 @@ class BaseFileSchema(BaseModel):
     def validate_file(cls, path: str) -> str:
         match path:
             case _ if not any(
-                    path.endswith(ext) for ext in allowed_file_extensions
+                    path.endswith(ext) for ext in ALLOWED_FILE_EXTENSIONS
             ):
                 raise ValueError(
                     f'Файл должен иметь расширение: '
-                    f'{", ".join(allowed_file_extensions)}'
+                    f'{", ".join(ALLOWED_FILE_EXTENSIONS)}'
                 )
-            case _ if os.path.getsize(path) > allowed_size_file:
+            case _ if os.path.getsize(path) > ALLOWED_SIZE_FILE:
                 raise ValueError(
                     f'Размер файла не должен превышать '
-                    f'{allowed_size_file / (1024 * 1024)} МБ'
+                    f'{ALLOWED_SIZE_FILE / (1024 * 1024)} МБ'
                 )
             case _ if not os.path.exists(path):
                 raise ValueError(f'Файла по адресу {path} не существует')
