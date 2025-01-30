@@ -4,7 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel, field_validator
 
 allowed_file_extensions = ('.pdf', '.doc', '.docx', '.PDF', '.DOC', '.DOCX')
-allowed_size_file = 10 * 1024 * 1024
+allowed_size_file = 10 * 1024 * 1024 #10Mb
 
 
 class BaseFileSchema(BaseModel):
