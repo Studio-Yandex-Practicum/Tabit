@@ -1,15 +1,18 @@
 """Базовые модели проекта."""
 
+from typing import Optional
+
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTableUUID
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr
 
 from src.database.annotations import (
+    created_at,
     int_pk,
     name_field,
-    created_at,
-    updated_at,
+    patronymic_field,
     tag_name_field,
+    updated_at,
     url_link_field,
 )
 
@@ -57,8 +60,8 @@ class BaseUser(BaseTabitModel, SQLAlchemyBaseUserTableUUID):
 
     name: Mapped[name_field]
     surname: Mapped[name_field]
-    patronymic: Mapped[name_field]
-    phone_number: Mapped[str]
+    patronymic: Mapped[patronymic_field]
+    phone_number: Mapped[Optional[str]]
 
     def __repr__(self):
         return (
