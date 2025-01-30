@@ -21,6 +21,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import Select
 
 from .constants import DEFAULT_AUTO_COMMIT, DEFAULT_SKIP, DEFAULT_LIMIT
+from src.logger import logger
 
 
 ModelType = TypeVar('ModelType')
@@ -178,16 +179,24 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_data = obj_in.dict()
         db_obj = self.model(**obj_data)
 
-        session.add(db_obj)
         try:
+            session.add(db_obj)
             if auto_commit:
                 await session.commit()
                 await session.refresh(db_obj)
-        except IntegrityError:
+        except IntegrityError as e:
             await session.rollback()
+            logger.error(f'Ошибка уникальности при создании {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Ошибка уникальности. Такой объект уже существует.',
+            )
+        except Exception as e:
+            await session.rollback()
+            logger.error(f'Ошибка при создании {self.model.__name__}: {e}')
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Ошибка сервера при создании объекта.',
             )
         return db_obj
 
@@ -210,10 +219,25 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
 
-        session.add(db_obj)
-        if auto_commit:
-            await session.commit()
-            await session.refresh(db_obj)
+        try:
+            session.add(db_obj)
+            if auto_commit:
+                await session.commit()
+                await session.refresh(db_obj)
+        except IntegrityError as e:
+            await session.rollback()
+            logger.error(f'Ошибка уникальности при обновлении {self.model.__name__}: {e}')
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Ошибка уникальности. Такой объект уже существует.',
+            )
+        except Exception as e:
+            await session.rollback()
+            logger.error(f'Ошибка при обновлении {self.model.__name__}: {e}')
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Ошибка сервера при обновлении объекта.',
+            )
         return db_obj
 
     async def delete(
@@ -225,6 +249,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         При отсутствии объекта выбрасывает 404-ошибку.
         """
         obj = await self.get_or_404(session, obj_id)
-        await session.delete(obj)
-        if auto_commit:
-            await session.commit()
+
+        try:
+            await session.delete(obj)
+            if auto_commit:
+                await session.commit()
+        except Exception as e:
+            await session.rollback()
+            logger.error(f'Ошибка при удалении {self.model.__name__}: {e}')
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='Ошибка сервера при удалении объекта.',
+            )
