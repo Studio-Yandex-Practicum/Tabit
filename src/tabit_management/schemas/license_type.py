@@ -16,7 +16,6 @@ from src.tabit_management.constants import (
 
 
 class LicenseTypeBaseSchema(BaseModel):
-
     @classmethod
     def _validator_field_string(cls, value: str):
         """Проверит строковое поле, чтобы не было пробелов вначале или конце."""
@@ -44,7 +43,6 @@ class LicenseTypeBaseSchema(BaseModel):
 
 
 class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
-
     name: str = Field(
         ...,
         min_length=MIN_LENGTH_NAME,
@@ -114,7 +112,6 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
 
 
 class LicenseTypeResponseSchema(LicenseTypeBaseSchema):
-
     id: int
     name: str
     license_tern: timedelta
