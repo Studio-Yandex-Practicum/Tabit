@@ -18,6 +18,7 @@ from src.constants import (
 
 int_pk = Annotated[int, mapped_column(primary_key=True, unique=True)]
 name_field = Annotated[str, mapped_column(String(LENGTH_NAME_USER))]
+license_name_field = Annotated[str, mapped_column(String(LENGTH_NAME_USER))]
 description = Annotated[Optional[str], mapped_column(Text, nullable=True)]
 tag_name_field = Annotated[
     str, mapped_column(String(LENGTH_SMALL_NAME), unique=True, nullable=False)

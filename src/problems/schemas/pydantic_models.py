@@ -44,7 +44,7 @@ class MeetingSchema(MeetingBaseSchema):
     members: List[int] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class StatusMeetingSchema(BaseModel):
@@ -56,7 +56,7 @@ class StatusMeetingSchema(BaseModel):
     name: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ResultMeetingSchema(BaseModel):
