@@ -18,15 +18,16 @@ from src.constants import (
 
 int_pk = Annotated[int, mapped_column(primary_key=True, unique=True)]
 name_field = Annotated[str, mapped_column(String(LENGTH_NAME_USER))]
+patronymic_field = Annotated[Optional[str], mapped_column(String(LENGTH_NAME_USER), nullable=True)]
 license_name_field = Annotated[str, mapped_column(String(LENGTH_NAME_USER))]
 description = Annotated[Optional[str], mapped_column(Text, nullable=True)]
 tag_name_field = Annotated[
     str, mapped_column(String(LENGTH_SMALL_NAME), unique=True, nullable=False)
 ]
-url_link_field = Annotated[str, mapped_column(String(LENGTH_FILE_LINK))]
+url_link_field = Annotated[Optional[str], mapped_column(String(LENGTH_FILE_LINK), nullable=True)]
 created_at = Annotated[datetime, mapped_column(server_default=func.now())]
 updated_at = Annotated[datetime, mapped_column(server_default=func.now(), onupdate=datetime.now)]
-owner = Annotated[Optional[UUID], mapped_column(ForeignKey('usertabit.id'), nullable=True)]
+owner = Annotated[UUID, mapped_column(ForeignKey('usertabit.id'), nullable=False)]
 int_zero = Annotated[int, mapped_column(Integer, nullable=False, default=ZERO)]
 nullable_timestamp = Annotated[Optional[DateTime], mapped_column(DateTime, nullable=True)]
 name_problem = Annotated[str, mapped_column(String(LENGTH_NAME_PROBLEM), nullable=False)]

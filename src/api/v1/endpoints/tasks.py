@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
-from src.problems.schemas.pydantic_models import TaskDBSchema, TaskCreateSchema, TaskUpdateSchema
+from src.problems.schemas.task import TaskResponseSchema, TaskCreateSchema, TaskUpdateSchema
 from src.problems.models.enums import StatusTask
 
 router = APIRouter()
@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get(
     '/{company_slug}/problems/{problem_id}/tasks',
-    response_model=list[TaskDBSchema],
+    response_model=list[TaskResponseSchema],
     response_model_exclude_none=True,
     summary='Получить информацию о всех задачах проблемы',
     dependencies=[Depends(get_async_session)],
@@ -20,15 +20,24 @@ async def get_tasks(
 ):
     """Возвращает информацию о всех задачах проблемы"""
     # TODO: Реализовать получение задачь для проблемы из БД
-    task_schema = TaskDBSchema(
+    task_schema = TaskResponseSchema(
         **{
             'id': 1,
             'name': f'Задача №1 у компании {company_slug}',
+            'problem_id': problem_id,
             'description': 'Описание задачи #1',
             'date_completion': '2030-01-01',
-            'owner_id': 1,
-            'problem_id': problem_id,
+            'owner_id': '3fa85f64-5717-4562-b3fc-2c963f234331',
+            'executor': [
+                '3fa85f64-5717-4562-b3fc-2c963f66afa1',
+                '3fa85f64-5717-4562-b3fc-2c9633333fa1',
+            ],
             'status': StatusTask.NEW,
+            'transfer_counter': 0,
+            'file': [
+                '/file1.jpg',
+                '/file2.pdf',
+            ],
         }
     )
     return [task_schema] * 2
@@ -36,7 +45,7 @@ async def get_tasks(
 
 @router.post(
     '/{company_slug}/problems/{problem_id}/tasks',
-    response_model=TaskDBSchema,
+    response_model=TaskResponseSchema,
     response_model_exclude_none=True,
     summary='Создать новую задачу',
     dependencies=[Depends(get_async_session)],
@@ -49,7 +58,14 @@ async def create_task(
 ):
     """Создает новую задачу"""
     # TODO: Реализовать создание задачи в БД
-    task_schema = TaskDBSchema(id=123, problem_id=problem_id, **task.model_dump(exclude_none=True))
+    task_schema = TaskResponseSchema(
+        id=123,
+        problem_id=problem_id,
+        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
+        status=StatusTask.NEW,
+        transfer_counter=0,
+        **task.model_dump(exclude_none=True),
+    )
     return task_schema
 
 
@@ -69,18 +85,23 @@ async def get_task(
     task_from_db = {
         'id': task_id,
         'name': f'Задача №1 у компании {company_slug}',
+        'problem_id': problem_id,
         'description': 'Описание задачи #1',
         'date_completion': '2030-01-01',
-        'owner_id': 1,
-        'problem_id': problem_id,
+        'owner_id': '3fa85f64-5717-4562-b3fc-2c963f234331',
+        'executor': [
+            '3fa85f64-5717-4562-b3fc-2c963f66afa1',
+            '3fa85f64-5717-4562-b3fc-2c9633333fa1',
+        ],
         'status': StatusTask.NEW,
+        'transfer_counter': 0,
     }
     return task_from_db
 
 
 @router.patch(
     '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
-    response_model=TaskDBSchema,
+    response_model=TaskResponseSchema,
     response_model_exclude_none=True,
     summary='Обновить информацию о задаче',
     dependencies=[Depends(get_async_session)],
@@ -97,22 +118,27 @@ async def update_task(
     task_from_db = {
         'id': task_id,
         'name': f'Задача №1 у компании {company_slug}',
+        'problem_id': problem_id,
         'description': 'Описание задачи #1',
         'date_completion': '2030-01-01',
-        'owner_id': 1,
-        'problem_id': problem_id,
+        'owner_id': '3fa85f64-5717-4562-b3fc-2c963f66afa1',
+        'executor': [
+            '3fa85f64-5717-4562-b3fc-2c963f66afa1',
+            '3fa85f64-5717-4562-b3fc-2c9633333fa1',
+        ],
         'status': StatusTask.NEW,
+        'transfer_counter': 0,
     }
     # TODO: Реализовать обновление задачи в БД
     task_to_update = task.model_dump(exclude_none=True)
     task_from_db.update(task_to_update)
-    task_schema = TaskDBSchema(**task_from_db)
+    task_schema = TaskResponseSchema(**task_from_db)
     return task_schema
 
 
 @router.delete(
     '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
-    response_model=TaskDBSchema,
+    response_model=TaskResponseSchema,
     response_model_exclude_none=True,
     summary='Удалить задачу',
     dependencies=[Depends(get_async_session)],
@@ -127,10 +153,15 @@ async def delete_task(
     task_from_db = {
         'id': task_id,
         'name': f'Задача №1 у компании {company_slug}',
+        'problem_id': problem_id,
         'description': 'Описание задачи #1',
         'date_completion': '2030-01-01',
-        'owner_id': 1,
-        'problem_id': problem_id,
+        'owner_id': '3fa85f64-5717-4562-b3fc-2c963f66afa1',
+        'executor': [
+            '3fa85f64-5717-4562-b3fc-2c963f66afa1',
+            '3fa85f64-5717-4562-b3fc-2c9633333fa1',
+        ],
         'status': StatusTask.NEW,
+        'transfer_counter': 0,
     }
-    return TaskDBSchema(**task_from_db)
+    return TaskResponseSchema(**task_from_db)

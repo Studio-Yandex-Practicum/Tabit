@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from re import compile
 from typing import Optional
 
@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.constants import LENGTH_NAME_LICENSE, MIN_LENGTH_NAME, ZERO
 from src.tabit_management.constants import (
+    DEFAULT_LICENSE_TERN,
     ERROR_FIELD_INTERVAL,
     ERROR_FIELD_START_OR_END_SPACE,
     title_license_tern,
@@ -16,6 +17,8 @@ from src.tabit_management.constants import (
 
 
 class LicenseTypeBaseSchema(BaseModel):
+    """Базовая схема лицензии."""
+
     @classmethod
     def _validator_field_string(cls, value: str):
         """Проверит строковое поле, чтобы не было пробелов вначале или конце."""
@@ -43,6 +46,8 @@ class LicenseTypeBaseSchema(BaseModel):
 
 
 class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
+    """Схема для создания лицензии."""
+
     name: str = Field(
         ...,
         min_length=MIN_LENGTH_NAME,
@@ -51,7 +56,7 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
     )
     license_tern: timedelta = Field(
         ...,
-        ge=timedelta(days=1),
+        ge=timedelta(**DEFAULT_LICENSE_TERN),
         title=title_license_tern,
     )
     max_admins_count: int = Field(
@@ -77,6 +82,8 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
 
 
 class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
+    """Схема для частичного изменения лицензии."""
+
     name: Optional[str] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
@@ -111,11 +118,15 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
     model_config = ConfigDict(extra='forbid')
 
 
-class LicenseTypeResponseSchema(LicenseTypeBaseSchema):
+class LicenseTypeResponseSchema(BaseModel):
+    """Схема лицензии для ответов."""
+
     id: int
     name: str
     license_tern: timedelta
     max_admins_count: int
     max_employees_count: int
+    created_at: date
+    updated_at: date
 
     model_config = ConfigDict(from_attributes=True)
