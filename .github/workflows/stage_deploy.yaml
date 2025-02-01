@@ -1,0 +1,79 @@
+name: Deploy to Stage
+
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  DEPLOY_PATH: /home/dev_deploy/app
+
+jobs:
+  deploy:
+    name: Deploy changes on server
+    needs: [build_and_push]
+    runs-on: ubuntu-latest
+    environment:
+      name: stage_deploy
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Stopping old containers
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          STATUS="$(systemctl is-active our_service.service)"
+          if [ "${STATUS}" = "active" ]; then
+            sudo systemctl stop our_service.service
+            echo "Stopping old containers"
+          else
+            echo "No active containers"
+          fi
+
+    - name: Copy infra via ssh
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        source: "infra/stage/"
+        target: "${{ env.DEPLOY_PATH }}/infra/stage"
+        rm: true
+        strip_components: 1
+
+    - name: Execute commands on VPS
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          cd ${{ env.DEPLOY_PATH }}
+          touch .env
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+          cd infra/stage/
+          docker system prune --force
+
+          sudo cp -f /home/dev_deploy/app/infra/stage/our_service.service /etc/systemd/system/our_service.service
+          sudo systemctl daemon-reload
+          sudo systemctl start our_service.service
+
+          sudo systemctl is-active --quiet our_service.service
+          until [ $? -eq 0 ]; do
+            echo "Waiting for our_service.service to be active..."
+            sleep 5
+            sudo systemctl is-active --quiet our_service.service
+          done
+
+          echo "our_service.service is active"
+
+          docker exec our_service python manage.py collectstatic --noinput
+          docker exec our_service python manage.py migrate
