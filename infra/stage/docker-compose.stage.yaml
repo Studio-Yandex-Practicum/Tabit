@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: postgres_local
+    image: postgres:17.2-alpine
+    restart: always
+    env_file:
+      - ./../../.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    container_name: tabit
+    build:
+      context: ../..
+      dockerfile: infra/stage/stage.Dockerfile
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src
+    env_file:
+      - ./../../.env
+
+
+volumes:
+  postgres_data:
