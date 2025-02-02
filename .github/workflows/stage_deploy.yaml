@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - dev
-      - feature/cicd-setup 
+      - feature/cicd-setup
 
 env:
   DEPLOY_PATH: /home/dev_deploy/app
@@ -19,6 +19,17 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Setup SSH key if provided
+      run: |
+        if [ -n "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          eval $(ssh-agent -s)
+          ssh-add private_key.pem
+        else
+          echo "No SSH key found, skipping SSH setup."
+        fi
 
     - name: Stopping old containers
       uses: appleboy/ssh-action@master
@@ -57,24 +68,22 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
           cd ${{ env.DEPLOY_PATH }}
+
           touch .env
           echo "${{ secrets.ENV_FILE }}" > .env
 
           cd infra/stage/
           docker system prune --force
 
-          sudo cp -f /home/dev_deploy/app/infra/stage/our_service.service /etc/systemd/system/our_service.service
-          sudo systemctl daemon-reload
-          sudo systemctl start our_service.service
+          sudo docker compose -f infra/stage/docker-compose.stage.yaml up -d
 
-          sudo systemctl is-active --quiet our_service.service
+          sudo systemctl is-active --quiet tabit.service
           until [ $? -eq 0 ]; do
-            echo "Waiting for our_service.service to be active..."
+            echo "Waiting for tabit.service to be active..."
             sleep 5
-            sudo systemctl is-active --quiet our_service.service
+            sudo systemctl is-active --quiet tabit.service
           done
 
-          echo "our_service.service is active"
+          echo "tabit service is active"
 
-          docker exec our_service python manage.py collectstatic --noinput
-          docker exec our_service python manage.py migrate
+          docker exec tabit alembic -c /app/alembic.ini upgrade head
