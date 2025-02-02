@@ -25,6 +25,12 @@ jobs:
             touch .env
             echo "${{ secrets.ENV_FILE }}" > .env
 
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
       - name: Copy deployment files to server
         uses: appleboy/ssh-action@v0.1.0
         with:
