@@ -16,7 +16,7 @@ jobs:
 
       - name: Set up environment variables
         run: |
-          cd ${{ env.DEPLOY_PATH }}
+          cd ${{ secrets.DEPLOY_PATH }}
           touch .env
           echo "${{ secrets.ENV_FILE }}" > .env
 
