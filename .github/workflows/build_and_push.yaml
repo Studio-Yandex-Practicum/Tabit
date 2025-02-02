@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - feature/cicd-setup
 
 env:
   REGISTRY: ghcr.io
