@@ -74,12 +74,13 @@ class TagUser(BaseTag):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
-        user - AssociationUserTags -> UserTabit.
+        user - AssociationUserTags -> UserTabit;
+        company - Company.
     """
 
     user: Mapped[List['AssociationUserTags']] = relationship(back_populates='tag')
-    company_id: Mapped[Optional[int]] = mapped_column(ForeignKey('company.id'))
-    company: Mapped[Optional['Company']] = relationship(back_populates='tags_users')
+    company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
+    company: Mapped['Company'] = relationship(back_populates='tags_users')
 
 
 class UserTabit(BaseUser):
@@ -132,21 +133,36 @@ class UserTabit(BaseUser):
         voting_by - VotingByUser: связь с выбранными вариантами голосования в сообщениях.
     """
 
-    birthday: Mapped[date]
-    telegram_username: Mapped[str] = mapped_column(String(LENGTH_TELEGRAM_USERNAME), unique=True)
+    birthday: Mapped[Optional[date]]
+    telegram_username: Mapped[Optional[str]] = mapped_column(
+        String(LENGTH_TELEGRAM_USERNAME), unique=True, nullable=True
+    )
     role: Mapped['RoleUserTabit']
-    start_date_employment: Mapped[date]
-    end_date_employment: Mapped[date]
+    start_date_employment: Mapped[Optional[date]]
+    end_date_employment: Mapped[Optional[date]]
     tags: Mapped[List['AssociationUserTags']] = relationship(back_populates='user')
 
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
     company: Mapped['Company'] = relationship(back_populates='employees')
 
-    current_department_id: Mapped[int] = mapped_column(ForeignKey('department.id'))
-    current_department: Mapped['Department'] = relationship(back_populates='employees')
-    last_department_id: Mapped[Optional[int]] = mapped_column(ForeignKey('department.id'))
-    last_department: Mapped['Department'] = relationship(back_populates='employees_lost')
-    supervisor: Mapped['Department'] = relationship(back_populates='supervisor')
+    # current_department_id: Mapped[Optional[int]] = mapped_column(
+    #     ForeignKey('department.id'), nullable=True
+    # )
+    # current_department: Mapped['Department'] = relationship(
+    #     back_populates='employees', foreign_keys=[current_department_id]
+    # )
+    # last_department_id: Mapped[Optional[int]] = mapped_column(
+    #     ForeignKey('department.id'), nullable=True
+    # )
+    # last_department: Mapped['Department'] = relationship(
+    #     back_populates='employees_lost', foreign_keys=[last_department_id]
+    # )
+    # supervisor_id: Mapped[Optional[int]] = mapped_column(
+    #     ForeignKey('department.id'), nullable=True
+    # )
+    # supervisor: Mapped['Department'] = relationship(
+    #     back_populates='supervisor', foreign_keys=[supervisor_id]
+    # )
 
     problem_owner: Mapped[List['Problem']] = relationship(back_populates='owner')
     problems: Mapped[List['AssociationUserProblem']] = relationship(back_populates='user')
@@ -159,8 +175,8 @@ class UserTabit(BaseUser):
     comments: Mapped[List['CommentFeed']] = relationship(back_populates='owner')
     voting_by: Mapped[List['VotingByUser']] = relationship(back_populates='user')
 
-    department_transition_date: Mapped[date]
-    employee_position: Mapped[str]
+    department_transition_date: Mapped[Optional[date]]
+    employee_position: Mapped[Optional[str]]
     avatar_link: Mapped[url_link_field]
 
     # TODO: На уровне базы запретить ставить is_superuser = True.

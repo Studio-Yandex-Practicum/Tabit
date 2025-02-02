@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
+from src.tabit_management.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
+from src.tabit_management.crud import admin_crud
 
 router = APIRouter()
 
@@ -61,3 +63,17 @@ async def resetpassword_tabit_admin(session: AsyncSession = Depends(get_async_se
     """Сброс пароля администратора."""
 
     return {'message': 'Пароль изменен'}
+
+
+@router.post(
+    '/',
+    response_model=AdminReadSchema,
+)
+async def create_tabit_admin(
+    admin: AdminCreateSchema,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Создание нового админа сервиса Табит. Это не супер юзер."""
+    # TODO: реализовать ограниченные возможности вновь созданных админов.
+    new_admin = await admin_crud.create(session, admin)
+    return new_admin

@@ -111,10 +111,10 @@ class Department(BaseTabitModel):
     name: Mapped[str] = mapped_column(String(LENGTH_NAME_DEPARTMENT), nullable=False)
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'), nullable=False)
     company: Mapped['Company'] = relationship(back_populates='departments')
-    supervisor_id: Mapped[Optional[int]] = mapped_column(ForeignKey('usertabit.id'), nullable=True)
-    supervisor: Mapped['UserTabit'] = relationship(back_populates='supervisor')
-    employees: Mapped[List['UserTabit']] = relationship(back_populates='current_department')
-    employees_lost: Mapped[List['UserTabit']] = relationship(back_populates='last_department')
+    # supervisor_id: Mapped[Optional[int]] = mapped_column(ForeignKey('usertabit.id'), nullable=True)
+    # supervisor: Mapped['UserTabit'] = relationship(back_populates='supervisor')
+    # employees: Mapped[List['UserTabit']] = relationship(back_populates='current_department')
+    # employees_lost: Mapped[List['UserTabit']] = relationship(back_populates='last_department')
     slug: Mapped[slug]
 
     __table_args__ = (UniqueConstraint('company_id', 'name', name='uq_company_department_name'),)

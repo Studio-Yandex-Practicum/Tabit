@@ -23,20 +23,18 @@ async def get_licenses(
     Возвращает список всех лицензий.
     """
     # TODO: Реализовать получение данных из базы
-    return [{
-        'id': 1,
-        'name': 'Внимание! Это заглушка!',
-        'license_tern': 'P1D',
-        'max_admins_count': 1,
-        'max_employees_count': 1,
-    }]
+    return [
+        {
+            'id': 1,
+            'name': 'Внимание! Это заглушка!',
+            'license_tern': 'P1D',
+            'max_admins_count': 1,
+            'max_employees_count': 1,
+        }
+    ]
 
 
-@router.post(
-    '/',
-    response_model=LicenseTypeResponseSchema,
-    summary='Создать новую лицензию'
-)
+@router.post('/', response_model=LicenseTypeResponseSchema, summary='Создать новую лицензию')
 async def create_license(
     license: LicenseTypeCreateSchema,
     session: AsyncSession = Depends(get_async_session),
@@ -59,10 +57,7 @@ async def create_license(
     response_model=LicenseTypeResponseSchema,
     summary='Получить данные лицензии',
 )
-async def get_license(
-    license_id: int,
-    session: AsyncSession = Depends(get_async_session)
-):
+async def get_license(license_id: int, session: AsyncSession = Depends(get_async_session)):
     """
     Получение данных лицензии по идентификатору.
     """
@@ -76,7 +71,6 @@ async def get_license(
     }
 
 
-
 @router.patch(
     '/{license_id}',
     response_model=LicenseTypeResponseSchema,
@@ -85,7 +79,7 @@ async def get_license(
 async def update_license(
     license_id: int,
     license: LicenseTypeUpdateSchema,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
     """
     Обновление данных лицензии по идентификатору.
@@ -101,9 +95,7 @@ async def update_license(
 
 
 @router.delete(
-    '/{license_slug}',
-    response_model=LicenseTypeResponseSchema,
-    summary='Удалить лицензию'
+    '/{license_slug}', response_model=LicenseTypeResponseSchema, summary='Удалить лицензию'
 )
 async def delete_license(
     license_id: int,
