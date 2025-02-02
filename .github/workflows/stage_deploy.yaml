@@ -25,39 +25,33 @@ jobs:
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Set up environment variables
-        uses: appleboy/ssh-action@v0.1.0
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ secrets.DEPLOY_PATH }}
-            touch .env
-            echo "${{ secrets.ENV_FILE }}" > .env
-
       - name: Copy repository to server
         run: |
-          rsync -avz -e "ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:${{ secrets.DEPLOY_PATH }}/
+          rsync -avz -e "ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:${{ secrets.DEPLOY_PATH }}/app
 
-      - name: Copy deployment files to server
+      - name: Build and push Docker image
         run: |
-          rsync -avz -e "ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ./infra/stage/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:${{ secrets.DEPLOY_PATH }}/infra/stage/
+          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "
+          cd ${{ secrets.DEPLOY_PATH }}/app && 
+          docker build -t tabit:latest -f infra/stage/stage.Dockerfile .
+          "
 
-      - name: Docker prune and deploy
+      - name: Run Docker Compose
         run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd ${{ secrets.DEPLOY_PATH }}/infra/stage/ && docker system prune --force && sudo docker compose -f docker-compose.stage.yaml up -d"
+          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "
+          cd ${{ secrets.DEPLOY_PATH }}/app/infra/stage && 
+          docker compose -f docker-compose.stage.yaml up -d
+          "
 
       - name: Wait for tabit service to start
         run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "sudo systemctl is-active --quiet tabit.service"
-          until [ $? -eq 0 ]; do
+          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "sudo systemctl status tabit.service || true"
+          until ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking-no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "sudo systemctl is-active --quiet tabit.service"; do
             echo "Waiting for tabit.service to be active..."
             sleep 5
-            ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "sudo systemctl is-active --quiet tabit.service"
           done
           echo "tabit service is active"
 
       - name: Apply Alembic migrations
         run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker exec tabit alembic -c /app/alembic.ini upgrade head"
+          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking-no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker exec tabit alembic -c /app/alembic.ini upgrade head"
