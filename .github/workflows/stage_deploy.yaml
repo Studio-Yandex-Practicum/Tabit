@@ -25,6 +25,15 @@ jobs:
             touch .env
             echo "${{ secrets.ENV_FILE }}" > .env
 
+      - name: Copy deployment files to server
+        uses: appleboy/ssh-action@v0.1.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            rsync -avz ./infra/stage/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:${{ secrets.DEPLOY_PATH }}/infra/stage/
+
       - name: Docker prune and deploy
         uses: appleboy/ssh-action@v0.1.0
         with:
