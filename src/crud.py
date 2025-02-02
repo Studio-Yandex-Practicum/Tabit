@@ -10,17 +10,31 @@
   create, update и delete.
 """
 
-from typing import TypeVar, Generic, Type, Optional, List, Any
+from typing import Any, Generic, List, Optional, Type, TypeVar
 from uuid import UUID
 
 from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
-from .constants import DEFAULT_AUTO_COMMIT, DEFAULT_SKIP, DEFAULT_LIMIT
+from src.constants import (
+    DEFAULT_AUTO_COMMIT,
+    DEFAULT_SKIP,
+    DEFAULT_LIMIT,
+    TEXT_ERROR_NOT_FOUND,
+    TEXT_ERROR_SERVER_CREATE,
+    TEXT_ERROR_SERVER_CREATE_LOG,
+    TEXT_ERROR_SERVER_DELETE,
+    TEXT_ERROR_SERVER_DELETE_LOG,
+    TEXT_ERROR_SERVER_UPDATE,
+    TEXT_ERROR_SERVER_UPDATE_LOG,
+    TEXT_ERROR_UNIQUE,
+    TEXT_ERROR_UNIQUE_CREATE_LOG,
+    TEXT_ERROR_UNIQUE_UPDATE_LOG,
+)
 from src.logger import logger
 
 
@@ -60,7 +74,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         obj = await self.get(session, obj_id)
         if not obj:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Объект не найден')
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=TEXT_ERROR_NOT_FOUND)
         return obj
 
     async def get_multi(
@@ -130,17 +144,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.refresh(db_obj)
         except IntegrityError as e:
             await session.rollback()
-            logger.error(f'Ошибка уникальности при создании {self.model.__name__}: {e}')
+            logger.error(f'{TEXT_ERROR_UNIQUE_CREATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Ошибка уникальности. Такой объект уже существует.',
+                detail=TEXT_ERROR_UNIQUE,
             )
         except Exception as e:
             await session.rollback()
-            logger.error(f'Ошибка при создании {self.model.__name__}: {e}')
+            logger.error(f'{TEXT_ERROR_SERVER_CREATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Ошибка сервера при создании объекта.',
+                detail=TEXT_ERROR_SERVER_CREATE,
             )
         return db_obj
 
@@ -170,17 +184,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.refresh(db_obj)
         except IntegrityError as e:
             await session.rollback()
-            logger.error(f'Ошибка уникальности при обновлении {self.model.__name__}: {e}')
+            logger.error(f'{TEXT_ERROR_UNIQUE_UPDATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Ошибка уникальности. Такой объект уже существует.',
+                detail=TEXT_ERROR_UNIQUE,
             )
         except Exception as e:
             await session.rollback()
-            logger.error(f'Ошибка при обновлении {self.model.__name__}: {e}')
+            logger.error(f'{TEXT_ERROR_SERVER_UPDATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Ошибка сервера при обновлении объекта.',
+                detail=TEXT_ERROR_SERVER_UPDATE,
             )
         return db_obj
 
@@ -200,10 +214,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.commit()
         except Exception as e:
             await session.rollback()
-            logger.error(f'Ошибка при удалении {self.model.__name__}: {e}')
+            logger.error(f'{TEXT_ERROR_SERVER_DELETE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail='Ошибка сервера при удалении объекта.',
+                detail=TEXT_ERROR_SERVER_DELETE,
             )
 
     def _apply_filters(self, query: Select, filters: dict[str, Any]) -> Select:

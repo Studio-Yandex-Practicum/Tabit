@@ -56,7 +56,7 @@ class Meeting(BaseTabitModel):
         back_populates='meeting', cascade='all, delete-orphan'
     )
     result: Mapped['ResultMeeting'] = relationship(
-        back_populates='meering', cascade='all, delete-orphan'
+        back_populates='meeting', cascade='all, delete-orphan'
     )
     transger_counter: Mapped[int_zero]
     file: Mapped[List['FileMeeting']] = relationship(

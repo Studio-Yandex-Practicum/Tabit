@@ -15,6 +15,17 @@ LENGTH_SLUG: int = 25
 ZERO: int = 0
 
 # crud
-DEFAULT_SKIP = 0  # Значение по умолчанию для пропуска записей
-DEFAULT_LIMIT = 100  # Ограничение количества записей
-DEFAULT_AUTO_COMMIT = True  # для crud
+DEFAULT_SKIP: int = 0  # Значение по умолчанию для пропуска записей
+DEFAULT_LIMIT: int = 100  # Ограничение количества записей
+DEFAULT_AUTO_COMMIT: bool = True  # для crud
+
+TEXT_ERROR_NOT_FOUND: str = 'Объект не найден'
+TEXT_ERROR_UNIQUE: str = 'Ошибка уникальности. Такой объект уже существует.'
+TEXT_ERROR_UNIQUE_CREATE_LOG: str = 'Ошибка уникальности при создании'
+TEXT_ERROR_UNIQUE_UPDATE_LOG: str = 'Ошибка уникальности при обновлении'
+TEXT_ERROR_SERVER_CREATE: str = 'Ошибка сервера при создании объекта.'
+TEXT_ERROR_SERVER_CREATE_LOG: str = 'Ошибка при создании'
+TEXT_ERROR_SERVER_UPDATE: str = 'Ошибка сервера при обновлении объекта.'
+TEXT_ERROR_SERVER_UPDATE_LOG: str = 'Ошибка при обновлении'
+TEXT_ERROR_SERVER_DELETE: str = 'Ошибка сервера при удалении объекта.'
+TEXT_ERROR_SERVER_DELETE_LOG: str = 'Ошибка при удалении'

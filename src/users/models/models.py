@@ -145,15 +145,24 @@ class UserTabit(BaseUser):
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
     company: Mapped['Company'] = relationship(back_populates='employees')
 
-    current_department_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('department.id'), nullable=True
-    )
-    current_department: Mapped['Department'] = relationship(back_populates='employees')
-    last_department_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('department.id'), nullable=True
-    )
-    last_department: Mapped['Department'] = relationship(back_populates='employees_lost')
-    supervisor: Mapped['Department'] = relationship(back_populates='supervisor')
+    # current_department_id: Mapped[Optional[int]] = mapped_column(
+    #     ForeignKey('department.id'), nullable=True
+    # )
+    # current_department: Mapped['Department'] = relationship(
+    #     back_populates='employees', foreign_keys=[current_department_id]
+    # )
+    # last_department_id: Mapped[Optional[int]] = mapped_column(
+    #     ForeignKey('department.id'), nullable=True
+    # )
+    # last_department: Mapped['Department'] = relationship(
+    #     back_populates='employees_lost', foreign_keys=[last_department_id]
+    # )
+    # supervisor_id: Mapped[Optional[int]] = mapped_column(
+    #     ForeignKey('department.id'), nullable=True
+    # )
+    # supervisor: Mapped['Department'] = relationship(
+    #     back_populates='supervisor', foreign_keys=[supervisor_id]
+    # )
 
     problem_owner: Mapped[List['Problem']] = relationship(back_populates='owner')
     problems: Mapped[List['AssociationUserProblem']] = relationship(back_populates='user')
