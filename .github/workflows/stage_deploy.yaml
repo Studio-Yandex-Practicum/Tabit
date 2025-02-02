@@ -24,7 +24,7 @@ jobs:
         run: |
           cd infra/stage/
           docker system prune --force
-          sudo docker compose -f infra/stage/docker-compose.stage.yaml up -d
+          sudo docker compose -f docker-compose.stage.yaml up -d
 
       - name: Wait for tabit service to start
         run: |
