@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -21,8 +21,8 @@ class AdminReadSchema(BaseUser[UUID]):
     surname: str
     patronymic: Optional[str]
     phone_number: Optional[str]
-    created_at: date
-    updated_at: date
+    created_at: datetime
+    updated_at: datetime
     is_active: bool
     is_superuser: bool
 

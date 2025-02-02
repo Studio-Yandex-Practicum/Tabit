@@ -15,6 +15,8 @@ LENGTH_SLUG: int = 25
 
 ZERO: int = 0
 
+ERROR_INVALID_PASSWORD_LENGTH = f'Пароль не может быть короче {MIN_LENGTH_PASSWORD} символов.'
+
 # crud
 DEFAULT_SKIP: int = 0  # Значение по умолчанию для пропуска записей
 DEFAULT_LIMIT: int = 100  # Ограничение количества записей

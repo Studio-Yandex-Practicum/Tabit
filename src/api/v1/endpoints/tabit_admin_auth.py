@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.auth.jwt import jwt_auth_backend
+from src.api.v1.auth.managers import tabit_admin, tabit_users
 from src.database.db_depends import get_async_session
 from src.tabit_management.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
 from src.tabit_management.crud import admin_crud
@@ -20,29 +22,6 @@ async def get_tabit_admin(session: AsyncSession = Depends(get_async_session)):
 
 
 @router.post(
-    '/login',
-    summary='Вход в сервис для сотрудника Табит',
-)
-async def login_tabit_admin(session: AsyncSession = Depends(get_async_session)):
-    """Авторизация администратора на сервисе."""
-
-    return {
-        'access_token': 'токен доступа',
-        'refresh_token': 'токен обновления',
-    }
-
-
-@router.post(
-    '/logout',
-    summary='Выход из сервиса для сотрудника Табит',
-)
-async def logout_tabit_admin(session: AsyncSession = Depends(get_async_session)):
-    """Выход для администратора."""
-
-    return {}
-
-
-@router.post(
     '/refresh-token',
     summary='Обновить токен',
 )
@@ -55,25 +34,28 @@ async def refresh_token_tabit_admin(session: AsyncSession = Depends(get_async_se
     }
 
 
-@router.post(
-    '/resetpassword',
-    summary='Сбросить пароль',
+router.include_router(
+    tabit_admin.get_auth_router(jwt_auth_backend),
+    prefix='',
 )
-async def resetpassword_tabit_admin(session: AsyncSession = Depends(get_async_session)):
-    """Сброс пароля администратора."""
 
-    return {'message': 'Пароль изменен'}
-
-
-@router.post(
-    '/',
-    response_model=AdminReadSchema,
+router.include_router(
+    tabit_admin.get_reset_password_router(),
+    prefix='',
 )
-async def create_tabit_admin(
-    admin: AdminCreateSchema,
-    session: AsyncSession = Depends(get_async_session),
-):
-    """Создание нового админа сервиса Табит. Это не супер юзер."""
-    # TODO: реализовать ограниченные возможности вновь созданных админов.
-    new_admin = await admin_crud.create(session, admin)
-    return new_admin
+router.include_router(
+    tabit_admin.get_users_router(
+        user_schema=AdminReadSchema,
+        user_update_schema=AdminUpdateSchema,
+    ),
+    prefix='',
+)
+# TODO: Для тестирования работы БД сойдет, а вообще нужно создать отдельную ручку для создания
+# модератора, с ограниченным доступом.
+router.include_router(
+    tabit_admin.get_register_router(
+        user_schema=AdminReadSchema,
+        user_create_schema=AdminCreateSchema,
+    ),
+    prefix='',
+)
