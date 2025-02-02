@@ -1,5 +1,5 @@
 DEFAULT_NUMBER_DEY_LICENSE: int = 1
-DEFAULT_LICENSE_TERN: dict[str, int] = {'day': 1}
+DEFAULT_LICENSE_TERN: dict[str, int] = {'days': 1}
 
 title_name_license: str = 'Название лицензии'
 title_license_tern: str = 'Срок действия лицензии в днях'
