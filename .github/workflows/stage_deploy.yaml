@@ -36,6 +36,10 @@ jobs:
             touch .env
             echo "${{ secrets.ENV_FILE }}" > .env
 
+      - name: Copy repository to server
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:${{ secrets.DEPLOY_PATH }}/
+
       - name: Copy deployment files to server
         run: |
           rsync -avz -e "ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ./infra/stage/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:${{ secrets.DEPLOY_PATH }}/infra/stage/
