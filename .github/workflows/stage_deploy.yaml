@@ -18,7 +18,7 @@ jobs:
   deploy:
     if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/feature/cicd-setup'
     name: Deploy changes on server
-    needs: [build_and_push]
+    needs: [check, build_and_push]
     runs-on: ubuntu-latest
     environment:
       name: dev_deploy
