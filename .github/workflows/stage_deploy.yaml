@@ -8,48 +8,76 @@ on:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/feature/cicd-setup'
+    name: Deploy changes on server
+    needs: [build_and_push]
     runs-on: ubuntu-latest
-
+    environment:
+      name: dev_deploy
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up SSH key
+      - name: Delete unnecessary files
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          rm -r infra/stage
+          rm -r infra/dev
 
-      - name: Add host to known_hosts
-        run: |
-          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
+      - name: Stopping old containers
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            STATUS="$(systemctl is-active tabit.service)"
+            if [ "${STATUS}" = "active" ]; then
+              sudo systemctl stop tabit.service
+              echo "Stopping old containers"
+              sudo systemctl start tabit.service  # Запускаем сервис после остановки
+            else
+              echo "No active containers"
+            fi
 
-      - name: Copy repository to server
-        run: |
-          rsync -avz -e "ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:${{ secrets.DEPLOY_PATH }}/app
+      - name: Copy infra via ssh
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "infra/"
+          target: "${{ env.DEPLOY_PATH }}/infra"
+          rm: true
+          strip_components: 1
 
-      - name: Create .env file
-        run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd ${{ secrets.DEPLOY_PATH }}/app && touch .env && echo \"${{ secrets.ENV_FILE }}\" > .env"
-      
-      - name: Build and push Docker image
-        run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd ${{ secrets.DEPLOY_PATH }}/app && docker build -t tabit:latest -f infra/stage/stage.Dockerfile ."
+      - name: Execute commands on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ env.DEPLOY_PATH }}
+            touch .env
 
-      - name: Run Docker Compose
-        run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd ${{ secrets.DEPLOY_PATH }}/app/infra/stage && docker compose -f docker-compose.stage.yaml up -d"
+            echo "${{ secrets.ENV_FILE }}" > .env
 
-      - name: Wait for tabit service to start
-        run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "sudo systemctl status tabit.service || true"
-          until ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "sudo systemctl is-active --quiet tabit.service"; do
-            echo "Waiting for tabit.service to be active..."
-            sleep 5
-          done
-          echo "tabit service is active"
+            cd infra/stage/
+            docker system prune --force
 
-      - name: Apply Alembic migrations
-        run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking-no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker exec tabit alembic -c /app/alembic.ini upgrade head"
+            sudo cp -f /home/dev_deploy/app/infra/stage/tabit.service /etc/systemd/system/tabit.service
+            sudo systemctl daemon-reload
+            sudo systemctl start tabit.service
+
+            sudo systemctl is-active --quiet tabit.service
+            until [ $? -eq 0 ]; do
+              echo "Waiting for tabit.service to be active..."
+              sleep 5
+              sudo systemctl is-active --quiet tabit.service
+            done
+
+            echo "tabit.service is active"
+
+            docker ps -q -f name=tabit || docker start tabit
+            docker exec tabit alembic upgrade head
