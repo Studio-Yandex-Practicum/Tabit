@@ -1,3 +1,4 @@
+# TODO: Создать папку и разбить в ней этот файл.
 from typing import List, Optional, TYPE_CHECKING
 
 from sqlalchemy import Interval

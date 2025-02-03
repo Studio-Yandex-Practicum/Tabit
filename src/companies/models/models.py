@@ -1,3 +1,4 @@
+# TODO: Разбить на отдельные файлы
 """
 Модели для компании и департамента.
 """
@@ -64,7 +65,7 @@ class Company(BaseTabitModel):
         back_populates='company', cascade='all, delete', lazy='selectin'
     )
     license_id: Mapped[Optional[int]] = mapped_column(ForeignKey('licensetype.id'), nullable=True)
-    license: Mapped['LicenseType'] = relationship(back_populates='companies')
+    license: Mapped[Optional['LicenseType']] = relationship(back_populates='companies')
     max_admins_count: Mapped[int_zero]
     max_employees_count: Mapped[int_zero]
     start_license_time: Mapped[nullable_timestamp]
@@ -101,20 +102,15 @@ class Department(BaseTabitModel):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
-        company - Company;
-        supervisor - UserTabit;
-        employees - UserTabit: действующие сотрудники отдела;
-        employees_lost - UserTabit: бывшие сотрудники отдела.
+        company - Company.
     """
 
     id: Mapped[int_pk]
     name: Mapped[str] = mapped_column(String(LENGTH_NAME_DEPARTMENT), nullable=False)
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'), nullable=False)
     company: Mapped['Company'] = relationship(back_populates='departments')
-    supervisor_id: Mapped[Optional[int]] = mapped_column(ForeignKey('usertabit.id'), nullable=True)
-    supervisor: Mapped['UserTabit'] = relationship(back_populates='supervisor')
-    employees: Mapped[List['UserTabit']] = relationship(back_populates='current_department')
-    employees_lost: Mapped[List['UserTabit']] = relationship(back_populates='last_department')
+    # employees: Mapped[List['UserTabit']] = relationship(back_populates='current_department')
+    # employees_lost: Mapped[List['UserTabit']] = relationship(back_populates='last_department')
     slug: Mapped[slug]
 
     __table_args__ = (UniqueConstraint('company_id', 'name', name='uq_company_department_name'),)

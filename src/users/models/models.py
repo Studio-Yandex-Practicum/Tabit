@@ -4,6 +4,7 @@ from uuid import UUID
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql.schema import UniqueConstraint
 
 from src.constants import LENGTH_TELEGRAM_USERNAME
 from src.database.annotations import int_pk, url_link_field
@@ -108,6 +109,7 @@ class UserTabit(BaseUser):
         is_verified: bool - проверен ли пользователь.
         avatar_link: Ссылка на аватар пользователя.
         company_id: id компании, в которой работает пользователь.
+        supervisor: начальник отдела, за которым закреплен (может быть True или None);
         current_department_id: id отдела, в котором работает пользователь.
         last_department_id: id отдела, в котором работал пользователь до этого.
         department_transition_date: Последняя дата перехода из одного отдела в другой.
@@ -120,7 +122,6 @@ class UserTabit(BaseUser):
         company - Company;
         current_department - Department;
         last_department - Department;
-        supervisor - Department: начальник отдела;
         problem_owner - Problem: автором каких проблем является;
         problems - AssociationUserProblem -> Problem: участником решения каких проблем является;
         meeting_owner - Meeting: инициатором каких встреч является;
@@ -145,15 +146,22 @@ class UserTabit(BaseUser):
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
     company: Mapped['Company'] = relationship(back_populates='employees')
 
+    supervisor: Mapped[Optional[bool]] = mapped_column(default=None)
+
     current_department_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('department.id'), nullable=True
     )
-    current_department: Mapped['Department'] = relationship(back_populates='employees')
+    current_department: Mapped[Optional['Department']] = relationship(
+        # back_populates='employees',
+        foreign_keys=[current_department_id],
+    )
     last_department_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('department.id'), nullable=True
     )
-    last_department: Mapped['Department'] = relationship(back_populates='employees_lost')
-    supervisor: Mapped['Department'] = relationship(back_populates='supervisor')
+    last_department: Mapped[Optional['Department']] = relationship(
+        # back_populates='employees_lost',
+        foreign_keys=[last_department_id],
+    )
 
     problem_owner: Mapped[List['Problem']] = relationship(back_populates='owner')
     problems: Mapped[List['AssociationUserProblem']] = relationship(back_populates='user')
@@ -169,5 +177,9 @@ class UserTabit(BaseUser):
     department_transition_date: Mapped[Optional[date]]
     employee_position: Mapped[Optional[str]]
     avatar_link: Mapped[url_link_field]
+
+    __table_args__ = (
+        UniqueConstraint('supervisor', 'current_department_id', name='unique_supervisor'),
+    )
 
     # TODO: На уровне базы запретить ставить is_superuser = True.

@@ -17,7 +17,6 @@ from src.database.annotations import (
 )
 
 
-# TODO: У всех моделей потестить поля, особенно с datetime и их производных. Возможны ошибки.
 class BaseTabitModel(AsyncAttrs, DeclarativeBase):
     """
     Базовая модель проекта. Абстрактная модель.
@@ -37,7 +36,7 @@ class BaseTabitModel(AsyncAttrs, DeclarativeBase):
     updated_at: Mapped[updated_at]
 
 
-class BaseUser(BaseTabitModel, SQLAlchemyBaseUserTableUUID):
+class BaseUser(BaseTabitModel, SQLAlchemyBaseUserTableUUID):  # type: ignore[misc]
     """
     Базовая модель пользователей. Абстрактная модель.
 
