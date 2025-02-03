@@ -7,6 +7,14 @@ on:
       - feature/cicd-setup
 
 jobs:
+
+  check:
+    runs-on: ubuntu-latest
+    name: Check environment
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
   deploy:
     if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/feature/cicd-setup'
     name: Deploy changes on server
