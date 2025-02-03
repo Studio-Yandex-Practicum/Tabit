@@ -29,7 +29,6 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             STATUS="$(systemctl is-active tabit.service)"
             if [ "${STATUS}" = "active" ]; then
