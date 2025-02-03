@@ -102,9 +102,7 @@ class Department(BaseTabitModel):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
-        company - Company;
-        employees - UserTabit: действующие сотрудники отдела;
-        employees_lost - UserTabit: бывшие сотрудники отдела.
+        company - Company.
     """
 
     id: Mapped[int_pk]
