@@ -31,30 +31,20 @@ jobs:
 
       - name: Create .env file
         run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "
-          cd ${{ secrets.DEPLOY_PATH }}/app && 
-          touch .env && 
-          echo "${{ secrets.ENV_FILE }}" > .env
-          "
-
+          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd ${{ secrets.DEPLOY_PATH }}/app && touch .env && echo \"${{ secrets.ENV_FILE }}\" > .env"
+      
       - name: Build and push Docker image
         run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking-no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "
-          cd ${{ secrets.DEPLOY_PATH }}/app &&
-          docker build -t tabit:latest -f infra/stage/stage.Dockerfile .
-          "
+          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd ${{ secrets.DEPLOY_PATH }}/app && docker build -t tabit:latest -f infra/stage/stage.Dockerfile ."
 
       - name: Run Docker Compose
         run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking-no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "
-          cd ${{ secrets.DEPLOY_PATH }}/app/infra/stage &&
-          docker compose -f docker-compose.stage.yaml up -d
-          "
+          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "cd ${{ secrets.DEPLOY_PATH }}/app/infra/stage && docker compose -f docker-compose.stage.yaml up -d"
 
       - name: Wait for tabit service to start
         run: |
-          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking-no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "sudo systemctl status tabit.service || true"
-          until ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking-no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "sudo systemctl is-active --quiet tabit.service"; do
+          ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "sudo systemctl status tabit.service || true"
+          until ssh -i ~/.ssh/id_rsa -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "sudo systemctl is-active --quiet tabit.service"; do
             echo "Waiting for tabit.service to be active..."
             sleep 5
           done
