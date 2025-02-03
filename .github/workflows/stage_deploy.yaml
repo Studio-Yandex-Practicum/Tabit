@@ -7,18 +7,7 @@ on:
       - feature/cicd-setup
 
 jobs:
-
-  check:
-    runs-on: ubuntu-latest
-    name: Check environment
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
   deploy:
-    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/feature/cicd-setup'
-    name: Deploy changes on server
-    needs: [check, build_and_push]
     runs-on: ubuntu-latest
     environment:
       name: dev_deploy
@@ -26,6 +15,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Build and push Docker image for Stage
+        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/feature/cicd-setup'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: infra/stage/Dockerfile
+          push: true
+          tags: ${{ github.sha }}
+      
       - name: Delete unnecessary files
         run: |
           rm -r infra/stage
@@ -42,7 +40,6 @@ jobs:
             if [ "${STATUS}" = "active" ]; then
               sudo systemctl stop tabit.service
               echo "Stopping old containers"
-              sudo systemctl start tabit.service  # Запускаем сервис после остановки
             else
               echo "No active containers"
             fi
@@ -74,17 +71,3 @@ jobs:
             docker system prune --force
 
             sudo cp -f /home/dev_deploy/app/infra/stage/tabit.service /etc/systemd/system/tabit.service
-            sudo systemctl daemon-reload
-            sudo systemctl start tabit.service
-
-            sudo systemctl is-active --quiet tabit.service
-            until [ $? -eq 0 ]; do
-              echo "Waiting for tabit.service to be active..."
-              sleep 5
-              sudo systemctl is-active --quiet tabit.service
-            done
-
-            echo "tabit.service is active"
-
-            docker ps -q -f name=tabit || docker start tabit
-            docker exec tabit alembic upgrade head
