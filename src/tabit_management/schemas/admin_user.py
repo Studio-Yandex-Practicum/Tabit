@@ -7,10 +7,10 @@ from pydantic import Field
 
 from src.constants import MIN_LENGTH_NAME, LENGTH_NAME_USER
 from src.tabit_management.constants import (
-    title_name_admin,
-    title_patronymic_admin,
-    title_phone_number_admin,
-    title_surname_admin,
+    TITLE_NAME_ADMIN,
+    TITLE_PATRONYMIC_ADMIN,
+    TITLE_PHONE_NUMBER_ADMIN,
+    TITLE_SURNAME_ADMIN,
 )
 
 
@@ -34,25 +34,25 @@ class AdminCreateSchema(BaseUserCreate):
         ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=title_name_admin,
+        title=TITLE_NAME_ADMIN,
     )
     surname: str = Field(
         ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=title_surname_admin,
+        title=TITLE_SURNAME_ADMIN,
     )
     patronymic: Optional[str] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=title_patronymic_admin,
+        title=TITLE_PATRONYMIC_ADMIN,
     )
     phone_number: Optional[str] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=title_phone_number_admin,
+        title=TITLE_PHONE_NUMBER_ADMIN,
     )
 
 
@@ -63,23 +63,23 @@ class AdminUpdateSchema(BaseUserUpdate):
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=title_name_admin,
+        title=TITLE_NAME_ADMIN,
     )
     surname: Optional[str] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=title_surname_admin,
+        title=TITLE_SURNAME_ADMIN,
     )
     patronymic: Optional[str] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=title_patronymic_admin,
+        title=TITLE_PATRONYMIC_ADMIN,
     )
     phone_number: Optional[str] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=title_phone_number_admin,
+        title=TITLE_PHONE_NUMBER_ADMIN,
     )
