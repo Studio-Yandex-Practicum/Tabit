@@ -31,12 +31,12 @@ UpdateSchemaType = TypeVar('UpdateSchemaType')
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """
-    "Универсальный базовый класс для CRUD операций.
+    Универсальный базовый класс для CRUD операций.
     """
 
     def __init__(self, model: Type[ModelType]):
         """
-        "Инициализирует CRUD-класс с указанной моделью.
+        Инициализирует CRUD-класс с указанной моделью.
 
         Параметры:
             model: SQLAlchemy-модель (класс), связанный с таблицей в БД.
@@ -45,7 +45,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def get(self, session: AsyncSession, obj_id: int | UUID) -> Optional[ModelType]:
         """
-        "Получает объект по ID (int или UUID).
+        Получает объект по ID (int или UUID).
 
         Возвращает объект модели или None, если он не найден.
         """
@@ -54,7 +54,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def get_or_404(self, session: AsyncSession, obj_id: int | UUID) -> ModelType:
         """
-        "Получает объект по ID или выбрасывает 404-ошибку.
+        Получает объект по ID или выбрасывает 404-ошибку.
 
         Возвращает объект или HTTPException(404), если не найден.
         """
@@ -65,6 +65,24 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Объект не найден')
         return obj
 
+    async def get_by_slug(
+        self, session: AsyncSession,
+        obj_slug: str,
+        raise_404: bool = False,
+        message: str = 'Объект не найден'
+    ) -> Optional[ModelType]:
+        """
+        Получает объект по полю slug.
+
+        Возвращает объект модели или None, если он не найден.
+        Если параметр raise_404 = True, тогда выбрасывает 404-ошибку, если не найден.
+        """
+        result = await session.execute(select(self.model).where(self.model.slug == obj_slug))
+        obj_model = result.scalars().first()
+        if not result and raise_404:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+        return obj_model
+
     async def get_multi(
         self,
         session: AsyncSession,
@@ -74,7 +92,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         order_by: list[str] | None = None,
     ) -> List[ModelType]:
         """
-        "Получает список объектов с пагинацией, фильтрацией и сортировкой.
+        Получает список объектов с пагинацией, фильтрацией и сортировкой.
 
         Назначение:
             Извлекает из БД ограниченный набор объектов, пропуская skip.
@@ -118,7 +136,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         auto_commit: bool = DEFAULT_AUTO_COMMIT,
     ) -> ModelType:
         """
-        "Создаёт новый объект в БД.
+        Создаёт новый объект в БД.
 
         При нарушении уникальности выбрасывает 400-ошибку.
         """
@@ -132,13 +150,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.commit()
                 await session.refresh(db_obj)
         except IntegrityError as e:
-            # TODO: Сюда попадают не только ошибки уникальности, надо переделать на более
-            # универсальный ответ.
+            # TODO: Сюда попадают не только ошибки уникальности, но и не правильно оформленные
+            # поля, надо переделать на более универсальный ответ.
             await session.rollback()
             logger.error(f'Ошибка уникальности при создании {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f'{e}Ошибка уникальности. Такой объект уже существует.',
+                detail='Ошибка уникальности. Такой объект уже существует.',
             )
         except Exception as e:
             await session.rollback()
@@ -189,20 +207,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             )
         return db_obj
 
-    async def delete(
-        self, session: AsyncSession, obj_id: int | UUID, auto_commit: bool = DEFAULT_AUTO_COMMIT
-    ) -> None:
+    async def remove(
+        self, session: AsyncSession, db_object: ModelType, auto_commit: bool = DEFAULT_AUTO_COMMIT
+    ) -> ModelType:
         """
-        "Удаляет объект по ID.
-
-        При отсутствии объекта выбрасывает 404-ошибку.
+        Удаляет переданный объект.
         """
-        obj = await self.get_or_404(session, obj_id)
-
         try:
-            await session.delete(obj)
+            await session.delete(db_object)
             if auto_commit:
                 await session.commit()
+            return db_object
         except Exception as e:
             await session.rollback()
             logger.error(f'Ошибка при удалении {self.model.__name__}: {e}')
@@ -213,7 +228,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def _apply_filters(self, query: Select, filters: dict[str, Any]) -> Select:
         """
-        "Добавляет простые условия равенства (WHERE) к запросу на основе словаря.
+        Добавляет простые условия равенства (WHERE) к запросу на основе словаря.
 
         Назначение:
             Фильтрует результат по полям self.model. Если поля нет в модели,
@@ -238,7 +253,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def _apply_order_by(self, query: Select, order_by: list[str]) -> Select:
         """
-        "Добавляет сортировку (ORDER BY) к запросу, поддерживая '-' для убывания.
+        Добавляет сортировку (ORDER BY) к запросу, поддерживая '-' для убывания.
 
         Назначение:
             Упорядочивает результат по указанным полям модели. Если поле

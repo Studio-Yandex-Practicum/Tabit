@@ -4,10 +4,9 @@ from datetime import datetime
 from typing import Annotated, Optional
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import  ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.dialects.postgresql import TIMESTAMP
-from sqlalchemy.sql.functions import current_timestamp
 
 from src.constants import (
     LENGTH_NAME_PROBLEM,
