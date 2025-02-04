@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import datetime, timedelta
 from re import compile
 from typing import Optional
 
@@ -9,10 +9,10 @@ from src.tabit_management.constants import (
     DEFAULT_LICENSE_TERN,
     ERROR_FIELD_INTERVAL,
     ERROR_FIELD_START_OR_END_SPACE,
-    title_license_tern,
-    title_max_admins_count,
-    title_max_employees_count,
-    title_name_license,
+    TITLE_LICENSE_TERN,
+    TITLE_MAX_ADMINS_COUNT,
+    TITLE_MAX_EMPLOYEES_COUNT,
+    TITLE_NAME_LICENSE,
 )
 
 
@@ -52,22 +52,22 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
         ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_LICENSE,
-        title=title_name_license,
+        title=TITLE_NAME_LICENSE,
     )
     license_tern: timedelta = Field(
         ...,
         ge=timedelta(**DEFAULT_LICENSE_TERN),
-        title=title_license_tern,
+        title=TITLE_LICENSE_TERN,
     )
     max_admins_count: int = Field(
         ...,
         gt=ZERO,
-        title=title_max_admins_count,
+        title=TITLE_MAX_ADMINS_COUNT,
     )
     max_employees_count: int = Field(
         ...,
         gt=ZERO,
-        title=title_max_employees_count,
+        title=TITLE_MAX_EMPLOYEES_COUNT,
     )
 
     @field_validator('name', mode='after')
@@ -88,21 +88,21 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_LICENSE,
-        title=title_name_license,
+        title=TITLE_NAME_LICENSE,
     )
     license_tern: Optional[timedelta] = Field(
         None,
-        title=title_license_tern,
+        title=TITLE_LICENSE_TERN,
     )
     max_admins_count: Optional[int] = Field(
         None,
         gt=ZERO,
-        title=title_max_admins_count,
+        title=TITLE_MAX_ADMINS_COUNT,
     )
     max_employees_count: Optional[int] = Field(
         None,
         gt=ZERO,
-        title=title_max_employees_count,
+        title=TITLE_MAX_EMPLOYEES_COUNT,
     )
 
     @field_validator('name', mode='after')
@@ -126,7 +126,7 @@ class LicenseTypeResponseSchema(BaseModel):
     license_tern: timedelta
     max_admins_count: int
     max_employees_count: int
-    created_at: date
-    updated_at: date
+    created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

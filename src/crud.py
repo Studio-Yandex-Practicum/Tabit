@@ -60,6 +60,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         obj = await self.get(session, obj_id)
         if not obj:
+            # TODO: Здесь и далее по коду избавиться от литералов, упаковать всё в константы.
+            # Константы хранить в отдельном файле.
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Объект не найден')
         return obj
 
@@ -120,6 +122,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         При нарушении уникальности выбрасывает 400-ошибку.
         """
+        # TODO: Добавить возможность автозаполнение поля owner у модели.
         obj_data = obj_in.dict()
         db_obj = self.model(**obj_data)
 
@@ -129,11 +132,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.commit()
                 await session.refresh(db_obj)
         except IntegrityError as e:
+            # TODO: Сюда попадают не только ошибки уникальности, надо переделать на более
+            # универсальный ответ.
             await session.rollback()
             logger.error(f'Ошибка уникальности при создании {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Ошибка уникальности. Такой объект уже существует.',
+                detail=f'{e}Ошибка уникальности. Такой объект уже существует.',
             )
         except Exception as e:
             await session.rollback()

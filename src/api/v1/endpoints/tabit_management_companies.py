@@ -2,39 +2,52 @@
 Эндпоинты управления компаниями (Tabit Management - Companies).
 """
 
+from typing import List
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.database.db_depends import get_async_session
+from src.companies.crud import company_crud
+from src.companies.schemas import (
+    CompanyCreateSchema,
+    CompanyResponseForUserSchema,
+    CompanyResponseSchema,
+    CompanyUpdateSchema,
+    CompanyUpdateForUserSchema,
+)
 
 router = APIRouter()
 
 
 @router.get(
     '/',
+    response_model=List[CompanyResponseSchema],
     summary='Получить список всех компаний',
 )
 async def get_companies(
     session: AsyncSession = Depends(get_async_session),
 ):
     """
-    Возвращает список всех компаний.
+    Возвращает список всех компаний. Доступно только админам сервиса.
     """
-    # TODO: Реализовать получение списка компаний из базы данных
-    return {'message': 'Список компаний временно недоступен'}
+    return await company_crud.get_multi(session)
 
 
 @router.post(
     '/',
+    response_model=CompanyResponseSchema,
     summary='Создать новую компанию',
 )
 async def create_company(
+    company: CompanyCreateSchema,
     session: AsyncSession = Depends(get_async_session),
 ):
     """
-    Создает новую компанию.
+    Создает новую компанию. Доступно только админам сервиса.
     """
-    # TODO: Реализовать создание компании в базе данных
-    return {'message': 'Создание компании временно недоступно'}
+    new_company = await company_crud.create(session, company)
+    return new_company
 
 
 @router.patch(
