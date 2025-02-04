@@ -1,8 +1,8 @@
 DEFAULT_NUMBER_DEY_LICENSE: int = 1
-DEFAULT_LICENSE_TERN: dict[str, int] = {'days': 1}
+DEFAULT_LICENSE_TERM: dict[str, int] = {'days': 1}
 
 TITLE_NAME_LICENSE: str = 'Название лицензии'
-TITLE_LICENSE_TERN: str = 'Срок действия лицензии в днях'
+TITLE_LICENSE_TERM: str = 'Срок действия лицензии в днях'
 TITLE_MAX_ADMINS_COUNT: str = 'Максимальное количество админов'
 TITLE_MAX_EMPLOYEES_COUNT: str = 'Максимальное количество сотрудников'
 TITLE_NAME_ADMIN: str = 'Имя админа сервиса'

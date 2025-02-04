@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
+from src.tabit_management.crud import license_type_crud
 from src.tabit_management.schemas import (
     LicenseTypeCreateSchema,
     LicenseTypeResponseSchema,
@@ -22,19 +23,15 @@ async def get_licenses(
     """
     Возвращает список всех лицензий.
     """
-    # TODO: Реализовать получение данных из базы
-    return [
-        {
-            'id': 1,
-            'name': 'Внимание! Это заглушка!',
-            'license_tern': 'P1D',
-            'max_admins_count': 1,
-            'max_employees_count': 1,
-        }
-    ]
+    return await license_type_crud.get_multi(session=session)
 
 
-@router.post('/', response_model=LicenseTypeResponseSchema, summary='Создать новую лицензию')
+@router.post(
+    '/',
+    response_model=LicenseTypeResponseSchema,
+    status_code=status.HTTP_201_CREATED,
+    summary='Создать новую лицензию',
+)
 async def create_license(
     license: LicenseTypeCreateSchema,
     session: AsyncSession = Depends(get_async_session),
@@ -42,14 +39,7 @@ async def create_license(
     """
     Создание новой лицензии.
     """
-    # TODO: Реализовать создание лицензии
-    return {
-        'id': 1,
-        'name': f'{license.name} - Внимание! Это заглушка!',
-        'license_tern': license.license_tern,
-        'max_admins_count': license.max_admins_count,
-        'max_employees_count': license.max_employees_count,
-    }
+    return await license_type_crud.create(session=session, obj_in=license)
 
 
 @router.get(
