@@ -13,8 +13,8 @@ from src.database.annotations import (
     description,
     int_pk,
     int_zero,
-    nullable_timestamp,
     slug,
+    timestamp_nullable,
     url_link_field,
 )
 from src.database.models import BaseTabitModel
@@ -68,8 +68,8 @@ class Company(BaseTabitModel):
     license: Mapped[Optional['LicenseType']] = relationship(back_populates='companies')
     max_admins_count: Mapped[int_zero]
     max_employees_count: Mapped[int_zero]
-    start_license_time: Mapped[nullable_timestamp]
-    end_license_time: Mapped[nullable_timestamp]
+    start_license_time: Mapped[timestamp_nullable]
+    end_license_time: Mapped[timestamp_nullable]
     is_active: Mapped[bool] = mapped_column(default=False)
     tags_users: Mapped[List['TagUser']] = relationship(
         back_populates='company', cascade='all, delete-orphan'
@@ -102,9 +102,7 @@ class Department(BaseTabitModel):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
-        company - Company;
-        employees - UserTabit: действующие сотрудники отдела;
-        employees_lost - UserTabit: бывшие сотрудники отдела.
+        company - Company.
     """
 
     id: Mapped[int_pk]

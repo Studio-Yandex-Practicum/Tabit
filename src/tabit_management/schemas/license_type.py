@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import datetime, timedelta
 from re import compile
 from typing import Optional
 
@@ -6,13 +6,13 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.constants import LENGTH_NAME_LICENSE, MIN_LENGTH_NAME, ZERO
 from src.tabit_management.constants import (
-    DEFAULT_LICENSE_TERN,
+    DEFAULT_LICENSE_TERM,
     ERROR_FIELD_INTERVAL,
     ERROR_FIELD_START_OR_END_SPACE,
-    title_license_tern,
-    title_max_admins_count,
-    title_max_employees_count,
-    title_name_license,
+    TITLE_LICENSE_TERM,
+    TITLE_MAX_ADMINS_COUNT,
+    TITLE_MAX_EMPLOYEES_COUNT,
+    TITLE_NAME_LICENSE,
 )
 
 
@@ -52,22 +52,22 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
         ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_LICENSE,
-        title=title_name_license,
+        title=TITLE_NAME_LICENSE,
     )
-    license_tern: timedelta = Field(
+    license_term: timedelta = Field(
         ...,
-        ge=timedelta(**DEFAULT_LICENSE_TERN),
-        title=title_license_tern,
+        ge=timedelta(**DEFAULT_LICENSE_TERM),
+        title=TITLE_LICENSE_TERM,
     )
     max_admins_count: int = Field(
         ...,
         gt=ZERO,
-        title=title_max_admins_count,
+        title=TITLE_MAX_ADMINS_COUNT,
     )
     max_employees_count: int = Field(
         ...,
         gt=ZERO,
-        title=title_max_employees_count,
+        title=TITLE_MAX_EMPLOYEES_COUNT,
     )
 
     @field_validator('name', mode='after')
@@ -75,7 +75,7 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
     def str_field(cls, value: str):
         return cls._validator_field_string(value)
 
-    @field_validator('license_tern', mode='before')
+    @field_validator('license_term', mode='before')
     @classmethod
     def interval_field(cls, value: int):
         return cls._validator_field_interval(value)
@@ -88,21 +88,21 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_LICENSE,
-        title=title_name_license,
+        title=TITLE_NAME_LICENSE,
     )
-    license_tern: Optional[timedelta] = Field(
+    license_term: Optional[timedelta] = Field(
         None,
-        title=title_license_tern,
+        title=TITLE_LICENSE_TERM,
     )
     max_admins_count: Optional[int] = Field(
         None,
         gt=ZERO,
-        title=title_max_admins_count,
+        title=TITLE_MAX_ADMINS_COUNT,
     )
     max_employees_count: Optional[int] = Field(
         None,
         gt=ZERO,
-        title=title_max_employees_count,
+        title=TITLE_MAX_EMPLOYEES_COUNT,
     )
 
     @field_validator('name', mode='after')
@@ -110,7 +110,7 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
     def str_field(cls, value: str):
         return cls._validator_field_string(value)
 
-    @field_validator('license_tern', mode='before')
+    @field_validator('license_term', mode='before')
     @classmethod
     def interval_field(cls, value: int):
         return cls._validator_field_interval(value)
@@ -123,10 +123,10 @@ class LicenseTypeResponseSchema(BaseModel):
 
     id: int
     name: str
-    license_tern: timedelta
+    license_term: timedelta
     max_admins_count: int
     max_employees_count: int
-    created_at: date
-    updated_at: date
+    created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

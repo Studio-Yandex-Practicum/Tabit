@@ -10,20 +10,26 @@
   create, update и delete.
 """
 
+from http import HTTPStatus
 from typing import Any, Generic, List, Optional, Type, TypeVar
 from uuid import UUID
 
 from fastapi import HTTPException, status
+from fastapi_users import BaseUserManager, exceptions, models
 from fastapi.encoders import jsonable_encoder
+from fastapi_users import schemas
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
+from starlette.requests import Request
 
 from src.constants import (
     DEFAULT_AUTO_COMMIT,
     DEFAULT_SKIP,
     DEFAULT_LIMIT,
+    TEXT_ERROR_EXISTS_EMAIL,
+    TEXT_ERROR_INVALID_PASSWORD,
     TEXT_ERROR_NOT_FOUND,
     TEXT_ERROR_SERVER_CREATE,
     TEXT_ERROR_SERVER_CREATE_LOG,
@@ -37,7 +43,6 @@ from src.constants import (
 )
 from src.logger import logger
 
-
 ModelType = TypeVar('ModelType')
 CreateSchemaType = TypeVar('CreateSchemaType')
 UpdateSchemaType = TypeVar('UpdateSchemaType')
@@ -45,37 +50,61 @@ UpdateSchemaType = TypeVar('UpdateSchemaType')
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """
-    "Универсальный базовый класс для CRUD операций.
+    Универсальный базовый класс для CRUD операций.
     """
 
     def __init__(self, model: Type[ModelType]):
         """
-        "Инициализирует CRUD-класс с указанной моделью.
+        Инициализирует CRUD-класс с указанной моделью.
 
         Параметры:
             model: SQLAlchemy-модель (класс), связанный с таблицей в БД.
         """
         self.model = model
 
-    async def get(self, session: AsyncSession, obj_id: int | UUID) -> Optional[ModelType]:
+    async def get(self, session: AsyncSession, obj_id: int | str | UUID) -> Optional[ModelType]:
         """
-        "Получает объект по ID (int или UUID).
+        Получает объект по ID (int, str или UUID).
 
         Возвращает объект модели или None, если он не найден.
         """
         result = await session.execute(select(self.model).where(self.model.id == obj_id))
         return result.scalars().first()
 
-    async def get_or_404(self, session: AsyncSession, obj_id: int | UUID) -> ModelType:
+    async def get_or_404(
+        self, session: AsyncSession,
+        obj_id: int | UUID,
+        message: str = TEXT_ERROR_NOT_FOUND
+    ) -> ModelType:
         """
-        "Получает объект по ID или выбрасывает 404-ошибку.
+        Получает объект по ID или выбрасывает 404-ошибку.
 
         Возвращает объект или HTTPException(404), если не найден.
         """
         obj = await self.get(session, obj_id)
         if not obj:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=TEXT_ERROR_NOT_FOUND)
+            # TODO: Здесь и далее по коду избавиться от литералов, упаковать всё в константы.
+            # Константы хранить в отдельном файле.
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
         return obj
+
+    async def get_by_slug(
+        self, session: AsyncSession,
+        obj_slug: str,
+        raise_404: bool = False,
+        message: str = TEXT_ERROR_NOT_FOUND
+    ) -> Optional[ModelType]:
+        """
+        Получает объект по полю slug.
+
+        Возвращает объект модели или None, если он не найден.
+        Если параметр raise_404 = True, тогда выбрасывает 404-ошибку, если не найден.
+        """
+        result = await session.execute(select(self.model).where(self.model.slug == obj_slug))
+        obj_model = result.scalars().first()
+        if not result and raise_404:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+        return obj_model
 
     async def get_multi(
         self,
@@ -86,7 +115,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         order_by: list[str] | None = None,
     ) -> List[ModelType]:
         """
-        "Получает список объектов с пагинацией, фильтрацией и сортировкой.
+        Получает список объектов с пагинацией, фильтрацией и сортировкой.
 
         Назначение:
             Извлекает из БД ограниченный набор объектов, пропуская skip.
@@ -130,10 +159,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         auto_commit: bool = DEFAULT_AUTO_COMMIT,
     ) -> ModelType:
         """
-        "Создаёт новый объект в БД.
+        Создаёт новый объект в БД.
 
         При нарушении уникальности выбрасывает 400-ошибку.
         """
+        # TODO: Добавить возможность автозаполнение поля owner у модели.
         obj_data = obj_in.dict()
         db_obj = self.model(**obj_data)
 
@@ -143,6 +173,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.commit()
                 await session.refresh(db_obj)
         except IntegrityError as e:
+            # TODO: Сюда попадают не только ошибки уникальности, но и не правильно оформленные
+            # поля, надо переделать на более универсальный ответ.
             await session.rollback()
             logger.error(f'{TEXT_ERROR_UNIQUE_CREATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
@@ -198,20 +230,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             )
         return db_obj
 
-    async def delete(
-        self, session: AsyncSession, obj_id: int | UUID, auto_commit: bool = DEFAULT_AUTO_COMMIT
-    ) -> None:
+    async def remove(
+        self, session: AsyncSession, db_object: ModelType, auto_commit: bool = DEFAULT_AUTO_COMMIT
+    ) -> ModelType:
         """
-        "Удаляет объект по ID.
-
-        При отсутствии объекта выбрасывает 404-ошибку.
+        Удаляет переданный объект.
         """
-        obj = await self.get_or_404(session, obj_id)
-
         try:
-            await session.delete(obj)
+            await session.delete(db_object)
             if auto_commit:
                 await session.commit()
+            return db_object
         except Exception as e:
             await session.rollback()
             logger.error(f'{TEXT_ERROR_SERVER_DELETE_LOG} {self.model.__name__}: {e}')
@@ -222,7 +251,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def _apply_filters(self, query: Select, filters: dict[str, Any]) -> Select:
         """
-        "Добавляет простые условия равенства (WHERE) к запросу на основе словаря.
+        Добавляет простые условия равенства (WHERE) к запросу на основе словаря.
 
         Назначение:
             Фильтрует результат по полям self.model. Если поля нет в модели,
@@ -247,7 +276,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def _apply_order_by(self, query: Select, order_by: list[str]) -> Select:
         """
-        "Добавляет сортировку (ORDER BY) к запросу, поддерживая '-' для убывания.
+        Добавляет сортировку (ORDER BY) к запросу, поддерживая '-' для убывания.
 
         Назначение:
             Упорядочивает результат по указанным полям модели. Если поле
@@ -271,3 +300,41 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if column is not None:
                 query = query.order_by(column.desc() if desc else column.asc())
         return query
+
+
+class UserCreateMixin:
+    """
+    Миксин для CRUD. Добавляет метод для создания пользователя.
+    """
+
+    async def create_user(
+        self,
+        request: Request,
+        user_create: schemas.UC,
+        user_manager: BaseUserManager[models.UP, models.ID],
+    ):
+        """
+        Создаст нового пользователя.
+        Электронная почта считается `username` в передаваемой форме.
+        Проводится проверка на уникальность электронной почты.
+        Проводится проверка пароля.
+        В БД данных пароль не сохраняется, сохраняется его хэш.
+        """
+        try:
+            created_user = await user_manager.create(
+                user_create, safe=False, request=request
+            )
+        except exceptions.UserAlreadyExists:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=TEXT_ERROR_EXISTS_EMAIL,
+            )
+        except exceptions.InvalidPasswordException as e:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail={
+                    'code': TEXT_ERROR_INVALID_PASSWORD,
+                    'reason': e.reason,
+                },
+            )
+        return created_user

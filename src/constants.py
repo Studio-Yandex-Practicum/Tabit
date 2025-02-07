@@ -32,3 +32,8 @@ TEXT_ERROR_SERVER_UPDATE: str = 'Ошибка сервера при обновл
 TEXT_ERROR_SERVER_UPDATE_LOG: str = 'Ошибка при обновлении'
 TEXT_ERROR_SERVER_DELETE: str = 'Ошибка сервера при удалении объекта.'
 TEXT_ERROR_SERVER_DELETE_LOG: str = 'Ошибка при удалении'
+
+TEXT_ERROR_EXISTS_EMAIL: str = 'Пользователь с такой электронной почтой уже есть'
+TEXT_ERROR_INVALID_PASSWORD: str = 'Не корректный пароль'
+
+TEXT_ERROR_IS_SUPERUSER: str = 'Объект - суперпользователь'
