@@ -1,19 +1,33 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.companies.crud import company_crud
 from src.database.db_depends import get_async_session
+from src.tabit_management.schemas.query_params import CompanyFilterSchema
+from src.companies.schemas.company import CompanyResponseSchema
 
 router = APIRouter()
 
 
 @router.get(
     '/',
+    response_model=list[CompanyResponseSchema],
     summary='Получить общую информацию по компаниям.',
     dependencies=[Depends(get_async_session)],
 )
-async def get_all_info(session: AsyncSession = Depends(get_async_session)):
+async def get_all_info(
+    session: AsyncSession = Depends(get_async_session),
+    query_params: CompanyFilterSchema = Depends(),
+):
     """Получает общую информацию по компаниям."""
-    return {'message': 'Здесь будет какая-то информация.'}
+
+    return await company_crud.get_multi(
+        session=session,
+        skip=query_params.skip,
+        limit=query_params.limit,
+        filters=query_params.filters,
+        order_by=query_params.order_by,
+    )
 
 
 @router.get(
