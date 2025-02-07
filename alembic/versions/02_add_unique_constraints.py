@@ -1,4 +1,4 @@
-"""add_missing_migration
+"""add_unique_constraints
 
 Revision ID: 02
 Revises: 01
