@@ -20,7 +20,7 @@ from src.api.v1.validator import validator_check_is_superuser, validator_check_o
 from src.database.db_depends import get_async_session
 from src.tabit_management.crud import admin_crud
 from src.tabit_management.models import TabitAdminUser
-from src.tabit_management.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
+from src.tabit_management.schemas import AdminReadSchema, AdminUpdateSchema
 from src.api.v1.auth.managers import get_admin_manager
 from src.api.v1.constants import Summary
 
@@ -156,18 +156,6 @@ async def refresh_token_tabit_admin(session: AsyncSession = Depends(get_async_se
 # =====================================================================┘
 
 
-# TODO: Эту ручку удалить после прикручивания авто-создания суперюзера.
-# =====================================================================┐
-router.include_router(  # регистрация
-    tabit_admin.get_register_router(
-        user_schema=AdminReadSchema,
-        user_create_schema=AdminCreateSchema,
-    ),
-    prefix='/dev',
-)
-# =====================================================================┘
-
-
 @router.post(
     '/',
     response_model=AdminReadSchema,
@@ -177,7 +165,7 @@ router.include_router(  # регистрация
 )
 async def create_tabit_admin(
     request: Request,
-    user_create: AdminCreateSchema,
+    user_create: schemas.UC,
     user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_admin_manager),
 ):
     """
