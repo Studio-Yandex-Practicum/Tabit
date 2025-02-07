@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from src.constants import MIN_LENGTH_NAME, LENGTH_NAME_USER
 from src.tabit_management.constants import (
     TITLE_EMAIL,
+    TITLE_IS_SUPERUSER_ADMIN,
     TITLE_NAME_ADMIN,
     TITLE_PASSWORD,
     TITLE_PATRONYMIC_ADMIN,
@@ -90,4 +91,13 @@ class AdminUpdateSchema(BaseAdminSchema, BaseModel):
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
         title=TITLE_SURNAME_ADMIN,
+    )
+
+
+class AdminCreateFirstSchema(AdminCreateSchema):
+    """Схема для создание первого администратора-суперпользователя сервиса."""
+
+    is_superuser: bool = Field(
+        True,
+        title=TITLE_IS_SUPERUSER_ADMIN,
     )

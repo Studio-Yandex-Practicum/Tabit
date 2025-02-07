@@ -19,3 +19,6 @@ class Summary:
     TABIT_MANAGEMENT_COMPANY_CREATE: str = 'Создать новую компанию'
     TABIT_MANAGEMENT_COMPANY_UPDATE: str = 'Обновить данные компании'
     TABIT_MANAGEMENT_COMPANY_DELETE: str = 'Удалить компанию'
+
+
+TEXT_ERROR_FORBIDDEN_ROLE_ADMIN: str = 'Доступно только админам компаний'

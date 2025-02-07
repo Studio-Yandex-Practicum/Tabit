@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from pydantic import SecretStr
+from pydantic import EmailStr, SecretStr
 from pydantic_settings import BaseSettings
 
 
@@ -23,6 +23,12 @@ class Settings(BaseSettings):
 
     jwt_secret: SecretStr = 'SUPERSECRETKEY'
     jwt_lifetime_seconds: int = 32400  # 9 часов: смена + обед.
+
+    create_first_superuser: bool | None = None
+    first_superuser_email: EmailStr | None = None
+    first_superuser_password: str | None = None
+    first_superuser_name: str | None = None
+    first_superuser_surname: str | None = None
 
     @property
     def database_url(self):
