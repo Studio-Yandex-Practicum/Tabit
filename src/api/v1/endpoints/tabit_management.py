@@ -4,16 +4,16 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.companies.crud import company_crud
-from src.companies.schemas.company import CompanyResponseSchema
 from src.database.db_depends import get_async_session
+from src.tabit_management.crud.admin_company import admin_company_crud
 from src.tabit_management.crud.admin_user import admin_user_crud
+from src.tabit_management.schemas.admin_company import AdminCompanyResponseSchema
 from src.tabit_management.schemas.admin_user import (
     AdminCreateSchema,
     AdminReadSchema,
     AdminUpdateSchema,
 )
-from src.tabit_management.schemas.query_params import CompanyFilterSchema
+from src.tabit_management.schemas.query_params import CompanyFilterSchema, UserFilterSchema
 from src.tabit_management.validators import check_admin_email_and_number
 
 router = APIRouter()
@@ -32,9 +32,9 @@ async def update_admin_user(
 
 @router.get(
     '/',
-    response_model=list[CompanyResponseSchema],
+    response_model=list[AdminCompanyResponseSchema],
+    # TODO добавить dependencies на админа
     summary='Получить общую информацию по компаниям.',
-    dependencies=[Depends(get_async_session)],
 )
 async def get_all_info(
     session: AsyncSession = Depends(get_async_session),
@@ -42,7 +42,7 @@ async def get_all_info(
 ):
     """Получает общую информацию по компаниям."""
 
-    return await company_crud.get_multi(
+    return await admin_company_crud.get_multi(
         session=session,
         skip=query_params.skip,
         limit=query_params.limit,
@@ -53,18 +53,27 @@ async def get_all_info(
 
 @router.get(
     '/staff',
+    response_model=list[AdminReadSchema],
+    # TODO добавить dependencies на current_superuser
     summary='Получить информацию по всем сотрудникам компаний.',
-    dependencies=[Depends(get_async_session)],
 )
-async def get_all_staff(session: AsyncSession = Depends(get_async_session)):
+async def get_all_staff(
+    session: AsyncSession = Depends(get_async_session),
+    query_params: UserFilterSchema = Depends(),
+):
     """Получает информацию по всем сотрудникам компаний."""
-    return {'message': 'Здесь будет какая-то информация.'}
+    return await admin_user_crud.get_multi(
+        session=session,
+        skip=query_params.skip,
+        limit=query_params.limit,
+        filters=query_params.filters,
+        order_by=query_params.order_by,
+    )
 
 
 @router.post(
     '/staff',
     summary='Создать нового сотрудника компании.',
-    dependencies=[Depends(get_async_session)],
 )
 async def create_staff(
     session: AsyncSession = Depends(get_async_session),

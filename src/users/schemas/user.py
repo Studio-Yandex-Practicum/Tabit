@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
@@ -11,7 +11,6 @@ from src.constants import (
     LENGTH_TELEGRAM_USERNAME,
     MIN_LENGTH_NAME,
 )
-from src.users.models.enum import RoleUserTabit
 from src.users.constants import (
     title_avatar_link_user,
     title_birthday_user,
@@ -29,6 +28,7 @@ from src.users.constants import (
     title_surname_user,
     title_telegram_username_user,
 )
+from src.users.models.enum import RoleUserTabit
 
 
 class UserSchemaMixin:
@@ -109,8 +109,8 @@ class UserReadSchema(BaseUser[UUID]):
     last_department_id: Optional[int]
     department_transition_date: Optional[date]
     employee_position: Optional[str]
-    created_at: date
-    updated_at: date
+    created_at: datetime
+    updated_at: datetime
 
 
 class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
