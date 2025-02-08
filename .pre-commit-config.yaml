@@ -42,3 +42,11 @@ repos:
         pass_filenames: false
         entry: poetry export --without-hashes --output requirements/prod.txt
         files: ^(pyproject.toml|poetry.lock)$
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: Run pytest before commit
+        language: system
+        pass_filenames: false
+        entry: pytest --maxfail=3 --disable-warnings
