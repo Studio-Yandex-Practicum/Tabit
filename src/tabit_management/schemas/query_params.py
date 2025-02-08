@@ -22,6 +22,10 @@ class BaseFilterSchema(BaseModel):
 class CompanyFilterSchema(BaseFilterSchema):
     """Фильтр списка компаний под query-параметры."""
 
+    # TODO добавить валидацию query-параметров
+
 
 class UserFilterSchema(BaseFilterSchema):
     """Фильтр списка пользователей под query-параметры."""
+
+    # TODO добавить валидацию query-параметров

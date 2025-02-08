@@ -1,11 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
+from src.logger import logger
 from src.tabit_management.crud.admin_company import admin_company_crud
-from src.tabit_management.crud.admin_user import admin_crud
+from src.tabit_management.crud.admin_user import admin_user_crud
 from src.tabit_management.schemas.admin_company import AdminCompanyResponseSchema
-from src.tabit_management.schemas.admin_user import AdminReadSchema
+from src.tabit_management.schemas.admin_user import (
+    AdminCreateSchema,
+    AdminReadSchema,
+)
 from src.tabit_management.schemas.query_params import CompanyFilterSchema, UserFilterSchema
 
 
@@ -23,14 +28,24 @@ async def get_all_info(
     query_params: CompanyFilterSchema = Depends(),
 ):
     """Получает общую информацию по компаниям."""
-
-    return await admin_company_crud.get_multi(
-        session=session,
-        skip=query_params.skip,
-        limit=query_params.limit,
-        filters=query_params.filters,
-        order_by=query_params.order_by,
-    )
+    try:
+        return await admin_company_crud.get_multi(
+            session=session,
+            skip=query_params.skip,
+            limit=query_params.limit,
+            filters=query_params.filters,
+            order_by=query_params.order_by,
+        )
+    except SQLAlchemyError as error:
+        logger.error(f'Эндпоинт get_all_info, ошибка бд: {error}')
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Ошибка базы данных'
+        )
+    except Exception as error:
+        logger.error(f'Эндпоинт get_all_info, ошибка: {error}')
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Ошибва сервера'
+        )
 
 
 @router.get(
@@ -44,20 +59,34 @@ async def get_all_staff(
     query_params: UserFilterSchema = Depends(),
 ):
     """Получает информацию по всем сотрудникам компаний."""
-    return await admin_crud.get_multi(
-        session=session,
-        skip=query_params.skip,
-        limit=query_params.limit,
-        filters=query_params.filters,
-        order_by=query_params.order_by,
-    )
+    try:
+        return await admin_user_crud.get_multi(
+            session=session,
+            skip=query_params.skip,
+            limit=query_params.limit,
+            filters=query_params.filters,
+            order_by=query_params.order_by,
+        )
+    except SQLAlchemyError as error:
+        logger.error(f'Эндпоинт get_all_staff, ошибка бд: {error}')
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Ошибка базы данных'
+        )
+    except Exception as error:
+        logger.error(f'Эндпоинт get_all_staff, ошибка: {error}')
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Ошибва сервера'
+        )
 
 
 @router.post(
     '/staff',
+    response_model=AdminReadSchema,
+    # TODO добавить dependencies на current_superuser
     summary='Создать нового сотрудника компании.',
 )
 async def create_staff(
+    staff_data: AdminCreateSchema,
     session: AsyncSession = Depends(get_async_session),
 ):
     """Создание нового сотрудника компании."""
