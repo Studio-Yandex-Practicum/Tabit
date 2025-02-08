@@ -36,6 +36,12 @@ ruff = "^0.8.4"
 pre-commit = "^4.0.1"
 faker = "^33.3.1"
 factory-boy = "^3.3.1"
+pytest = "^8.3.4"
+httpx = "^0.28.1"
+pytest-asyncio = "^0.25.3"
+sqlalchemy = "^2.0.38"
+alembic = "^1.14.1"
+aiosqlite = "^0.21.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -162,7 +162,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         При нарушении уникальности выбрасывает 400-ошибку.
         """
         # TODO: Добавить возможность автозаполнение поля owner у модели.
-        obj_data = obj_in.dict()
+        obj_data = obj_in.model_dump()
         db_obj = self.model(**obj_data)
 
         try:
@@ -201,7 +201,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         Принимает объект и данные (Pydantic) для обновления.
         """
         obj_data = jsonable_encoder(db_obj)
-        update_data = obj_in.dict(exclude_unset=True)
+        update_data = obj_in.model_dump(exclude_unset=True)
 
         for field in obj_data:
             if field in update_data:

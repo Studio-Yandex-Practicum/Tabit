@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, status
+import sqlalchemy as sa
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
 from src.tabit_management.crud import license_type_crud
+from src.tabit_management.models import LicenseType
 from src.tabit_management.schemas import (
     LicenseTypeCreateSchema,
     LicenseTypeResponseSchema,
@@ -10,6 +12,21 @@ from src.tabit_management.schemas import (
 )
 
 router = APIRouter()
+
+
+async def check_license_name_exists(session: AsyncSession, name: str) -> None:
+    """
+    Проверяет, существует ли лицензия с данным именем.
+    Если лицензия найдена, выбрасывает HTTPException.
+    """
+    existing_license = await session.execute(
+        sa.select(LicenseType).where(LicenseType.name == name)
+    )
+    if existing_license.scalars().first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Лицензия с именем '{name}' уже существует.",
+        )
 
 
 @router.get(
@@ -39,6 +56,7 @@ async def create_license(
     """
     Создание новой лицензии.
     """
+    await check_license_name_exists(session, license.name)
     return await license_type_crud.create(session=session, obj_in=license)
 
 
@@ -51,14 +69,7 @@ async def get_license(license_id: int, session: AsyncSession = Depends(get_async
     """
     Получение данных лицензии по идентификатору.
     """
-    # TODO: Реализовать получение лицензии по идентификатору
-    return {
-        'id': license_id,
-        'name': 'Внимание! Это заглушка!',
-        'license_tern': 'P1D',
-        'max_admins_count': 1,
-        'max_employees_count': 1,
-    }
+    return await license_type_crud.get_or_404(session=session, obj_id=license_id)
 
 
 @router.patch(
@@ -74,18 +85,16 @@ async def update_license(
     """
     Обновление данных лицензии по идентификатору.
     """
-    # TODO: Реализовать обновление лицензии
-    return {
-        'id': license_id,
-        'name': f'{license.name} - Внимание! Это заглушка!',
-        'license_tern': license.license_tern,
-        'max_admins_count': license.max_admins_count,
-        'max_employees_count': license.max_employees_count,
-    }
+    db_license = await license_type_crud.get_or_404(session=session, obj_id=license_id)
+
+    if license.name and license.name != db_license.name:
+        await check_license_name_exists(session, license.name)
+
+    return await license_type_crud.update(session=session, db_obj=db_license, obj_in=license)
 
 
 @router.delete(
-    '/{license_slug}', response_model=LicenseTypeResponseSchema, summary='Удалить лицензию'
+    '/{license_id}', response_model=LicenseTypeResponseSchema, summary='Удалить лицензию'
 )
 async def delete_license(
     license_id: int,
@@ -94,11 +103,7 @@ async def delete_license(
     """
     Удаление лицензии по идентификатору.
     """
-    # TODO: Реализовать удаление лицензии
-    return {
-        'id': license_id,
-        'name': 'Внимание! Это заглушка!',
-        'license_tern': 'P1D',
-        'max_admins_count': 1,
-        'max_employees_count': 1,
-    }
+    db_license = await license_type_crud.get_or_404(session=session, obj_id=license_id)
+    await license_type_crud.remove(session=session, db_object=db_license)
+
+    return Response(status_code=204)

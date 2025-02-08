@@ -1,7 +1,11 @@
 from datetime import date
 from typing import List, Optional
 
+<<<<<<< HEAD
 from pydantic import BaseModel
+=======
+from pydantic import BaseModel, ConfigDict
+>>>>>>> 6dce2ec (закончил с роутами лицензии, добавил тесты итд)
 
 from .enums import MeetingStatus
 
@@ -45,8 +49,7 @@ class MeetingSchema(MeetingBaseSchema):
     id: int
     members: List[int] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class StatusMeetingSchema(BaseModel):
@@ -57,8 +60,7 @@ class StatusMeetingSchema(BaseModel):
     id: int
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ResultMeetingSchema(BaseModel):
@@ -69,5 +71,4 @@ class ResultMeetingSchema(BaseModel):
     id: int
     name: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
