@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.tabit_management.crud.admin_company import admin_company_crud
-from src.companies.schemas.company import CompanyResponseSchema
 from src.database.db_depends import get_async_session
+from src.tabit_management.crud.admin_company import admin_company_crud
+from src.tabit_management.crud.admin_user import admin_crud
+from src.tabit_management.schemas.admin_company import AdminCompanyResponseSchema
+from src.tabit_management.schemas.admin_user import AdminReadSchema
 from src.tabit_management.schemas.query_params import CompanyFilterSchema, UserFilterSchema
 
 
@@ -12,7 +14,7 @@ router = APIRouter()
 
 @router.get(
     '/',
-    response_model=list[CompanyResponseSchema],
+    response_model=list[AdminCompanyResponseSchema],
     # TODO добавить dependencies на админа
     summary='Получить общую информацию по компаниям.',
 )
@@ -33,6 +35,7 @@ async def get_all_info(
 
 @router.get(
     '/staff',
+    response_model=list[AdminReadSchema],
     # TODO добавить dependencies на current_superuser
     summary='Получить информацию по всем сотрудникам компаний.',
 )
@@ -41,7 +44,13 @@ async def get_all_staff(
     query_params: UserFilterSchema = Depends(),
 ):
     """Получает информацию по всем сотрудникам компаний."""
-    return {'message': 'Здесь будет какая-то информация.'}
+    return await admin_crud.get_multi(
+        session=session,
+        skip=query_params.skip,
+        limit=query_params.limit,
+        filters=query_params.filters,
+        order_by=query_params.order_by,
+    )
 
 
 @router.post(
