@@ -1,3 +1,4 @@
+aiosqlite==0.21.0 ; python_version >= "3.12" and python_version < "4.0"
 alembic==1.14.1 ; python_version >= "3.12" and python_version < "4.0"
 annotated-types==0.7.0 ; python_version >= "3.12" and python_version < "4.0"
 anyio==4.8.0 ; python_version >= "3.12" and python_version < "4.0"
@@ -40,7 +41,10 @@ packaging==24.2 ; python_version >= "3.12" and python_version < "4.0"
 pathspec==0.12.1 ; python_version >= "3.12" and python_version < "4.0"
 platformdirs==4.3.6 ; python_version >= "3.12" and python_version < "4.0"
 pluggy==1.5.0 ; python_version >= "3.12" and python_version < "4.0"
+<<<<<<< HEAD
 port-for==0.7.4 ; python_version >= "3.12" and python_version < "4.0"
+=======
+>>>>>>> d371bed (закончил с роутами лицензии, добавил тесты итд)
 pre-commit==4.1.0 ; python_version >= "3.12" and python_version < "4.0"
 psutil==6.1.1 ; python_version >= "3.12" and python_version < "4.0" and sys_platform != "cygwin"
 psycopg==3.2.4 ; python_version >= "3.12" and python_version < "4.0"
@@ -52,7 +56,10 @@ pydantic==2.10.6 ; python_version >= "3.12" and python_version < "4.0"
 pydantic[email]==2.10.6 ; python_version >= "3.12" and python_version < "4.0"
 pyjwt[crypto]==2.10.1 ; python_version >= "3.12" and python_version < "4.0"
 pytest-asyncio==0.25.3 ; python_version >= "3.12" and python_version < "4.0"
+<<<<<<< HEAD
 pytest-postgresql==6.1.1 ; python_version >= "3.12" and python_version < "4.0"
+=======
+>>>>>>> d371bed (закончил с роутами лицензии, добавил тесты итд)
 pytest==8.3.4 ; python_version >= "3.12" and python_version < "4.0"
 python-dateutil==2.9.0.post0 ; python_version >= "3.12" and python_version < "4.0"
 python-dotenv==1.0.1 ; python_version >= "3.12" and python_version < "4.0"
