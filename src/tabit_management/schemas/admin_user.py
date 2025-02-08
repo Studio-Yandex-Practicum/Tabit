@@ -3,9 +3,9 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
-from src.constants import MIN_LENGTH_NAME, LENGTH_NAME_USER
+from src.constants import LENGTH_NAME_USER, MIN_LENGTH_NAME
 from src.tabit_management.constants import (
     TITLE_NAME_ADMIN,
     TITLE_PATRONYMIC_ADMIN,
@@ -17,6 +17,7 @@ from src.tabit_management.constants import (
 class AdminReadSchema(BaseUser[UUID]):
     """Схема администратора сервиса для ответов."""
 
+    model_config = ConfigDict(from_attributes=True)
     name: str
     surname: str
     patronymic: Optional[str]
@@ -30,6 +31,7 @@ class AdminReadSchema(BaseUser[UUID]):
 class AdminCreateSchema(BaseUserCreate):
     """Схема для создание администратора сервиса."""
 
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
     name: str = Field(
         ...,
         min_length=MIN_LENGTH_NAME,
@@ -59,6 +61,7 @@ class AdminCreateSchema(BaseUserCreate):
 class AdminUpdateSchema(BaseUserUpdate):
     """Схема для изменение данных администратора сервиса."""
 
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
     name: Optional[str] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
