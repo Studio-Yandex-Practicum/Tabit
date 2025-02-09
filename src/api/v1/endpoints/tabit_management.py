@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_admin_tabit
-from src.api.v1.auth.managers import get_admin_manager, get_user_manager
+from src.api.v1.auth.managers import get_user_manager
 from src.database.db_depends import get_async_session
 from src.logger import logger
 from src.tabit_management.constants import (
@@ -20,21 +20,21 @@ from src.tabit_management.constants import (
 from src.tabit_management.crud.admin_company import admin_company_crud
 from src.tabit_management.crud.admin_user import admin_user_crud
 from src.tabit_management.schemas.admin_company import AdminCompanyResponseSchema
-from src.tabit_management.schemas.admin_user import (
-    AdminCreateSchema,
-    AdminReadSchema,
-    AdminResetPassword,
-    AdminUpdateSchema,
-)
 from src.tabit_management.schemas.query_params import CompanyFilterSchema, UserFilterSchema
+from src.users.schemas import (
+    ResetPasswordByAdmin,
+    UserCreateSchema,
+    UserReadSchema,
+    UserUpdateSchema,
+)
 
 router = APIRouter()
 
 
 async def update_admin_user(
     user_id: UUID,
-    update_data: AdminUpdateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_admin_manager),
+    update_data: UserUpdateSchema,
+    admin_user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Функция для обновления данных админа."""
     try:
@@ -80,7 +80,7 @@ async def get_all_info(
 
 @router.get(
     '/staff',
-    response_model=list[AdminReadSchema],
+    response_model=list[UserReadSchema],
     dependencies=[Depends(current_admin_tabit)],
     summary='Получить информацию по всем сотрудникам компаний.',
 )
@@ -112,15 +112,15 @@ async def get_all_staff(
     '/staff',
     dependencies=[Depends(current_admin_tabit)],
     summary='Создать нового сотрудника компании.',
-    response_model=AdminReadSchema,
+    response_model=UserReadSchema,
 )
 async def create_staff(
-    create_data: AdminCreateSchema,
-    user_manager: BaseUserManager = Depends(get_user_manager),
+    create_data: UserCreateSchema,
+    admin_user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Создание нового сотрудника компании."""
     try:
-        created_admin_user = await user_manager.create(create_data)
+        created_admin_user = await admin_user_manager.create(create_data)
     except UserAlreadyExists:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS)
     except InvalidPasswordException:
@@ -131,10 +131,11 @@ async def create_staff(
 @router.get(
     '/staff/{user_id}',
     summary='Получить информацию об администраторе.',
-    response_model=AdminReadSchema,
+    dependencies=[Depends(current_admin_tabit)],
+    response_model=UserReadSchema,
 )
 async def get_staff(
-    user_id: UUID, admin_user_manager: BaseUserManager = Depends(get_admin_manager)
+    user_id: UUID, admin_user_manager: BaseUserManager = Depends(get_user_manager)
 ):
     """Получает информацию об администраторе."""
     try:
@@ -147,12 +148,13 @@ async def get_staff(
 @router.put(
     '/staff/{user_id}',
     summary='Полностью изменить информацию об администраторе.',
-    response_model=AdminReadSchema,
+    dependencies=[Depends(current_admin_tabit)],
+    response_model=UserReadSchema,
 )
 async def full_update_staff(
     user_id: UUID,
-    update_data: AdminCreateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_admin_manager),
+    update_data: UserCreateSchema,
+    admin_user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Полностью изменяет информацию об администраторе."""
     return await update_admin_user(user_id, update_data, admin_user_manager)
@@ -161,12 +163,13 @@ async def full_update_staff(
 @router.patch(
     '/staff/{user_id}',
     summary='Частично изменить информацию об администраторе.',
-    response_model=AdminReadSchema,
+    dependencies=[Depends(current_admin_tabit)],
+    response_model=UserReadSchema,
 )
 async def update_staff(
     user_id: UUID,
-    update_data: AdminUpdateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_admin_manager),
+    update_data: UserUpdateSchema,
+    admin_user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Частично изменяет информацию об администраторе."""
     return await update_admin_user(user_id, update_data, admin_user_manager)
@@ -175,10 +178,11 @@ async def update_staff(
 @router.delete(
     '/staff/{user_id}',
     summary='Удалить информацию об администраторе.',
+    dependencies=[Depends(current_admin_tabit)],
     status_code=HTTPStatus.NO_CONTENT,
 )
 async def delete_staff(
-    user_id: UUID, admin_user_manager: BaseUserManager = Depends(get_admin_manager)
+    user_id: UUID, admin_user_manager: BaseUserManager = Depends(get_user_manager)
 ):
     """Удаляет информацию об администраторе."""
     try:
@@ -191,11 +195,15 @@ async def delete_staff(
 
 # TODO: Надо разобраться, как работет reset_password. В итерации ниже он не работает.
 # Как то связано с токеном, который генерирует .forgot_password()
-@router.post('/staff/{user_id}/resetpassword', summary='Сброс пароля администратора. Не работает')
+@router.post(
+    '/staff/{user_id}/resetpassword',
+    dependencies=[Depends(current_admin_tabit)],
+    summary='Сброс пароля администратора. Не работает',
+)
 async def reset_password_staff(
     user_id: UUID,
-    new_password: AdminResetPassword,
-    admin_user_manager: BaseUserManager = Depends(get_admin_manager),
+    new_password: ResetPasswordByAdmin,
+    admin_user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Сброс пароля администратора."""
     # try:

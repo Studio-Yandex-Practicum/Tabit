@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
-from pydantic import Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.constants import (
     LENGTH_FILE_LINK,
@@ -88,6 +88,7 @@ class UserSchemaMixin:
         None,
         title=title_employee_position_user,
     )
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
 class UserReadSchema(BaseUser[UUID]):
@@ -111,6 +112,7 @@ class UserReadSchema(BaseUser[UUID]):
     employee_position: Optional[str]
     created_at: datetime
     updated_at: datetime
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
@@ -161,3 +163,10 @@ class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
         None,
         title=title_company_id_user,
     )
+
+
+class ResetPasswordByAdmin(BaseModel):
+    """Схема для сброса пароля админа."""
+
+    password: str
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
