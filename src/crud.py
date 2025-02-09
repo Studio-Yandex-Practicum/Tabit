@@ -238,7 +238,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await session.delete(db_object)
             if auto_commit:
                 await session.commit()
-            return db_object
         except Exception as e:
             await session.rollback()
             logger.error(f'{TEXT_ERROR_SERVER_DELETE_LOG} {self.model.__name__}: {e}')
