@@ -164,7 +164,11 @@ async def delete_staff(
     return HTTPStatus.NO_CONTENT
 
 
-@router.post('/staff/{admin_slug}/resetpassword', summary='Сброс пароля администратора.')
+# TODO: Надо разобраться, как работет reset_password. В итерации ниже он не работает.
+# Как то связано с токеном, который генерирует .forgot_password()
+@router.post(
+    '/staff/{admin_slug}/resetpassword', summary='Сброс пароля администратора. Не работает'
+)
 async def reset_password_staff(
     user_id: UUID,
     new_password: AdminResetPassword,

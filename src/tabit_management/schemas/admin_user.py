@@ -1,4 +1,4 @@
-from datetime import datetimetime
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -45,8 +45,8 @@ class AdminReadSchema(CreateUpdateDictModel):
     surname: str
     patronymic: Optional[str]
     phone_number: Optional[str]
-    created_at: datetimetime
-    updated_at: datetimetime
+    created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
