@@ -1,9 +1,8 @@
 import os
 
 from dotenv import load_dotenv
-from pydantic import SecretStr
+from pydantic import EmailStr, SecretStr
 from pydantic_settings import BaseSettings
-from fastapi_users.authentication import JWTStrategy, AuthenticationBackend
 
 
 load_dotenv()
@@ -23,7 +22,13 @@ class Settings(BaseSettings):
     log_level: str = 'DEBUG'
 
     jwt_secret: SecretStr = 'SUPERSECRETKEY'
-    jwt_lifetime_seconds: int = 3600
+    jwt_lifetime_seconds: int = 32400  # 9 часов: смена + обед.
+
+    create_first_superuser: bool | None = None
+    first_superuser_email: EmailStr | None = None
+    first_superuser_password: str | None = None
+    first_superuser_name: str | None = None
+    first_superuser_surname: str | None = None
 
     @property
     def database_url(self):
@@ -39,17 +44,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-
-def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(
-        secret=settings.jwt_secret.get_secret_value(),
-        lifetime_seconds=settings.jwt_lifetime_seconds,
-    )
-
-
-jwt_auth_backend = AuthenticationBackend(
-    name='jwt',
-    transport=None,
-    get_strategy=get_jwt_strategy,
-)
