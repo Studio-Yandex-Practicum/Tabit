@@ -7,10 +7,12 @@ from fastapi_users.manager import BaseUserManager
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.managers import get_admin_manager
+from src.api.v1.auth.dependencies import current_admin_tabit
+from src.api.v1.auth.managers import get_admin_manager, get_user_manager
 from src.database.db_depends import get_async_session
 from src.logger import logger
 from src.tabit_management.constants import (
+    ERROR_INTERNAL_SERVER,
     ERROR_INVALID_PASSWORD,
     ERROR_USER_ALREADY_EXISTS,
     ERROR_USER_NOT_EXISTS,
@@ -50,7 +52,7 @@ async def update_admin_user(
 @router.get(
     '/',
     response_model=list[AdminCompanyResponseSchema],
-    # TODO добавить dependencies на админа
+    dependencies=[Depends(current_admin_tabit)],
     summary='Получить общую информацию по компаниям.',
 )
 async def get_all_info(
@@ -58,9 +60,7 @@ async def get_all_info(
     query_params: CompanyFilterSchema = Depends(),
 ):
     """Получает общую информацию по компаниям."""
-    print('hmmmm')
     try:
-        print('hmmmm')
         return await admin_company_crud.get_multi(
             session=session,
             skip=query_params.skip,
@@ -69,24 +69,25 @@ async def get_all_info(
     except SQLAlchemyError as error:
         logger.error(f'Эндпоинт get_all_info, ошибка бд: {error}')
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Ошибка базы данных'
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=ERROR_INTERNAL_SERVER
         )
     except Exception as error:
         logger.error(f'Эндпоинт get_all_info, ошибка: {error}')
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Ошибва сервера'
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=ERROR_INTERNAL_SERVER
         )
 
 
 @router.get(
     '/staff',
     response_model=list[AdminReadSchema],
-    # TODO добавить dependencies на current_superuser
+    dependencies=[Depends(current_admin_tabit)],
     summary='Получить информацию по всем сотрудникам компаний.',
 )
 async def get_all_staff(
     session: AsyncSession = Depends(get_async_session),
     query_params: UserFilterSchema = Depends(),
+    # TODO добав. метод в src/api/v1/auth/managers/UserManager, получить всех сотрудников компании
 ):
     """Получает информацию по всем сотрудникам компаний."""
     try:
@@ -98,25 +99,28 @@ async def get_all_staff(
     except SQLAlchemyError as error:
         logger.error(f'Эндпоинт get_all_staff, ошибка бд: {error}')
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Ошибка базы данных'
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=ERROR_INTERNAL_SERVER
         )
     except Exception as error:
         logger.error(f'Эндпоинт get_all_staff, ошибка: {error}')
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Ошибва сервера'
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=ERROR_INTERNAL_SERVER
         )
 
 
 @router.post(
-    '/staff', summary='Создать нового сотрудника компании.', response_model=AdminReadSchema
+    '/staff',
+    dependencies=[Depends(current_admin_tabit)],
+    summary='Создать нового сотрудника компании.',
+    response_model=AdminReadSchema,
 )
 async def create_staff(
     create_data: AdminCreateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_admin_manager),
+    user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Создание нового сотрудника компании."""
     try:
-        created_admin_user = await admin_user_manager.create(create_data)
+        created_admin_user = await user_manager.create(create_data)
     except UserAlreadyExists:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS)
     except InvalidPasswordException:

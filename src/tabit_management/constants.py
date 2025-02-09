@@ -27,3 +27,4 @@ ERROR_USER_NOT_EXISTS = 'Пользователь с таким UUID не сущ
 ERROR_UPDATE_METHOD = 'Пользователь с указанными email и/или phone_number уже существует.'
 RESET_PASSWORD_SUCCESS = 'Пароль был успешено установлен.'
 ERROR_FIELD_START_OR_END_SPACE: str = 'Поле не может начинаться или заканчиваться пробелом.'
+ERROR_INTERNAL_SERVER = 'Внутреннияя ошибка сервера.'
