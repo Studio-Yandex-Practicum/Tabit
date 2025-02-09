@@ -350,20 +350,22 @@ class TestCreateLicense:
 
 class TestGetLicense:
     @pytest.mark.asyncio
-    async def test_get_licenses(self, client: AsyncClient):
+    async def test_get_licenses(self, client: AsyncClient, test_license):
         """Тест получения списка лицензий.
 
         Проверяет, что API возвращает список лицензий, и каждая лицензия содержит
         ожидаемые поля: id, name, license_term, max_admins_count, max_employees_count,
         created_at, updated_at.
         """
+        licenses = [await test_license() for _ in range(3)]
+
         response = await client.get('/api/v1/admin/licenses/')
 
         assert response.status_code == 200
         result = response.json()
 
         assert isinstance(result, list)
-        assert len(result) > 0
+        assert len(result) == len(licenses)
 
         expected_keys = {
             'id',
