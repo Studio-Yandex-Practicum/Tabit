@@ -4,6 +4,7 @@ from typing_extensions import Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from src.companies.constants import TEST_ERROR_LICENSE_FIELDS
 from src.companies.schemas.mixins import GetterSlugMixin
 from src.constants import LENGTH_NAME_COMPANY, MIN_LENGTH_NAME
 
@@ -50,9 +51,9 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
                 all((not self.license_id, not self.start_license_time))
             )
         ):
-            raise ValueError('ДВА ПОЛЯ')
+            raise ValueError(TEST_ERROR_LICENSE_FIELDS)
         return self
-
+    
 
 class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
     """Схема для создания компании."""

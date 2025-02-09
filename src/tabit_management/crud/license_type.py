@@ -3,7 +3,7 @@ from src.tabit_management.models import LicenseType
 
 
 class CRUDLicenseType(CRUDBase):
-    """CRUD операций для модели компании."""
+    """CRUD операций для моделей лицензий компаний."""
 
     pass
 
