@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
 from src.tabit_management.crud import license_type_crud
-from src.tabit_management.models import LicenseType
 from src.tabit_management.schemas import (
     LicenseTypeCreateSchema,
     LicenseTypeResponseSchema,
@@ -11,21 +10,6 @@ from src.tabit_management.schemas import (
 )
 
 router = APIRouter()
-
-
-async def check_license_name_exists(session: AsyncSession, name: str) -> None:
-    """
-    Проверяет, существует ли лицензия с данным именем.
-    Если лицензия найдена, выбрасывает HTTPException.
-    """
-    existing_license = await session.execute(
-        sa.select(LicenseType).where(LicenseType.name == name)
-    )
-    if existing_license.scalars().first():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Лицензия с именем '{name}' уже существует.",
-        )
 
 
 @router.get(
