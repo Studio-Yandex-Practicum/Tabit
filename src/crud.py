@@ -10,19 +10,19 @@
   create, update и delete.
 """
 
-from typing import TypeVar, Generic, Type, Optional, List, Any
+from typing import Any, Generic, List, Optional, Type, TypeVar
 from uuid import UUID
 
 from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
-from .constants import DEFAULT_AUTO_COMMIT, DEFAULT_SKIP, DEFAULT_LIMIT
 from src.logger import logger
 
+from .constants import DEFAULT_AUTO_COMMIT, DEFAULT_LIMIT, DEFAULT_SKIP
 
 ModelType = TypeVar('ModelType')
 CreateSchemaType = TypeVar('CreateSchemaType')
@@ -66,10 +66,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return obj
 
     async def get_by_slug(
-        self, session: AsyncSession,
+        self,
+        session: AsyncSession,
         obj_slug: str,
         raise_404: bool = False,
-        message: str = 'Объект не найден'
+        message: str = 'Объект не найден',
     ) -> Optional[ModelType]:
         """
         Получает объект по полю slug.

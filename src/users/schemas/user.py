@@ -11,7 +11,6 @@ from src.constants import (
     LENGTH_TELEGRAM_USERNAME,
     MIN_LENGTH_NAME,
 )
-from src.users.models.enum import RoleUserTabit
 from src.users.constants import (
     title_avatar_link_user,
     title_birthday_user,
@@ -29,6 +28,7 @@ from src.users.constants import (
     title_surname_user,
     title_telegram_username_user,
 )
+from src.users.models.enum import RoleUserTabit
 
 
 class UserSchemaMixin:

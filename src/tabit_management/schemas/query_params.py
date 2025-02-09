@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from src.constants import DEFAULT_SKIP, DEFAULT_LIMIT
+from src.constants import DEFAULT_LIMIT, DEFAULT_SKIP
 
 
 class BaseFilterSchema(BaseModel):

@@ -3,3 +3,11 @@ exclude = ["alembic"]
 
 [format]
 quote-style = "single"
+
+[lint]
+select = ["E", "F", "I"]
+
+[lint.isort]
+
+known-first-party = ["src"]
+combine-as-imports = true
