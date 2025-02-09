@@ -16,4 +16,8 @@ ERROR_FIELD_INTERVAL = (
     'или строкой формата "P1D", "P1Y", "P1Y1D".'
 )
 ERROR_FIELD_START_OR_END_SPACE = 'Поле не может начинаться или заканчиваться пробелом.'
+ERROR_USER_ALREADY_EXISTS = 'Пользователь с данным email уже существует.'
+ERROR_INVALID_PASSWORD = 'Пароль не соответвует требованиям.'
+ERROR_USER_NOT_EXISTS = 'Пользователь с таким UUID не существует.'
 ERROR_UPDATE_METHOD = 'Пользователь с указанными email и/или phone_number уже существует.'
+RESET_PASSWORD_SUCCESS = 'Пароль был успешено установлен.'

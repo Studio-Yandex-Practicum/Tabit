@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
-from pydantic import ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.constants import LENGTH_NAME_USER, MIN_LENGTH_NAME
 from src.tabit_management.constants import (
@@ -86,3 +86,10 @@ class AdminUpdateSchema(BaseUserUpdate):
         max_length=LENGTH_NAME_USER,
         title=TITLE_PHONE_NUMBER_ADMIN,
     )
+
+
+class AdminResetPassword(BaseModel):
+    """Схема для сброса пароля админа."""
+
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    password: str
