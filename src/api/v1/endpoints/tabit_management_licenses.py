@@ -1,10 +1,8 @@
-import sqlalchemy as sa
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
 from src.tabit_management.crud import license_type_crud
-from src.tabit_management.models import LicenseType
 from src.tabit_management.schemas import (
     LicenseTypeCreateSchema,
     LicenseTypeResponseSchema,
@@ -12,21 +10,6 @@ from src.tabit_management.schemas import (
 )
 
 router = APIRouter()
-
-
-async def check_license_name_exists(session: AsyncSession, name: str) -> None:
-    """
-    Проверяет, существует ли лицензия с данным именем.
-    Если лицензия найдена, выбрасывает HTTPException.
-    """
-    existing_license = await session.execute(
-        sa.select(LicenseType).where(LicenseType.name == name)
-    )
-    if existing_license.scalars().first():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Лицензия с именем '{name}' уже существует.",
-        )
 
 
 @router.get(
@@ -56,7 +39,11 @@ async def create_license(
     """
     Создание новой лицензии.
     """
-    await check_license_name_exists(session, license.name)
+    if await license_type_crud.is_license_name_exists(session, license.name):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Лицензия с именем '{license.name}' уже существует.",
+        )
     return await license_type_crud.create(session=session, obj_in=license)
 
 
@@ -88,7 +75,11 @@ async def update_license(
     db_license = await license_type_crud.get_or_404(session=session, obj_id=license_id)
 
     if license.name and license.name != db_license.name:
-        await check_license_name_exists(session, license.name)
+        if await license_type_crud.is_license_name_exists(session, license.name):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Лицензия с именем '{license.name}' уже существует.",
+            )
 
     return await license_type_crud.update(session=session, db_obj=db_license, obj_in=license)
 
