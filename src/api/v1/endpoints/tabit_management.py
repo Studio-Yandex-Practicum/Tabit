@@ -7,6 +7,7 @@ from fastapi_users.manager import BaseUserManager
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.auth.managers import get_admin_manager
 from src.database.db_depends import get_async_session
 from src.logger import logger
 from src.tabit_management.constants import (
@@ -16,7 +17,6 @@ from src.tabit_management.constants import (
 )
 from src.tabit_management.crud.admin_company import admin_company_crud
 from src.tabit_management.crud.admin_user import admin_user_crud
-from src.tabit_management.manager import get_admin_user_manager
 from src.tabit_management.schemas.admin_company import AdminCompanyResponseSchema
 from src.tabit_management.schemas.admin_user import (
     AdminCreateSchema,
@@ -32,7 +32,7 @@ router = APIRouter()
 async def update_admin_user(
     user_id: UUID,
     update_data: AdminUpdateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_admin_user_manager),
+    admin_user_manager: BaseUserManager = Depends(get_admin_manager),
 ):
     """Функция для обновления данных админа."""
     try:
@@ -112,7 +112,7 @@ async def get_all_staff(
 )
 async def create_staff(
     create_data: AdminCreateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_admin_user_manager),
+    admin_user_manager: BaseUserManager = Depends(get_admin_manager),
 ):
     """Создание нового сотрудника компании."""
     try:
@@ -130,7 +130,7 @@ async def create_staff(
     response_model=AdminReadSchema,
 )
 async def get_staff(
-    user_id: UUID, admin_user_manager: BaseUserManager = Depends(get_admin_user_manager)
+    user_id: UUID, admin_user_manager: BaseUserManager = Depends(get_admin_manager)
 ):
     """Получает информацию об администраторе."""
     try:
@@ -148,7 +148,7 @@ async def get_staff(
 async def full_update_staff(
     user_id: UUID,
     update_data: AdminCreateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_admin_user_manager),
+    admin_user_manager: BaseUserManager = Depends(get_admin_manager),
 ):
     """Полностью изменяет информацию об администраторе."""
     return await update_admin_user(user_id, update_data, admin_user_manager)
@@ -162,7 +162,7 @@ async def full_update_staff(
 async def update_staff(
     user_id: UUID,
     update_data: AdminUpdateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_admin_user_manager),
+    admin_user_manager: BaseUserManager = Depends(get_admin_manager),
 ):
     """Частично изменяет информацию об администраторе."""
     return await update_admin_user(user_id, update_data, admin_user_manager)
@@ -174,7 +174,7 @@ async def update_staff(
     status_code=HTTPStatus.NO_CONTENT,
 )
 async def delete_staff(
-    user_id: UUID, admin_user_manager: BaseUserManager = Depends(get_admin_user_manager)
+    user_id: UUID, admin_user_manager: BaseUserManager = Depends(get_admin_manager)
 ):
     """Удаляет информацию об администраторе."""
     try:
@@ -187,18 +187,13 @@ async def delete_staff(
 
 # TODO: Надо разобраться, как работет reset_password. В итерации ниже он не работает.
 # Как то связано с токеном, который генерирует .forgot_password()
-@router.post(
-    '/staff/{admin_slug}/resetpassword', summary='Сброс пароля администратора. Не работает'
-)
+@router.post('/staff/{user_id}/resetpassword', summary='Сброс пароля администратора. Не работает')
 async def reset_password_staff(
     user_id: UUID,
     new_password: AdminResetPassword,
-    admin_user_manager: BaseUserManager = Depends(get_admin_user_manager),
+    admin_user_manager: BaseUserManager = Depends(get_admin_manager),
 ):
     """Сброс пароля администратора."""
-    # TODO: Надо разобраться, как работет reset_password. В итерации ниже он не работает.
-    # Как то связано с токеном, который генерирует .forgot_password()
-
     # try:
     #     admin_user = await admin_user_manager.get(user_id)
     #     token = await admin_user_manager.forgot_password(admin_user)
