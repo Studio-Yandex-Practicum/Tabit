@@ -28,13 +28,13 @@ async def get_all_info(
     query_params: CompanyFilterSchema = Depends(),
 ):
     """Получает общую информацию по компаниям."""
+    print('hmmmm')
     try:
+        print('hmmmm')
         return await admin_company_crud.get_multi(
             session=session,
             skip=query_params.skip,
             limit=query_params.limit,
-            filters=query_params.filters,
-            order_by=query_params.order_by,
         )
     except SQLAlchemyError as error:
         logger.error(f'Эндпоинт get_all_info, ошибка бд: {error}')
@@ -64,8 +64,6 @@ async def get_all_staff(
             session=session,
             skip=query_params.skip,
             limit=query_params.limit,
-            filters=query_params.filters,
-            order_by=query_params.order_by,
         )
     except SQLAlchemyError as error:
         logger.error(f'Эндпоинт get_all_staff, ошибка бд: {error}')
@@ -90,7 +88,8 @@ async def create_staff(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Создание нового сотрудника компании."""
-    return {'message': 'Здесь будет какая-то информация.'}
+    new_staff = await admin_user_crud.create(session=session, obj_in=staff_data)
+    return new_staff
 
 
 @router.get(

@@ -1,5 +1,3 @@
-from typing import Any, List, Optional
-
 from pydantic import BaseModel, Field
 
 from src.constants import DEFAULT_SKIP, DEFAULT_LIMIT
@@ -15,8 +13,7 @@ class BaseFilterSchema(BaseModel):
 
     skip: int = Field(DEFAULT_SKIP, ge=0, title='Пропустить n объектов')
     limit: int = Field(DEFAULT_LIMIT, ge=1, title='Лимитировать список объектов')
-    filters: Optional[dict[str, Any]] = None
-    order_by: Optional[List[str]] = None
+    # TODO добавить поля для сортировки и фильтрации, по которым можно будет.
 
 
 class CompanyFilterSchema(BaseFilterSchema):

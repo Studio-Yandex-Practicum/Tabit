@@ -54,6 +54,8 @@ class AdminCreateSchema(BaseUserCreate):
         max_length=LENGTH_NAME_USER,
         title=TITLE_PHONE_NUMBER_ADMIN,
     )
+    # password: str = Field(exclude=True)
+    # hashed_password: str
 
 
 class AdminUpdateSchema(BaseUserUpdate):
