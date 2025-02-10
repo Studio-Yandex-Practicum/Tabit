@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, HttpUrl
 
 
 class AdminCompanyResponseSchema(BaseModel):
@@ -10,7 +10,7 @@ class AdminCompanyResponseSchema(BaseModel):
     id: int
     name: str
     description: Optional[str]
-    logo: Optional[str]
+    logo: Optional[HttpUrl]
     license_id: Optional[int]
     max_admins_count: int
     max_employees_count: int
