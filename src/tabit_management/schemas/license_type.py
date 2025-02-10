@@ -1,18 +1,28 @@
 from datetime import datetime, timedelta
 from re import compile
-from typing import Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.constants import LENGTH_NAME_LICENSE, MIN_LENGTH_NAME, ZERO
 from src.tabit_management.constants import (
     DEFAULT_LICENSE_TERM,
+    DEFAULT_PAGE,
+    DEFAULT_PAGE_SIZE,
     ERROR_FIELD_INTERVAL,
     ERROR_FIELD_START_OR_END_SPACE,
+    FILTER_NAME_DESCRIPTION,
+    ITEMS_DESCRIPTION,
+    MAX_PAGE_SIZE,
+    MIN_PAGE_SIZE,
+    PAGE_DESCRIPTION,
+    PAGE_SIZE_DESCRIPTION,
+    SORTING_DESCRIPTION,
     TITLE_LICENSE_TERM,
     TITLE_MAX_ADMINS_COUNT,
     TITLE_MAX_EMPLOYEES_COUNT,
     TITLE_NAME_LICENSE,
+    TOTAL_DESCRIPTION,
 )
 
 
@@ -130,3 +140,27 @@ class LicenseTypeResponseSchema(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class LicenseTypeListResponseSchema(BaseModel):
+    """Ответ с пагинацией для списка лицензий."""
+
+    total: int = Field(..., description=TOTAL_DESCRIPTION)
+    page: int = Field(..., description=PAGE_DESCRIPTION)
+    page_size: int = Field(..., description=PAGE_SIZE_DESCRIPTION)
+    items: List['LicenseTypeResponseSchema'] = Field(..., description=ITEMS_DESCRIPTION)
+
+
+class LicenseTypeFilterSchema(BaseModel):
+    """Схема фильтрации списка лицензий с возможностью сортировки."""
+
+    name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
+
+    ordering: Optional[
+        Literal['name', '-name', 'created_at', '-created_at', 'updated_at', '-updated_at']
+    ] = Field(None, description=SORTING_DESCRIPTION)
+
+    page: Optional[int] = Field(DEFAULT_PAGE, ge=MIN_PAGE_SIZE, description=PAGE_DESCRIPTION)
+    page_size: Optional[int] = Field(
+        DEFAULT_PAGE_SIZE, ge=MIN_PAGE_SIZE, le=MAX_PAGE_SIZE, description=PAGE_SIZE_DESCRIPTION
+    )

@@ -3,6 +3,9 @@ import uuid
 import pytest
 from httpx import AsyncClient
 
+from src.constants import LENGTH_NAME_USER
+from src.tabit_management.constants import DEFAULT_PAGE_SIZE
+
 
 def generate_license_data():
     """Генерирует уникальное имя лицензии для тестов."""
@@ -350,36 +353,110 @@ class TestCreateLicense:
 
 class TestGetLicense:
     @pytest.mark.asyncio
-    async def test_get_licenses(self, client: AsyncClient, test_license):
-        """Тест получения списка лицензий.
+    async def test_get_licenses_default_pagination(self, client: AsyncClient, test_license):
+        """Тест получения списка лицензий с параметрами по умолчанию.
 
-        Проверяет, что API возвращает список лицензий, и каждая лицензия содержит
-        ожидаемые поля: id, name, license_term, max_admins_count, max_employees_count,
-        created_at, updated_at.
+        Проверяет, что API возвращает не более 20 записей на странице по умолчанию.
         """
-        licenses = [await test_license() for _ in range(3)]
+        licenses = [await test_license() for _ in range(30)]
 
         response = await client.get('/api/v1/admin/licenses/')
 
         assert response.status_code == 200
         result = response.json()
 
-        assert isinstance(result, list)
-        assert len(result) == len(licenses)
+        assert isinstance(result, dict)
+        assert 'items' in result
+        assert 'total' in result
+        assert 'page' in result
+        assert 'page_size' in result
 
-        expected_keys = {
-            'id',
-            'name',
-            'license_term',
-            'max_admins_count',
-            'max_employees_count',
-            'created_at',
-            'updated_at',
-        }
+        assert result['page'] == 1
+        assert result['page_size'] == DEFAULT_PAGE_SIZE
+        assert result['total'] == len(licenses)
+        assert len(result['items']) == DEFAULT_PAGE_SIZE
 
-        for license_data in result:
-            assert isinstance(license_data, dict)
-            assert expected_keys.issubset(license_data.keys())
+    @pytest.mark.asyncio
+    async def test_get_licenses_custom_pagination(self, client: AsyncClient, test_license):
+        """Тест получения списка лицензий с кастомной пагинацией.
+
+        Проверяет, что API корректно обрабатывает параметры `page` и `page_size`.
+        """
+        licenses = [await test_license() for _ in range(30)]
+
+        response = await client.get('/api/v1/admin/licenses/?page=2&page_size=5')
+
+        assert response.status_code == 200
+        result = response.json()
+
+        assert result['page'] == 2
+        assert result['page_size'] == 5
+        assert result['total'] == len(licenses)
+        assert len(result['items']) == 5
+
+    @pytest.mark.asyncio
+    async def test_get_licenses_invalid_pagination(self, client: AsyncClient):
+        """Тест получения списка лицензий с некорректными параметрами пагинации.
+
+        Проверяет, что API отклоняет запрос с `page_size=0` или `page_size > 100`.
+        """
+        response = await client.get('/api/v1/admin/licenses/?page=1&page_size=0')
+        assert response.status_code == 422
+
+        response = await client.get('/api/v1/admin/licenses/?page=1&page_size=101')
+        assert response.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_get_licenses_sorting(self, client: AsyncClient, test_license):
+        """Тест сортировки лицензий по полям `name`, `created_at` и `updated_at`.
+
+        Проверяет, что API корректно сортирует список лицензий.
+        """
+        (await test_license({'name': 'B'}),)
+        (await test_license({'name': 'A'}),)
+        (await test_license({'name': 'C'}),)
+
+        # Проверяем сортировку по имени (по возрастанию)
+        response = await client.get('/api/v1/admin/licenses/?ordering=name')
+        assert response.status_code == 200
+        result = response.json()
+        sorted_names = [license['name'] for license in result['items']]
+        assert sorted_names == sorted(sorted_names)
+
+        # Проверяем сортировку по имени (по убыванию)
+        response = await client.get('/api/v1/admin/licenses/?ordering=-name')
+        assert response.status_code == 200
+        result = response.json()
+        sorted_names_desc = [license['name'] for license in result['items']]
+        assert sorted_names_desc == sorted(sorted_names, reverse=True)
+
+        # Проверяем сортировку по дате создания
+        response = await client.get('/api/v1/admin/licenses/?ordering=created_at')
+        assert response.status_code == 200
+        result = response.json()
+        created_dates = [license['created_at'] for license in result['items']]
+        assert created_dates == sorted(created_dates)
+
+        # Проверяем сортировку по убыванию
+        response = await client.get('/api/v1/admin/licenses/?ordering=-created_at')
+        assert response.status_code == 200
+        result = response.json()
+        created_dates_desc = [license['created_at'] for license in result['items']]
+        assert created_dates_desc == sorted(created_dates, reverse=True)
+
+        # Проверяем сортировку по дате обновления
+        response = await client.get('/api/v1/admin/licenses/?ordering=updated_at')
+        assert response.status_code == 200
+        result = response.json()
+        updated_dates = [license['updated_at'] for license in result['items']]
+        assert updated_dates == sorted(updated_dates)
+
+        # Проверяем сортировку по убыванию
+        response = await client.get('/api/v1/admin/licenses/?ordering=-updated_at')
+        assert response.status_code == 200
+        result = response.json()
+        updated_dates_desc = [license['updated_at'] for license in result['items']]
+        assert updated_dates_desc == sorted(updated_dates, reverse=True)
 
     @pytest.mark.asyncio
     async def test_get_license_by_id(self, client: AsyncClient, async_session, test_license):
@@ -503,7 +580,7 @@ class TestPatchLicense:
         """
         new_license = await test_license()
 
-        patch_data = {'name': 'A' * 101}
+        patch_data = {'name': 'A' * (LENGTH_NAME_USER + 1)}
 
         response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
         assert response.status_code == 422

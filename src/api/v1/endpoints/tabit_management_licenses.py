@@ -8,22 +8,28 @@ from src.tabit_management.schemas import (
     LicenseTypeResponseSchema,
     LicenseTypeUpdateSchema,
 )
+from src.tabit_management.schemas.license_type import (
+    LicenseTypeFilterSchema,
+    LicenseTypeListResponseSchema,
+)
 
 router = APIRouter()
 
 
 @router.get(
     '/',
-    response_model=list[LicenseTypeResponseSchema],
-    summary='Получить список всех лицензий',
+    response_model=LicenseTypeListResponseSchema,
+    status_code=status.HTTP_200_OK,
+    summary='Получить список всех лицензий с фильтрацией и сортировкой',
 )
 async def get_licenses(
     session: AsyncSession = Depends(get_async_session),
+    filters: LicenseTypeFilterSchema = Depends(),
 ):
     """
     Возвращает список всех лицензий.
     """
-    return await license_type_crud.get_multi(session=session)
+    return await license_type_crud.get_filtered(session, filters)
 
 
 @router.post(
@@ -50,6 +56,7 @@ async def create_license(
 @router.get(
     '/{license_id}',
     response_model=LicenseTypeResponseSchema,
+    status_code=status.HTTP_200_OK,
     summary='Получить данные лицензии',
 )
 async def get_license(license_id: int, session: AsyncSession = Depends(get_async_session)):
@@ -62,6 +69,7 @@ async def get_license(license_id: int, session: AsyncSession = Depends(get_async
 @router.patch(
     '/{license_id}',
     response_model=LicenseTypeResponseSchema,
+    status_code=status.HTTP_200_OK,
     summary='Обновить данные лицензии',
 )
 async def update_license(

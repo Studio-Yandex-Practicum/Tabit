@@ -21,3 +21,21 @@ ERROR_FIELD_INTERVAL: str = (
     'или строкой формата "P1D", "P1Y", "P1Y1D".'
 )
 ERROR_FIELD_START_OR_END_SPACE: str = 'Поле не может начинаться или заканчиваться пробелом.'
+
+# Пагинация
+DEFAULT_PAGE = 1
+DEFAULT_PAGE_SIZE = 20
+MAX_PAGE_SIZE = 100
+MIN_PAGE_SIZE = 1
+
+# Фильтрация и сортировка для лицензии
+FILTER_NAME_DESCRIPTION = 'Фильтр по названию лицензии'
+SORTING_DESCRIPTION = (
+    "Сортировка по полю (name, created_at, updated_at). '-' означает сортировку в обратном порядке"
+)
+
+# Поля ответа
+TOTAL_DESCRIPTION = 'Общее количество записей'
+PAGE_DESCRIPTION = 'Текущая страница'
+PAGE_SIZE_DESCRIPTION = 'Количество записей на странице'
+ITEMS_DESCRIPTION = 'Список лицензий'
