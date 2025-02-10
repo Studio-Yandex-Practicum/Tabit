@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from pydantic import EmailStr, SecretStr, ConfigDict
+from pydantic import ConfigDict, EmailStr, SecretStr
 from pydantic_settings import BaseSettings
 
 load_dotenv()
