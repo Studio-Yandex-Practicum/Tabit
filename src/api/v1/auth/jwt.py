@@ -1,32 +1,33 @@
-from abc import abstractmethod
-from datetime import datetime, timedelta, timezone
+from collections.abc import Sequence
 from typing import Any, Optional
 from uuid import UUID
 
 import jwt
-from fastapi_users import FastAPIUsers
-from fastapi_users.authentication import AuthenticationBackend, Authenticator
-from fastapi import Response
+from fastapi import HTTPException, Response, status
 from fastapi.responses import JSONResponse
-from fastapi_users import exceptions, models
-from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
-from fastapi_users.authentication.strategy import Strategy
-from fastapi_users.authentication.transport import Transport
-from fastapi_users.jwt import SecretType, decode_jwt, generate_jwt, _get_secret_value
+from fastapi_users import FastAPIUsers, exceptions, models
+from fastapi_users.authentication import (
+    AuthenticationBackend,
+    Authenticator,
+    BearerTransport,
+    JWTStrategy,
+)
+from fastapi_users.authentication.authenticator import (
+    EnabledBackendsDependency,
+    name_to_strategy_variable_name,
+    name_to_variable_name,
+)
+from fastapi_users.jwt import SecretType, decode_jwt, generate_jwt
+from fastapi_users.manager import BaseUserManager, UserManagerDependency
 from fastapi_users.schemas import model_dump
+from makefun import with_signature
 from pydantic import BaseModel
-from fastapi_users.manager import BaseUserManager
-from fastapi import Depends, HTTPException, status
 
-from src.config import settings
+from src.api.v1.auth.managers import get_admin_manager, get_user_manager
 from src.api.v1.auth.protocol import StrategyT, TransportT
+from src.config import settings
 from src.tabit_management.models import TabitAdminUser
 from src.users.models import UserTabit
-from src.api.v1.auth.managers import get_admin_manager, get_user_manager
-
-TOKEN_TYPE: str = 'bearer'
-ALGORITHM: str = 'HS256'
-TOKEN_AUDIENCE: list[str] = ['fastapi-users:auth']
 
 
 class TransportShema(BaseModel):
@@ -45,17 +46,15 @@ class TransportTabit(BearerTransport):
     ) -> Response:
         """Подготовит ответ с токенами."""
         bearer_response = TransportShema(
-            access_token=access_token, refresh_token=refresh_token, token_type=TOKEN_TYPE
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type=settings.jwt_token_type,
         )
         return JSONResponse(model_dump(bearer_response))
 
 
 # TODO: Нужно путь в константы определить, так, чтобы от эндпоинта собиралась.
 transport = TransportTabit(tokenUrl='/api/v1/admin/auth/login')
-
-
-DISTINGUISHING_FEATURE_ACCESS = 'access'
-DISTINGUISHING_FEATURE_REFRESH = 'refresh'
 
 
 class AuthenticationBackendTabit(AuthenticationBackend):
@@ -83,8 +82,8 @@ class JWTStrategyTabit(JWTStrategy):
         secret: SecretType,
         lifetime_seconds: int | None,
         lifetime_seconds_refresh: int | None,
-        token_audience: list[str] = TOKEN_AUDIENCE,
-        algorithm: str = ALGORITHM,
+        token_audience: list[str] = settings.jwt_token_audience,
+        algorithm: str = settings.jwt_token_algorithm,
         public_key: SecretType | None = None,
     ):
         super().__init__(
@@ -100,9 +99,15 @@ class JWTStrategyTabit(JWTStrategy):
         self,
         token: str | None,
         user_manager: BaseUserManager[models.UP, models.ID],
-        distinguishing_feature: str | None = DISTINGUISHING_FEATURE_ACCESS,
+        distinguishing_feature: str | None = settings.jwt_distinguishing_feature_access_token,
     ) -> models.UP | None:
-        """Проверит является ли переданный токен access-token или refresh-token и валиден ли он."""
+        """
+        Проверит является ли переданный токен access-token или refresh-token и валиден ли он.
+        :param distinguishing_feature:
+            - None - по умолчанию  - стандартный функционал библиотеки;
+            - str - будет проверять в полезной нагрузке токена наличие ключа этой строки, при
+            создании этот ключ разный для access или refresh токенов.
+        """
         if token is None:
             return None
         try:
@@ -126,8 +131,10 @@ class JWTStrategyTabit(JWTStrategy):
         """
         Подготовит данные для создания access-token или refresh-token и, после его создания,
         вернет его.
-        param is_access: По умолчанию None - стандартный функционал библиотеки,
-            True - создаст access-token, False - refresh-token
+        :param is_access:
+            - None - по умолчанию - стандартный функционал библиотеки;
+            - True - создаст access-token;
+            - False - создаст refresh-token.
         """
         data = {
             'sub': str(user.id),
@@ -136,7 +143,9 @@ class JWTStrategyTabit(JWTStrategy):
         lifetime_seconds = self.lifetime_seconds
         if is_access is not None:
             distinguishing_feature = (
-                DISTINGUISHING_FEATURE_ACCESS if is_access else DISTINGUISHING_FEATURE_REFRESH
+                settings.jwt_distinguishing_feature_access_token
+                if is_access
+                else settings.jwt_distinguishing_feature_refresh_token
             )
             data[distinguishing_feature] = distinguishing_feature
             lifetime_seconds = self.lifetime_seconds_refresh
@@ -153,15 +162,11 @@ def get_jwt_strategy() -> JWTStrategy:
 
 
 jwt_auth_backend = AuthenticationBackendTabit(
-    name='jwt_2',
+    name='jwt',
     transport=transport,
     get_strategy=get_jwt_strategy,
 )
-
-
-from collections.abc import Sequence
-from fastapi_users.authentication.authenticator import name_to_variable_name, name_to_strategy_variable_name, EnabledBackendsDependency
-from makefun import with_signature
+"""Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
 
 
 class AuthenticatorTabit(Authenticator):
@@ -175,36 +180,39 @@ class AuthenticatorTabit(Authenticator):
         active: bool = False,
         verified: bool = False,
         superuser: bool = False,
-        get_enabled_backends: Optional[
-            EnabledBackendsDependency[models.UP, models.ID]
-        ] = None,
+        get_enabled_backends: Optional[EnabledBackendsDependency[models.UP, models.ID]] = None,
     ):
         """
-        Return a dependency callable to retrieve currently authenticated user and token.
+        Возвращает зависимость, вызываемую для получения текущего аутентифицированного
+        пользователя и токена. Используется для проверки refresh-token.
 
-        :param optional: If `True`, `None` is returned if there is no authenticated user
-        or if it doesn't pass the other requirements.
-        Otherwise, throw `401 Unauthorized`. Defaults to `False`.
-        Otherwise, an exception is raised. Defaults to `False`.
-        :param active: If `True`, throw `401 Unauthorized` if
-        the authenticated user is inactive. Defaults to `False`.
-        :param verified: If `True`, throw `401 Unauthorized` if
-        the authenticated user is not verified. Defaults to `False`.
-        :param superuser: If `True`, throw `403 Forbidden` if
-        the authenticated user is not a superuser. Defaults to `False`.
-        :param get_enabled_backends: Optional dependency callable returning
-        a list of enabled authentication backends.
-        Useful if you want to dynamically enable some authentication backends
-        based on external logic, like a configuration in database.
-        By default, all specified authentication backends are enabled.
-        Please not however that every backends will appear in the OpenAPI documentation,
-        as FastAPI resolves it statically.
+        :param optional: Если значение "True", то значение "None" возвращается, если нет
+        пользователя, прошедшего проверку подлинности или если оно не соответствует другим
+        требованиям.
+        В противном случае выдается сообщение "401 Unauthorized". По умолчанию используется
+        значение "False".
+        В противном случае генерируется исключение. По умолчанию используется значение `False`.
+        :param active: Если указано значение "True", выдайте сообщение "401 Неавторизованный", если
+        аутентифицированный пользователь неактивен. По умолчанию используется значение `False`.
+        :param verified: Если значение "True", введите "401 Unauthorized", если
+        аутентифицированный пользователь не подтвержден.
+        По умолчанию используется значение `False`.
+        :param superuser: Если значение "True", введите "403 запрещено", если
+        прошедший проверку пользователь не является суперпользователем. По умолчанию используется
+        значение `False`.
+        :param get_enabled_backends: Необязательная зависимость, которую можно вызвать, возвращает
+        список включенных серверных компонентов проверки подлинности.
+        Полезно, если вы хотите динамически включить некоторые серверы аутентификации
+        на основе внешней логики, например, конфигурации в базе данных.
+        По умолчанию все указанные серверы аутентификации включены.
+        Однако, пожалуйста, обратите внимание, что все серверные части будут отображаться в
+        документации OpenAPI, поскольку FastAPI разрешает их статически.
         """
         signature = self._get_dependency_signature(get_enabled_backends)
 
         @with_signature(signature)
         async def current_user_token_refresh_dependency(*args: Any, **kwargs: Any):
-            return await self._updating_tokens(
+            return await self._for_updating_tokens(
                 *args,
                 optional=optional,
                 active=active,
@@ -215,7 +223,7 @@ class AuthenticatorTabit(Authenticator):
 
         return current_user_token_refresh_dependency
 
-    async def _updating_tokens(
+    async def _for_updating_tokens(
         self,
         *args,
         user_manager: BaseUserManager[models.UP, models.ID],
@@ -227,9 +235,10 @@ class AuthenticatorTabit(Authenticator):
     ) -> tuple[Optional[models.UP], Optional[str]]:
         user: Optional[models.UP] = None
         token: Optional[str] = None
-        enabled_backends: Sequence[AuthenticationBackend[models.UP, models.ID]] = (
-            kwargs.get("enabled_backends", self.backends)
+        enabled_backends: Sequence[AuthenticationBackend[models.UP, models.ID]] = kwargs.get(
+            'enabled_backends', self.backends
         )
+        """Только для проверки refresh-token."""
         for backend in self.backends:
             if backend in enabled_backends:
                 token = kwargs[name_to_variable_name(backend.name)]
@@ -238,7 +247,7 @@ class AuthenticatorTabit(Authenticator):
                 ]
                 if token is not None:
                     user = await strategy.read_token(
-                        token, user_manager, DISTINGUISHING_FEATURE_REFRESH
+                        token, user_manager, settings.jwt_distinguishing_feature_refresh_token,
                     )
                     if user:
                         break
@@ -248,15 +257,11 @@ class AuthenticatorTabit(Authenticator):
             if active and not user.is_active:
                 status_code = status.HTTP_401_UNAUTHORIZED
                 user = None
-            elif (
-                verified and not user.is_verified or superuser and not user.is_superuser
-            ):
+            elif verified and not user.is_verified or superuser and not user.is_superuser:
                 user = None
         if not user and not optional:
             raise HTTPException(status_code=status_code)
         return user, token
-
-from fastapi_users.manager import UserManagerDependency
 
 
 class FastAPIUsersTabit(FastAPIUsers[models.UP, models.ID]):
@@ -277,4 +282,13 @@ class FastAPIUsersTabit(FastAPIUsers[models.UP, models.ID]):
 
 
 tabit_admin = FastAPIUsersTabit[TabitAdminUser, UUID](get_admin_manager, [jwt_auth_backend])
+"""
+Основной объект, который связывает воедино компонент для аутентификации пользователей для
+администраторов сервиса Tabit.
+"""
+
 tabit_users = FastAPIUsersTabit[UserTabit, UUID](get_user_manager, [jwt_auth_backend])
+"""
+Основной объект, который связывает воедино компонент для аутентификации пользователей для
+пользователей сервиса Tabit.
+"""

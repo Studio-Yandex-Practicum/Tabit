@@ -1,10 +1,10 @@
 from datetime import date
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import description, int_pk, owner, name_problem
+from src.database.annotations import description, int_pk, name_problem, owner
 from src.database.models import BaseTabitModel
 from src.problems.models.enums import StatusTask
 

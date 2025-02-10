@@ -4,13 +4,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
+from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.problems.schemas.problem import (
     ProblemCreateSchema,
-    ProblemUpdateSchema,
     ProblemResponseSchema,
+    ProblemUpdateSchema,
 )
-from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
-
 
 router = APIRouter()
 

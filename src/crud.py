@@ -15,9 +15,8 @@ from typing import Any, Generic, List, Optional, Type, TypeVar
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from fastapi_users import BaseUserManager, exceptions, models
 from fastapi.encoders import jsonable_encoder
-from fastapi_users import schemas
+from fastapi_users import BaseUserManager, exceptions, models, schemas
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,8 +25,8 @@ from starlette.requests import Request
 
 from src.constants import (
     DEFAULT_AUTO_COMMIT,
-    DEFAULT_SKIP,
     DEFAULT_LIMIT,
+    DEFAULT_SKIP,
     TEXT_ERROR_EXISTS_EMAIL,
     TEXT_ERROR_INVALID_PASSWORD,
     TEXT_ERROR_NOT_FOUND,
@@ -72,9 +71,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.scalars().first()
 
     async def get_or_404(
-        self, session: AsyncSession,
+        self,
+        session: AsyncSession,
         obj_id: int | UUID,
-        message: str = TEXT_ERROR_NOT_FOUND
+        message: str = TEXT_ERROR_NOT_FOUND,
     ) -> ModelType:
         """
         Получает объект по ID или выбрасывает 404-ошибку.
@@ -89,10 +89,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return obj
 
     async def get_by_slug(
-        self, session: AsyncSession,
+        self,
+        session: AsyncSession,
         obj_slug: str,
         raise_404: bool = False,
-        message: str = TEXT_ERROR_NOT_FOUND
+        message: str = TEXT_ERROR_NOT_FOUND,
     ) -> Optional[ModelType]:
         """
         Получает объект по полю slug.
@@ -321,9 +322,7 @@ class UserCreateMixin:
         В БД данных пароль не сохраняется, сохраняется его хэш.
         """
         try:
-            created_user = await user_manager.create(
-                user_create, safe=False, request=request
-            )
+            created_user = await user_manager.create(user_create, safe=False, request=request)
         except exceptions.UserAlreadyExists:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,

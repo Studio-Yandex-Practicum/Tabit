@@ -1,26 +1,25 @@
 # Здесь собраны модели для alembic.
-from src.database.models import BaseTabitModel as Base
-from src.tabit_management.models import LandingPage, LicenseType, TabitAdminUser
-from src.users.models import AssociationUserTags, TagUser, UserTabit
 from src.companies.models import Company, Department
+from src.database.models import BaseTabitModel as Base
 from src.problems.models import (
-    AssociationUserProblem,
     AssociationUserMeeting,
+    AssociationUserProblem,
     AssociationUserTask,
-    Problem,
+    CommentFeed,
+    FileMeeting,
+    FileMessage,
+    FileProblem,
+    FileTask,
     Meeting,
+    MessageFeed,
+    Problem,
     ResultMeeting,
     Task,
-    MessageFeed,
-    CommentFeed,
-    VotingFeed,
     VotingByUser,
-    FileProblem,
-    FileMeeting,
-    FileTask,
-    FileMessage,
+    VotingFeed,
 )
-
+from src.tabit_management.models import LandingPage, LicenseType, TabitAdminUser
+from src.users.models import AssociationUserTags, TagUser, UserTabit
 
 __all__ = [
     'Base',

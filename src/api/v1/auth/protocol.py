@@ -21,9 +21,7 @@ class StrategyT(Protocol, Generic[models.UP, models.ID]):
         self, user: models.UP, is_access: bool | None
     ) -> str: ...  # pragma: no cover
 
-    async def destroy_token(
-        self, token: str, user: models.UP
-    ) -> None: ...  # pragma: no cover
+    async def destroy_token(self, token: str, user: models.UP) -> None: ...  # pragma: no cover
 
 
 class TransportT(Transport):

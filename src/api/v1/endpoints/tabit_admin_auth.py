@@ -9,22 +9,22 @@ from fastapi_users.authentication import Strategy
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
-from src.api.v1.auth.jwt import jwt_auth_backend
 from src.api.v1.auth.dependencies import (
     current_admin_tabit,
     current_superuser,
-    tabit_admin,
-    get_current_admin_token,
     get_current_admin_refresh_token,
+    get_current_admin_token,
+    tabit_admin,
 )
+from src.api.v1.auth.jwt import jwt_auth_backend
+from src.api.v1.auth.managers import get_admin_manager
+from src.api.v1.auth.protocol import StrategyT
+from src.api.v1.constants import Summary, TextError
 from src.api.v1.validator import validator_check_is_superuser, validator_check_object_exists
 from src.database.db_depends import get_async_session
 from src.tabit_management.crud import admin_crud
 from src.tabit_management.models import TabitAdminUser
 from src.tabit_management.schemas import AdminReadSchema, AdminUpdateSchema
-from src.api.v1.auth.managers import get_admin_manager
-from src.api.v1.constants import Summary, TextError
-from src.api.v1.auth.protocol import StrategyT, TransportT
 
 router = APIRouter()
 
@@ -36,7 +36,7 @@ router = APIRouter()
     summary=Summary.TABIT_ADMIN_AUTH_LIST,
 )
 async def get_tabit_admin(
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
     """
     Возвращает список администраторов. Доступно только суперпользователю.
@@ -75,7 +75,9 @@ async def update_tabit_admin_by_id(
     Изменить данные карточки администратора сервиса по его `id`. Доступно только суперпользователю.
     """
     user = await validator_check_object_exists(
-        session, admin_crud, object_id=user_id
+        session,
+        admin_crud,
+        object_id=user_id,
     )
     return await admin_crud.update(session, user, user_in)
 
@@ -95,7 +97,9 @@ async def delete_tabit_admin_by_id(
     Удалить суперпользователя нельзя.
     """
     user = await validator_check_object_exists(
-        session, admin_crud, object_id=user_id
+        session,
+        admin_crud,
+        object_id=user_id,
     )
     validator_check_is_superuser(user)
     await admin_crud.remove(session, user)
@@ -176,9 +180,7 @@ async def create_tabit_admin(
     """
     Создает нового администратора сервиса. Доступно только суперпользователю.
     """
-    created_user = await admin_crud.create_user(
-        request, user_create, user_manager
-    )
+    created_user = await admin_crud.create_user(request, user_create, user_manager)
     return schemas.model_validate(AdminReadSchema, created_user)
 
 

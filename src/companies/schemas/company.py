@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Optional
-from typing_extensions import Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from typing_extensions import Self
 
 from src.companies.constants import TEST_ERROR_LICENSE_FIELDS
 from src.companies.schemas.mixins import GetterSlugMixin

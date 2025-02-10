@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from pydantic import EmailStr, SecretStr
 from pydantic_settings import BaseSettings
 
-
 load_dotenv()
 
 
@@ -22,8 +21,13 @@ class Settings(BaseSettings):
     log_level: str = 'DEBUG'
 
     jwt_secret: SecretStr = 'SUPERSECRETKEY'
-    jwt_lifetime_seconds: int = 150000  # 9 часов: смена + обед.
-    jwt_lifetime_seconds_refresh: int = 350000  # 30 дней
+    jwt_lifetime_seconds: int = 3_600  # 1 час.
+    jwt_lifetime_seconds_refresh: int = 86_400  # 24 часа.
+    jwt_token_type: str = 'bearer'
+    jwt_token_algorithm: str = 'HS256'  # TODO: спрятать в .env
+    jwt_token_audience: list[str] = ['fastapi-users:auth']  # TODO: спрятать в .env
+    jwt_distinguishing_feature_access_token: str = 'access'  # TODO: спрятать в .env
+    jwt_distinguishing_feature_refresh_token: str = 'refresh'  # TODO: спрятать в .env
 
     create_first_superuser: bool | None = None
     first_superuser_email: EmailStr | None = None
