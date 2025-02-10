@@ -25,11 +25,22 @@ from src.tabit_management.constants import (
 
 
 class LicenseTypeBaseSchema(BaseModel):
-    """Базовая схема лицензии."""
+    """Базовая схема лицензии, содержащая валидаторы."""
 
     @classmethod
     def _validator_field_string(cls, value: str):
-        """Проверит строковое поле, чтобы не было пробелов вначале или конце."""
+        """
+        Проверяет строковое поле на наличие пробелов в начале или конце.
+
+        Args:
+            value (str): Входное строковое значение.
+
+        Returns:
+            str: Очищенное от пробелов значение.
+
+        Raises:
+            ValueError: Если строка содержит пробелы в начале или в конце.
+        """
         if value != value.strip():
             raise ValueError(ERROR_FIELD_START_OR_END_SPACE)
         return value
@@ -37,12 +48,22 @@ class LicenseTypeBaseSchema(BaseModel):
     @classmethod
     def _validator_field_interval(cls, value: int):
         """
-        Проверка поля timedelta.
-        Проверка происходит до проверки по типу.
-        Поле может принимать строку формата "P1D", "P1Y", "P1Y1D", где:
-            P - обязательный указатель, ставится в начале строки,
-            1D - количество дней, в данном случае: 1 день,
-            1Y - количество лет, в данном случае: 1 год.
+        Проверяет поле времени действия лицензии и конвертирует его в timedelta.
+
+        Допустимые форматы:
+            - "P1D" (1 день)
+            - "P1Y" (1 год)
+            - "P1Y1D" (1 год и 1 день)
+            - Целое число (интерпретируется как дни)
+
+        Args:
+            value (int | str): Входное значение.
+
+        Returns:
+            timedelta | str: Обработанное значение (timedelta или исходная строка).
+
+        Raises:
+            ValueError: Если значение не соответствует допустимым форматам.
         """
         if isinstance(value, str):
             if value.isdigit():
@@ -84,11 +105,29 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
     @field_validator('name', mode='after')
     @classmethod
     def str_field(cls, value: str):
+        """
+        Валидатор для названия лицензии.
+
+        Args:
+            value (str): Название лицензии.
+
+        Returns:
+            str: Очищенное название лицензии.
+        """
         return cls._validator_field_string(value)
 
     @field_validator('license_term', mode='before')
     @classmethod
     def interval_field(cls, value: int):
+        """
+        Валидатор для поля срока действия лицензии.
+
+        Args:
+            value (int | str): Входное значение.
+
+        Returns:
+            timedelta | str: Обработанное значение.
+        """
         return cls._validator_field_interval(value)
 
 
@@ -119,11 +158,29 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
     @field_validator('name', mode='after')
     @classmethod
     def str_field(cls, value: str):
+        """
+        Валидатор для названия лицензии.
+
+        Args:
+            value (str): Название лицензии.
+
+        Returns:
+            str: Очищенное название лицензии.
+        """
         return cls._validator_field_string(value)
 
     @field_validator('license_term', mode='before')
     @classmethod
     def interval_field(cls, value: int):
+        """
+        Валидатор для поля срока действия лицензии.
+
+        Args:
+        value (int | str): Входное значение срока действия.
+
+        Returns:
+            timedelta | str: Обработанное значение.
+        """
         return cls._validator_field_interval(value)
 
     model_config = ConfigDict(extra='forbid')
@@ -143,17 +200,15 @@ class LicenseTypeResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-# class LicenseTypeListResponseSchema(BaseModel):
-#     """Ответ с пагинацией для списка лицензий."""
-
-
-#     total: int = Field(..., description=TOTAL_DESCRIPTION)
-#     page: int = Field(..., description=PAGE_DESCRIPTION)
-#     page_size: int = Field(..., description=PAGE_SIZE_DESCRIPTION)
-#     items: List['LicenseTypeResponseSchema'] = Field(..., description=ITEMS_DESCRIPTION)
 class LicenseTypeListResponseSchema(BaseModel):
     """
-    Модель ответа для списка лицензий с пагинацией.
+    Схема ответа для списка лицензий с пагинацией.
+
+    Attributes:
+        items (List[LicenseTypeResponseSchema]): Список лицензий.
+        total (int): Общее количество записей.
+        page (int): Текущая страница.
+        page_size (int): Количество записей на странице.
     """
 
     items: List[LicenseTypeResponseSchema]
@@ -163,7 +218,15 @@ class LicenseTypeListResponseSchema(BaseModel):
 
 
 class LicenseTypeFilterSchema(BaseModel):
-    """Схема фильтрации списка лицензий с возможностью сортировки."""
+    """
+    Схема фильтрации списка лицензий с возможностью сортировки и пагинации.
+
+    Attributes:
+        name (Optional[str]): Фильтр по названию лицензии.
+        ordering (Optional[Literal]): Сортировка (по полям name, created_at, updated_at).
+        page (Optional[int]): Номер страницы.
+        page_size (Optional[int]): Количество записей на странице.
+    """
 
     name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
 
