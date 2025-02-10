@@ -1,3 +1,5 @@
+from re import compile
+
 DEFAULT_NUMBER_DEY_LICENSE: int = 1
 DEFAULT_LICENSE_TERM: dict[str, int] = {'days': 1}
 
@@ -14,6 +16,7 @@ TITLE_PASSWORD: str = 'Пароль пользователя'
 TITLE_IS_SUPERUSER_ADMIN: str = (
     'Бул поле, для указания, является ли пользователь суперпользователем'
 )
+LICENSE_TERM_REGEX = compile(r'^P.*Y$|^P.*D$')
 
 ERROR_FIELD_INTERVAL: str = (
     'Поле не может быть пустым. '

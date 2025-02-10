@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from re import compile
 from typing import List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -12,7 +11,7 @@ from src.tabit_management.constants import (
     ERROR_FIELD_INTERVAL,
     ERROR_FIELD_START_OR_END_SPACE,
     FILTER_NAME_DESCRIPTION,
-    ITEMS_DESCRIPTION,
+    LICENSE_TERM_REGEX,
     MAX_PAGE_SIZE,
     MIN_PAGE_SIZE,
     PAGE_DESCRIPTION,
@@ -22,7 +21,6 @@ from src.tabit_management.constants import (
     TITLE_MAX_ADMINS_COUNT,
     TITLE_MAX_EMPLOYEES_COUNT,
     TITLE_NAME_LICENSE,
-    TOTAL_DESCRIPTION,
 )
 
 
@@ -46,12 +44,15 @@ class LicenseTypeBaseSchema(BaseModel):
             1D - количество дней, в данном случае: 1 день,
             1Y - количество лет, в данном случае: 1 год.
         """
-        if isinstance(value, str) and value.isdigit():
-            value = int(value)
+        if isinstance(value, str):
+            if value.isdigit():
+                value = int(value)
+            elif LICENSE_TERM_REGEX.match(value):
+                return value
+
         if isinstance(value, int):
             return timedelta(days=value)
-        if compile(r'^P.*Y$|^P.*D$').match(value):
-            return value
+
         raise ValueError(ERROR_FIELD_INTERVAL)
 
 
@@ -142,13 +143,23 @@ class LicenseTypeResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class LicenseTypeListResponseSchema(BaseModel):
-    """Ответ с пагинацией для списка лицензий."""
+# class LicenseTypeListResponseSchema(BaseModel):
+#     """Ответ с пагинацией для списка лицензий."""
 
-    total: int = Field(..., description=TOTAL_DESCRIPTION)
-    page: int = Field(..., description=PAGE_DESCRIPTION)
-    page_size: int = Field(..., description=PAGE_SIZE_DESCRIPTION)
-    items: List['LicenseTypeResponseSchema'] = Field(..., description=ITEMS_DESCRIPTION)
+
+#     total: int = Field(..., description=TOTAL_DESCRIPTION)
+#     page: int = Field(..., description=PAGE_DESCRIPTION)
+#     page_size: int = Field(..., description=PAGE_SIZE_DESCRIPTION)
+#     items: List['LicenseTypeResponseSchema'] = Field(..., description=ITEMS_DESCRIPTION)
+class LicenseTypeListResponseSchema(BaseModel):
+    """
+    Модель ответа для списка лицензий с пагинацией.
+    """
+
+    items: List[LicenseTypeResponseSchema]
+    total: int
+    page: int
+    page_size: int
 
 
 class LicenseTypeFilterSchema(BaseModel):

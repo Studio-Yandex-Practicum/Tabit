@@ -1,5 +1,7 @@
-import sqlalchemy as sa
-from sqlalchemy import asc, desc, select
+from typing import Any, Dict
+
+from fastapi import HTTPException, status
+from sqlalchemy import asc, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import CRUDBase
@@ -13,12 +15,18 @@ from src.tabit_management.schemas.license_type import (
 class CRUDLicenseType(CRUDBase):
     """CRUD операций для моделей лицензий компаний."""
 
-    async def is_license_name_exists(self, session: AsyncSession, name: str) -> bool:
+    async def is_license_name_exists(self, session: AsyncSession, name: str) -> None:
         """Проверяет, существует ли лицензия с данным именем."""
-        result = await session.execute(sa.select(LicenseType).where(LicenseType.name == name))
-        return result.scalar_one_or_none() is not None
+        result = await session.execute(select(LicenseType).where(LicenseType.name == name))
+        if result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Лицензия с именем '{name}' уже существует.",
+            )
 
-    async def get_filtered(self, session: AsyncSession, filters: LicenseTypeFilterSchema):
+    async def get_filtered(
+        self, session: AsyncSession, filters: LicenseTypeFilterSchema
+    ) -> Dict[str, Any]:
         """Возвращает список лицензий с фильтрацией, сортировкой и пагинацией."""
         query = select(LicenseType)
 
@@ -30,7 +38,7 @@ class CRUDLicenseType(CRUDBase):
             sort_order = desc if filters.ordering.startswith('-') else asc
             query = query.order_by(sort_order(getattr(LicenseType, order_field)))
 
-        total_query = select(sa.func.count()).select_from(query.subquery())
+        total_query = select(func.count()).select_from(query.subquery())
         total_result = await session.execute(total_query)
         total_records = total_result.scalar()
 
