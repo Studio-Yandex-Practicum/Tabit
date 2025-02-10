@@ -1,11 +1,10 @@
-import time
 import sys
+import time
 
-from loguru import logger
 from fastapi import Request
+from loguru import logger
 
 from .config import settings
-
 
 LOG_FILE = 'logs/tabit.log'
 LOG_ROTATION = '1 day'
@@ -27,6 +26,7 @@ class LoggingMiddleware:
         response = await call_next(request)
         duration = time.time() - start_time
         logger.info(
-            f'Request: {request.method} {request.url} - {duration:.3f} sec; Response: {response.status_code}'
+            f'Request: {request.method} {request.url} - {duration:.3f} sec; '
+            'Response: {response.status_code}'
         )
         return response

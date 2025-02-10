@@ -1,4 +1,3 @@
-from .enums import MeetingStatus, MeetingResult, MeetingProblemSolution
-
+from .enums import MeetingProblemSolution, MeetingResult, MeetingStatus
 
 __all__ = ['MeetingStatus', 'MeetingResult', 'MeetingProblemSolution']

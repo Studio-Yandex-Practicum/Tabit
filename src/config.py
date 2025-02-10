@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from pydantic import EmailStr, SecretStr
 from pydantic_settings import BaseSettings
 
-
 load_dotenv()
 
 
