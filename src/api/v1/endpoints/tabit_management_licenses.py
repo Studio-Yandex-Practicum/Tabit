@@ -29,20 +29,21 @@ async def get_licenses(
     """
     Возвращает список всех лицензий.
     """
-    # licenses = await license_type_crud.get_multi(
-    #     session=session,
-    #     skip=filters.page_size * (filters.page - 1),
-    #     limit=filters.page_size,
-    #     filters=filters.dict(exclude_unset=True),
-    #     order_by=[filters.ordering] if filters.ordering else None,
-    # )
-    # return LicenseTypeListResponseSchema(
-    #     items=licenses,
-    #     total=len(licenses),
-    #     page=filters.page,
-    #     page_size=filters.page_size,
-    # )
-    return await license_type_crud.get_filtered(session, filters)
+    licenses = await license_type_crud.get_multi(
+        session=session,
+        skip=filters.page_size * (filters.page - 1),
+        limit=filters.page_size,
+        filters=filters.model_dump(exclude_unset=True),
+        order_by=[filters.ordering] if filters.ordering else None,
+    )
+    total_count = await license_type_crud.get_total_count(session)
+
+    return LicenseTypeListResponseSchema(
+        items=licenses,
+        total=total_count,
+        page=filters.page,
+        page_size=filters.page_size,
+    )
 
 
 @router.post(

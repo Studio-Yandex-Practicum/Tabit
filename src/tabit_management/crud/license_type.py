@@ -1,15 +1,9 @@
-from typing import Any, Dict
-
 from fastapi import HTTPException, status
-from sqlalchemy import asc, desc, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import CRUDBase
 from src.tabit_management.models import LicenseType
-from src.tabit_management.schemas.license_type import (
-    LicenseTypeFilterSchema,
-    LicenseTypeResponseSchema,
-)
 
 
 class CRUDLicenseType(CRUDBase):
@@ -24,37 +18,10 @@ class CRUDLicenseType(CRUDBase):
                 detail=f"Лицензия с именем '{name}' уже существует.",
             )
 
-    async def get_filtered(
-        self, session: AsyncSession, filters: LicenseTypeFilterSchema
-    ) -> Dict[str, Any]:
-        """Возвращает список лицензий с фильтрацией, сортировкой и пагинацией."""
-        query = select(LicenseType)
-
-        if filters.name:
-            query = query.where(LicenseType.name.ilike(f'%{filters.name}%'))
-
-        if filters.ordering:
-            order_field = filters.ordering.lstrip('-')
-            sort_order = desc if filters.ordering.startswith('-') else asc
-            query = query.order_by(sort_order(getattr(LicenseType, order_field)))
-
-        total_query = select(func.count()).select_from(query.subquery())
-        total_result = await session.execute(total_query)
-        total_records = total_result.scalar()
-
-        query = query.limit(filters.page_size).offset((filters.page - 1) * filters.page_size)
-
-        result = await session.execute(query)
-        license_objects = result.scalars().all()
-
-        return {
-            'total': total_records,
-            'page': filters.page,
-            'page_size': filters.page_size,
-            'items': [
-                LicenseTypeResponseSchema.model_validate(license) for license in license_objects
-            ],
-        }
+    async def get_total_count(self, session: AsyncSession) -> int:
+        """Возвращает общее количество записей в таблице LicenseType."""
+        result = await session.execute(select(func.count()).select_from(self.model))
+        return result.scalar_one()
 
 
 license_type_crud = CRUDLicenseType(LicenseType)
