@@ -4,7 +4,7 @@ from typing import List, TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import description, int_pk, owner, name_problem
+from src.database.annotations import description, int_pk, int_zero, owner, name_problem
 from src.database.models import BaseTabitModel
 from src.problems.models.enums import StatusTask
 
@@ -36,6 +36,8 @@ class Task(BaseTabitModel):
         problem - Problem;
         executors - AssociationUserTask -> UserTabit: исполнители задачи;
         file - FileTask: к задаче могут быть прикреплены файлы.
+
+        Добавлено поле transfer_counter
     """
 
     id: Mapped[int_pk]
@@ -48,6 +50,7 @@ class Task(BaseTabitModel):
     problem: Mapped['Problem'] = relationship(back_populates='tasks')
     executors: Mapped[List['AssociationUserTask']] = relationship(back_populates='task')
     status: Mapped['StatusTask']
+    transfer_counter: Mapped[int_zero]  # Добавлено поле transfer_counter
     file: Mapped[List['FileTask']] = relationship(
         back_populates='task', cascade='all, delete-orphan'
     )

@@ -7,13 +7,19 @@ from pydantic import BaseModel, field_validator
 from src.problems.models.enums import StatusTask
 
 
+# class AssociationUserTaskModel(BaseModel):
+#     id: int
+#     user_id: UUID
+#     task_id: int
+
+
 class TaskBaseSchema(BaseModel):
     """Базовая схема для задач"""
 
     name: str
     description: Optional[str] = None
     date_completion: date
-    executor: List[UUID]
+    executors: List[UUID]  # Изменил имя поле, добавив окончание "s"
 
     @field_validator('date_completion')
     @classmethod

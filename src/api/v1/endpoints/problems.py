@@ -30,7 +30,7 @@ async def get_all_problems(company_slug: str, session: AsyncSession = Depends(ge
         color=ColorProblem.RED,
         type=TypeProblem.A,
         status=StatusProblem.IN_PROGRESS,
-        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
+        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',  # type: ignore
     )
     # TODO: Проверить существование компании и возвращать список проблем
     return [problem] * 2
@@ -73,7 +73,7 @@ async def get_problem(
         color=ColorProblem.RED,
         type=TypeProblem.A,
         status=StatusProblem.IN_PROGRESS,
-        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
+        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',  # type: ignore
     )
     # TODO: Проверить существование компании и проблемы
     return problem
@@ -128,6 +128,6 @@ async def delete_problem(
         color=ColorProblem.RED,
         type=TypeProblem.A,
         status=StatusProblem.IN_PROGRESS,
-        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
+        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',  # type: ignore
     )
     return problem

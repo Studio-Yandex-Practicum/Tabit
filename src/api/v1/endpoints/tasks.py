@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.db_depends import get_async_session
 from src.problems.schemas.task import TaskResponseSchema, TaskCreateSchema, TaskUpdateSchema
 from src.problems.models.enums import StatusTask
+from src.problems.crud import task_crud
 
 router = APIRouter()
 
@@ -19,28 +20,11 @@ async def get_tasks(
     company_slug: str, problem_id: int, session: AsyncSession = Depends(get_async_session)
 ):
     """Возвращает информацию о всех задачах проблемы"""
-    # TODO: Реализовать получение задачь для проблемы из БД
-    task_schema = TaskResponseSchema(
-        **{
-            'id': 1,
-            'name': f'Задача №1 у компании {company_slug}',
-            'problem_id': problem_id,
-            'description': 'Описание задачи #1',
-            'date_completion': '2030-01-01',
-            'owner_id': '3fa85f64-5717-4562-b3fc-2c963f234331',
-            'executor': [
-                '3fa85f64-5717-4562-b3fc-2c963f66afa1',
-                '3fa85f64-5717-4562-b3fc-2c9633333fa1',
-            ],
-            'status': StatusTask.NEW,
-            'transfer_counter': 0,
-            'file': [
-                '/file1.jpg',
-                '/file2.pdf',
-            ],
-        }
-    )
-    return [task_schema] * 2
+    # TODO: Реализовать получение задач для проблемы из БД
+    tasks = await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
+    for task in tasks:
+        print(f'Task {task.id}: executors = {task.executors}')  # Посмотрим, что там в executors
+    return tasks
 
 
 @router.post(
@@ -61,7 +45,7 @@ async def create_task(
     task_schema = TaskResponseSchema(
         id=123,
         problem_id=problem_id,
-        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
+        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',  # type: ignore
         status=StatusTask.NEW,
         transfer_counter=0,
         **task.model_dump(exclude_none=True),
