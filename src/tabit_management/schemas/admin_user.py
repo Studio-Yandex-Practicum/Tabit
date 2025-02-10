@@ -101,10 +101,3 @@ class AdminCreateFirstSchema(AdminCreateSchema):
         True,
         title=TITLE_IS_SUPERUSER_ADMIN,
     )
-
-
-class AdminResetPassword(BaseModel):
-    """Схема для сброса пароля админа."""
-
-    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
-    password: str

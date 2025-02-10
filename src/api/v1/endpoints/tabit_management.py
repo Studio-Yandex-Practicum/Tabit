@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import TypeVar
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -30,15 +31,26 @@ from src.users.schemas import (
 
 router = APIRouter()
 
+UserObject = TypeVar('UserObject')
+
 
 async def update_admin_user(
     user_id: UUID,
     update_data: UserUpdateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
-):
-    """Функция для обновления данных админа."""
+) -> UserObject:
+    """
+    Функция для обновления данных админа.
+
+    Получает объект пользователя по UUID, обновляет его данные в БД и возвращает его.
+    Параметры:
+        user_id - UUID пользователя;
+        update_date - объект схемы с данными для обновления;
+        user_manager - менеджер пользователей
+    """
     try:
         admin_user = await user_manager.get(user_id)
+        await user_manager.parse_id
         admin_user = await user_manager.update(update_data, admin_user)
     except UserNotExists:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
@@ -135,7 +147,14 @@ async def create_staff(
     response_model=UserReadSchema,
 )
 async def get_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
-    """Получает информацию об администраторе."""
+    """
+    Получает информацию об администраторе с указанным UUID или возвращает HTTP 404.
+    Параметры:
+        user_id - UUID пользователя;
+        user_manager - менеджер пользователей
+
+    Эндпоинт доступен только админам.
+    """
     try:
         admin_user = await user_manager.get(user_id)
     except UserNotExists:
@@ -154,7 +173,16 @@ async def full_update_staff(
     update_data: UserCreateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
 ):
-    """Полностью изменяет информацию об администраторе."""
+    """
+    Полностью изменяет информацию об администраторе с указанным UUID.
+    Параметры:
+        user_id - UUID пользователя;
+        update_date - объект схемы с данными для обновления;
+        user_manager - менеджер пользователей;
+    В качестве ответа возвращает объект пользователя с обновлёнными данными
+
+    Эндпоинт доступен только админам.
+    """
     return await update_admin_user(user_id, update_data, user_manager)
 
 
@@ -169,7 +197,16 @@ async def update_staff(
     update_data: UserUpdateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
 ):
-    """Частично изменяет информацию об администраторе."""
+    """
+    Частично изменяет информацию об администраторе с указанным UUID.
+    Параметры:
+        user_id - UUID пользователя;
+        update_date - объект схемы с данными для обновления;
+        user_manager - менеджер пользователей;
+    В качестве ответа возвращает объект пользователя с обновлёнными данными
+
+    Эндпоинт доступен только админам.
+    """
     return await update_admin_user(user_id, update_data, user_manager)
 
 
@@ -180,7 +217,11 @@ async def update_staff(
     status_code=HTTPStatus.NO_CONTENT,
 )
 async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
-    """Удаляет информацию об администраторе."""
+    """
+    Удаляет информацию об администраторе с указанным UUID.
+
+    Эндпоинт доступен только админам.
+    """
     try:
         admin_user = await user_manager.get(user_id)
         await user_manager.delete(admin_user)
