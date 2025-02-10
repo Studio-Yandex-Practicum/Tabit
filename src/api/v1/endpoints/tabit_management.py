@@ -34,12 +34,12 @@ router = APIRouter()
 async def update_admin_user(
     user_id: UUID,
     update_data: UserUpdateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_user_manager),
+    user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Функция для обновления данных админа."""
     try:
-        admin_user = await admin_user_manager.get(user_id)
-        admin_user = await admin_user_manager.update(update_data, admin_user)
+        admin_user = await user_manager.get(user_id)
+        admin_user = await user_manager.update(update_data, admin_user)
     except UserNotExists:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
     except UserAlreadyExists:
@@ -116,11 +116,11 @@ async def get_all_staff(
 )
 async def create_staff(
     create_data: UserCreateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_user_manager),
+    user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Создание нового сотрудника компании."""
     try:
-        created_admin_user = await admin_user_manager.create(create_data)
+        created_admin_user = await user_manager.create(create_data)
     except UserAlreadyExists:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS)
     except InvalidPasswordException:
@@ -134,12 +134,10 @@ async def create_staff(
     dependencies=[Depends(current_admin_tabit)],
     response_model=UserReadSchema,
 )
-async def get_staff(
-    user_id: UUID, admin_user_manager: BaseUserManager = Depends(get_user_manager)
-):
+async def get_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
     """Получает информацию об администраторе."""
     try:
-        admin_user = await admin_user_manager.get(user_id)
+        admin_user = await user_manager.get(user_id)
     except UserNotExists:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
     return admin_user
@@ -154,10 +152,10 @@ async def get_staff(
 async def full_update_staff(
     user_id: UUID,
     update_data: UserCreateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_user_manager),
+    user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Полностью изменяет информацию об администраторе."""
-    return await update_admin_user(user_id, update_data, admin_user_manager)
+    return await update_admin_user(user_id, update_data, user_manager)
 
 
 @router.patch(
@@ -169,10 +167,10 @@ async def full_update_staff(
 async def update_staff(
     user_id: UUID,
     update_data: UserUpdateSchema,
-    admin_user_manager: BaseUserManager = Depends(get_user_manager),
+    user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Частично изменяет информацию об администраторе."""
-    return await update_admin_user(user_id, update_data, admin_user_manager)
+    return await update_admin_user(user_id, update_data, user_manager)
 
 
 @router.delete(
@@ -181,13 +179,11 @@ async def update_staff(
     dependencies=[Depends(current_admin_tabit)],
     status_code=HTTPStatus.NO_CONTENT,
 )
-async def delete_staff(
-    user_id: UUID, admin_user_manager: BaseUserManager = Depends(get_user_manager)
-):
+async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
     """Удаляет информацию об администраторе."""
     try:
-        admin_user = await admin_user_manager.get(user_id)
-        await admin_user_manager.delete(admin_user)
+        admin_user = await user_manager.get(user_id)
+        await user_manager.delete(admin_user)
     except UserNotExists:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
     return HTTPStatus.NO_CONTENT
@@ -204,7 +200,7 @@ async def delete_staff(
 async def reset_password_staff(
     user_id: UUID,
     new_password: ResetPasswordByAdmin,
-    admin_user_manager: BaseUserManager = Depends(get_user_manager),
+    user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Сброс пароля администратора."""
     return {'message': 'Какое-то сообщение'}
