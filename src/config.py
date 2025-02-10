@@ -22,7 +22,8 @@ class Settings(BaseSettings):
     log_level: str = 'DEBUG'
 
     jwt_secret: SecretStr = 'SUPERSECRETKEY'
-    jwt_lifetime_seconds: int = 32400  # 9 часов: смена + обед.
+    jwt_lifetime_seconds: int = 150000  # 9 часов: смена + обед.
+    jwt_lifetime_seconds_refresh: int = 350000  # 30 дней
 
     create_first_superuser: bool | None = None
     first_superuser_email: EmailStr | None = None

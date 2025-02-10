@@ -47,13 +47,12 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         Нельзя, что бы одно поле было не заполнено.
         """
         if not (
-            all((self.license_id, self.start_license_time)) or (
-                all((not self.license_id, not self.start_license_time))
-            )
+            all((self.license_id, self.start_license_time))
+            or (all((not self.license_id, not self.start_license_time)))
         ):
             raise ValueError(TEST_ERROR_LICENSE_FIELDS)
         return self
-    
+
 
 class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
     """Схема для создания компании."""
@@ -64,10 +63,7 @@ class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
         max_length=LENGTH_NAME_COMPANY,
         title='',
     )
-    slug: str = Field(
-        ...,
-        title=''
-    )
+    slug: str = Field(..., title='')
 
 
 class CompanyResponseSchema(BaseModel):
@@ -92,5 +88,6 @@ class CompanyResponseSchema(BaseModel):
 
 class CompanyResponseForUserSchema(CompanyResponseSchema):
     """Схема компании для ответов пользователям."""
+
     # TODO: Обдумать о необходимости отдельной схемы - чего скрывать то?
     pass

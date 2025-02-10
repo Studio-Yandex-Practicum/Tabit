@@ -21,4 +21,9 @@ class Summary:
     TABIT_MANAGEMENT_COMPANY_DELETE: str = 'Удалить компанию'
 
 
-TEXT_ERROR_FORBIDDEN_ROLE_ADMIN: str = 'Доступно только админам компаний'
+@dataclass
+class TextError:
+    """Содержит текст сообщений об ошибке."""
+
+    FORBIDDEN_ROLE_ADMIN: str = 'Доступно только админам компаний'
+    LOGIN = 'Неверные учетные данные для входа в систему'

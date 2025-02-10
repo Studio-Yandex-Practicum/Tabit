@@ -15,6 +15,7 @@ from src.api.v1.auth.dependencies import (
     current_superuser,
     tabit_admin,
     get_current_admin_token,
+    get_current_admin_refresh_token,
 )
 from src.api.v1.validator import validator_check_is_superuser, validator_check_object_exists
 from src.database.db_depends import get_async_session
@@ -22,7 +23,8 @@ from src.tabit_management.crud import admin_crud
 from src.tabit_management.models import TabitAdminUser
 from src.tabit_management.schemas import AdminReadSchema, AdminUpdateSchema
 from src.api.v1.auth.managers import get_admin_manager
-from src.api.v1.constants import Summary
+from src.api.v1.constants import Summary, TextError
+from src.api.v1.auth.protocol import StrategyT, TransportT
 
 router = APIRouter()
 
@@ -130,6 +132,7 @@ async def update_me_tabit_admin(
     """
     return await admin_crud.update(session, user, user_in)
 
+
 # TODO: реализовать нормальное восстановление пароля, если забыл
 # TODO: реализовать нормальную замену пароля.
 # =====================================================================┐
@@ -140,20 +143,22 @@ router.include_router(  # форгот и резет пассворд
 # =====================================================================┘
 
 
-# TODO: реализовать jwt-refresh-token.
-# =====================================================================┐
 @router.post(
     '/refresh-token',
-    summary='Обновить токен. Пока не работает.',
+    summary='Обновить токен.',
 )
-async def refresh_token_tabit_admin(session: AsyncSession = Depends(get_async_session)):
-    """Эндпоинт для обновления токена JWT."""
-
-    return {
-        'access_token': 'новый токен доступа',
-        'refresh_token': 'новый токен обновления',
-    }
-# =====================================================================┘
+async def refresh_token_tabit_admin(
+    user_and_refresh_token: tuple[TabitAdminUser, str] = Depends(get_current_admin_refresh_token),
+    strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend.get_strategy),
+):
+    """В заголовке принимает refresh-token, возвращает обновленные access-token и refresh-token."""
+    user, _ = user_and_refresh_token
+    if not user.is_active:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=TextError.LOGIN,
+        )
+    return await jwt_auth_backend.login_with_refresh(strategy, user)  # type: ignore[misc]
 
 
 @router.post(
@@ -185,7 +190,7 @@ async def login(
     request: Request,
     credentials: OAuth2PasswordRequestForm = Depends(),
     user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_admin_manager),
-    strategy: Strategy[models.UP, models.ID] = Depends(jwt_auth_backend.get_strategy),
+    strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend.get_strategy),
 ):
     """
     Авторизация администраторов сервиса.
@@ -194,11 +199,9 @@ async def login(
     if user is None or not user.is_active:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail='Неверные учетные данные для входа в систему',
+            detail=TextError.LOGIN,
         )
-    response = await jwt_auth_backend.login(strategy, user)
-    await user_manager.on_after_login(user, request, response)
-    return response
+    return await jwt_auth_backend.login_with_refresh(strategy, user)
 
 
 # TODO: Работоспособность этого эндпоинта через Swagger не получилось проверить.

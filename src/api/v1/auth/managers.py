@@ -8,6 +8,7 @@ from src.tabit_management.models import TabitAdminUser
 
 class BaseTabitUserManager(UUIDIDMixin, BaseUserManager):
     """Базовый менеджер управления пользователями."""
+
     async def validate_password(
         self,
         password: str,
