@@ -193,8 +193,9 @@ async def delete_staff(
     return HTTPStatus.NO_CONTENT
 
 
-# TODO: Надо разобраться, как работет reset_password. В итерации ниже он не работает.
-# Как то связано с токеном, который генерирует .forgot_password()
+# TODO: Надо позже реализовать логику сброса пароля. В user_manager указать параметр
+# reset_password_token_secret. Также надо определиться с логикой работы эндпоинта.
+# По умолчанию пользователь отправляет email, на который ему приходит токен для сброса пароля
 @router.post(
     '/staff/{user_id}/resetpassword',
     dependencies=[Depends(current_admin_tabit)],
@@ -206,12 +207,4 @@ async def reset_password_staff(
     admin_user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Сброс пароля администратора."""
-    # try:
-    #     admin_user = await admin_user_manager.get(user_id)
-    #     token = await admin_user_manager.forgot_password(admin_user)
-    #     await admin_user_manager.reset_password(token, new_password)
-    # except UserNotExists:
-    #     raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
-    # except InvalidPasswordException:
-    #     raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
     return {'message': 'Какое-то сообщение'}
