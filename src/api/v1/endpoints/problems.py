@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
+from src.problems.crud.problems import problem_crud
 from src.problems.schemas.problem import (
     ProblemCreateSchema,
     ProblemUpdateSchema,
     ProblemResponseSchema,
 )
-from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 
 
 router = APIRouter()
@@ -24,16 +24,18 @@ router = APIRouter()
 )
 async def get_all_problems(company_slug: str, session: AsyncSession = Depends(get_async_session)):
     """Получает список всех проблем."""
-    problem = ProblemResponseSchema(
-        id=123,
-        name='Проблема',
-        color=ColorProblem.RED,
-        type=TypeProblem.A,
-        status=StatusProblem.IN_PROGRESS,
-        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
-    )
-    # TODO: Проверить существование компании и возвращать список проблем
-    return [problem] * 2
+    # problem = ProblemResponseSchema(
+    #     id=123,
+    #     name='Проблема',
+    #     color=ColorProblem.RED,
+    #     type=TypeProblem.A,
+    #     status=StatusProblem.IN_PROGRESS,
+    #     owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
+    # )
+    # # TODO: Проверить существование компании и возвращать список проблем
+    # return [problem] * 2
+    filters = {'company_slug': company_slug}
+    return await problem_crud.get_multi(session, filters=filters)
 
 
 @router.post(
@@ -49,9 +51,10 @@ async def create_problem(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Создание проблемы."""
-    # TODO: Проверить существование компании и создать проблему
-    problem = ProblemResponseSchema(id=123, **problem.model_dump(exclude_none=True))
-    return problem
+    # # TODO: Проверить существование компании и создать проблему
+    # problem = ProblemResponseSchema(id=123, **problem.model_dump(exclude_none=True))
+    # return problem
+    return await problem_crud.create(session, problem)
 
 
 @router.get(
@@ -67,16 +70,17 @@ async def get_problem(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Получение информации о проблеме по ID."""
-    problem = ProblemResponseSchema(
-        id=123,
-        name=f'Проблема {problem_id}',
-        color=ColorProblem.RED,
-        type=TypeProblem.A,
-        status=StatusProblem.IN_PROGRESS,
-        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
-    )
-    # TODO: Проверить существование компании и проблемы
-    return problem
+    # problem = ProblemResponseSchema(
+    #     id=123,
+    #     name=f'Проблема {problem_id}',
+    #     color=ColorProblem.RED,
+    #     type=TypeProblem.A,
+    #     status=StatusProblem.IN_PROGRESS,
+    #     owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
+    # )
+    # # TODO: Проверить существование компании и проблемы
+    # return problem
+    return await problem_crud.get_or_404(session, problem_id)
 
 
 @router.patch(
@@ -93,19 +97,21 @@ async def update_problem(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление проблемы."""
-    # TODO: Проверить существование компании и проблемы
-    problem_from_db = {
-        'id': 123,
-        'name': f'Проблема {problem_id}',
-        'color': ColorProblem.RED,
-        'type': TypeProblem.A,
-        'status': StatusProblem.IN_PROGRESS,
-        'owner_id': '3fa85f64-5717-4562-b3fc-2c963f66afa1',
-    }
-    problem_to_update = problem.model_dump(exclude_none=True)
-    problem_from_db.update(problem_to_update)
-    problem = ProblemResponseSchema(**problem_from_db)
-    return problem
+    # # TODO: Проверить существование компании и проблемы
+    # problem_from_db = {
+    #     'id': 123,
+    #     'name': f'Проблема {problem_id}',
+    #     'color': ColorProblem.RED,
+    #     'type': TypeProblem.A,
+    #     'status': StatusProblem.IN_PROGRESS,
+    #     'owner_id': '3fa85f64-5717-4562-b3fc-2c963f66afa1',
+    # }
+    # problem_to_update = problem.model_dump(exclude_none=True)
+    # problem_from_db.update(problem_to_update)
+    # problem = ProblemResponseSchema(**problem_from_db)
+    # return problem
+    db_obj = await problem_crud.get_or_404(session, problem_id)
+    return await problem_crud.update(session, db_obj, problem)
 
 
 @router.delete(
@@ -121,13 +127,15 @@ async def delete_problem(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Удаление проблемы."""
-    # TODO: Проверить существование компании и проблемы
-    problem = ProblemResponseSchema(
-        id=123,
-        name=f'Проблема {problem_id}',
-        color=ColorProblem.RED,
-        type=TypeProblem.A,
-        status=StatusProblem.IN_PROGRESS,
-        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
-    )
-    return problem
+    # # TODO: Проверить существование компании и проблемы
+    # problem = ProblemResponseSchema(
+    #     id=123,
+    #     name=f'Проблема {problem_id}',
+    #     color=ColorProblem.RED,
+    #     type=TypeProblem.A,
+    #     status=StatusProblem.IN_PROGRESS,
+    #     owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
+    # )
+    # return problem
+    db_obj = await problem_crud.get_or_404(session, problem_id)
+    return await problem_crud.remove(session, db_obj)

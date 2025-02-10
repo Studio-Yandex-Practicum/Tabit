@@ -1,5 +1,6 @@
 from typing import Optional
 from uuid import UUID
+from datetime import datetime
 
 from pydantic import BaseModel, field_validator
 
@@ -29,6 +30,8 @@ class ProblemResponseSchema(ProblemBaseSchema):
     """Схема Проблемы для ответа"""
 
     id: int
+    created_at: datetime
+    updated_at: datetime
 
 
 class ProblemCreateSchema(ProblemBaseSchema):

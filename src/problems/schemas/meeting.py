@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 from typing import Optional, List
 from datetime import date, datetime
 from uuid import UUID
-from .enums import MeetingResult, MeetingStatus
+from src.problems.models.enums import StatusMeeting, ResultMeetingEnum
 
 
 class MeetingBaseSchema(BaseModel):
@@ -13,9 +13,9 @@ class MeetingBaseSchema(BaseModel):
     title: str
     description: Optional[str]
     date_meeting: date
-    status: MeetingStatus
+    status: StatusMeeting
     place: Optional[str]
-    file_id: Optional[int]
+    # file_id: Optional[int]
 
 
 class MeetingCreateSchema(MeetingBaseSchema):
@@ -38,7 +38,7 @@ class MeetingUpdateSchema(MeetingBaseSchema):
     title: Optional[str]
     description: Optional[str]
     date_meeting: Optional[date]
-    status: Optional[MeetingStatus]
+    status: Optional[StatusMeeting]
     place: Optional[str]
 
     @field_validator('title', 'description')
@@ -74,7 +74,7 @@ class ResultMeetingBaseSchema(BaseModel):
     Базовая Pydantic-схема для результатов встреч.
     """
 
-    meeting_result: MeetingResult
+    meeting_result: ResultMeetingEnum
     participant_engagement: bool
     problem_solution: bool
     meeting_feedback: Optional[str]
