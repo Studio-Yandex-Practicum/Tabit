@@ -2,10 +2,15 @@ from datetime import datetime
 from typing import Optional
 from typing_extensions import Self
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, EmailStr, ConfigDict, Field, model_validator
 
 from src.companies.schemas.mixins import GetterSlugMixin
-from src.constants import LENGTH_NAME_COMPANY, MIN_LENGTH_NAME
+from src.constants import (LENGTH_NAME_COMPANY, MIN_LENGTH_NAME,
+                           LENGTH_NAME_USER, LENGTH_TELEGRAM_USERNAME,
+                           MIN_LENGTH_NAME)
+from src.users.schemas.user import UserReadSchema
+from src.users.constants import (title_telegram_username_user, title_phone_number_user,
+                                 title_name_user, title_surname_user)
 
 
 class CompanyUpdateForUserSchema(BaseModel):
@@ -89,7 +94,45 @@ class CompanyResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class CompanyResponseForUserSchema(CompanyResponseSchema):
+class CompanyResponseForUserSchema(UserReadSchema):
     """Схема компании для ответов пользователям."""
-    # TODO: Обдумать о необходимости отдельной схемы - чего скрывать то?
+
     pass
+
+
+class UserCompanyUpdateSchema(BaseModel):
+    """Схема для редактирования пользователем компании своего профиля."""
+    name: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_USER,
+        title=title_name_user,
+    )
+    surname: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_USER,
+        title=title_surname_user,
+    )
+    phone_number: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_USER,
+        title=title_phone_number_user,
+    )
+    email: Optional[EmailStr]
+    telegram_username: Optional[str] = Field(
+        None,
+        max_length=LENGTH_TELEGRAM_USERNAME,
+        title=title_telegram_username_user,
+    )
+
+
+class CompanyFeedbackCreateShema(BaseModel):
+    """Схема для создания пользователем компании обратной связи."""
+    question: str
+    # TODO: Обдумать. Скорее всего надо будет реализовать ограничение на количество символов.
+    # Схема на данный момент является по большей части заглушкой.
+
+    class Config:
+        from_attributes = True

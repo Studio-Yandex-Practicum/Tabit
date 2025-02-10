@@ -1,5 +1,5 @@
-from .company import company_crud
+from .company import company_crud, feedback_crud
 
 __all__ = [
-    'company_crud',
+    'company_crud', 'feedback_crud'
 ]

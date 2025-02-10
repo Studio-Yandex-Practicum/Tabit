@@ -122,3 +122,7 @@ class Department(BaseTabitModel):
             f'name={self.name!r}, '
             f'company_id={self.company_id!r})'
         )
+
+
+class Feedback():
+    pass

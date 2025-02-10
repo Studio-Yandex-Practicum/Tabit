@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
@@ -109,8 +109,8 @@ class UserReadSchema(BaseUser[UUID]):
     last_department_id: Optional[int]
     department_transition_date: Optional[date]
     employee_position: Optional[str]
-    created_at: date
-    updated_at: date
+    created_at: datetime
+    updated_at: datetime
 
 
 class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
