@@ -1,11 +1,7 @@
 from datetime import date
 from typing import List, Optional
 
-<<<<<<< HEAD
-from pydantic import BaseModel
-=======
 from pydantic import BaseModel, ConfigDict
->>>>>>> 6dce2ec (закончил с роутами лицензии, добавил тесты итд)
 
 from .enums import MeetingStatus
 
