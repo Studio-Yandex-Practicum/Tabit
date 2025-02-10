@@ -1,14 +1,14 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy.orm import Mapped, relationship
 
-from src.database.annotations import description, int_pk, owner, name_problem
+from src.database.annotations import description, int_pk, name_problem, owner
 from src.database.models import BaseTabitModel
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 
 if TYPE_CHECKING:
+    from src.problems.models import AssociationUserProblem, FileProblem, Meeting, MessageFeed, Task
     from src.users.models import UserTabit
-    from src.problems.models import AssociationUserProblem, Meeting, MessageFeed, Task, FileProblem
 
 
 class Problem(BaseTabitModel):

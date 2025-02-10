@@ -1,5 +1,12 @@
 line-length = 99
 exclude = ["alembic"]
 
+[lint]
+select = ["E", "F", "I"]
+
 [format]
 quote-style = "single"
+
+[lint.isort]
+known-first-party = ["src"]
+combine-as-imports = true

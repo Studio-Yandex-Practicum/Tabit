@@ -1,7 +1,9 @@
-from pydantic import BaseModel, ConfigDict, field_validator
-from typing import Optional, List
 from datetime import date, datetime
+from typing import List, Optional
 from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, field_validator
+
 from .enums import MeetingResult, MeetingStatus
 
 
