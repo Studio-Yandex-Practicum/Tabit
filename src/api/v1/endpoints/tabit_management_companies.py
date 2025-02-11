@@ -69,9 +69,7 @@ async def update_company(
     Обновляет данные компании по её `slug`. Доступно только администраторам сервиса.
     :param `company_slug`: Уникальный идентификатор компании (`slug`).
     """
-    company = await validator_check_object_exists(
-        session, company_crud, object_slug=company_slug
-    )
+    company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     return await company_crud.update(session, company, object_in)
 
 
@@ -89,7 +87,5 @@ async def delete_company(
     Удаляет компанию по её `slug`. Доступно только администраторам сервиса.
     :param `company_slug`: Уникальный идентификатор компании (`slug`).
     """
-    company = await validator_check_object_exists(
-        session, company_crud, object_slug=company_slug
-    )
+    company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     return await company_crud.remove(session, company)

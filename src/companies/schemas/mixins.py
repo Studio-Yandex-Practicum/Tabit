@@ -4,7 +4,6 @@ from pydantic import model_validator
 
 
 class GetterSlugMixin:
-
     @model_validator(mode='before')
     @classmethod
     def get_slug(cls, data: Any) -> Any:

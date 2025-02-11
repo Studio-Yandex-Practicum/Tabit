@@ -1,7 +1,7 @@
 """Structure initiation after refactoring
 
 Revision ID: 01
-Revises: 
+Revises:
 Create Date: 2025-02-04 18:57:48.487899
 
 """
