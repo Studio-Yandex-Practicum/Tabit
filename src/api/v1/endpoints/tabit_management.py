@@ -20,14 +20,13 @@ from src.tabit_management.constants import (
 )
 from src.tabit_management.crud.admin_company import admin_company_crud
 from src.tabit_management.crud.admin_user import admin_user_crud
-from src.tabit_management.schemas.admin_company import AdminCompanyResponseSchema
-from src.tabit_management.schemas.query_params import CompanyFilterSchema, UserFilterSchema
-from src.users.schemas import (
-    ResetPasswordByAdmin,
-    UserCreateSchema,
-    UserReadSchema,
-    UserUpdateSchema,
+from src.tabit_management.schemas.admin_company import (
+    AdminCompanyResponseSchema,
+    CompanyAdminCreateSchema,
+    CompanyAdminReadSchema,
+    CompanyAdminUpdateSchema,
 )
+from src.tabit_management.schemas.query_params import CompanyFilterSchema, UserFilterSchema
 
 router = APIRouter()
 
@@ -36,7 +35,7 @@ UserObject = TypeVar('UserObject')
 
 async def update_admin_user(
     user_id: UUID,
-    update_data: UserUpdateSchema,
+    update_data: CompanyAdminUpdateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
 ) -> UserObject:
     """
@@ -92,7 +91,7 @@ async def get_all_info(
 
 @router.get(
     '/staff',
-    response_model=list[UserReadSchema],
+    response_model=list[CompanyAdminReadSchema],
     dependencies=[Depends(current_admin_tabit)],
     summary='Получить информацию по всем сотрудникам компаний.',
 )
@@ -124,10 +123,10 @@ async def get_all_staff(
     '/staff',
     dependencies=[Depends(current_admin_tabit)],
     summary='Создать нового сотрудника компании.',
-    response_model=UserReadSchema,
+    response_model=CompanyAdminReadSchema,
 )
 async def create_staff(
-    create_data: UserCreateSchema,
+    create_data: CompanyAdminCreateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Создание нового сотрудника компании."""
@@ -144,7 +143,7 @@ async def create_staff(
     '/staff/{user_id}',
     summary='Получить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
-    response_model=UserReadSchema,
+    response_model=CompanyAdminReadSchema,
 )
 async def get_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
     """
@@ -166,11 +165,11 @@ async def get_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_u
     '/staff/{user_id}',
     summary='Полностью изменить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
-    response_model=UserReadSchema,
+    response_model=CompanyAdminReadSchema,
 )
 async def full_update_staff(
     user_id: UUID,
-    update_data: UserCreateSchema,
+    update_data: CompanyAdminCreateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """
@@ -190,11 +189,11 @@ async def full_update_staff(
     '/staff/{user_id}',
     summary='Частично изменить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
-    response_model=UserReadSchema,
+    response_model=CompanyAdminUpdateSchema,
 )
 async def update_staff(
     user_id: UUID,
-    update_data: UserUpdateSchema,
+    update_data: CompanyAdminUpdateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """
@@ -240,7 +239,6 @@ async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(ge
 )
 async def reset_password_staff(
     user_id: UUID,
-    new_password: ResetPasswordByAdmin,
     user_manager: BaseUserManager = Depends(get_user_manager),
 ):
     """Сброс пароля администратора."""
