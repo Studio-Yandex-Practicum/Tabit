@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import TypeVar
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -27,17 +26,16 @@ from src.tabit_management.schemas.admin_company import (
     CompanyAdminUpdateSchema,
 )
 from src.tabit_management.schemas.query_params import CompanyFilterSchema, UserFilterSchema
+from src.users.models import UserTabit
 
 router = APIRouter()
-
-UserObject = TypeVar('UserObject')
 
 
 async def update_admin_user(
     user_id: UUID,
     update_data: CompanyAdminUpdateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
-) -> UserObject:
+) -> UserTabit:
     """
     Функция для обновления данных админа.
 
@@ -69,7 +67,7 @@ async def update_admin_user(
 async def get_all_info(
     session: AsyncSession = Depends(get_async_session),
     query_params: CompanyFilterSchema = Depends(),
-):
+) -> list[AdminCompanyResponseSchema]:
     """
     Получает список компаний с фильтрацией, пагинацией и сортировкой.
     Параметры:
@@ -108,7 +106,7 @@ async def get_all_staff(
     session: AsyncSession = Depends(get_async_session),
     query_params: UserFilterSchema = Depends(),
     # TODO добав. метод в src/api/v1/auth/managers/UserManager, получить всех сотрудников компании
-):
+) -> list[CompanyAdminReadSchema]:
     """
     Получает список сотрудников компаний с фильтрацией, пагинацией и сортировкой.
     Параметры:
@@ -146,7 +144,7 @@ async def get_all_staff(
 async def create_staff(
     create_data: CompanyAdminCreateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
-):
+) -> CompanyAdminCreateSchema:
     """
     Создает нового пользователя-админа компании.
     Параметры:
@@ -175,7 +173,9 @@ async def create_staff(
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
 )
-async def get_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
+async def get_staff(
+    user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)
+) -> CompanyAdminReadSchema:
     """
     Получает информацию об администраторе с указанным UUID или возвращает HTTP 404.
     Параметры:
@@ -201,7 +201,7 @@ async def full_update_staff(
     user_id: UUID,
     update_data: CompanyAdminCreateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
-):
+) -> CompanyAdminReadSchema:
     """
     Полностью изменяет информацию об администраторе с указанным UUID.
     Параметры:
@@ -225,7 +225,7 @@ async def update_staff(
     user_id: UUID,
     update_data: CompanyAdminUpdateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
-):
+) -> CompanyAdminReadSchema:
     """
     Частично изменяет информацию об администраторе с указанным UUID.
     Параметры:
@@ -245,7 +245,9 @@ async def update_staff(
     dependencies=[Depends(current_admin_tabit)],
     status_code=HTTPStatus.NO_CONTENT,
 )
-async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
+async def delete_staff(
+    user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)
+) -> int:
     """
     Удаляет информацию об администраторе с указанным UUID.
 
