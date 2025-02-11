@@ -70,7 +70,16 @@ async def get_all_info(
     session: AsyncSession = Depends(get_async_session),
     query_params: CompanyFilterSchema = Depends(),
 ):
-    """Получает общую информацию по компаниям."""
+    """
+    Получает список компаний с фильтрацией, пагинацией и сортировкой.
+    Параметры:
+        session: Асинхронная сессия SQLAlchemy.
+        query_params: Схема обрабатывающая query-параметры для пагинации, сортировки и фильтрации.
+    Возвращаемое значение:
+            Список компаний или ошибку: "Внутреннияя ошибка сервера".
+
+    Эндпоинт доступен только админам сервиса.
+    """
     try:
         return await admin_company_crud.get_multi(
             session=session,
@@ -100,7 +109,16 @@ async def get_all_staff(
     query_params: UserFilterSchema = Depends(),
     # TODO добав. метод в src/api/v1/auth/managers/UserManager, получить всех сотрудников компании
 ):
-    """Получает информацию по всем сотрудникам компаний."""
+    """
+    Получает список сотрудников компаний с фильтрацией, пагинацией и сортировкой.
+    Параметры:
+        session: Асинхронная сессия SQLAlchemy.
+        query_params: Схема обрабатывающая query-параметры для пагинации, сортировки и фильтрации.
+    Возвращаемое значение:
+            Список сотрудников или ошибку: "Внутреннияя ошибка сервера".
+
+    Эндпоинт доступен только админам сервиса.
+    """
     try:
         return await admin_user_crud.get_multi(
             session=session,
@@ -129,7 +147,19 @@ async def create_staff(
     create_data: CompanyAdminCreateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
 ):
-    """Создание нового сотрудника компании."""
+    """
+    Создает нового пользователя-админа компании.
+    Параметры:
+        create_data: Валидированные данные схемы CompanyAdminCreateSchema,
+        для создания админа компании.
+        user_manager - менеджер пользователей.
+    Возвращаемое значение:
+            Созданный админ компании или одну из двух ошибок:
+                Пользователь с данным email уже существует.
+                Пароль не соответвует требованиям.
+
+    Эндпоинт доступен только админам сервиса.
+    """
     try:
         created_admin_user = await user_manager.create(create_data)
     except UserAlreadyExists:
@@ -152,7 +182,7 @@ async def get_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_u
         user_id - UUID пользователя;
         user_manager - менеджер пользователей
 
-    Эндпоинт доступен только админам.
+    Эндпоинт доступен только админам сервиса.
     """
     try:
         admin_user = await user_manager.get(user_id)
@@ -180,7 +210,7 @@ async def full_update_staff(
         user_manager - менеджер пользователей;
     В качестве ответа возвращает объект пользователя с обновлёнными данными
 
-    Эндпоинт доступен только админам.
+    Эндпоинт доступен только админам сервиса.
     """
     return await update_admin_user(user_id, update_data, user_manager)
 
@@ -204,7 +234,7 @@ async def update_staff(
         user_manager - менеджер пользователей;
     В качестве ответа возвращает объект пользователя с обновлёнными данными
 
-    Эндпоинт доступен только админам.
+    Эндпоинт доступен только админам сервиса.
     """
     return await update_admin_user(user_id, update_data, user_manager)
 
@@ -219,7 +249,7 @@ async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(ge
     """
     Удаляет информацию об администраторе с указанным UUID.
 
-    Эндпоинт доступен только админам.
+    Эндпоинт доступен только админам сервиса.
     """
     try:
         admin_user = await user_manager.get(user_id)
