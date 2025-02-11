@@ -27,6 +27,6 @@ class LoggingMiddleware:
         duration = time.time() - start_time
         logger.info(
             f'Request: {request.method} {request.url} - {duration:.3f} sec; '
-            'Response: {response.status_code}'
+            f'Response: {response.status_code}'
         )
         return response

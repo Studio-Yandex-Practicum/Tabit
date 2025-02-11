@@ -1,3 +1,5 @@
+from re import compile
+
 DEFAULT_NUMBER_DEY_LICENSE: int = 1
 DEFAULT_LICENSE_TERM: dict[str, int] = {'days': 1}
 
@@ -14,6 +16,7 @@ TITLE_PASSWORD: str = 'Пароль пользователя'
 TITLE_IS_SUPERUSER_ADMIN: str = (
     'Бул поле, для указания, является ли пользователь суперпользователем'
 )
+LICENSE_TERM_REGEX = compile(r'^P.*Y$|^P.*D$')
 
 ERROR_FIELD_INTERVAL: str = (
     'Поле не может быть пустым. '
@@ -28,3 +31,28 @@ ERROR_UPDATE_METHOD = 'Пользователь с указанными email и
 RESET_PASSWORD_SUCCESS = 'Пароль был успешено установлен.'
 ERROR_FIELD_START_OR_END_SPACE: str = 'Поле не может начинаться или заканчиваться пробелом.'
 ERROR_INTERNAL_SERVER = 'Внутреннияя ошибка сервера.'
+
+# Пагинация
+DEFAULT_PAGE = 1
+DEFAULT_PAGE_SIZE = 20
+MAX_PAGE_SIZE = 100
+MIN_PAGE_SIZE = 1
+
+# Фильтрация и сортировка для лицензии
+FILTER_NAME_DESCRIPTION = 'Фильтр по названию лицензии'
+SORTING_DESCRIPTION = (
+    "Сортировка по полю (name, created_at, updated_at). '-' означает сортировку в обратном порядке"
+)
+
+# Поля ответа
+TOTAL_DESCRIPTION = 'Общее количество записей'
+PAGE_DESCRIPTION = 'Текущая страница'
+PAGE_SIZE_DESCRIPTION = 'Количество записей на странице'
+ITEMS_DESCRIPTION = 'Список лицензий'
+
+# Константы для summary в эндпоинтах лицензий
+SUMMARY_GET_LICENSES = 'Получить список всех лицензий с фильтрацией и сортировкой'
+SUMMARY_CREATE_LICENSE = 'Создать новую лицензию'
+SUMMARY_GET_LICENSE = 'Получить данные лицензии'
+SUMMARY_UPDATE_LICENSE = 'Обновить данные лицензии'
+SUMMARY_DELETE_LICENSE = 'Удалить лицензию'

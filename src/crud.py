@@ -11,7 +11,7 @@
 """
 
 from http import HTTPStatus
-from typing import Any, Generic, List, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -109,7 +109,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         skip: int = DEFAULT_SKIP,
         limit: int = DEFAULT_LIMIT,
-        filters: dict[str, Any] | None = None,
+        filters: Optional[Dict[str, Any]] = None,
         order_by: list[str] | None = None,
     ) -> List[ModelType]:
         """
@@ -141,7 +141,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         query = select(self.model)
 
         if filters:
-            query = self._apply_filters(query, filters)
+            valid_filters = {key: value for key, value in filters.items() if value is not None}
+
+            if valid_filters:
+                query = self._apply_filters(query, valid_filters)
 
         if order_by:
             query = self._apply_order_by(query, order_by)
@@ -162,7 +165,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         При нарушении уникальности выбрасывает 400-ошибку.
         """
         # TODO: Добавить возможность автозаполнение поля owner у модели.
-        obj_data = obj_in.dict()
+        obj_data = obj_in.model_dump()
         db_obj = self.model(**obj_data)
 
         try:
@@ -201,7 +204,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         Принимает объект и данные (Pydantic) для обновления.
         """
         obj_data = jsonable_encoder(db_obj)
-        update_data = obj_in.dict(exclude_unset=True)
+        update_data = obj_in.model_dump(exclude_unset=True)
 
         for field in obj_data:
             if field in update_data:
@@ -238,7 +241,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await session.delete(db_object)
             if auto_commit:
                 await session.commit()
-            return db_object
         except Exception as e:
             await session.rollback()
             logger.error(f'{TEXT_ERROR_SERVER_DELETE_LOG} {self.model.__name__}: {e}')
