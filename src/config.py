@@ -29,7 +29,6 @@ class Settings(BaseSettings):
     jwt_distinguishing_feature_access_token: str = 'access'  # TODO: спрятать в .env
     jwt_distinguishing_feature_refresh_token: str = 'refresh'  # TODO: спрятать в .env
 
-    create_first_superuser: bool | None = None
     first_superuser_email: EmailStr | None = None
     first_superuser_password: str | None = None
     first_superuser_name: str | None = None
