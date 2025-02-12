@@ -22,7 +22,7 @@ from src.api.v1.auth.protocol import StrategyT
 from src.api.v1.constants import Summary, TextError
 from src.api.v1.validator import validator_check_is_superuser, validator_check_object_exists
 from src.database.db_depends import get_async_session
-from src.tabit_management.crud import admin_crud
+from src.tabit_management.crud import admin_user_crud
 from src.tabit_management.models import TabitAdminUser
 from src.tabit_management.schemas import AdminReadSchema, AdminUpdateSchema
 
@@ -41,7 +41,7 @@ async def get_tabit_admin(
     """
     Возвращает список администраторов. Доступно только суперпользователю.
     """
-    return await admin_crud.get_multi(session)
+    return await admin_user_crud.get_multi(session)
 
 
 @router.get(
@@ -57,7 +57,7 @@ async def get_tabit_admin_by_id(
     """
     Отобразит карточку администратора сервиса по его `id`. Доступно только суперпользователю.
     """
-    return await admin_crud.get_or_404(session, user_id)
+    return await admin_user_crud.get_or_404(session, user_id)
 
 
 @router.patch(
@@ -76,10 +76,10 @@ async def update_tabit_admin_by_id(
     """
     user = await validator_check_object_exists(
         session,
-        admin_crud,
+        admin_user_crud,
         object_id=user_id,
     )
-    return await admin_crud.update(session, user, user_in)
+    return await admin_user_crud.update(session, user, user_in)
 
 
 @router.delete(
@@ -98,11 +98,11 @@ async def delete_tabit_admin_by_id(
     """
     user = await validator_check_object_exists(
         session,
-        admin_crud,
+        admin_user_crud,
         object_id=user_id,
     )
     validator_check_is_superuser(user)
-    await admin_crud.remove(session, user)
+    await admin_user_crud.remove(session, user)
     return
 
 
@@ -118,7 +118,7 @@ async def me_tabit_admin(
     """
     Для доступа к своей учетной записи администраторов сервиса.
     """
-    return await admin_crud.get_or_404(session, user.id)
+    return await admin_user_crud.get_or_404(session, user.id)
 
 
 @router.patch(
@@ -134,7 +134,7 @@ async def update_me_tabit_admin(
     """
     Позволит обновить данные о себе администраторов сервиса.
     """
-    return await admin_crud.update(session, user, user_in)
+    return await admin_user_crud.update(session, user, user_in)
 
 
 # TODO: реализовать нормальное восстановление пароля, если забыл
@@ -180,7 +180,7 @@ async def create_tabit_admin(
     """
     Создает нового администратора сервиса. Доступно только суперпользователю.
     """
-    created_user = await admin_crud.create_user(request, user_create, user_manager)
+    created_user = await admin_user_crud.create_user(request, user_create, user_manager)
     return schemas.model_validate(AdminReadSchema, created_user)
 
 

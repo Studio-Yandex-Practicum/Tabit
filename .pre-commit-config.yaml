@@ -22,7 +22,7 @@ repos:
         name: Checks for the existence of private keys
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
+    rev: v0.9.5
     hooks:
       - id: ruff
         args: [ --fix ]
@@ -34,7 +34,7 @@ repos:
         name: Export dev Dependencies
         language: system
         pass_filenames: false
-        entry: poetry export --without-hashes --dev --output requirements/dev.txt
+        entry: poetry export --without-hashes --with dev --output requirements/dev.txt
         files: ^(pyproject.toml|poetry.lock)$
       - id: export-prod-dependencies
         name: Export prod Dependencies

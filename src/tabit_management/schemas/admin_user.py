@@ -33,7 +33,7 @@ class BaseAdminSchema:
         title=TITLE_PHONE_NUMBER_ADMIN,
     )
 
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
 class AdminReadSchema(CreateUpdateDictModel):

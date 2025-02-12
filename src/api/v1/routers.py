@@ -22,7 +22,7 @@ main_router.include_router(
     tabit_admin_auth_router, prefix='/admin/auth', tags=['Tabit Admin Auth']
 )
 main_router.include_router(
-    tabit_management_router, prefix='/admin', tags=['Tabit Management - Stuff']
+    tabit_management_router, prefix='/admin', tags=['Tabit Management - Staff']
 )
 main_router.include_router(
     companies_management_router, prefix='/admin/companies', tags=['Tabit Management - Companies']

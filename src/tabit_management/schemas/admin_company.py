@@ -1,9 +1,9 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 from src.constants import (
     LENGTH_FILE_LINK,
@@ -23,7 +23,6 @@ from src.users.constants import (
     title_name_user,
     title_patronymic_user,
     title_phone_number_user,
-    title_role_user,
     title_start_date_employment_user,
     title_surname_user,
     title_telegram_username_user,
@@ -31,14 +30,31 @@ from src.users.constants import (
 from src.users.models.enum import RoleUserTabit
 
 
-class UserSchemaMixin:
-    """Схема-миксин пользователя сервиса."""
+class AdminCompanyResponseSchema(BaseModel):
+    """Схема компании для ответов админам сервиса."""
+
+    id: int
+    name: str
+    description: Optional[str]
+    logo: Optional[HttpUrl]
+    license_id: Optional[int]
+    max_admins_count: int
+    max_employees_count: int
+    start_license_time: Optional[datetime]
+    end_license_time: Optional[datetime]
+    is_active: bool
+    slug: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CompanyAdminSchemaMixin:
+    """Схема-миксин для админов от компаний."""
 
     patronymic: Optional[str] = Field(
-        None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=title_patronymic_user,
+        None, min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER, title=title_patronymic_user
     )
     phone_number: Optional[str] = Field(
         None,
@@ -91,8 +107,8 @@ class UserSchemaMixin:
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
-class UserReadSchema(BaseUser[UUID]):
-    """Схема пользователя сервиса для ответов."""
+class CompanyAdminReadSchema(BaseUser[UUID]):
+    """Схема для возврата данных админов от компаний при работе с ними."""
 
     name: str
     surname: str
@@ -115,8 +131,8 @@ class UserReadSchema(BaseUser[UUID]):
     model_config = ConfigDict(from_attributes=True)
 
 
-class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
-    """Схема для создание пользователя сервиса."""
+class CompanyAdminCreateSchema(CompanyAdminSchemaMixin, BaseUserCreate):
+    """Схема для создания админов от компаний."""
 
     name: str = Field(
         ...,
@@ -130,18 +146,15 @@ class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
         max_length=LENGTH_NAME_USER,
         title=title_surname_user,
     )
-    role: RoleUserTabit = Field(
-        RoleUserTabit.EMPLOYEE,
-        title=title_role_user,
-    )
+    role: Literal[RoleUserTabit.ADMIN]
     company_id: int = Field(
         ...,
         title=title_company_id_user,
     )
 
 
-class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
-    """Схема для изменение данных пользователя сервиса."""
+class CompanyAdminUpdateSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
+    """Схема для изменение данных админов от компаний."""
 
     name: Optional[str] = Field(
         None,
@@ -155,18 +168,8 @@ class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
         max_length=LENGTH_NAME_USER,
         title=title_surname_user,
     )
-    role: Optional[RoleUserTabit] = Field(
-        None,
-        title=title_role_user,
-    )
+    role: Literal[RoleUserTabit.ADMIN]
     company_id: Optional[int] = Field(
         None,
         title=title_company_id_user,
     )
-
-
-class ResetPasswordByAdmin(BaseModel):
-    """Схема для сброса пароля админа."""
-
-    password: str
-    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
