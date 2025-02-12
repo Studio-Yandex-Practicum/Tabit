@@ -245,9 +245,7 @@ async def update_staff(
     dependencies=[Depends(current_admin_tabit)],
     status_code=HTTPStatus.NO_CONTENT,
 )
-async def delete_staff(
-    user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)
-) -> int:
+async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
     """
     Удаляет информацию об администраторе с указанным UUID.
 
