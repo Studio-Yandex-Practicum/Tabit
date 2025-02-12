@@ -1,16 +1,28 @@
 from datetime import datetime
 from typing import Optional, Self
 
-from pydantic import BaseModel, EmailStr, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 from src.companies.schemas.mixins import GetterSlugMixin
-from src.companies.constants import (title_name_company, title_license_id_company,
-                                     title_logo_company, title_slug_company,
-                                     title_start_license_time)
-from src.constants import (LENGTH_NAME_COMPANY, LENGTH_NAME_USER,
-                           LENGTH_TELEGRAM_USERNAME, MIN_LENGTH_NAME)
-from src.users.constants import (title_telegram_username_user, title_phone_number_user,
-                                 title_name_user, title_surname_user)
+from src.companies.constants import (
+    title_license_id_company,
+    title_logo_company,
+    title_name_company,
+    title_slug_company,
+    title_start_license_time,
+)
+from src.constants import (
+    LENGTH_NAME_COMPANY,
+    LENGTH_NAME_USER,
+    LENGTH_TELEGRAM_USERNAME,
+    MIN_LENGTH_NAME,
+)
+from src.users.constants import (
+    title_telegram_username_user,
+    title_phone_number_user,
+    title_name_user,
+    title_surname_user,
+)
 
 
 class CompanyUpdateForUserSchema(BaseModel):
@@ -51,9 +63,8 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         Нельзя, что бы одно поле было не заполнено.
         """
         if not (
-            all((self.license_id, self.start_license_time)) or (
-                all((not self.license_id, not self.start_license_time))
-            )
+            all((self.license_id, self.start_license_time))
+            or (all((not self.license_id, not self.start_license_time)))
         ):
             raise ValueError(
                 'Поля "license_id" и "start_license_time" '
@@ -71,10 +82,7 @@ class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
         max_length=LENGTH_NAME_COMPANY,
         title=title_name_company,
     )
-    slug: str = Field(
-        ...,
-        title=title_slug_company
-    )
+    slug: str = Field(..., title=title_slug_company)
 
 
 class CompanyResponseSchema(BaseModel):
@@ -99,6 +107,7 @@ class CompanyResponseSchema(BaseModel):
 
 class UserCompanyUpdateSchema(BaseModel):
     """Схема для редактирования пользователем компании своего профиля."""
+
     name: Optional[str] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
@@ -127,6 +136,7 @@ class UserCompanyUpdateSchema(BaseModel):
 
 class CompanyFeedbackCreateShema(BaseModel):
     """Схема для создания пользователем компании обратной связи."""
+
     question: str = Field(..., title='Задать вопрос для обратной связи')
     # TODO: Обдумать. Скорее всего надо будет реализовать ограничение на количество символов.
     # Схема на данный момент является по большей части заглушкой.

@@ -66,10 +66,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return obj
 
     async def get_by_slug(
-        self, session: AsyncSession,
+        self,
+        session: AsyncSession,
         obj_slug: str,
         raise_404: bool = False,
-        message: str = 'Объект не найден'
+        message: str = 'Объект не найден',
     ) -> Optional[ModelType]:
         """
         Получает объект по полю slug.

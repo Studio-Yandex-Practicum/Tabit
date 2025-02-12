@@ -4,6 +4,7 @@ from src.users.models import UserTabit
 
 class CRUDUsers(CRUDBase):
     """CRUD операций для модели пользователей."""
+
     pass
 
 

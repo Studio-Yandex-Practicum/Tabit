@@ -38,14 +38,17 @@ class LandingPageBaseSchema(BaseModel):
 
 class LandingPageCreateSchema(LandingPageBaseSchema):
     """Схема для создания записи лендинга."""
+
     pass
 
 
 class LandingPageUpdateSchema(LandingPageBaseSchema):
     """Схема для обновления записи лендинга."""
+
     pass
 
 
 class LandingPageResponseSchema(LandingPageBaseSchema):
     """Схема для отображения данных лендинга."""
+
     id: int

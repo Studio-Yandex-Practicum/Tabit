@@ -30,7 +30,7 @@ from src.users.constants import (
     title_start_date_employment_user,
     title_surname_user,
     title_telegram_username_user,
-    title_updated_at_user
+    title_updated_at_user,
 )
 
 

@@ -1,6 +1,7 @@
 """
 Константы для моделей компании и департамента.
 """
+
 title_name_company: str = 'Название компании'
 title_logo_company: str = 'Логотип'
 title_license_id_company: str = 'Ссылка на тип лицензии'

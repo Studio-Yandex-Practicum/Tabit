@@ -4,6 +4,7 @@ from src.companies.models import Company
 
 class CRUDCompany(CRUDBase):
     """CRUD операции для модели компании."""
+
     pass
 
 

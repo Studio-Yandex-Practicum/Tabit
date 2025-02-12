@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Annotated, Optional
 from uuid import UUID
 
-from sqlalchemy import  ForeignKey, Integer, String, Text, func
+from sqlalchemy import ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.dialects.postgresql import TIMESTAMP
 
@@ -27,12 +27,13 @@ tag_name_field = Annotated[
 ]
 url_link_field = Annotated[Optional[str], mapped_column(String(LENGTH_FILE_LINK), nullable=True)]
 created_at = Annotated[
-    datetime,
-    mapped_column(type_=TIMESTAMP(timezone=True), server_default=func.now())
+    datetime, mapped_column(type_=TIMESTAMP(timezone=True), server_default=func.now())
 ]
 updated_at = Annotated[
     datetime,
-    mapped_column(type_=TIMESTAMP(timezone=True), server_default=func.now(), onupdate=datetime.now)
+    mapped_column(
+        type_=TIMESTAMP(timezone=True), server_default=func.now(), onupdate=datetime.now
+    ),
 ]
 timestamp_nullable = Annotated[
     Optional[datetime],
