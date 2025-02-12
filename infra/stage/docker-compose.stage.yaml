@@ -24,6 +24,10 @@ services:
       - db
     env_file:
       - ./../../.env
+    environment:
+      - POETRY_VIRTUALENVS_IN_PROJECT=true
+      - PATH="/app/.venv/bin:$PATH"
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${PORT_BD_POSTGRES}/${POSTGRES_DB}
 
 volumes:
   postgres_data:
