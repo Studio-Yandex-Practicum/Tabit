@@ -53,7 +53,7 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         ):
             raise ValueError(TEST_ERROR_LICENSE_FIELDS)
         return self
-    
+
 
 class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
     """Схема для создания компании."""
@@ -88,9 +88,3 @@ class CompanyResponseSchema(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class CompanyResponseForUserSchema(CompanyResponseSchema):
-    """Схема компании для ответов пользователям."""
-    # TODO: Обдумать о необходимости отдельной схемы - чего скрывать то?
-    pass
