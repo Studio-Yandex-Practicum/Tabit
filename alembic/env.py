@@ -10,6 +10,9 @@ from alembic import context
 from src.database import Base
 from src.config import settings
 
+from scripts.auto_migration_naming import name_migration  # noqa
+
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -57,7 +60,11 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        process_revision_directives=name_migration
+    )
 
     with context.begin_transaction():
         context.run_migrations()

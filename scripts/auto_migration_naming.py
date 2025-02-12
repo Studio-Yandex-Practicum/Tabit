@@ -3,19 +3,19 @@ import sys
 from pathlib import Path
 from re import match
 
-from alembic.script import write_hooks
+from alembic.script import ScriptDirectory
 
 MIGRATIONS_DIR = Path(__file__).parent.parent / 'alembic' / 'versions'
-MIGRATION_RE_ID = r'(^\d+)'
+MIGRATION_RE_ID = r'^(\d+)_'
 
 
 def next_migration_id() -> str:
     migrations_id = [
-        matched.group(1)
+        int(matched.group(1))
         for file_name in MIGRATIONS_DIR.iterdir()
         if file_name.is_file() and (matched := match(MIGRATION_RE_ID, file_name.name))
     ]
-    next_migration_id = int(max(migrations_id, default=0)) + 1
+    next_migration_id = max(migrations_id, default=0) + 1
     return str(next_migration_id).zfill(2)
 
 
@@ -27,14 +27,14 @@ def get_and_normolize_migration_commit() -> str:
         return 'default_migration'  # Или выбрасывать ошибку с просьбой заполнить коммит?
 
 
-@write_hooks.register('rename_migration')
-def rename_migration(filename, options):
-    migration_dir = os.path.dirname(filename)
+def name_migration(context, revision, directives):
+    """Генерирует имя миграции до создания файла."""
+    if not directives:
+        return
+
+    script = directives[0]
     migration_id = next_migration_id()
-    migration_commit = get_and_normolize_migration_commit()
-    migration_name = f'{migration_id}_{migration_commit}.py'
-    migration_new_filename = os.path.join(migration_dir, migration_name)
-    os.rename(filename, migration_new_filename)
-
-
-print(next_migration_id())
+    commit_text = get_and_normolize_migration_commit()
+    new_filename = f'{migration_id}_{commit_text}.py'
+    script.rev_id = migration_id
+    script.path = os.path.join(ScriptDirectory.from_config(context.config).versions, new_filename)
