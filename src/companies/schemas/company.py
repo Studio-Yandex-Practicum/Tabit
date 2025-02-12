@@ -30,7 +30,7 @@ class CompanyUpdateForUserSchema(BaseModel):
 
     description: Optional[str] = Field(
         None,
-        title='Название компании',
+        title=title_name_company,
     )
     logo: Optional[str] = Field(
         None,

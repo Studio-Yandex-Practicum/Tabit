@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
@@ -15,7 +16,7 @@ router = APIRouter()
 @router.get('/company_id/{uuid}/', status_code=status.HTTP_200_OK, response_model=UserReadSchema)
 async def get_company_user(
     uuid: UUID, session: AsyncSession = Depends(get_async_session)
-) -> UserReadSchema:
+) -> Optional[UserReadSchema]:
     """
     Личный кабинет пользователя компании.
     Получает текущего пользователя по UUID.
@@ -34,7 +35,7 @@ async def get_company_user(
 @router.patch('/company_id/{uuid}/', status_code=status.HTTP_200_OK, response_model=UserReadSchema)
 async def patch_company_user(
     uuid: UUID, obj_in: UserCompanyUpdateSchema, session: AsyncSession = Depends(get_async_session)
-) -> UserReadSchema:
+) -> Optional[UserReadSchema]:
     """
     Редактирование профиля пользователя компании.
     Параметры функции:
