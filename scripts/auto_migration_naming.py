@@ -9,7 +9,7 @@
     3. Для создаваемой миграции создается имя в формате <ID>_<commit>.py
 
     Пример:
-        если в папке с миграциями есть уже 2 миграции
+        если в папке с миграциями есть уже 2 миграции с id 01 и 02 -
         команда alembic revision --autogenerate -m 'Тестовая миграция' создаст миграцию
         03_тестовая_миграция.py.
 """
@@ -22,6 +22,9 @@ from re import match
 from alembic.script import ScriptDirectory
 
 MIGRATIONS_DIR = Path(__file__).parent.parent / 'alembic' / 'versions'
+if not MIGRATIONS_DIR.exists():
+    MIGRATIONS_DIR.mkdir(parents=True, exist_ok=True)
+
 MIGRATION_RE_ID = r'^(\d+)_'
 
 
@@ -74,7 +77,7 @@ def name_migration(context, revision, directives):
             Путь к файлу миграции.
             id ревизии (rev_id).
     """
-    if not directives:
+    if not directives or not directives[0]:
         return
 
     script = directives[0]
