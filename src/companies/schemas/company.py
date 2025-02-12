@@ -1,14 +1,14 @@
 from datetime import datetime
-from typing import Optional
-from typing_extensions import Self
+from typing import Optional, Self
 
 from pydantic import BaseModel, EmailStr, ConfigDict, Field, model_validator
 
 from src.companies.schemas.mixins import GetterSlugMixin
-from src.constants import (LENGTH_NAME_COMPANY, MIN_LENGTH_NAME,
-                           LENGTH_NAME_USER, LENGTH_TELEGRAM_USERNAME,
-                           MIN_LENGTH_NAME)
-from src.users.schemas.user import UserReadSchema
+from src.companies.constants import (title_name_company, title_license_id_company,
+                                     title_logo_company, title_slug_company,
+                                     title_start_license_time)
+from src.constants import (LENGTH_NAME_COMPANY, LENGTH_NAME_USER,
+                           LENGTH_TELEGRAM_USERNAME, MIN_LENGTH_NAME)
 from src.users.constants import (title_telegram_username_user, title_phone_number_user,
                                  title_name_user, title_surname_user)
 
@@ -18,11 +18,11 @@ class CompanyUpdateForUserSchema(BaseModel):
 
     description: Optional[str] = Field(
         None,
-        title='',
+        title='Название компании',
     )
     logo: Optional[str] = Field(
         None,
-        title='',
+        title=title_logo_company,
     )
 
 
@@ -33,15 +33,15 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_COMPANY,
-        title='',
+        title=title_name_company,
     )
     license_id: Optional[int] = Field(
         None,
-        title='',
+        title=title_license_id_company,
     )
     start_license_time: Optional[datetime] = Field(
         None,
-        title='',
+        title=title_start_license_time,
     )
 
     @model_validator(mode='after')
@@ -55,7 +55,10 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
                 all((not self.license_id, not self.start_license_time))
             )
         ):
-            raise ValueError('ДВА ПОЛЯ')
+            raise ValueError(
+                'Поля "license_id" и "start_license_time" '
+                'должны быть либо оба указаны, либо оба пропущены.'
+            )
         return self
 
 
@@ -66,11 +69,11 @@ class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
         ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_COMPANY,
-        title='',
+        title=title_name_company,
     )
     slug: str = Field(
         ...,
-        title=''
+        title=title_slug_company
     )
 
 
@@ -92,12 +95,6 @@ class CompanyResponseSchema(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class CompanyResponseForUserSchema(UserReadSchema):
-    """Схема компании для ответов пользователям."""
-
-    pass
 
 
 class UserCompanyUpdateSchema(BaseModel):
@@ -130,7 +127,7 @@ class UserCompanyUpdateSchema(BaseModel):
 
 class CompanyFeedbackCreateShema(BaseModel):
     """Схема для создания пользователем компании обратной связи."""
-    question: str
+    question: str = Field(..., title='Задать вопрос для обратной связи')
     # TODO: Обдумать. Скорее всего надо будет реализовать ограничение на количество символов.
     # Схема на данный момент является по большей части заглушкой.
 

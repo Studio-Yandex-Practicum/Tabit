@@ -1,61 +1,72 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
-from src.companies.schemas.company import (CompanyResponseForUserSchema, UserCompanyUpdateSchema,
-                                           CompanyFeedbackCreateShema)
-from src.companies.crud import company_crud, feedback_crud
+from src.companies.schemas.company import UserCompanyUpdateSchema, CompanyFeedbackCreateShema
 from src.users.crud.user import user_crud
+from src.users.schemas import UserReadSchema
 
 
 router = APIRouter()
 
 
-@router.get('/{company_slug}/{uuid}/', response_model=CompanyResponseForUserSchema)
+@router.get(
+        '/company_id/{uuid}/', status_code=status.HTTP_200_OK,
+        response_model=UserReadSchema
+)
 async def get_company_user(
-    company_slug: str, uuid: UUID, session: AsyncSession = Depends(get_async_session)
-):
+    uuid: UUID, session: AsyncSession = Depends(get_async_session)
+) -> UserReadSchema:
     """
-    Личный кабинет пользователя.
+    Личный кабинет пользователя компании.
+    Получает текущего пользователя по UUID.
+    Параметры функции:
+    1) uuid: универсально уникальный идентификатор пользователя UUID;
+    2) session: Асинхронная сессия SQLAlchemy.
+    Варианты возвращаемых значений:
+    - Объект пользователя;
+    - Исключение HTTPException (если объект не найден).
+    Эндпоинт доступен только пользователям компании.
     """
-    company = await company_crud.get_by_slug(session=session, obj_slug=company_slug)
-    tabit_user = await company_crud.get_user_company_by_id_and_slug(
-        session=session, uuid=uuid, company_id=company.id
-    )
-    # TODO: Реализовать проверку(валидацию) на существовании компании.
+    tabit_user = await user_crud.get_or_404(session=session, obj_id=uuid)
     return tabit_user
 
 
-@router.patch('/{company_slug}/{uuid}/', response_model=CompanyResponseForUserSchema)
+@router.patch(
+        '/company_id/{uuid}/', status_code=status.HTTP_200_OK,
+        response_model=UserReadSchema
+)
 async def patch_company_user(
-    company_slug: str, uuid: UUID,
+    uuid: UUID,
     obj_in: UserCompanyUpdateSchema,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> UserReadSchema:
     """
     Редактирование профиля пользователя компании.
+    Параметры функции:
+    1) uuid: универсально уникальный идентификатор пользователя UUID;
+    2) obj_in: pydantic схема для редактирования профиля;
+    3) session: Асинхронная сессия SQLAlchemy.
+    Варианты возвращаемых значений:
+    - Объект пользователя;
+    - Исключение HTTPException (если объект не найден).
+    Эндпоинт доступен только пользователям компании.
     """
-    user_db = await user_crud.get(session=session, obj_id=uuid)
+    user_db = await user_crud.get_or_404(session=session, obj_id=uuid)
     update_user_db = await user_crud.update(session=session, db_obj=user_db, obj_in=obj_in)
-    # TODO: Реализовать проверку(валидацию) на существовании компании.
-    # TODO: Реализовать проверку(валидацию), есть ли пользователь в БД.
     return update_user_db
 
 
-@router.post('/{company_slug}/feedback/', response_model=dict)
+@router.post('/{company_slug}/feedback/', response_model=dict[str, str])
 async def post_feedback(
     company_slug: str,
     question: CompanyFeedbackCreateShema,
     session: AsyncSession = Depends(get_async_session)
-):
+) -> dict[str, str]:
     """
     Задать вопрос в разделе 'Помощь'.
     """
-    # TODO: Реализовать сохранение данных обратной связи в базу данных.
-    # На данном этапе нету модели Feedback, до конца не понятно, как это будет выглядеть
-    # в конечном итоге. Постарался реализовать примерное сохранение данных с "заглушками"
-    # модели,схемы и объекта feedback_crud класса CRUDFeedback.
-    await feedback_crud.create(session=session, obj_in=question)
+    # TODO: Реализовать функционал отправки сообщения на почту.
     return {'message': f'Обратная связь отправлена для компании {company_slug}'}
