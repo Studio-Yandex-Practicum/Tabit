@@ -38,8 +38,8 @@ def next_migration_id() -> str:
     """
     migrations_id = [
         int(matched.group(1))
-        for file_name in MIGRATIONS_DIR.iterdir()
-        if file_name.is_file() and (matched := match(MIGRATION_RE_ID, file_name.name))
+        for file_object in MIGRATIONS_DIR.iterdir()
+        if file_object.is_file() and (matched := match(MIGRATION_RE_ID, file_object.name))
     ]
     next_migration_id = max(migrations_id, default=0) + 1
     return str(next_migration_id).zfill(2)
@@ -80,9 +80,11 @@ def name_migration(context, revision, directives):
     if not directives or not directives[0]:
         return
 
-    script = directives[0]
+    migration_script = directives[0]
     migration_id = next_migration_id()
     commit_text = get_and_normolize_migration_commit()
     new_filename = f'{migration_id}_{commit_text}.py'
-    script.rev_id = migration_id
-    script.path = os.path.join(ScriptDirectory.from_config(context.config).versions, new_filename)
+    migration_script.rev_id = migration_id
+    migration_script.path = os.path.join(
+        ScriptDirectory.from_config(context.config).versions, new_filename
+    )
