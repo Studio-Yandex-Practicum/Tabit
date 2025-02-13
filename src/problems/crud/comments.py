@@ -36,6 +36,17 @@ class CRUDComment(CRUDBase):
         user_id: int,
         auto_commit: bool = DEFAULT_AUTO_COMMIT,
     ) -> CommentFeed:
+        """
+        Переопределённый метод create для создания объектов CommentFeed в БД.
+        Возвращает созданный объект из БД.
+
+        Параметры:
+            session: асинхронная сессия SQLAlchemy;
+            obj_in: объект схемы с данными для создания треда;
+            message_feed_id: id треда, в котором будет создан комментарий;
+            user_id: UUID пользователя, который является создателем треда;
+            auto_commit: константа для автокоммитов, по умолчанию - True.
+        """
         obj_data = obj_in.model_dump()
         obj_data['owner_id'] = user_id
         obj_data['message_id'] = message_feed_id
