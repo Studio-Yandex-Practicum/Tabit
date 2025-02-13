@@ -38,22 +38,18 @@ TEXT_ERROR_SERVER_DELETE_LOG: str = 'Ошибка при удалении'
 TEXT_ERROR_EXISTS_EMAIL: str = 'Пользователь с такой электронной почтой уже есть'
 TEXT_ERROR_INVALID_PASSWORD: str = 'Не корректный пароль'
 
-TEXT_ERROR_IS_SUPERUSER: str = 'Объект - суперпользователь'
-
 
 @dataclass
 class TextScripts:
     """Текстовые переменные файла scripts.py."""
 
-    DESCRIPTION: str = (
-        """
+    DESCRIPTION: str = """
         Запустит проект с помощью uvicorn.
 
         флаги --reload, --host, --port опциональные и могут указываться одновременно.\n
         фдаг --create-superuser - создаст первого суперпользователя согласно данным в .env без
         последующего запуска проекта.
         """
-    )
     LOGGER: str = 'Starting uvicorn server...'
     RELOAD: str = 'Запустит uvicorn с флагом --reload'
     HOST: str = 'Указать хост при запуске.'

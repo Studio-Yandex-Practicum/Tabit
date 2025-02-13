@@ -16,11 +16,15 @@ from src.api.v1.auth.dependencies import (
     get_current_admin_token,
     tabit_admin,
 )
-from src.api.v1.auth.jwt import jwt_auth_backend
+from src.api.v1.auth.jwt import jwt_auth_backend_admin
 from src.api.v1.auth.managers import get_admin_manager
 from src.api.v1.auth.protocol import StrategyT
 from src.api.v1.constants import Summary, TextError
-from src.api.v1.validator import validator_check_is_superuser, validator_check_object_exists
+from src.api.v1.validator import (
+    check_user_is_active,
+    validator_check_not_is_superuser,
+    validator_check_object_exists,
+)
 from src.database.db_depends import get_async_session
 from src.tabit_management.crud import admin_user_crud
 from src.tabit_management.models import TabitAdminUser
@@ -40,6 +44,11 @@ async def get_tabit_admin(
 ):
     """
     Возвращает список администраторов. Доступно только суперпользователю.
+    Параметры:
+        path: вызван не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: Тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        dependencies: Список зависимостей (с использованием `Depends()`).
+        summary: Краткое описание.
     """
     return await admin_user_crud.get_multi(session)
 
@@ -101,7 +110,7 @@ async def delete_tabit_admin_by_id(
         admin_user_crud,
         object_id=user_id,
     )
-    validator_check_is_superuser(user)
+    validator_check_not_is_superuser(user)
     await admin_user_crud.remove(session, user)
     return
 
@@ -153,16 +162,15 @@ router.include_router(  # форгот и резет пассворд
 )
 async def refresh_token_tabit_admin(
     user_and_refresh_token: tuple[TabitAdminUser, str] = Depends(get_current_admin_refresh_token),
-    strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend.get_strategy),
+    strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend_admin.get_strategy),
 ):
-    """В заголовке принимает refresh-token, возвращает обновленные access-token и refresh-token."""
+    """
+    Обновление токенов для администраторов сервиса.
+    В заголовке принимает refresh-token, возвращает обновленные access-token и refresh-token.
+    """
     user, _ = user_and_refresh_token
-    if not user.is_active:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail=TextError.LOGIN,
-        )
-    return await jwt_auth_backend.login_with_refresh(strategy, user)  # type: ignore[misc]
+    check_user_is_active(user)
+    return await jwt_auth_backend_admin.login_with_refresh(strategy, user)  # type: ignore[misc]
 
 
 @router.post(
@@ -189,10 +197,9 @@ async def create_tabit_admin(
     summary=Summary.TABIT_ADMIN_AUTH_LOGIN,
 )
 async def login(
-    request: Request,
     credentials: OAuth2PasswordRequestForm = Depends(),
     user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_admin_manager),
-    strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend.get_strategy),
+    strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend_admin.get_strategy),
 ):
     """
     Авторизация администраторов сервиса.
@@ -203,20 +210,21 @@ async def login(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=TextError.LOGIN,
         )
-    return await jwt_auth_backend.login_with_refresh(strategy, user)
+    return await jwt_auth_backend_admin.login_with_refresh(strategy, user)
 
 
 # TODO: Работоспособность этого эндпоинта через Swagger не получилось проверить.
+# Есть подозрения, что со стороны бекенда не реализованны какие либо действия.
 @router.post(
     '/logout',
     summary=Summary.TABIT_ADMIN_AUTH_LOGOUT,
 )
 async def logout(
     user_token: tuple[models.UP, str] = Depends(get_current_admin_token),
-    strategy: Strategy[models.UP, models.ID] = Depends(jwt_auth_backend.get_strategy),
+    strategy: Strategy[models.UP, models.ID] = Depends(jwt_auth_backend_admin.get_strategy),
 ):
     """
     Выход из системы администраторов сервиса.
     """
     user, token = user_token
-    return await jwt_auth_backend.logout(strategy, user, token)
+    return await jwt_auth_backend_admin.logout(strategy, user, token)

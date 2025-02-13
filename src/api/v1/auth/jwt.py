@@ -44,7 +44,11 @@ class TransportTabit(BearerTransport):
     async def get_login_response_with_refresh(
         self, access_token: str, refresh_token: str
     ) -> Response:
-        """Подготовит ответ с токенами."""
+        """
+        Подготовит ответ с токенами.
+        :param access_token: строка содержащая access_token;
+        :refresh_token: строка содержащая refresh_token.
+        """
         bearer_response = TransportShema(
             access_token=access_token,
             refresh_token=refresh_token,
@@ -54,7 +58,11 @@ class TransportTabit(BearerTransport):
 
 
 # TODO: Нужно путь в константы определить, так, чтобы от эндпоинта собиралась.
-transport = TransportTabit(tokenUrl='/api/v1/admin/auth/login')
+transport_admin = TransportTabit(tokenUrl='/api/v1/admin/auth/login')
+"""Транспорт JWT-токенов для администраторов сервиса Tabit."""
+
+transport_user = TransportTabit(tokenUrl='/api/v1/auth/login')
+"""Транспорт JWT-токенов для пользователей сервиса Tabit."""
 
 
 class AuthenticationBackendTabit(AuthenticationBackend):
@@ -65,13 +73,15 @@ class AuthenticationBackendTabit(AuthenticationBackend):
     async def login_with_refresh(
         self, strategy: StrategyT[models.UP, models.ID], user: models.UP
     ) -> Response:
-        """Передаст токены из стратегии в транспорт."""
+        """
+        Передаст токены из стратегии в транспорт.
+        :param strategy: стратегия JWT-токенов, по которой будут создаваться токены;
+        :param user: экземпляр модели пользователей (запись из БД) для которого будут создаваться
+            токены.
+        """
         token_access = await strategy.write_token(user, is_access=True)
         token_refresh = await strategy.write_token(user, is_access=False)
         return await self.transport.get_login_response_with_refresh(token_access, token_refresh)
-
-    async def read_refresh_token(self, strategy: StrategyT[models.UP, models.ID]):
-        pass
 
 
 class JWTStrategyTabit(JWTStrategy):
@@ -86,6 +96,16 @@ class JWTStrategyTabit(JWTStrategy):
         algorithm: str = settings.jwt_token_algorithm,
         public_key: SecretType | None = None,
     ):
+        """
+        :param secret: Постоянный секрет, который используется для кодирования токена;
+        :param lifetime_seconds: Время жизни access-токена указывается в секундах;
+        :param lifetime_seconds_refresh: Время жизни refresh-токена указывается в секундах;
+        :param token_audience: Список допустимых аудиторий для токена JWT;
+        :param algorithm: Алгоритм шифрования JWT;
+        :param public_key: Если для алгоритма шифрования JWT требуется пара ключей вместо простого
+            secret, ключ для расшифровки JWT может быть предоставлен здесь. Параметр secret всегда
+            будет использоваться для шифрования JWT.
+        """
         super().__init__(
             secret=secret,
             lifetime_seconds=lifetime_seconds,
@@ -103,6 +123,9 @@ class JWTStrategyTabit(JWTStrategy):
     ) -> models.UP | None:
         """
         Проверит является ли переданный токен access-token или refresh-token и валиден ли он.
+        Вернет экземпляр модели пользователя (запись из БД), которому был выдан этот токен.
+        :param token: переданный токен;
+        :param user_manager: менеджер управления пользователями;
         :param distinguishing_feature:
             - None - по умолчанию  - стандартный функционал библиотеки;
             - str - будет проверять в полезной нагрузке токена наличие ключа этой строки, при
@@ -131,7 +154,9 @@ class JWTStrategyTabit(JWTStrategy):
         """
         Подготовит данные для создания access-token или refresh-token и, после его создания,
         вернет его.
-        :param is_access:
+        :param user: экземпляр модели пользователя (запись из БД);
+        :param is_access: параметр-флаг, в зависимости от значения, "подмешает" в полезную
+            нагрузку токена дополнительные данные, для идентификации роли токена:
             - None - по умолчанию - стандартный функционал библиотеки;
             - True - создаст access-token;
             - False - создаст refresh-token.
@@ -161,9 +186,17 @@ def get_jwt_strategy() -> JWTStrategy:
     )
 
 
-jwt_auth_backend = AuthenticationBackendTabit(
-    name='jwt',
-    transport=transport,
+jwt_auth_backend_admin = AuthenticationBackendTabit(
+    name='jwt_admin',
+    transport=transport_admin,
+    get_strategy=get_jwt_strategy,
+)
+"""Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
+
+
+jwt_auth_backend_user = AuthenticationBackendTabit(
+    name='jwt_user',
+    transport=transport_user,
     get_strategy=get_jwt_strategy,
 )
 """Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
@@ -233,12 +266,17 @@ class AuthenticatorTabit(Authenticator):
         superuser: bool = False,
         **kwargs,
     ) -> tuple[Optional[models.UP], Optional[str]]:
+        """
+        Только для проверки refresh-token.
+
+        За образец был взят метод _authenticate.
+        Измен способ получения пользователя по токену.
+        """
         user: Optional[models.UP] = None
         token: Optional[str] = None
         enabled_backends: Sequence[AuthenticationBackend[models.UP, models.ID]] = kwargs.get(
             'enabled_backends', self.backends
         )
-        """Только для проверки refresh-token."""
         for backend in self.backends:
             if backend in enabled_backends:
                 token = kwargs[name_to_variable_name(backend.name)]
@@ -247,7 +285,9 @@ class AuthenticatorTabit(Authenticator):
                 ]
                 if token is not None:
                     user = await strategy.read_token(
-                        token, user_manager, settings.jwt_distinguishing_feature_refresh_token,
+                        token,
+                        user_manager,
+                        settings.jwt_distinguishing_feature_refresh_token,
                     )
                     if user:
                         break
@@ -281,13 +321,13 @@ class FastAPIUsersTabit(FastAPIUsers[models.UP, models.ID]):
         self.current_user_refresh_token = self.authenticator.current_user_refresh_token
 
 
-tabit_admin = FastAPIUsersTabit[TabitAdminUser, UUID](get_admin_manager, [jwt_auth_backend])
+tabit_admin = FastAPIUsersTabit[TabitAdminUser, UUID](get_admin_manager, [jwt_auth_backend_admin])
 """
 Основной объект, который связывает воедино компонент для аутентификации пользователей для
 администраторов сервиса Tabit.
 """
 
-tabit_users = FastAPIUsersTabit[UserTabit, UUID](get_user_manager, [jwt_auth_backend])
+tabit_user = FastAPIUsersTabit[UserTabit, UUID](get_user_manager, [jwt_auth_backend_user])
 """
 Основной объект, который связывает воедино компонент для аутентификации пользователей для
 пользователей сервиса Tabit.
