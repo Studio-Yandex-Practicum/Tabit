@@ -14,6 +14,16 @@ logs:
 init-migrations:
 	poetry run alembic revision --autogenerate -m "initial migration"
 
+# Команда создания автогенерируемой миграции с возможностью передачи коммита
+# через флаг m='...' для составления названия миграции
+auto-migration:
+	poetry run alembic revision --autogenerate -m "$(m)"
+
+# Команда создания пустой миграции с возможностью передачи коммита
+# через флаг m='...' для составления названия миграции
+empty-migration:
+	poetry run alembic revision -m "$(m)"
+
 # Команда для применения миграций
 apply-migrations:
 	poetry run alembic upgrade head

@@ -45,20 +45,18 @@ def next_migration_id() -> str:
     return str(next_migration_id).zfill(2)
 
 
-def get_and_normolize_migration_commit() -> str:
+def get_and_normalize_migration_commit() -> str:
     """
     Функция вытаскивает из аргументов команды коммит к миграции приводя к стандартному виду.
 
     Проверка ошибок:
         Если флаг -m не был прописан, возникает ошибка ValueError.
-        Если флаг -m присутствует, но коммит неб ыл заполнен, возникает ошибка IndexError.
-        В обоих случаях функция возвращает для создаваемого коммита строку 'default_migration'.
     """
     try:
         commit_index = sys.argv.index('-m') + 1
-        return sys.argv[commit_index].replace(' ', '_').lower()
-    except (ValueError, IndexError):
-        return 'default_migration'  # Или выбрасывать ошибку с просьбой заполнить коммит?
+        return sys.argv[commit_index].strip().replace(' ', '_').lower()
+    except ValueError:
+        return 'default_migration'
 
 
 def name_migration(context, revision, directives):
@@ -82,7 +80,7 @@ def name_migration(context, revision, directives):
 
     migration_script = directives[0]
     migration_id = next_migration_id()
-    commit_text = get_and_normolize_migration_commit()
+    commit_text = get_and_normalize_migration_commit()
     new_filename = f'{migration_id}_{commit_text}.py'
     migration_script.rev_id = migration_id
     migration_script.path = os.path.join(
