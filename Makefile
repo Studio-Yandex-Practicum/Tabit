@@ -34,3 +34,7 @@ init-db: up init-migrations apply-migrations
 # Запуск приложения с uvicorn
 run:
 	poetry run uvicorn src.main:app_v1 --port 8000 --reload
+
+# Создаст в базе данных суперпользователя.
+create-superuser:
+	python src/main.py -c

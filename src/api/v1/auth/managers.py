@@ -8,6 +8,7 @@ from src.tabit_management.models import TabitAdminUser
 
 class BaseTabitUserManager(UUIDIDMixin, BaseUserManager):
     """Базовый менеджер управления пользователями."""
+
     async def validate_password(
         self,
         password: str,
@@ -18,9 +19,7 @@ class BaseTabitUserManager(UUIDIDMixin, BaseUserManager):
             raise InvalidPasswordException(reason=ERROR_INVALID_PASSWORD_LENGTH)
         # TODO: Расширить валидацию.
 
-    async def on_after_register(
-        self, user: TabitAdminUser, request: Request | None = None
-    ):
+    async def on_after_register(self, user: TabitAdminUser, request: Request | None = None):
         """Действия после успешной регистрации пользователя."""
         # TODO: Какие действия нужны после успешной регистрации?
         # Нужны ли действия после обновления? Верификации и тп?
