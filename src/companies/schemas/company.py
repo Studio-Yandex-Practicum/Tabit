@@ -3,14 +3,15 @@ from typing import Optional, Self
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
-from src.companies.schemas.mixins import GetterSlugMixin
 from src.companies.constants import (
+    TEST_ERROR_LICENSE_FIELDS,
     title_license_id_company,
     title_logo_company,
     title_name_company,
     title_slug_company,
     title_start_license_time,
 )
+from src.companies.schemas.mixins import GetterSlugMixin
 from src.constants import (
     LENGTH_NAME_COMPANY,
     LENGTH_NAME_USER,
@@ -18,10 +19,10 @@ from src.constants import (
     MIN_LENGTH_NAME,
 )
 from src.users.constants import (
-    title_telegram_username_user,
-    title_phone_number_user,
     title_name_user,
+    title_phone_number_user,
     title_surname_user,
+    title_telegram_username_user,
 )
 
 
@@ -66,10 +67,7 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
             all((self.license_id, self.start_license_time))
             or (all((not self.license_id, not self.start_license_time)))
         ):
-            raise ValueError(
-                'Поля "license_id" и "start_license_time" '
-                'должны быть либо оба указаны, либо оба пропущены.'
-            )
+            raise ValueError(TEST_ERROR_LICENSE_FIELDS)
         return self
 
 

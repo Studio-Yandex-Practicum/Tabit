@@ -2,18 +2,18 @@ from fastapi import APIRouter
 
 from src.api.v1.endpoints import (
     auth_employees,
-    companies_router,
-    problems_router,
-    task_router,
-    landing_page_router,
-    company_user_router,
-    meeting_router,
-    licenses_router,
     companies_management_router,
-    tabit_management_router,
+    companies_router,
+    company_user_router,
+    landing_page_router,
+    licenses_router,
+    meeting_router,
     problem_feeds_router,
-    tabit_admin_auth_router,
+    problems_router,
     surveys_router,
+    tabit_admin_auth_router,
+    tabit_management_router,
+    task_router,
 )
 
 main_router = APIRouter(prefix='/api/v1')
@@ -22,7 +22,7 @@ main_router.include_router(
     tabit_admin_auth_router, prefix='/admin/auth', tags=['Tabit Admin Auth']
 )
 main_router.include_router(
-    tabit_management_router, prefix='/admin', tags=['Tabit Management - Stuff']
+    tabit_management_router, prefix='/admin', tags=['Tabit Management - Staff']
 )
 main_router.include_router(
     companies_management_router, prefix='/admin/companies', tags=['Tabit Management - Companies']

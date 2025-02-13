@@ -1,10 +1,8 @@
 import os
 
 from dotenv import load_dotenv
-from pydantic import SecretStr
+from pydantic import ConfigDict, EmailStr, SecretStr
 from pydantic_settings import BaseSettings
-from fastapi_users.authentication import JWTStrategy, AuthenticationBackend
-
 
 load_dotenv()
 
@@ -23,7 +21,18 @@ class Settings(BaseSettings):
     log_level: str = 'DEBUG'
 
     jwt_secret: SecretStr = 'SUPERSECRETKEY'
-    jwt_lifetime_seconds: int = 3600
+    jwt_lifetime_seconds: int = 3_600  # 1 час.
+    jwt_lifetime_seconds_refresh: int = 86_400  # 24 часа.
+    jwt_token_type: str = 'bearer'
+    jwt_token_algorithm: str = 'HS256'  # TODO: спрятать в .env
+    jwt_token_audience: list[str] = ['fastapi-users:auth']  # TODO: спрятать в .env
+    jwt_distinguishing_feature_access_token: str = 'access'  # TODO: спрятать в .env
+    jwt_distinguishing_feature_refresh_token: str = 'refresh'  # TODO: спрятать в .env
+
+    first_superuser_email: EmailStr | None = None
+    first_superuser_password: str | None = None
+    first_superuser_name: str | None = None
+    first_superuser_surname: str | None = None
 
     @property
     def database_url(self):
@@ -34,22 +43,7 @@ class Settings(BaseSettings):
             f'/{self.postgres_db}'
         )
 
-    class Config:
-        env_file = '.env'
+    model_config = ConfigDict(env_file='.env')
 
 
 settings = Settings()
-
-
-def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(
-        secret=settings.jwt_secret.get_secret_value(),
-        lifetime_seconds=settings.jwt_lifetime_seconds,
-    )
-
-
-jwt_auth_backend = AuthenticationBackend(
-    name='jwt',
-    transport=None,
-    get_strategy=get_jwt_strategy,
-)

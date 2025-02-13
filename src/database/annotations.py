@@ -5,22 +5,22 @@ from typing import Annotated, Optional
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, Integer, String, Text, func
-from sqlalchemy.orm import mapped_column
 from sqlalchemy.dialects.postgresql import TIMESTAMP
+from sqlalchemy.orm import mapped_column
 
 from src.constants import (
+    LENGTH_FILE_LINK,
     LENGTH_NAME_PROBLEM,
     LENGTH_NAME_USER,
-    LENGTH_SMALL_NAME,
-    LENGTH_FILE_LINK,
     LENGTH_SLUG,
+    LENGTH_SMALL_NAME,
     ZERO,
 )
 
 int_pk = Annotated[int, mapped_column(primary_key=True, unique=True)]
 name_field = Annotated[str, mapped_column(String(LENGTH_NAME_USER))]
 patronymic_field = Annotated[Optional[str], mapped_column(String(LENGTH_NAME_USER), nullable=True)]
-license_name_field = Annotated[str, mapped_column(String(LENGTH_NAME_USER))]
+license_name_field = Annotated[str, mapped_column(String(LENGTH_NAME_USER), unique=True)]
 description = Annotated[Optional[str], mapped_column(Text, nullable=True)]
 tag_name_field = Annotated[
     str, mapped_column(String(LENGTH_SMALL_NAME), unique=True, nullable=False)

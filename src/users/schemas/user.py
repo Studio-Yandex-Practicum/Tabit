@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
-from pydantic import Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.constants import (
     LENGTH_FILE_LINK,
@@ -11,7 +11,6 @@ from src.constants import (
     LENGTH_TELEGRAM_USERNAME,
     MIN_LENGTH_NAME,
 )
-from src.users.models.enum import RoleUserTabit
 from src.users.constants import (
     title_avatar_link_user,
     title_birthday_user,
@@ -32,6 +31,7 @@ from src.users.constants import (
     title_telegram_username_user,
     title_updated_at_user,
 )
+from src.users.models.enum import RoleUserTabit
 
 
 class UserSchemaMixin:
@@ -91,6 +91,7 @@ class UserSchemaMixin:
         None,
         title=title_employee_position_user,
     )
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
 class UserReadSchema(BaseUser[UUID]):
@@ -116,6 +117,7 @@ class UserReadSchema(BaseUser[UUID]):
     employee_position: Optional[str] = Field(None, title=title_employee_position_user)
     created_at: Optional[datetime] = Field(None, title=title_created_at_user)
     updated_at: Optional[datetime] = Field(None, title=title_updated_at_user)
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
@@ -166,3 +168,10 @@ class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
         None,
         title=title_company_id_user,
     )
+
+
+class ResetPasswordByAdmin(BaseModel):
+    """Схема для сброса пароля админа."""
+
+    password: str
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)

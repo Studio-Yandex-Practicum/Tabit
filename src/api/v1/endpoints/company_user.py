@@ -4,16 +4,19 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database.db_depends import get_async_session
 from src.companies.schemas.company import CompanyFeedbackCreateShema, UserCompanyUpdateSchema
+from src.database.db_depends import get_async_session
 from src.users.crud.user import user_crud
 from src.users.schemas import UserReadSchema
-
 
 router = APIRouter()
 
 
-@router.get('/company_id/{uuid}/', status_code=status.HTTP_200_OK, response_model=UserReadSchema)
+@router.get(
+    '/company_id/{uuid}/',
+    status_code=status.HTTP_200_OK,
+    response_model=UserReadSchema,
+)
 async def get_company_user(
     uuid: UUID, session: AsyncSession = Depends(get_async_session)
 ) -> Optional[UserReadSchema]:
@@ -32,7 +35,11 @@ async def get_company_user(
     return tabit_user
 
 
-@router.patch('/company_id/{uuid}/', status_code=status.HTTP_200_OK, response_model=UserReadSchema)
+@router.patch(
+    '/company_id/{uuid}/',
+    status_code=status.HTTP_200_OK,
+    response_model=UserReadSchema,
+)
 async def patch_company_user(
     uuid: UUID, obj_in: UserCompanyUpdateSchema, session: AsyncSession = Depends(get_async_session)
 ) -> Optional[UserReadSchema]:
