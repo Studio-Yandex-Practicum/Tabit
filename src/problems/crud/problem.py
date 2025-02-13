@@ -1,7 +1,11 @@
+from http import HTTPStatus
+
+from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from src.constants import TEXT_ERROR_NOT_FOUND
 from src.crud import CRUDBase
 from src.problems.models.problem_models import Problem
 
@@ -21,7 +25,10 @@ class CRUDProblem(CRUDBase):
             .where(self.model.id == problem_id)
             .options(selectinload(self.model.owner))
         )
-        return problem.scalars().first()
+        problem = problem.scalars().first()
+        if not problem:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=TEXT_ERROR_NOT_FOUND)
+        return problem
 
 
 problem_crud = CRUDProblem(Problem)

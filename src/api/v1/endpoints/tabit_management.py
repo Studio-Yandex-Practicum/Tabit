@@ -1,4 +1,3 @@
-from http import HTTPStatus
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -50,11 +49,13 @@ async def update_admin_user(
         await user_manager.parse_id
         admin_user = await user_manager.update(update_data, admin_user)
     except UserNotExists:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
     except UserAlreadyExists:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS
+        )
     except InvalidPasswordException:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
     return admin_user
 
 
@@ -161,9 +162,11 @@ async def create_staff(
     try:
         created_admin_user = await user_manager.create(create_data)
     except UserAlreadyExists:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS
+        )
     except InvalidPasswordException:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
     return created_admin_user
 
 
@@ -187,7 +190,7 @@ async def get_staff(
     try:
         admin_user = await user_manager.get(user_id)
     except UserNotExists:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
     return admin_user
 
 
@@ -243,7 +246,7 @@ async def update_staff(
     '/staff/{user_id}',
     summary='Удалить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
-    status_code=HTTPStatus.NO_CONTENT,
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
     """
@@ -255,8 +258,7 @@ async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(ge
         admin_user = await user_manager.get(user_id)
         await user_manager.delete(admin_user)
     except UserNotExists:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
-    return HTTPStatus.NO_CONTENT
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
 
 
 # TODO: Надо позже реализовать логику сброса пароля. В user_manager указать параметр

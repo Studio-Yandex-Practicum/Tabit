@@ -15,23 +15,6 @@ from src.database.db_depends import get_async_session
 router = APIRouter()
 
 
-# @router.get(
-#     '/',
-# )
-# async def get_employees(session: AsyncSession = Depends(get_async_session)):
-#     """Возвращает список сотрудников."""
-
-#     return {
-#         'employees': [
-#             'employee_1',
-#             'employee_2',
-#             'employee_3',
-#             '...',
-#             'employee_n',
-#         ]
-#     }
-
-
 # Временное (или нет) решение по аутентификации обычных пользователей.
 # Нужно для тестов эндпоинтов сотурдников компаний. Два эндпоинта - login и logout.
 # Login возвращает в кач-ве ответа токен. Дальше токен стоит использовать в Postman,
