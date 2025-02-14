@@ -4,9 +4,8 @@
 Скрипт при выполнении стандартной команды создания миграции выполняет следующие шаги:
     1. ID: Собирает названия файлов миграции внутри папки alembic/revisons/ , извлекает число
     обозначающее id миграции, доавбляя к нему единицу. Если же папка пуста, за ID берется 01.
-    2. commit: Введеная команда на создание миграции парсится, из неё достается строка
-    после флага -m, содержащая коммит к миграции.
-    3. Для создаваемой миграции создается имя в формате <ID>_<commit>.py
+    3. Для создаваемой миграции создается имя в формате <ID>_<commit>.py, если commit был передан,
+    или <ID>_no_discription_please_rename.py если commit передан не был.
 
     Пример:
         если в папке с миграциями есть уже 2 миграции с id 01 и 02 -
@@ -14,12 +13,8 @@
         03_тестовая_миграция.py.
 """
 
-import os
-import sys
 from pathlib import Path
 from re import match
-
-from alembic.script import ScriptDirectory
 
 MIGRATIONS_DIR = Path(__file__).parent.parent / 'alembic' / 'versions'
 if not MIGRATIONS_DIR.exists():
@@ -28,7 +23,7 @@ if not MIGRATIONS_DIR.exists():
 MIGRATION_RE_ID = r'^(\d+)_'
 
 
-def next_migration_id() -> str:
+def get_next_migration_id() -> str:
     """
     Функция возвращает идентификатор для создаваемой миграции в 2 шага:
        1. Собирает имена файлов существующих миграций и создает список из их идентификаторов
@@ -45,44 +40,32 @@ def next_migration_id() -> str:
     return str(next_migration_id).zfill(2)
 
 
-def get_and_normalize_migration_commit() -> str:
-    """
-    Функция вытаскивает из аргументов команды коммит к миграции приводя к стандартному виду.
-
-    Проверка ошибок:
-        Если флаг -m не был прописан, возникает ошибка ValueError.
-    """
-    try:
-        commit_index = sys.argv.index('-m') + 1
-        return sys.argv[commit_index].strip().replace(' ', '_').lower()
-    except ValueError:
-        return 'default_migration'
-
-
-def name_migration(context, revision, directives):
+def generate_migration_name(context, revision, directives):
     """
     Автоматически задаёт имя файлу миграции перед созданием.
-        1. Определяет следующий id миграции.
-        2. Получает описание миграции из аргумента `-m` и форматирует его.
-        3. Формирует имя файла в формате `<id>_<коммит>.py`.
-        4. Подменяет `rev_id` миграции, чтобы rev_id миграции совпадал с id в названии файла.
-        5. Обновляет путь файла миграции, чтобы Alembic создал его сразу с нужным именем.
+
+    1. Определяет следующий id миграции.
+    2. Получает commit миграции из аргумента '-m'.
+    3. Формирует имя файла в формате <id>_<commit>.py.
+       - 'id' берётся из атрибута 'rev_id' миграции.
+       - 'commit' — из атрибута 'message'.
+    4. Подменяет 'rev_id' миграции, который Alembic подставляет в название файла.
+    5. Если 'message' не был передан или пустой, подставляет дефолтное значение.
 
     Аргументы:
-        context (MigrationContext): Контекст выполнения Alembic.
-        revision (Optional[str]): Уникальный идентификатор ревизии.
-        derictives: список с объектом MigrationScript, представляющий новую миграцию, содержит:
-            Путь к файлу миграции.
-            id ревизии (rev_id).
+        context: Контекст выполнения Alembic.
+        revision: Уникальный идентификатор ревизии.
+        directives: список с объектом MigrationScript, представляющий новую миграцию.
+
+    Атрибуты 'directives', используемые в функции:
+        rev_id (str): ID миграции.
+        message (str): commit миграции переданный при вводе команды.
     """
     if not directives or not directives[0]:
         return
 
     migration_script = directives[0]
-    migration_id = next_migration_id()
-    commit_text = get_and_normalize_migration_commit()
-    new_filename = f'{migration_id}_{commit_text}.py'
+    migration_id = get_next_migration_id()
     migration_script.rev_id = migration_id
-    migration_script.path = os.path.join(
-        ScriptDirectory.from_config(context.config).versions, new_filename
-    )
+    if not migration_script.message:
+        migration_script.message = 'no_discription_please_rename'

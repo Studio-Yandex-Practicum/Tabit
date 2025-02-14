@@ -10,7 +10,7 @@ from alembic import context
 from src.database import Base
 from src.config import settings
 
-from scripts.auto_migration_naming import name_migration  # noqa
+from scripts.auto_migration_naming import generate_migration_name  # noqa
 
 
 # this is the Alembic Config object, which provides
@@ -63,7 +63,7 @@ def do_run_migrations(connection: Connection) -> None:
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
-        process_revision_directives=name_migration
+        process_revision_directives=generate_migration_name
     )
 
     with context.begin_transaction():
