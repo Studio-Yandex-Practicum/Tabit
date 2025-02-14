@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_user
-from src.api.v1.validators.problem_feeds_validators import (
+from src.api.v1.validators import (
     check_comment_owner,
     check_message_feed_and_problem,
     get_access_to_feeds,
