@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_admin_tabit
 from src.api.v1.auth.managers import get_user_manager
+from src.api.v1.validators import check_telegram_username_for_duplicates
 from src.database.db_depends import get_async_session
 from src.logger import logger
 from src.tabit_management.constants import (
@@ -34,6 +35,7 @@ router = APIRouter()
 async def update_admin_user(
     user_id: UUID,
     update_data: CompanyAdminUpdateSchema,
+    session: AsyncSession = Depends(get_async_session),
     user_manager: BaseUserManager = Depends(get_user_manager),
 ) -> UserTabit:
     """
@@ -42,12 +44,13 @@ async def update_admin_user(
     Получает объект пользователя по UUID, обновляет его данные в БД и возвращает его.
     Параметры:
         user_id - UUID пользователя;
-        update_date - объект схемы с данными для обновления;
-        user_manager - менеджер пользователей
+        update_date: объект схемы с данными для обновления;
+        session: асинхронная сессия SQLAlchemy;
+        user_manager: менеджер пользователей.
     """
+    await check_telegram_username_for_duplicates(update_data.telegram_username, session)
     try:
         admin_user = await user_manager.get(user_id)
-        await user_manager.parse_id
         admin_user = await user_manager.update(update_data, admin_user)
     except UserNotExists:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
@@ -143,13 +146,15 @@ async def get_all_staff(
 )
 async def create_staff(
     create_data: CompanyAdminCreateSchema,
+    session: AsyncSession = Depends(get_async_session),
     user_manager: BaseUserManager = Depends(get_user_manager),
 ) -> CompanyAdminCreateSchema:
     """
     Создает нового пользователя-админа компании.
     Параметры:
         create_data: Валидированные данные схемы CompanyAdminCreateSchema,
-        для создания админа компании.
+        для создания админа компании;
+        session: асинхронная сессия SQLAlchemy;
         user_manager - менеджер пользователей.
     Возвращаемое значение:
             Созданный админ компании или одну из двух ошибок:
@@ -158,6 +163,9 @@ async def create_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
+    print(create_data.avatar_link)
+    print(type(create_data.avatar_link))
+    await check_telegram_username_for_duplicates(create_data.telegram_username, session)
     try:
         created_admin_user = await user_manager.create(create_data)
     except UserAlreadyExists:

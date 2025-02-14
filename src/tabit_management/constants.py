@@ -31,6 +31,7 @@ ERROR_UPDATE_METHOD = 'Пользователь с указанными email и
 RESET_PASSWORD_SUCCESS = 'Пароль был успешено установлен.'
 ERROR_FIELD_START_OR_END_SPACE: str = 'Поле не может начинаться или заканчиваться пробелом.'
 ERROR_INTERNAL_SERVER = 'Внутреннияя ошибка сервера.'
+ERROR_INVALID_TELEGRAM_USERNAME = 'Пользователь с указанным Telegram username уже существует.'
 
 # Пагинация
 DEFAULT_PAGE = 1
@@ -56,3 +57,12 @@ SUMMARY_CREATE_LICENSE = 'Создать новую лицензию'
 SUMMARY_GET_LICENSE = 'Получить данные лицензии'
 SUMMARY_UPDATE_LICENSE = 'Обновить данные лицензии'
 SUMMARY_DELETE_LICENSE = 'Удалить лицензию'
+
+# Константы для валидаторов
+VALID_PHONE_NUMBER_PATTERN = r'^7\d{10}'
+VALID_INVALID_PASSWORD = 'Указан некорректный формат пароля.'
+VALID_INVALID_PHONE_NUMBER = 'Некорректный формат номера телефона.'
+VALID_INVALID_TELEGRAM_USERNAME = (
+    'Telegram username должен состоять только из латинских букв и цифр.'
+)
+VALID_WRONG_DATE = 'Указана некорректная дата.'
