@@ -60,7 +60,7 @@ class BaseUser(BaseTabitModel, SQLAlchemyBaseUserTableUUID):  # type: ignore[mis
     name: Mapped[name_field]
     surname: Mapped[name_field]
     patronymic: Mapped[patronymic_field]
-    phone_number: Mapped[Optional[str]]
+    phone_number: Mapped[Optional[str]]  # TODO: Скорее всего поле должно быть уникальным.
 
     def __repr__(self):
         return (
