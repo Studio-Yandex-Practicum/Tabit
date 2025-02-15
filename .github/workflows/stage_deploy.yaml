@@ -67,7 +67,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            sudo rm -rf /home/${{ secrets.USERNAME }}/infra
+            find /home/${{ secrets.USERNAME }}/infra -mindepth 1 -maxdepth 1 ! -name ".ssh" -exec rm -rf {} +
             mkdir -p /home/${{ secrets.USERNAME }}/infra
 
       - name: Copy infra via SSH
