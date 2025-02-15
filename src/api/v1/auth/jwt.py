@@ -3,7 +3,7 @@ from typing import Any, Optional
 from uuid import UUID
 
 import jwt
-from fastapi import HTTPException, Response, status
+from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi_users import FastAPIUsers, exceptions, models
 from fastapi_users.authentication import (
@@ -43,7 +43,7 @@ class TransportTabit(BearerTransport):
 
     async def get_login_response_with_refresh(
         self, access_token: str, refresh_token: str
-    ) -> Response:
+    ) -> JSONResponse:
         """
         Подготовит ответ с токенами.
         :param access_token: строка содержащая access_token;
@@ -72,7 +72,7 @@ class AuthenticationBackendTabit(AuthenticationBackend):
 
     async def login_with_refresh(
         self, strategy: StrategyT[models.UP, models.ID], user: models.UP
-    ) -> Response:
+    ) -> JSONResponse:
         """
         Передаст токены из стратегии в транспорт.
         :param strategy: стратегия JWT-токенов, по которой будут создаваться токены;
