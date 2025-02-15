@@ -105,9 +105,9 @@ jobs:
             cd /home/${{ secrets.USERNAME }}/infra/stage/
             sudo systemctl daemon-reload
             sudo systemctl restart tabit.service
-            docker compose -f infra/stage/docker-compose.stage.yaml down
-            docker compose -f infra/stage/docker-compose.stage.yaml pull
-            docker compose -f infra/stage/docker-compose.stage.yaml up -d --force-recreate
+            docker-compose -f docker-compose.stage.yaml down
+            docker-compose -f docker-compose.stage.yaml pull
+            docker-compose -f docker-compose.stage.yaml up -d --force-recreate
 
       - name: Delete unnecessary files (after deploy)
         run: |
