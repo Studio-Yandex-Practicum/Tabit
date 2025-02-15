@@ -78,7 +78,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "infra"
           target: "/home/${{ secrets.USERNAME }}"
-          rm: true
+          rm: false
 
       - name: Configure environment variables on VPS
         uses: appleboy/ssh-action@master
