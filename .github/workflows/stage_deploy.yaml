@@ -111,5 +111,5 @@ jobs:
 
       - name: Delete unnecessary files (after deploy)
         run: |
-          rm -r infra/stage
-          rm -r infra/dev
+          rm -rf infra/stage
+          rm -rf infra/dev
