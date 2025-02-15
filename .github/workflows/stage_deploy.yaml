@@ -13,6 +13,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set lowercase IMAGE_NAME
+        run: echo "IMAGE_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Build and push Docker image for Stage
         if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/feature/cicd-setup'
         uses: docker/build-push-action@v5
@@ -21,8 +24,8 @@ jobs:
           file: infra/stage/stage.Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_lower }}:latest
-            ghcr.io/${{ github.repository_lower }}:${{ github.sha }}
+            ghcr.io/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Stopping old containers
         uses: appleboy/ssh-action@master
