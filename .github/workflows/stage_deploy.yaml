@@ -95,6 +95,10 @@ jobs:
             fi
             echo "${{ secrets.ENV_FILE }}" > .env
 
+      - name: Recreate .dockerignore
+        run: |
+          echo ".venv" > infra/stage/.dockerignore
+
       - name: Restart services
         uses: appleboy/ssh-action@master
         with:
