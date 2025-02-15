@@ -76,7 +76,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "infra/"
+          source: "infra/*"
           target: "/home/${{ secrets.USERNAME }}/infra"
           rm: true
 
