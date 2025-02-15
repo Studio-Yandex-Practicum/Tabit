@@ -87,7 +87,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/${{ secrets.USERNAME }}/infra
+            cd /home/${{ secrets.USERNAME }}/infra/stage/
             touch .env
             if [[ -z "${{ secrets.ENV_FILE }}" ]]; then
               echo "Error: ENV_FILE is not set!"
