@@ -9,8 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # environment:
-    #   name: dev_deploy
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,8 +21,8 @@ jobs:
           file: infra/stage/stage.Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository_lower }}:latest
+            ghcr.io/${{ github.repository_lower }}:${{ github.sha }}
 
       - name: Stopping old containers
         uses: appleboy/ssh-action@master
