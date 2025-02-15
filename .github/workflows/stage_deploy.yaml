@@ -26,9 +26,6 @@ jobs:
 
       - name: Set lowercase IMAGE_NAME
         run: echo "IMAGE_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-      #логирование, удалить эту строку после дебага
-      # - name: Debug IMAGE_NAME
-      #   run: echo "IMAGE_NAME=${{ env.IMAGE_NAME }}"
 
       - name: Build and push Docker image for Stage
         if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/feature/cicd-setup'
