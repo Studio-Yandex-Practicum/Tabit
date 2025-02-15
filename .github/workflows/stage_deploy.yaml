@@ -60,6 +60,16 @@ jobs:
               echo "Service tabit.service does not exist, skipping stop"
             fi
 
+      - name: Clean infra folder before copying
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo rm -rf /home/${{ secrets.USERNAME }}/infra
+            mkdir -p /home/${{ secrets.USERNAME }}/infra
+
       - name: Copy infra via SSH
         uses: appleboy/scp-action@master
         with:
@@ -67,9 +77,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "infra/"
-          target: "${{ env.DEPLOY_PATH }}/infra"
+          target: "/home/${{ secrets.USERNAME }}/infra"
           rm: true
-          strip_components: 1
 
       - name: Configure environment variables on VPS
         uses: appleboy/ssh-action@master
@@ -78,7 +87,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ${{ env.DEPLOY_PATH }}
+            cd /home/${{ secrets.USERNAME }}/infra
             touch .env
             if [[ -z "${{ secrets.ENV_FILE }}" ]]; then
               echo "Error: ENV_FILE is not set!"
@@ -93,7 +102,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ${{ env.DEPLOY_PATH }}/infra/stage/
+            cd /home/${{ secrets.USERNAME }}/infra/stage/
             sudo systemctl daemon-reload
             sudo systemctl restart tabit.service
             docker-compose -f infra/stage/docker-compose.stage.yaml down
