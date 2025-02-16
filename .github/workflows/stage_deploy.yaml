@@ -64,8 +64,14 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            find /home/${{ secrets.USERNAME }}/infra -mindepth 1 -maxdepth 1 ! -name ".ssh" -exec rm -rf {} +
-            mkdir -p /home/${{ secrets.USERNAME }}/infra
+            find /home/${{ secrets.USERNAME }}/tabit -mindepth 1 -maxdepth 1 ! -name ".ssh" -exec rm -rf {} +
+            mkdir -p /home/${{ secrets.USERNAME }}/tabit
+
+      - name: Check infra folder before copying
+        run: |
+          ls -la infra/
+          ls -la pyproject.toml
+          ls -la poetry.lock
 
       - name: Copy infra via SSH
         uses: appleboy/scp-action@master
@@ -74,10 +80,10 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
-            infra/*
+            infra
             pyproject.toml
             poetry.lock
-          target: "/home/${{ secrets.USERNAME }}"
+          target: "/home/${{ secrets.USERNAME }}/tabit"
           rm: false
 
       - name: Configure environment variables on VPS
@@ -87,7 +93,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/${{ secrets.USERNAME }}/infra/stage/
+            cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
             touch .env
             if [[ -z "${{ secrets.ENV_FILE }}" ]]; then
               echo "Error: ENV_FILE is not set!"
@@ -102,7 +108,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/${{ secrets.USERNAME }}/infra/stage/
+            cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/infra/stage/
             sudo systemctl daemon-reload
             sudo systemctl restart tabit.service
             docker compose -f docker-compose.stage.yaml down
@@ -111,5 +117,5 @@ jobs:
 
       - name: Delete unnecessary files (after deploy)
         run: |
-          rm -rf infra/stage
-          rm -rf infra/dev
+          rm -rf tabit/infra/stage
+          rm -rf tabit/infra/dev
