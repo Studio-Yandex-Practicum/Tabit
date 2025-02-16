@@ -100,6 +100,21 @@ jobs:
           target: "/home/${{ secrets.USERNAME }}/tabit/"
           rm: false
 
+      - name: Configure environment variables on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
+            touch .env
+            if [[ -z "${{ secrets.ENV_FILE }}" ]]; then
+              echo "Error: ENV_FILE is not set!"
+              exit 1
+            fi
+            echo "${{ secrets.ENV_FILE }}" > .env
+
       - name: Pull latest Docker image from GHCR
         uses: appleboy/ssh-action@master
         with:
