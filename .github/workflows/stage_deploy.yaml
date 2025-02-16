@@ -80,12 +80,10 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: |
-            infra/
-            pyproject.toml
-            poetry.lock
-          target: "/home/${{ secrets.USERNAME }}/tabit"
-          rm: false
+          script: |
+            rsync -avz --progress infra/ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/infra/
+            rsync -avz --progress pyproject.toml ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/
+            rsync -avz --progress poetry.lock ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/
 
       - name: Configure environment variables on VPS
         uses: appleboy/ssh-action@master
