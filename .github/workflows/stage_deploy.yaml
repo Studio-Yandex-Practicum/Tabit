@@ -80,7 +80,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "infra/* pyproject.toml poetry.lock"
+          source: "infra/*"
           target: "/home/${{ secrets.USERNAME }}/tabit"
           rm: false
 
