@@ -72,6 +72,7 @@ jobs:
           ls -la infra/
           ls -la pyproject.toml
           ls -la poetry.lock
+          ls
 
       - name: Copy infra via SSH
         uses: appleboy/scp-action@master
@@ -80,7 +81,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
-            infra
+            infra/
             pyproject.toml
             poetry.lock
           target: "/home/${{ secrets.USERNAME }}/tabit"
