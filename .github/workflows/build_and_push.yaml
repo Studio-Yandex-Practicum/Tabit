@@ -1,5 +1,10 @@
 name: Build and push Docker image
 
+permissions:
+  contents: read
+  packages: write
+  actions: read
+
 on:
   push:
     branches:
