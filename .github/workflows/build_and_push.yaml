@@ -1,4 +1,5 @@
-name: Build and push Docker image
+# name: Build and push Docker image
+name: Test
 
 on:
   push:
