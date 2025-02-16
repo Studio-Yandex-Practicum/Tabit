@@ -6,7 +6,7 @@ on:
       - dev
       - feature/cicd-setup
   workflow_run:
-    workflows: ["Build and Push"]
+    workflows: ["Build and push Docker image"]
     types:
       - completed
 
