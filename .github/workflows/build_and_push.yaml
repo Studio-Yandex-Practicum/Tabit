@@ -52,4 +52,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: docker-image
-          path: image.tar
+          path: /home/runner/work/${{ github.repository }}/${{ github.repository }}/
