@@ -17,26 +17,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Download Docker image tar from GitHub Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image
+
+      - name: Copy Docker image tar to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "image.tar"
+          target: "/home/${{ secrets.USERNAME }}/"
+
+      - name: Load Docker image on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker load -i /home/${{ secrets.USERNAME }}/image.tar
+            docker tag ghcr.io/${{ env.IMAGE_NAME }}:latest
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
-
-      - name: Set lowercase IMAGE_NAME
-        run: echo "IMAGE_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
-      - name: Build and push Docker image for Stage
-        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/feature/cicd-setup'
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: infra/stage/stage.Dockerfile
-          push: true
-          tags: |
-            ghcr.io/${{ env.IMAGE_NAME }}:latest
-            ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Stopping old containers
         uses: appleboy/ssh-action@master
@@ -67,13 +77,6 @@ jobs:
             find /home/${{ secrets.USERNAME }}/tabit -mindepth 1 -maxdepth 1 ! -name ".ssh" -exec rm -rf {} +
             mkdir -p /home/${{ secrets.USERNAME }}/tabit
 
-      - name: Check files before copying
-        run: |
-          echo "Checking infra directory:"
-          ls -la infra/
-          echo "Checking pyproject.toml and poetry.lock:"
-          ls -la pyproject.toml poetry.lock || echo "Files not found!"
-
       - name: Copy infra via SSH
         uses: appleboy/scp-action@master
         with:
@@ -84,32 +87,21 @@ jobs:
           target: "/home/${{ secrets.USERNAME }}/tabit/"
           rm: false
 
-      - name: Configure environment variables on VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
-            touch .env
-            if [[ -z "${{ secrets.ENV_FILE }}" ]]; then
-              echo "Error: ENV_FILE is not set!"
-              exit 1
-            fi
-            echo "${{ secrets.ENV_FILE }}" > .env
-
       - name: Pull latest Docker image from GHCR
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 60m
           script: |
-            echo "Logging into GHCR..."
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            echo "Pulling latest image..."
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
+            if docker inspect ghcr.io/${{ env.IMAGE_NAME }}:latest >/dev/null 2>&1; then
+              echo "Image exists locally, skipping pull."
+            else
+              echo "Pulling latest image from GHCR..."
+              docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
+            fi
 
       - name: Restart services
         uses: appleboy/ssh-action@master

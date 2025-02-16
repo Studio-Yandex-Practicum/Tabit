@@ -32,11 +32,21 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image for Stage
-        if: github.ref == 'refs/heads/dev'
         uses: docker/build-push-action@v5
         with:
           context: .
           file: infra/stage/stage.Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Save Docker image as tar
+        run: docker save -o image.tar ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Upload image tar to GitHub Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image
+          path: image.tar
