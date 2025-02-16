@@ -80,7 +80,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "pyproject.toml"
+          source: "poetry.lock"
           target: "/home/${{ secrets.USERNAME }}/tabit"
           rm: false
 
@@ -106,7 +106,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/infra/stage/
+            cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
             sudo systemctl daemon-reload
             sudo systemctl restart tabit.service
             docker compose -f docker-compose.stage.yaml down
