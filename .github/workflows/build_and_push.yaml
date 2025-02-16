@@ -1,5 +1,4 @@
 name: Build and push Docker image
-# name: Build
 
 on:
   workflow_call:
@@ -10,10 +9,6 @@ on:
         required: true
       USERNAME:
         required: true
-  # push:
-  #   branches:
-  #     - dev
-  #     - feature/cicd-setup
 
 env:
   REGISTRY: ghcr.io
