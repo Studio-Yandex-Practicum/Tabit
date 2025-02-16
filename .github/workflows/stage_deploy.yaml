@@ -1,13 +1,17 @@
 name: Deploy to Stage
 
 on:
+  push:
+    branches:
+      - dev
+      - feature/cicd-setup
   workflow_run:
     workflows: ["Build and push Docker image"]
     types:
       - completed
-    branches:
-      - dev
-      - feature/cicd-setup
+    # branches:
+    #   - dev
+    #   - feature/cicd-setup
 
 jobs:
   deploy:
