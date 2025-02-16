@@ -18,15 +18,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.GHCR_PAT }}" ]; then
+            echo "Error: Secret GHCR_PAT is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "Error: Secret SSH_PRIVATE_KEY is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.USERNAME }}" ]; then
+            echo "Error: Secret USERNAME is not set!"
+            exit 1
+          fi
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Convert IMAGE_NAME to lowercase
-      #   run: echo "IMAGE_NAME=${REGISTRY}/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Extract metadata for Docker
         id: meta
@@ -34,7 +46,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Build and push Docker image for Stage
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
