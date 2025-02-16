@@ -20,5 +20,5 @@ RUN poetry install --no-root --all-extras --with dev --no-interaction
 COPY . /app/
 
 # # Запускаем сервер
-# CMD ["poetry", "run", "uvicorn", "src.main:app_v1", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-CMD ["sh", "-c", "poetry env use python && poetry install --no-root --all-extras --with dev && poetry run python -m src.main"]
+CMD ["poetry", "run", "uvicorn", "src.main:app_v1", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# CMD ["sh", "-c", "poetry env use python && poetry install --no-root --all-extras --with dev && poetry run python -m src.main"]
