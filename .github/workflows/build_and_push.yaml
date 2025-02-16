@@ -3,10 +3,17 @@ name: Build and push Docker image
 
 on:
   workflow_call:
-  push:
-    branches:
-      - dev
-      - feature/cicd-setup
+    secrets:
+      GHCR_PAT:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+      USERNAME:
+        required: true
+  # push:
+  #   branches:
+  #     - dev
+  #     - feature/cicd-setup
 
 env:
   REGISTRY: ghcr.io
