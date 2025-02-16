@@ -21,7 +21,7 @@ services:
     depends_on:
       - db
     env_file:
-      - /home/dev_deploy/infra/stage/.env
+      - /home/dev_deploy/tabit/infra/stage/.env
     environment:
       - POETRY_VIRTUALENVS_IN_PROJECT=true
       - PATH="/app/.venv/bin:$PATH"
