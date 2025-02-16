@@ -13,7 +13,7 @@ services:
   app:
     container_name: tabit
     build:
-      context: ../..
+      context: .
       dockerfile: infra/stage/stage.Dockerfile
     restart: always
     ports:
