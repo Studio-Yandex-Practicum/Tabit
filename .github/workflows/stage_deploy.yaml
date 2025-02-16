@@ -99,6 +99,18 @@ jobs:
             fi
             echo "${{ secrets.ENV_FILE }}" > .env
 
+      - name: Pull latest Docker image from GHCR
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "Logging into GHCR..."
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "Pulling latest image..."
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
+
       - name: Restart services
         uses: appleboy/ssh-action@master
         with:

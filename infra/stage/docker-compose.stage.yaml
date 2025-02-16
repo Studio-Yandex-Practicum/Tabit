@@ -11,10 +11,11 @@ services:
       - "5432:5432"
 
   app:
+    image: ghcr.io/${{ env.IMAGE_NAME }}:latest
     container_name: tabit
-    build:
-      context: ../..
-      dockerfile: infra/stage/stage.Dockerfile
+    # build:
+    #   context: ../..
+    #   dockerfile: infra/stage/stage.Dockerfile
     restart: always
     ports:
       - "8000:8000"
