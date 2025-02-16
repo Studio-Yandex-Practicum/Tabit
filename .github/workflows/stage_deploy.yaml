@@ -67,12 +67,12 @@ jobs:
             find /home/${{ secrets.USERNAME }}/tabit -mindepth 1 -maxdepth 1 ! -name ".ssh" -exec rm -rf {} +
             mkdir -p /home/${{ secrets.USERNAME }}/tabit
 
-      - name: Check infra folder before copying
+      - name: Check files before copying
         run: |
+          echo "Checking infra directory:"
           ls -la infra/
-          ls -la pyproject.toml
-          ls -la poetry.lock
-          ls
+          echo "Checking pyproject.toml and poetry.lock:"
+          ls -la pyproject.toml poetry.lock || echo "Files not found!"
 
       - name: Copy infra via SSH
         uses: appleboy/scp-action@master
@@ -80,10 +80,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: |
-
-            pyproject.toml
-            poetry.lock
+          source: "infra/* pyproject.toml poetry.lock"
           target: "/home/${{ secrets.USERNAME }}/tabit"
           rm: false
 
