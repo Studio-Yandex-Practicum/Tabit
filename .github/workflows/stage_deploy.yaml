@@ -11,12 +11,12 @@ on:
   #     - dev
   #     - feature/cicd-setup
   workflow_run:
-    workflows: ["Build and push Docker image"]
+    workflows: ["Build"]
     # types:
     #   - completed
-    # branches:
-    #   - dev
-    #   - feature/cicd-setup
+    branches:
+      - dev
+      - feature/cicd-setup
 
 env:
   IMAGE_NAME: studio-yandex-practicum/tabit
