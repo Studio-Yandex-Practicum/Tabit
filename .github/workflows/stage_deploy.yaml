@@ -73,8 +73,8 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "infra/"
-          target: "/home/${{ secrets.USERNAME }}/infra/stage"
+          source: "infra/*"
+          target: "/home/${{ secrets.USERNAME }}"
           rm: false
 
       - name: Configure environment variables on VPS
