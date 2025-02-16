@@ -6,7 +6,7 @@ on:
   #     - dev
   #     - feature/cicd-setup
   workflow_run:
-    workflows: [build_and_push]
+    workflows: [Build and push Docker image]
     types:
       - completed
     branches:
@@ -19,6 +19,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
