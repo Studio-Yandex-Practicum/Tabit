@@ -74,6 +74,9 @@ jobs:
           echo "Checking pyproject.toml and poetry.lock:"
           ls -la pyproject.toml poetry.lock || echo "Files not found!"
 
+      - name: Add server to known_hosts
+        run: ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
       - name: Copy infra via SSH
         uses: appleboy/ssh-action@master
         with:
