@@ -74,9 +74,6 @@ jobs:
           echo "Checking pyproject.toml and poetry.lock:"
           ls -la pyproject.toml poetry.lock || echo "Files not found!"
 
-      - name: Add server to known_hosts
-        run: ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
-
       - name: Copy infra via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -84,9 +81,9 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            rsync -avz --progress infra/ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/infra/
-            rsync -avz --progress pyproject.toml ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/
-            rsync -avz --progress poetry.lock ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/
+            rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no" infra/ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/infra/
+            rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no" pyproject.toml ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/
+            rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no" poetry.lock ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/
 
       - name: Configure environment variables on VPS
         uses: appleboy/ssh-action@master
