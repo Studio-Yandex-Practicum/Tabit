@@ -75,15 +75,14 @@ jobs:
           ls -la pyproject.toml poetry.lock || echo "Files not found!"
 
       - name: Copy infra via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no" infra/ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/infra/
-            rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no" pyproject.toml ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/
-            rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no" poetry.lock ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/${{ secrets.USERNAME }}/tabit/
+          source: "infra/,pyproject.toml,poetry.lock"
+          target: "/home/${{ secrets.USERNAME }}/tabit/"
+          rm: false
 
       - name: Configure environment variables on VPS
         uses: appleboy/ssh-action@master
