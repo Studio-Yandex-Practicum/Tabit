@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }} | toLower
+  IMAGE_NAME: studio-yandex-practicum/tabit
 
 jobs:
   build_and_push:
@@ -25,8 +25,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Convert IMAGE_NAME to lowercase
-        run: echo "IMAGE_NAME=${REGISTRY}/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+      # - name: Convert IMAGE_NAME to lowercase
+      #   run: echo "IMAGE_NAME=${REGISTRY}/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Extract metadata for Docker
         id: meta

@@ -12,6 +12,9 @@ on:
       - dev
       - feature/cicd-setup
 
+env:
+  IMAGE_NAME: studio-yandex-practicum/tabit
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
