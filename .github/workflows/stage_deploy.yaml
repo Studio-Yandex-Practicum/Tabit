@@ -23,6 +23,7 @@ jobs:
     uses: ./.github/workflows/build_and_push.yaml
 
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
