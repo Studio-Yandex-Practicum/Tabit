@@ -4,7 +4,7 @@ services:
     image: postgres:17.2-alpine
     restart: always
     env_file:
-      - /home/dev_deploy/infra/stage/.env
+      - /home/dev_deploy/tabit/infra/stage/.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
