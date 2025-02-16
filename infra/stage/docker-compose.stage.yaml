@@ -11,7 +11,7 @@ services:
       - "5432:5432"
 
   app:
-    image: ghcr.io/${{ env.IMAGE_NAME }}:latest
+    image: ${IMAGE_NAME}:latest
     container_name: tabit
     # build:
     #   context: ../..
