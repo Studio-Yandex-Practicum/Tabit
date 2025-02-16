@@ -152,7 +152,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker exec -it tabit poetry run alembic upgrade head
+            docker exec tabit poetry run alembic upgrade head
 
       - name: Delete unnecessary files (after deploy)
         run: |
