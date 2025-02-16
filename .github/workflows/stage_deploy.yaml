@@ -17,6 +17,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: List available artifacts
+        run: ls -la /home/runner/work/_temp/
+
       - name: Download Docker image tar from GitHub Artifacts
         uses: actions/download-artifact@v4
         with:
