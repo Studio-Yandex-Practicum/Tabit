@@ -11,7 +11,7 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=true \
     PATH="/app/.venv/bin:$PATH"
 
 # Копируем файлы зависимостей перед установкой
-COPY pyproject.toml poetry.lock /app/
+COPY ../pyproject.toml ../poetry.lock /app/
 
 # Устанавливаем зависимости (включая dev, если нужен)
 RUN poetry install --no-root --all-extras --with dev --no-interaction
