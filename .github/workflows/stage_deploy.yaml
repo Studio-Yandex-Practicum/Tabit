@@ -145,6 +145,15 @@ jobs:
             docker compose -f docker-compose.stage.yaml pull
             docker compose -f docker-compose.stage.yaml up -d --force-recreate
 
+      - name: Run database migrations inside container
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker exec -it tabit poetry run alembic upgrade head
+
       - name: Delete unnecessary files (after deploy)
         run: |
           rm -rf tabit/infra/stage
