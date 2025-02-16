@@ -6,7 +6,7 @@ on:
   #     - dev
   #     - feature/cicd-setup
   workflow_run:
-    workflows: [Test]
+    workflows: [build_and_push]
     types:
       - completed
     branches:
