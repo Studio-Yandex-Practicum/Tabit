@@ -10,7 +10,6 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=true \
     PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH"
 
-RUN ls -la /app
 # Копируем файлы зависимостей перед установкой
 COPY pyproject.toml poetry.lock /app/
 

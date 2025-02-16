@@ -73,7 +73,10 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "infra/*"
+          source: |
+            infra/*
+            pyproject.toml
+            poetry.lock
           target: "/home/${{ secrets.USERNAME }}"
           rm: false
 
