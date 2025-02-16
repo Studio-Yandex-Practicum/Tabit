@@ -21,10 +21,10 @@ env:
 jobs:
   build:
     uses: ./.github/workflows/build_and_push.yaml
-    # secrets:
-    #   GHCR_PAT: ${{ secrets.GHCR_PAT }}
-    #   SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-    #   USERNAME: ${{ secrets.USERNAME }}
+    secrets:
+      GHCR_PAT: ${{ secrets.GHCR_PAT }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      USERNAME: ${{ secrets.USERNAME }}
 
   deploy:
     needs: build
