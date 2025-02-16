@@ -5,7 +5,6 @@ on:
     workflows: ["Build and push Docker image"]
     types:
       - completed
-  push:
     branches:
       - dev
       - feature/cicd-setup
@@ -24,7 +23,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: docker-image
-          path: /home/runner/work/${{ github.repository }}/${{ github.repository }}/
+          path: .
 
       - name: Copy Docker image tar to VPS
         uses: appleboy/scp-action@master
@@ -32,7 +31,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "/home/runner/work/${{ github.repository }}/${{ github.repository }}/docker-image/image.tar"
+          source: "image.tar"
           target: "/home/${{ secrets.USERNAME }}/"
 
       - name: Load Docker image on VPS
