@@ -14,7 +14,7 @@ services:
     container_name: tabit
     build:
       context: .
-      dockerfile: infra/stage/stage.Dockerfile
+      dockerfile: stage.Dockerfile
     restart: always
     ports:
       - "8000:8000"
