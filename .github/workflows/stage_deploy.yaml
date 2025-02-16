@@ -1,21 +1,19 @@
 name: Deploy to Stage
 
 on:
-  push:
+  # push:
+  #   branches:
+  #     - dev
+  #     - feature/cicd-setup
+  workflow_run:
+    workflows: ["Build and push Docker image"]
+    types: [completed]
     branches:
       - dev
       - feature/cicd-setup
-  workflow_run:
-    workflows: ["Build and push Docker image"]
-    types:
-      - completed
-    # branches:
-    #   - dev
-    #   - feature/cicd-setup
 
 jobs:
   deploy:
-    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
