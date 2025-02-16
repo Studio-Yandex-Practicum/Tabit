@@ -22,8 +22,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: List available artifacts
-        run:  ls -la /home/runner/work/_temp/
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.HOST }}" ]; then
+            echo "Error: Secret HOST is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.USERNAME }}" ]; then
+            echo "Error: Secret USERNAME is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "Error: Secret SSH_PRIVATE_KEY is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.GHCR_PAT }}" ]; then
+            echo "Error: Secret GHCR_PAT is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.ENV_FILE }}" ]; then
+            echo "Error: Secret ENV_FILE is not set!"
+            exit 1
+          fi
 
       - name: Download Docker image tar from GitHub Artifacts
         uses: dawidd6/action-download-artifact@v2
@@ -31,9 +51,6 @@ jobs:
           workflow: build_and_push.yaml
           name: docker-image
           path: .
-
-      - name: Check if image.tar exists
-        run: ls -la .
 
       - name: Copy Docker image tar to VPS
         uses: appleboy/scp-action@master
@@ -61,7 +78,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
-      - name: Stopping old containers
+      - name: Stop old containers
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -69,16 +86,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             if systemctl list-units --full -all | grep -q "tabit.service"; then
-              STATUS="$(systemctl is-active tabit.service)"
-              if [ "${STATUS}" = "active" ]; then
-                sudo systemctl stop tabit.service
-                echo "Stopping old containers"
-              else
-                echo "No active containers"
-              fi
-            else
-              echo "Service tabit.service does not exist, skipping stop"
+              sudo systemctl stop tabit.service || true
             fi
+            docker compose -f /home/${{ secrets.USERNAME }}/tabit/infra/stage/docker-compose.stage.yaml down || true
 
       - name: Clean infra folder before copying
         uses: appleboy/ssh-action@master
@@ -96,7 +106,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "infra/,pyproject.toml,poetry.lock"
+          source: "infra/"
           target: "/home/${{ secrets.USERNAME }}/tabit/"
           rm: false
 
@@ -108,11 +118,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
-            touch .env
-            if [[ -z "${{ secrets.ENV_FILE }}" ]]; then
-              echo "Error: ENV_FILE is not set!"
-              exit 1
-            fi
             echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: Pull latest Docker image from GHCR
@@ -121,15 +126,9 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          command_timeout: 60m
           script: |
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            if docker inspect ghcr.io/${{ env.IMAGE_NAME }}:latest >/dev/null 2>&1; then
-              echo "Image exists locally, skipping pull."
-            else
-              echo "Pulling latest image from GHCR..."
-              docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
-            fi
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
 
       - name: Restart services
         uses: appleboy/ssh-action@master
@@ -141,8 +140,6 @@ jobs:
             cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
             sudo systemctl daemon-reload
             sudo systemctl restart tabit.service
-            docker compose -f docker-compose.stage.yaml down
-            docker compose -f docker-compose.stage.yaml pull
             docker compose -f docker-compose.stage.yaml up -d --force-recreate
 
       - name: Run database migrations inside container
@@ -154,7 +151,11 @@ jobs:
           script: |
             docker exec tabit poetry run alembic upgrade head
 
-      - name: Delete unnecessary files (after deploy)
-        run: |
-          rm -rf tabit/infra/stage
-          rm -rf tabit/infra/dev
+      - name: Cleanup old deployment files
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            rm -rf /home/${{ secrets.USERNAME }}/tabit/infra/stage

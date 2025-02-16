@@ -13,9 +13,6 @@ services:
   app:
     image: ${IMAGE_NAME}:latest
     container_name: tabit
-    # build:
-    #   context: ../..
-    #   dockerfile: infra/stage/stage.Dockerfile
     restart: always
     ports:
       - "8000:8000"
