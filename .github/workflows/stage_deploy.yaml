@@ -144,11 +144,12 @@ jobs:
           script: |
             docker exec tabit poetry run alembic upgrade head
 
-      - name: Remove old Docker images
+      - name: Remove old Docker images (keep last 5)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker rmi ghcr.io/${{ env.IMAGE_NAME }}:latest || true
+            # Получаем список всех образов для проекта, сортируем по дате и удаляем все, кроме последних 5
+            docker images --format "{{.Repository}}:{{.Tag}} {{.CreatedAt}}" | grep "ghcr.io/${{ env.IMAGE_NAME }}" | sort -r | tail -n +6 | awk '{print $1}' | xargs -r docker rmi || true
