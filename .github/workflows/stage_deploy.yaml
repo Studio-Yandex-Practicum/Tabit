@@ -105,7 +105,17 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
+            LOCAL_IMAGE=$(docker images -q ghcr.io/${{ env.IMAGE_NAME }}:latest)
+
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest || {
+              if [ -n "$LOCAL_IMAGE" ]; then
+                echo "Pull failed, using cached image."
+                docker tag $LOCAL_IMAGE ghcr.io/${{ env.IMAGE_NAME }}:latest
+              else
+                echo "No cached image found, pull required."
+                exit 1
+              fi
+            }
 
       - name: Restart services
         uses: appleboy/ssh-action@master
@@ -127,12 +137,3 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker exec tabit poetry run alembic upgrade head
-
-      - name: Cleanup old deployment files
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            rm -rf /home/${{ secrets.USERNAME }}/tabit/infra/stage
