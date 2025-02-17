@@ -105,17 +105,32 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            LOCAL_IMAGE=$(docker images -q ghcr.io/${{ env.IMAGE_NAME }}:latest)
 
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest || {
-              if [ -n "$LOCAL_IMAGE" ]; then
-                echo "Pull failed, using cached image."
-                docker tag $LOCAL_IMAGE ghcr.io/${{ env.IMAGE_NAME }}:latest
-              else
-                echo "No cached image found, pull required."
-                exit 1
-              fi
-            }
+            # Создаем временный каталог
+            mkdir -p /home/${{ secrets.USERNAME }}/tabit/tmp
+
+            # Скачиваем образ и сохраняем его в .tar
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
+            docker save -o /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar ghcr.io/${{ env.IMAGE_NAME }}:latest\
+
+      - name: Copy Docker image tar to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "/home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar"
+          target: "/home/${{ secrets.USERNAME }}/tabit/tmp/"
+
+      - name: Load Docker image on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker load -i /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar
+            docker tag ghcr.io/${{ env.IMAGE_NAME }}:latest ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Restart services
         uses: appleboy/ssh-action@master
