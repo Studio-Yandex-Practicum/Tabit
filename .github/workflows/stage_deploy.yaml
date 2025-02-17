@@ -143,3 +143,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker exec tabit poetry run alembic upgrade head
+
+      - name: Remove old Docker images
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker rmi ghcr.io/${{ env.IMAGE_NAME }}:latest || true
