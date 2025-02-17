@@ -113,14 +113,14 @@ jobs:
             docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
             docker save -o /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar ghcr.io/${{ env.IMAGE_NAME }}:latest
 
-      - name: Copy Docker image tar to VPS
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "/home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar"
-          target: "/home/${{ secrets.USERNAME }}/tabit/tmp/"
+      # - name: Copy Docker image tar to VPS
+      #   uses: appleboy/scp-action@master
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     username: ${{ secrets.USERNAME }}
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     source: "/home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar"
+      #     target: "/home/${{ secrets.USERNAME }}/tabit/tmp/"
 
       - name: Load Docker image on VPS
         uses: appleboy/ssh-action@master
@@ -130,7 +130,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker load -i /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar
-            docker tag ghcr.io/${{ env.IMAGE_NAME }}:latest ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            docker tag ghcr.io/${{ env.IMAGE_NAME }}:latest
 
       - name: Restart services
         uses: appleboy/ssh-action@master
