@@ -111,7 +111,7 @@ jobs:
 
             # Скачиваем образ и сохраняем его в .tar
             docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
-            docker save -o /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar ghcr.io/${{ env.IMAGE_NAME }}:latest\
+            docker save -o /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar ghcr.io/${{ env.IMAGE_NAME }}:latest
 
       - name: Copy Docker image tar to VPS
         uses: appleboy/scp-action@master
@@ -130,7 +130,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker load -i /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar
-            docker tag ghcr.io/${{ env.IMAGE_NAME }}:latest
+            docker tag ghcr.io/${{ env.IMAGE_NAME }}:latest ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Restart services
         uses: appleboy/ssh-action@master
