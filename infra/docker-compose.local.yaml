@@ -12,5 +12,16 @@ services:
     ports:
       - "5432:5432"
 
+  pgadmin:
+    container_name: pgadmin_local
+    image: dpage/pgadmin4:8.14
+    restart: always
+    env_file:
+      - ../.env
+    ports:
+      - "5600:80"
+    depends_on:
+      - db
+
 volumes:
   postgres_data:
