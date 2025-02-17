@@ -1,0 +1,28 @@
+services:
+  db:
+    container_name: postgres_local
+    image: postgres:17.2-alpine
+    restart: always
+    env_file:
+      - /home/dev_deploy/tabit/infra/stage/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    image: ${IMAGE_NAME}:latest
+    container_name: tabit
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - /home/dev_deploy/tabit/infra/stage/.env
+    environment:
+      - POETRY_VIRTUALENVS_IN_PROJECT=true
+      - PATH="/app/.venv/bin:$PATH"
+
+volumes:
+  postgres_data:
