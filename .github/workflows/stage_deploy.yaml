@@ -48,32 +48,6 @@ jobs:
             exit 1
           fi
 
-      # - name: Download Docker image tar from GitHub Artifacts
-      #   uses: dawidd6/action-download-artifact@v2
-      #   with:
-      #     workflow: build_and_push.yaml
-      #     name: docker-image
-      #     path: .
-
-      # - name: Copy Docker image tar to VPS
-      #   uses: appleboy/scp-action@master
-      #   with:
-      #     host: ${{ secrets.HOST }}
-      #     username: ${{ secrets.USERNAME }}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     source: "image.tar"
-      #     target: "/home/${{ secrets.USERNAME }}/"
-
-      # - name: Load Docker image on VPS
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.HOST }}
-      #     username: ${{ secrets.USERNAME }}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     script: |
-      #       docker load -i /home/${{ secrets.USERNAME }}/image.tar
-      #       docker tag ghcr.io/${{ env.IMAGE_NAME }}:latest ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
