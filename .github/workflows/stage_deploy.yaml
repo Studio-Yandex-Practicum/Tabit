@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev
-      - feature/cicd-setup-new
   workflow_dispatch:
 
 env:
