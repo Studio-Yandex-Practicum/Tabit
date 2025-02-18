@@ -3,6 +3,7 @@ from src.crud import CRUDBase
 from src.problems.models import Meeting, AssociationUserMeeting
 from uuid import UUID
 from src.problems.schemas.meeting import MeetingCreateSchema
+from src.problems.crud.association_utils import create_associations
 
 
 class CRUDMeeting(CRUDBase):
@@ -23,20 +24,26 @@ class CRUDMeeting(CRUDBase):
         Возвращаемое значение:
             Созданный объект встречи с обновленными данными.
         """
-        meeting_data['members'] = members
-        meeting_model = MeetingCreateSchema(**meeting_data)
-        created_meeting = await self.create(session, meeting_model)
-        for member_id in members:
-            association_data = {
-                'left_id': member_id,
-                'right_id': created_meeting.id,
-                # TODO: Починить id, чтобы не выкидывало ошибку, что id=null
-                'id': 110,
-            }
-            session.add(AssociationUserMeeting(**association_data))
-        await session.commit()
-        await session.refresh(created_meeting)
-        return created_meeting
+        try:
+            meeting_data['members'] = members
+            meeting_model = MeetingCreateSchema(**meeting_data)
+            created_meeting = await self.create(session, meeting_model)
+
+            # Создаем ассоциации участников с встречей
+            await create_associations(
+                session=session,
+                association_model=AssociationUserMeeting,
+                left_ids=members,
+                right_id=created_meeting.id,
+            )
+
+            await session.commit()
+            await session.refresh(created_meeting)
+            return created_meeting
+
+        except Exception as e:
+            await session.rollback()
+            raise e
 
     async def update_meeting(
         self, session: AsyncSession, meeting_id: int, meeting_update: dict

@@ -45,7 +45,7 @@ class Meeting(BaseTabitModel):
     id: Mapped[int_pk]
     title: Mapped[name_problem]
     description: Mapped[description]
-    problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
+    problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'))
     problem: Mapped['Problem'] = relationship(back_populates='meetings')
     owner_id: Mapped[owner]
     owner: Mapped['UserTabit'] = relationship(back_populates='meeting_owner')

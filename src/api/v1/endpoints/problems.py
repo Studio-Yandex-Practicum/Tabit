@@ -60,7 +60,12 @@ async def create_problem(
     Возвращаемое значение:
         Созданный объект ProblemResponseSchema.
     """
-    return await problem_crud.create(session, problem)
+    problem_data = problem.model_dump()
+    members = problem.members or []
+    created_problem = await problem_crud.create_with_members(
+        session=session, problem_data=problem_data, members=members
+    )
+    return created_problem
 
 
 @router.get(

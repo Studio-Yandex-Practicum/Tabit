@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 from datetime import datetime
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, Field
 
 from src.problems.models.enums import ColorProblem, TypeProblem, StatusProblem
 
@@ -70,7 +70,7 @@ class ProblemCreateSchema(ProblemBaseSchema):
         Определяет структуру данных для создания новой проблемы.
     """
 
-    pass
+    members: Optional[List[UUID]] = Field(exclude=True)
 
 
 class ProblemUpdateSchema(ProblemBaseSchema):

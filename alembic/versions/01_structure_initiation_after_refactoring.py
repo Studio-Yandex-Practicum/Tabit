@@ -1,7 +1,7 @@
 """Structure initiation after refactoring
 
 Revision ID: 01
-Revises: 
+Revises:
 Create Date: 2025-02-04 18:57:48.487899
 
 """
@@ -167,7 +167,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('id')
     )
     op.create_table('associationuserproblem',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('status', sa.Boolean(), nullable=False),
@@ -202,7 +202,7 @@ def upgrade() -> None:
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
     sa.ForeignKeyConstraint(['problem_id'], ['problem.id'], ),
-    sa.PrimaryKeyConstraint('id', 'problem_id'),
+    sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )
     op.create_table('messagefeed',
@@ -234,7 +234,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('id')
     )
     op.create_table('associationusermeeting',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),

@@ -41,8 +41,6 @@ class MeetingCreateSchema(MeetingBaseSchema):
     problem_id: int
     owner_id: UUID
     members: Optional[List[UUID]] = Field(exclude=True)
-    # TODO: Починить id, чтобы не выкидывало ошибку, что id=null
-    id: int = 110
 
     model_config = ConfigDict(extra='forbid', str_min_length=1)
 
