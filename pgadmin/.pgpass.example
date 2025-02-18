@@ -1,0 +1,4 @@
+# Пример файла .pgpass, используемый для подключения к БД с помощью PGAdmin.
+# Аналогичный файл .pgpass должен находится на хосте в директории /pgadmin.
+
+postgres_local:5432:*:warlock:zTudS8LBSquBMwvS3ky5

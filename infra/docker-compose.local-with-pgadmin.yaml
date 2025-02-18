@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: postgres_local
+    image: postgres:17.2-alpine
+    restart: always
+    env_file:
+      - ../.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    container_name: pgadmin_local
+    image: dpage/pgadmin4:8.14
+    restart: always
+    env_file:
+      - ../.env
+    ports:
+      - "5600:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ${PWD}/pgadmin/servers.json:/pgadmin4/servers.json
+      - ${PWD}/pgadmin/config_local.py:/pgadmin4/config_local.py
+      - ${PWD}/pgadmin/.pgpass:/pgadmin4/.pgpass
+    entrypoint: >
+      /bin/sh -c "
+      mkdir -p /var/lib/pgadmin/storage/admin_email.com;
+      cp -f /pgadmin4/.pgpass /var/lib/pgadmin/storage/admin_email.com/.pgpass;
+      chmod 600 /var/lib/pgadmin/storage/admin_email.com/.pgpass;
+      /entrypoint.sh;
+      "
+
+volumes:
+  postgres_data:
+  pgadmin_data:

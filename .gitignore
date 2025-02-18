@@ -183,3 +183,6 @@ cython_debug/
 
 #MacOs files
 .DS_Store
+
+# PostgreSQL auth files
+.pgpass
