@@ -1,12 +1,14 @@
 from datetime import datetime
 from typing import Optional
-from typing_extensions import Self
 
+from fastapi_users.schemas import BaseUserUpdate
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from typing_extensions import Self
 
 from src.companies.constants import TEST_ERROR_LICENSE_FIELDS
 from src.companies.schemas.mixins import GetterSlugMixin
 from src.constants import LENGTH_NAME_COMPANY, MIN_LENGTH_NAME
+from src.users.schemas import UserSchemaMixin
 
 
 class CompanyUpdateForUserSchema(BaseModel):
@@ -47,9 +49,8 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         Нельзя, что бы одно поле было не заполнено.
         """
         if not (
-            all((self.license_id, self.start_license_time)) or (
-                all((not self.license_id, not self.start_license_time))
-            )
+            all((self.license_id, self.start_license_time))
+            or (all((not self.license_id, not self.start_license_time)))
         ):
             raise ValueError(TEST_ERROR_LICENSE_FIELDS)
         return self
@@ -64,10 +65,7 @@ class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
         max_length=LENGTH_NAME_COMPANY,
         title='',
     )
-    slug: str = Field(
-        ...,
-        title=''
-    )
+    slug: str = Field(..., title='')
 
 
 class CompanyResponseSchema(BaseModel):
@@ -88,3 +86,50 @@ class CompanyResponseSchema(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CompanyDepartmentUpdateSchema(BaseModel, GetterSlugMixin):
+    """Схема для обновления данных об отделе."""
+
+    name: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_COMPANY,
+        title='',
+    )
+    slug: Optional[str] = Field(None, title='')
+
+    model_config = ConfigDict(extra='forbid')
+
+
+class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
+    """Схема для создания отдела."""
+
+    name: str = Field(
+        ...,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_COMPANY,
+        title='',
+    )
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
+    """Схема для получения данных отдела."""
+
+    id: int
+    name: str
+    slug: str
+    company_id: int
+
+
+class CompanyUserDepartmentUpdateSchema(UserSchemaMixin, BaseUserUpdate):
+    """Схема для изменения данных сотрудника компании."""
+
+
+# class CompanyUserDepartmentUpdateSchema(BaseModel):
+#    """Схема для изменения департамента сотрудника компании."""
+#
+#    current_department_id: int = Field(..., alias='current_department_id')
+#    last_department_id: int = Field(..., alias='last_department_id')

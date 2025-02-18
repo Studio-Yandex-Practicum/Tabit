@@ -1,0 +1,2 @@
+id name surname patronymic phone_number is_active birthday telegram_username role start_date_employment end_date_employment avatar_link company_id current_department_id last_department_id department_transition_date employee_position
+47b19be2-4c7b-433a-946f-82a4759592b7 string string string string True 2025-02-17 str12 Сотрудник 2025-02-17 2025-02-17 string 3 string string string string

@@ -1,9 +1,8 @@
 import os
 
 from dotenv import load_dotenv
-from pydantic import EmailStr, SecretStr
+from pydantic import ConfigDict, EmailStr, SecretStr
 from pydantic_settings import BaseSettings
-
 
 load_dotenv()
 
@@ -39,8 +38,7 @@ class Settings(BaseSettings):
             f'/{self.postgres_db}'
         )
 
-    class Config:
-        env_file = '.env'
+    model_config = ConfigDict(env_file='.env')
 
 
 settings = Settings()

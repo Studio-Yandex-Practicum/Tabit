@@ -9,20 +9,20 @@ from fastapi_users.authentication import Strategy
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
-from src.api.v1.auth.jwt import jwt_auth_backend
 from src.api.v1.auth.dependencies import (
     current_admin_tabit,
     current_superuser,
-    tabit_admin,
     get_current_admin_token,
+    tabit_admin,
 )
-from src.api.v1.validator import validator_check_is_superuser, validator_check_object_exists
-from src.database.db_depends import get_async_session
-from src.tabit_management.crud import admin_crud
-from src.tabit_management.models import TabitAdminUser
-from src.tabit_management.schemas import AdminReadSchema, AdminUpdateSchema
+from src.api.v1.auth.jwt import jwt_auth_backend
 from src.api.v1.auth.managers import get_admin_manager
 from src.api.v1.constants import Summary
+from src.api.v1.validator import validator_check_is_superuser, validator_check_object_exists
+from src.database.db_depends import get_async_session
+from src.tabit_management.crud import admin_user_crud
+from src.tabit_management.models import TabitAdminUser
+from src.tabit_management.schemas import AdminReadSchema, AdminUpdateSchema
 
 router = APIRouter()
 
@@ -33,13 +33,11 @@ router = APIRouter()
     dependencies=[Depends(current_superuser)],
     summary=Summary.TABIT_ADMIN_AUTH_LIST,
 )
-async def get_tabit_admin(
-    session: AsyncSession = Depends(get_async_session)
-):
+async def get_tabit_admin(session: AsyncSession = Depends(get_async_session)):
     """
     Возвращает список администраторов. Доступно только суперпользователю.
     """
-    return await admin_crud.get_multi(session)
+    return await admin_user_crud.get_multi(session)
 
 
 @router.get(
@@ -55,7 +53,7 @@ async def get_tabit_admin_by_id(
     """
     Отобразит карточку администратора сервиса по его `id`. Доступно только суперпользователю.
     """
-    return await admin_crud.get_or_404(session, user_id)
+    return await admin_user_crud.get_or_404(session, user_id)
 
 
 @router.patch(
@@ -72,10 +70,8 @@ async def update_tabit_admin_by_id(
     """
     Изменить данные карточки администратора сервиса по его `id`. Доступно только суперпользователю.
     """
-    user = await validator_check_object_exists(
-        session, admin_crud, object_id=user_id
-    )
-    return await admin_crud.update(session, user, user_in)
+    user = await validator_check_object_exists(session, admin_user_crud, object_id=user_id)
+    return await admin_user_crud.update(session, user, user_in)
 
 
 @router.delete(
@@ -92,11 +88,9 @@ async def delete_tabit_admin_by_id(
     Удалить администратора сервиса по его `id`. Доступно только суперпользователю.
     Удалить суперпользователя нельзя.
     """
-    user = await validator_check_object_exists(
-        session, admin_crud, object_id=user_id
-    )
+    user = await validator_check_object_exists(session, admin_user_crud, object_id=user_id)
     validator_check_is_superuser(user)
-    await admin_crud.remove(session, user)
+    await admin_user_crud.remove(session, user)
     return
 
 
@@ -112,7 +106,7 @@ async def me_tabit_admin(
     """
     Для доступа к своей учетной записи администраторов сервиса.
     """
-    return await admin_crud.get_or_404(session, user.id)
+    return await admin_user_crud.get_or_404(session, user.id)
 
 
 @router.patch(
@@ -128,11 +122,15 @@ async def update_me_tabit_admin(
     """
     Позволит обновить данные о себе администраторов сервиса.
     """
-    return await admin_crud.update(session, user, user_in)
+    return await admin_user_crud.update(session, user, user_in)
+
+
 
 # TODO: реализовать нормальное восстановление пароля, если забыл
 # TODO: реализовать нормальную замену пароля.
 # =====================================================================┐
+
+
 router.include_router(  # форгот и резет пассворд
     tabit_admin.get_reset_password_router(),
     prefix='',
@@ -153,6 +151,8 @@ async def refresh_token_tabit_admin(session: AsyncSession = Depends(get_async_se
         'access_token': 'новый токен доступа',
         'refresh_token': 'новый токен обновления',
     }
+
+
 # =====================================================================┘
 
 
@@ -171,9 +171,7 @@ async def create_tabit_admin(
     """
     Создает нового администратора сервиса. Доступно только суперпользователю.
     """
-    created_user = await admin_crud.create_user(
-        request, user_create, user_manager
-    )
+    created_user = await admin_user_crud.create_user(request, user_create, user_manager)
     return schemas.model_validate(AdminReadSchema, created_user)
 
 

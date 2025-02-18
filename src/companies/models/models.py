@@ -3,9 +3,9 @@
 Модели для компании и департамента.
 """
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import String, ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.constants import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
