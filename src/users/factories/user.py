@@ -5,8 +5,9 @@ from typing import Optional
 
 import factory
 
-from src.api.v1.auth.managers import get_user_manager
-from src.companies.models.models import Company
+from src.api.v1.auth.managers import UserManager, get_user_db
+from src.companies.crud.company import company_crud
+from src.companies.schemas.company import CompanyCreateSchema
 from src.database.db_depends import get_async_session
 from src.tabit_management.schemas.admin_company import (
     CompanyAdminCreateSchema,
@@ -23,6 +24,13 @@ PATRONYMICS = [
     'Сергеевич',
     'Николаевич',
 ]
+
+
+async def get_user_manager_instance(session) -> UserManager:
+    """Создаёт UserManager внутри активной сессии."""
+    async for user_db in get_user_db(session):  # anext() не пропускает ruff
+        return UserManager(user_db)
+    raise ValueError('get_user_db(session) не вернул объект')
 
 
 class PositionEnum(str, Enum):
@@ -42,13 +50,6 @@ class BaseUserFactory(factory.DictFactory):
     is_superuser: bool = False
     is_verified: bool = True
 
-    # class Meta:
-    #     model = TabitAdminUser
-    #     # exclude = ('hashed_password', )  # Менеджер одилает поле password, а не hashed_password
-
-
-# new_user = BaseUserFactory.create(patronymic='Alibabaevich')
-
 
 class TabitUserFactory(BaseUserFactory):
     employee_position = factory.LazyFunction(lambda: random.choice(list(PositionEnum)))
@@ -60,38 +61,28 @@ class TabitUserFactory(BaseUserFactory):
     def _create(cls, model_class, *args, **kwargs):
         if kwargs.get('company_id') is None:
             raise ValueError('Ошибка: company_id не передан в фабрику TabitUserFactory.')
-
         return super()._create(model_class, *args, **kwargs)
 
 
-new_user = TabitUserFactory.create(
-    patronymic='Alibabaevich',
-    company_id=1,
-)
-
-for key, value in new_user.items():
-    print(key, value)
-
-
 async def create_tabit_user():
-    # company_data_dict = CompanyFactory.build()
-    # company_scheme_data = CompanyCreateSchema(**company_data_dict)
-    new_company_dict = CompanyFactory.build()
-    new_company = Company(**new_company_dict)
-    print(new_company.name)
-
     async for session in get_async_session():
-        session.add(new_company)
-        await session.commit()
-        await session.refresh(new_company)
-    tabit_user_data_dict = TabitUserFactory.build(company_id=new_company.id)
+        try:
+            new_company = CompanyFactory.build()
+            company_schema = CompanyCreateSchema(**new_company)
+            new_company = await company_crud.create(session=session, obj_in=company_schema)
+            session.add(new_company)
+            await session.commit()
+            await session.refresh(new_company)
+            print(new_company, new_company.id)
 
-    tabit_user_scheme_data = CompanyAdminCreateSchema(**tabit_user_data_dict)
-    print(tabit_user_scheme_data['name'])
-    user_manager = await get_user_manager()
-
-    new_user = await user_manager.create(tabit_user_scheme_data)
-    print(f'Создан пользователь: {new_user.name}')
+            user_manager = await get_user_manager_instance(session)
+            tabit_user_data = TabitUserFactory.build(company_id=new_company.id)
+            print(tabit_user_data['company_id'])
+            tabit_user_scheme_data = CompanyAdminCreateSchema(**tabit_user_data)
+            new_tabit_user = await user_manager.create(tabit_user_scheme_data)
+            print(f'Создан пользователь: {new_tabit_user.name}')
+        except Exception as e:
+            print(f'Ошибка: {e}')
 
 
 if __name__ == '__main__':
