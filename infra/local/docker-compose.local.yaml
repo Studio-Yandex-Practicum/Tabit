@@ -1,6 +1,6 @@
 services:
   db:
-    container_name: postgres_local
+    container_name: postgres_tabit_local
     image: postgres:17.2-alpine
     restart: always
     env_file:

@@ -87,6 +87,17 @@ jobs:
           target: "/home/${{ secrets.USERNAME }}/tabit/"
           rm: false
 
+      - name: Deploy systemd service file
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo cp /home/${{ secrets.USERNAME }}/tabit/infra/stage/tabit.service /etc/systemd/system/tabit.service
+            sudo systemctl daemon-reload
+            sudo systemctl enable tabit.service
+
       - name: Configure environment variables on VPS
         uses: appleboy/ssh-action@master
         with:
@@ -131,7 +142,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
-            sudo systemctl daemon-reload
             sudo systemctl restart tabit.service
             docker compose -f docker-compose.stage.yaml up -d --force-recreate
 
