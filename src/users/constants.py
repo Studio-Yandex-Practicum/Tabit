@@ -2,6 +2,7 @@ title_name_user: str = 'Имя пользователя сервиса'
 title_surname_user: str = 'Фамилия пользователя сервиса'
 title_patronymic_user: str = 'Отчество пользователя сервиса'
 title_phone_number_user: str = 'Контактный телефон пользователя сервиса'
+title_is_active_user: str = 'Активен ли пользователь'
 title_birthday_user: str = 'День рождение пользователя'
 title_telegram_username_user: str = 'Имя пользователя в Telegram'
 title_role_user: str = 'Роль пользователя компании.'
@@ -13,6 +14,9 @@ title_current_department_id_user: str = 'id отдела, в котором ра
 title_last_department_id_user: str = 'id отдела, в котором работал пользователь до этого'
 title_department_transition_date_user: str = 'Последняя дата перехода из одного отдела в другой'
 title_employee_position_user: str = 'Позиция в коллективе, указывается админом компании'
+title_created_at_user: str = 'Дата создания профиля пользователя'
+title_updated_at_user: str = 'Дата обновления профиля пользователя'
+
 
 title_name_tag: str = 'Имя тэга'
 title_company_id_tag: str = 'id компании, в которой используется тэг'

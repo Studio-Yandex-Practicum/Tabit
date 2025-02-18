@@ -1,12 +1,9 @@
-import asyncio
-
-import uvicorn
 from fastapi import FastAPI
 
 from src.api.v1.routers import main_router
 from src.config import settings
-from src.database.init_db import create_first_superuser
-from src.logger import LoggingMiddleware, logger
+from src.logger import LoggingMiddleware
+from src.scripts import application_management
 
 app_v1 = FastAPI(
     title=settings.app_title, description=settings.description, version=settings.version
@@ -15,8 +12,10 @@ app_v1.middleware('http')(LoggingMiddleware())  # Add logging requests feature a
 app_v1.include_router(main_router)
 
 
+def main():
+    """Функция запустит управляющую функцию. Для доступа извне."""
+    application_management()
+
+
 if __name__ == '__main__':
-    logger.info('Starting uvicorn server...')
-    if settings.create_first_superuser:
-        asyncio.run(create_first_superuser())
-    uvicorn.run('main:app_v1', reload=True)
+    main()
