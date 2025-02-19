@@ -191,7 +191,7 @@ class CompanyAdminUpdateSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
         max_length=LENGTH_NAME_USER,
         title=title_surname_user,
     )
-    role: Literal[RoleUserTabit.ADMIN]
+    role: Optional[RoleUserTabit] = None
     company_id: Optional[int] = Field(
         None,
         title=title_company_id_user,
