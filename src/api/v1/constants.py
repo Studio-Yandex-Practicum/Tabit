@@ -39,5 +39,14 @@ class Summary:
     TABIT_COMPANY_EMPLOYEES_DELETE: str = 'Удалить сотрудника компании'
     TABIT_COMPANY_EMPLOYEES_IMPORT: str = 'Импортировать список сотрудников компании'
 
+    COMPANY_USER_AUTH_LOGIN: str = 'Авторизация'
+    COMPANY_USER_AUTH_LOGOUT: str = 'Выход из система'
 
-TEXT_ERROR_FORBIDDEN_ROLE_ADMIN: str = 'Доступно только админам компаний'
+
+@dataclass
+class TextError:
+    """Содержит текст сообщений об ошибке."""
+
+    FORBIDDEN_ROLE_ADMIN: str = 'Доступно только админам компаний'
+    LOGIN = 'Неверные учетные данные для входа в систему'
+    IS_SUPERUSER: str = 'Объект - суперпользователь'

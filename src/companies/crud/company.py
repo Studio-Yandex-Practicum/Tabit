@@ -5,7 +5,7 @@ from src.crud import CRUDBase
 
 
 class CRUDCompany(CRUDBase):
-    """CRUD операций для модели компании."""
+    """CRUD операции для модели компании."""
 
     pass
 
