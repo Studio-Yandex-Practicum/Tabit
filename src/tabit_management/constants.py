@@ -60,9 +60,13 @@ SUMMARY_DELETE_LICENSE = 'Удалить лицензию'
 
 # Константы для валидаторов
 VALID_PHONE_NUMBER_PATTERN = r'^7\d{10}'
+VALID_TELEGRAM_USERNAME_PATTERN = r'\w+'
 VALID_INVALID_PASSWORD = 'Указан некорректный формат пароля.'
 VALID_INVALID_PHONE_NUMBER = 'Некорректный формат номера телефона.'
 VALID_INVALID_TELEGRAM_USERNAME = (
     'Telegram username должен состоять только из латинских букв и цифр.'
 )
-VALID_WRONG_DATE = 'Указана некорректная дата.'
+VALID_INVALID_DATE = 'Указана некорректная дата.'
+VALID_INVALID_START_DATE = (
+    'Параметр start_date_employment не может быть больше end_date_employment.'
+)

@@ -163,8 +163,6 @@ async def create_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
-    print(create_data.avatar_link)
-    print(type(create_data.avatar_link))
     await check_telegram_username_for_duplicates(create_data.telegram_username, session)
     try:
         created_admin_user = await user_manager.create(create_data)

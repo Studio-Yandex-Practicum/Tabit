@@ -3,7 +3,16 @@ from typing import Annotated, Literal, Optional
 from uuid import UUID
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl, field_validator
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    Field,
+    HttpUrl,
+    field_validator,
+    model_validator,
+)
+from typing_extensions import Self
 
 from src.constants import (
     LENGTH_FILE_LINK,
@@ -16,6 +25,7 @@ from src.tabit_management.validators.admin_company_validators import (
     check_date_earlier_than_today,
     check_password_is_ascii,
     check_phone_number,
+    check_start_date_earlier_than_end_date,
     check_telegram_username,
 )
 from src.users.constants import (
@@ -78,12 +88,8 @@ class CompanyAdminSchemaMixin:
         max_length=LENGTH_TELEGRAM_USERNAME,
         title=title_telegram_username_user,
     )
-    start_date_employment: Annotated[
-        Optional[date_and_validation], Field(None, title=title_start_date_employment_user)
-    ]
-    end_date_employment: Annotated[
-        Optional[date_and_validation], Field(None, title=title_end_date_employment_user)
-    ]
+    start_date_employment: Optional[date] = Field(None, title=title_start_date_employment_user)
+    end_date_employment: Optional[date] = Field(None, title=title_end_date_employment_user)
     avatar_link: Annotated[
         url_to_string, Field(None, max_length=LENGTH_FILE_LINK, title=title_avatar_link_user)
     ]
@@ -115,6 +121,13 @@ class CompanyAdminSchemaMixin:
     @classmethod
     def validate_password(cls, value: str) -> str:
         return check_password_is_ascii(value)
+
+    @model_validator(mode='after')
+    def validate_start_date_end_date(self) -> Self:
+        check_start_date_earlier_than_end_date(
+            self.start_date_employment, self.end_date_employment
+        )
+        return self
 
 
 class CompanyAdminReadSchema(BaseUser[UUID]):

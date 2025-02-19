@@ -8,6 +8,7 @@ from src.tabit_management.crud import admin_user_crud
 async def check_telegram_username_for_duplicates(username: str, session: AsyncSession) -> None:
     """
     Функция проверяет, что в БД не существует пользователя с переданным telegram_username.
+    В случае, если польщователь существует, то выбрасывается ошибка HTTP 400.
 
     Параметры:
         username: telegram_username, переданный в запросе к API;
