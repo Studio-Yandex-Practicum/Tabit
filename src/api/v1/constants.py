@@ -1,3 +1,7 @@
+"""
+Модуль констант для энпоинтов приложения.
+"""
+
 from dataclasses import dataclass
 
 

@@ -1,3 +1,7 @@
+"""
+Модуль схем для компании, отдела и сотрудника отдела.
+"""
+
 from datetime import datetime
 from typing import Optional
 
