@@ -37,8 +37,7 @@
 #     """
 #     id: int
 
-#     class Config:
-#         orm_mode = True
+#     model_config = ConfigDict(from_attributes=True)
 
 
 # class SurveyUserSchema(BaseModel):
@@ -49,8 +48,7 @@
 #     survey_id: int
 #     user_id: int
 
-#     class Config:
-#         orm_mode = True
+#     model_config = ConfigDict(from_attributes=True)
 
 
 # class DateSurveySchema(BaseModel):
@@ -61,8 +59,7 @@
 #     date: date
 #     survey_id: int
 
-#     class Config:
-#         orm_mode = True
+#     model_config = ConfigDict(from_attributes=True)
 
 # class StatusSurveySchema(BaseModel):
 #     """
@@ -71,5 +68,4 @@
 #     id: int
 #     name: str
 
-#     class Config:
-#         orm_mode = True
+#     model_config = ConfigDict(from_attributes=True)

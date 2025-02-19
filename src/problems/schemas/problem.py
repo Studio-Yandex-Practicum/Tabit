@@ -1,10 +1,10 @@
-from typing import Optional, List
-from uuid import UUID
 from datetime import datetime
+from typing import List, Optional
+from uuid import UUID
 
-from pydantic import BaseModel, field_validator, Field
+from pydantic import BaseModel, Field, field_validator
 
-from src.problems.models.enums import ColorProblem, TypeProblem, StatusProblem
+from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 
 
 class ProblemBaseSchema(BaseModel):
@@ -27,6 +27,7 @@ class ProblemBaseSchema(BaseModel):
     type: TypeProblem
     status: StatusProblem
     owner_id: UUID
+    # TODO Надо реализовать добавление файлов в проблему
 
     @field_validator('name')
     @classmethod

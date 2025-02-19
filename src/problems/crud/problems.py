@@ -1,11 +1,14 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from src.crud import CRUDBase
-from src.problems.models import Problem, AssociationUserProblem
 from uuid import UUID
-from src.problems.schemas.problem import ProblemUpdateSchema, ProblemCreateSchema
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.crud import CRUDBase
 from src.problems.crud.association_utils import create_associations
+from src.problems.models import AssociationUserProblem, Problem
+from src.problems.schemas.problem import ProblemCreateSchema, ProblemUpdateSchema
 
 
+# TODO Надо доработать CRUD на получение и обновление проблем со списком участников
 class CRUDProblem(CRUDBase):
     """CRUD операции для модели проблемы."""
 
@@ -35,7 +38,7 @@ class CRUDProblem(CRUDBase):
                 association_model=AssociationUserProblem,
                 left_ids=members,
                 right_id=created_problem.id,
-                status=True,  # (Затычка, чтобы проверить создание проблемы со списком участников, которые приняли приглашение)
+                status=True,  # (Затычка, чтобы проверить создание проблемы со списком участников)
             )
 
             await session.commit()

@@ -1,8 +1,10 @@
-from pydantic import BaseModel, ConfigDict, field_validator, Field
-from typing import Optional, List
 from datetime import date, datetime
+from typing import List, Optional
 from uuid import UUID
-from src.problems.models.enums import StatusMeeting, ResultMeetingEnum
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from src.problems.models.enums import ResultMeetingEnum, StatusMeeting
 
 
 class MeetingBaseSchema(BaseModel):
@@ -23,7 +25,7 @@ class MeetingBaseSchema(BaseModel):
     date_meeting: date
     status: StatusMeeting
     place: Optional[str]
-    # file_id: Optional[int] (Надо реализовать добавление файлов)
+    # TODO Надо реализовать добавление файлов в встречу
 
 
 class MeetingCreateSchema(MeetingBaseSchema):
@@ -93,7 +95,6 @@ class MeetingResponseSchema(MeetingBaseSchema):
     """
 
     id: int
-    # file: Optional[List[str]] = None
     created_at: datetime
     updated_at: datetime
 

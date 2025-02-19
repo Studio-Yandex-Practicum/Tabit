@@ -1,11 +1,29 @@
 from datetime import datetime
-from typing import Optional
-from typing_extensions import Self
+from typing import Optional, Self
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
+from src.companies.constants import (
+    TEST_ERROR_LICENSE_FIELDS,
+    title_license_id_company,
+    title_logo_company,
+    title_name_company,
+    title_slug_company,
+    title_start_license_time,
+)
 from src.companies.schemas.mixins import GetterSlugMixin
-from src.constants import LENGTH_NAME_COMPANY, MIN_LENGTH_NAME
+from src.constants import (
+    LENGTH_NAME_COMPANY,
+    LENGTH_NAME_USER,
+    LENGTH_TELEGRAM_USERNAME,
+    MIN_LENGTH_NAME,
+)
+from src.users.constants import (
+    title_name_user,
+    title_phone_number_user,
+    title_surname_user,
+    title_telegram_username_user,
+)
 
 
 class CompanyUpdateForUserSchema(BaseModel):
@@ -13,11 +31,11 @@ class CompanyUpdateForUserSchema(BaseModel):
 
     description: Optional[str] = Field(
         None,
-        title='',
+        title=title_name_company,
     )
     logo: Optional[str] = Field(
         None,
-        title='',
+        title=title_logo_company,
     )
 
 
@@ -28,15 +46,15 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_COMPANY,
-        title='',
+        title=title_name_company,
     )
     license_id: Optional[int] = Field(
         None,
-        title='',
+        title=title_license_id_company,
     )
     start_license_time: Optional[datetime] = Field(
         None,
-        title='',
+        title=title_start_license_time,
     )
 
     @model_validator(mode='after')
@@ -46,11 +64,10 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         Нельзя, что бы одно поле было не заполнено.
         """
         if not (
-            all((self.license_id, self.start_license_time)) or (
-                all((not self.license_id, not self.start_license_time))
-            )
+            all((self.license_id, self.start_license_time))
+            or (all((not self.license_id, not self.start_license_time)))
         ):
-            raise ValueError('ДВА ПОЛЯ')
+            raise ValueError(TEST_ERROR_LICENSE_FIELDS)
         return self
 
 
@@ -61,12 +78,12 @@ class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
         ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_COMPANY,
-        title='',
+        title=title_name_company,
     )
-    slug: str = Field(
-        ...,
-        title=''
-    )
+    # TODO: Убрать из схемы атрибут slug. Добавить свойство slug и декорировать его
+    # computed_field. Все в миксине.
+    # https://docs.pydantic.dev/latest/concepts/fields/#customizing-json-schema:~:text=JSON%20schema%20docs.-,The%20computed_field%20decorator,-%C2%B6
+    slug: str = Field(..., title=title_slug_company, exclude=True)
 
 
 class CompanyResponseSchema(BaseModel):
@@ -89,7 +106,41 @@ class CompanyResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class CompanyResponseForUserSchema(CompanyResponseSchema):
-    """Схема компании для ответов пользователям."""
-    # TODO: Обдумать о необходимости отдельной схемы - чего скрывать то?
-    pass
+class UserCompanyUpdateSchema(BaseModel):
+    """Схема для редактирования пользователем компании своего профиля."""
+
+    name: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_USER,
+        title=title_name_user,
+    )
+    surname: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_USER,
+        title=title_surname_user,
+    )
+    phone_number: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_USER,
+        title=title_phone_number_user,
+    )
+    email: Optional[EmailStr]
+    telegram_username: Optional[str] = Field(
+        None,
+        max_length=LENGTH_TELEGRAM_USERNAME,
+        title=title_telegram_username_user,
+    )
+
+
+class CompanyFeedbackCreateShema(BaseModel):
+    """Схема для создания пользователем компании обратной связи."""
+
+    question: str = Field(..., title='Задать вопрос для обратной связи')
+    # TODO: Обдумать. Скорее всего надо будет реализовать ограничение на количество символов.
+    # Схема на данный момент является по большей части заглушкой.
+
+    class Config:
+        from_attributes = True

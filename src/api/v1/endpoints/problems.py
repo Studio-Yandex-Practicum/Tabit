@@ -7,10 +7,9 @@ from src.database.db_depends import get_async_session
 from src.problems.crud.problems import problem_crud
 from src.problems.schemas.problem import (
     ProblemCreateSchema,
-    ProblemUpdateSchema,
     ProblemResponseSchema,
+    ProblemUpdateSchema,
 )
-
 
 router = APIRouter()
 

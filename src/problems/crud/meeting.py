@@ -1,11 +1,14 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from src.crud import CRUDBase
-from src.problems.models import Meeting, AssociationUserMeeting
 from uuid import UUID
-from src.problems.schemas.meeting import MeetingCreateSchema
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.crud import CRUDBase
 from src.problems.crud.association_utils import create_associations
+from src.problems.models import AssociationUserMeeting, Meeting
+from src.problems.schemas.meeting import MeetingCreateSchema
 
 
+# TODO Если участники встречи переносятся сюда автоматом из проблемы, то поправить этот метод
 class CRUDMeeting(CRUDBase):
     """CRUD операции для модели встречи."""
 

@@ -5,8 +5,8 @@ from src.database.db_depends import get_async_session
 from src.problems.crud.meeting import meeting_crud
 from src.problems.schemas.meeting import (
     MeetingCreateSchema,
-    MeetingUpdateSchema,
     MeetingResponseSchema,
+    MeetingUpdateSchema,
 )
 
 router = APIRouter()
@@ -99,7 +99,7 @@ async def get_meeting(
     Возвращаемое значение:
         Объект MeetingResponseSchema.
     """
-    # TODO: Проверить существование компании + проблемы + встречи
+
     return await meeting_crud.get_or_404(session, meeting_id)
 
 
@@ -130,7 +130,6 @@ async def update_meeting(
     Возвращаемое значение:
         Объект MeetingResponseSchema.
     """
-    # TODO: Проверить существование компании + проблемы + встречи
     # TODO: Проверить уникальность названия встречи
     # TODO: Проверить доступность даты встречи?
     return await meeting_crud.update_meeting(session, meeting_id, meeting.model_dump())
