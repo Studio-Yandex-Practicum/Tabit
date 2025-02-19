@@ -80,7 +80,10 @@ class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
         max_length=LENGTH_NAME_COMPANY,
         title=title_name_company,
     )
-    slug: str = Field(..., title=title_slug_company)
+    # TODO: Убрать из схемы атрибут slug. Добавить свойство slug и декорировать его
+    # computed_field. Все в миксине.
+    # https://docs.pydantic.dev/latest/concepts/fields/#customizing-json-schema:~:text=JSON%20schema%20docs.-,The%20computed_field%20decorator,-%C2%B6
+    slug: str = Field(..., title=title_slug_company, exclude=True)
 
 
 class CompanyResponseSchema(BaseModel):

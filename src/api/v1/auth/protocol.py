@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Generic, Protocol
 
-from fastapi import Response
+from fastapi.responses import JSONResponse
 from fastapi_users import models
 from fastapi_users.authentication.transport import Transport
 from fastapi_users.manager import BaseUserManager
@@ -30,4 +30,4 @@ class TransportT(Transport):
     @abstractmethod
     async def get_login_response_with_refresh(
         self, token_access: str, token_refresh: str
-    ) -> Response: ...  # pragma: no cover
+    ) -> JSONResponse: ...  # pragma: no cover
