@@ -3,10 +3,7 @@ from typing import Optional, Self
 
 from fastapi_users.schemas import BaseUserUpdate
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
-from typing_extensions import Self
 
-from src.companies.constants import TEST_ERROR_LICENSE_FIELDS
-from src.companies.schemas.mixins import GetterSlugMixin
 from src.companies.constants import (
     TEST_ERROR_LICENSE_FIELDS,
     title_license_id_company,
