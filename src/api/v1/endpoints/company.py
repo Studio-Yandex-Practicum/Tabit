@@ -10,7 +10,7 @@ from fastapi_users.exceptions import InvalidPasswordException, UserAlreadyExists
 from fastapi_users.manager import BaseUserManager
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.dependencies import current_company_admin, current_user
+from src.api.v1.auth.dependencies import current_company_admin, current_user_tabit
 from src.api.v1.auth.managers import get_user_manager
 from src.api.v1.constants import Summary
 from src.api.v1.validator import validator_check_object_exists
@@ -33,7 +33,7 @@ from src.users.schemas import UserCreateSchema, UserReadSchema
 
 DEPARTMENT_EXIST_ERROR_MESSAGE = 'Объект с таким именем уже существует.'
 
-router = APIRouter(dependencies=[Depends(current_user), Depends(current_company_admin)])
+router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_company_admin)])
 # router = APIRouter()
 
 
