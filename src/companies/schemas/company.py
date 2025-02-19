@@ -2,9 +2,13 @@ from datetime import datetime
 from typing import Optional, Self
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from pydantic_extra_types.phone_numbers import PhoneNumber
 
 from src.companies.constants import (
+    TEST_ERROR_INVALID_CHARACTERS_NAME,
+    TEST_ERROR_INVALID_CHARACTERS_SURNAME,
     TEST_ERROR_LICENSE_FIELDS,
+    TEST_ERROR_UNIQUE_NAME_SURNAME,
     title_license_id_company,
     title_logo_company,
     title_name_company,
@@ -121,7 +125,7 @@ class UserCompanyUpdateSchema(BaseModel):
         max_length=LENGTH_NAME_USER,
         title=title_surname_user,
     )
-    phone_number: Optional[str] = Field(
+    phone_number: Optional[PhoneNumber] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
@@ -133,6 +137,16 @@ class UserCompanyUpdateSchema(BaseModel):
         max_length=LENGTH_TELEGRAM_USERNAME,
         title=title_telegram_username_user,
     )
+
+    @model_validator(mode='after')
+    def validate_unique_name_surname(self) -> Self:
+        if self.name and self.surname and self.name == self.surname:
+            raise ValueError(TEST_ERROR_UNIQUE_NAME_SURNAME)
+        if self.name and not self.name.isalpha():
+            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_NAME)
+        if self.surname and not self.surname.isalpha():
+            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_SURNAME)
+        return self
 
 
 class CompanyFeedbackCreateShema(BaseModel):
