@@ -1,6 +1,5 @@
 import asyncio
 import uuid
-from builtins import anext
 from random import randint
 
 import factory
@@ -32,7 +31,8 @@ async def create_company(session: AsyncSession | None = None) -> Company:
     own_session = False
     if session is None:
         own_session = True
-        session = await anext(get_async_session())
+        async for session in get_async_session():  # TODO заменить везде на anext() - ruff не дает
+            session = session
     company_data = CompanyFactory.build()
     company_schema = CompanyCreateSchema(**company_data)
     company = await company_crud.create(session=session, obj_in=company_schema)

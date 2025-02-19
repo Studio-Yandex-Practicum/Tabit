@@ -86,4 +86,4 @@ async def create_tabit_user(
 
 
 if __name__ == '__main__':
-    asyncio.run(create_tabit_user(amount=3))
+    asyncio.run(create_tabit_user(amount=1))
