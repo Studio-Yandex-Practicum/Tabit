@@ -26,6 +26,7 @@ router = APIRouter()
     '/thread',
     summary='Получить список всех тредов по проблеме.',
     response_model=list[MessageFeedRead],
+    status_code=status.HTTP_200_OK,
 )
 async def get_all_threads(
     company_slug: str,
@@ -51,7 +52,12 @@ async def get_all_threads(
     )
 
 
-@router.post('/thread', summary='Создать тред по проблеме.', response_model=MessageFeedRead)
+@router.post(
+    '/thread',
+    summary='Создать тред по проблеме.',
+    response_model=MessageFeedRead,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_problem_thread(
     company_slug: str,
     problem_id: int,
@@ -79,6 +85,7 @@ async def create_problem_thread(
     '/{thread_id}/comments',
     summary='Получить все комментарии треда.',
     response_model=list[CommentRead],
+    status_code=status.HTTP_200_OK,
 )
 async def get_thread_comments(
     company_slug: str,
@@ -108,7 +115,10 @@ async def get_thread_comments(
 
 
 @router.post(
-    '/{thread_id}/comments', summary='Создать комментарий в треде.', response_model=CommentRead
+    '/{thread_id}/comments',
+    summary='Создать комментарий в треде.',
+    response_model=CommentRead,
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_thread_comment(
     company_slug: str,
@@ -139,6 +149,7 @@ async def create_thread_comment(
     '/{thread_id}/comments/{comment_id}',
     summary='Обновить комментарий в треде.',
     response_model=CommentRead,
+    status_code=status.HTTP_200_OK,
 )
 async def update_thread_comment(
     company_slug: str,
@@ -180,7 +191,7 @@ async def delete_thread_comment(
     comment_id: int,
     session: AsyncSession = Depends(get_async_session),
     user: UserTabit = Depends(current_user),
-):
+) -> None:
     """
     Удаление комментария в треде.
 

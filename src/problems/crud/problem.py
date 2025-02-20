@@ -25,7 +25,7 @@ class CRUDProblem(CRUDBase):
             .where(self.model.id == problem_id)
             .options(selectinload(self.model.owner))
         )
-        problem = problem.scalars().first()
+        problem = problem.scalar_one_or_none()
         if not problem:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=TEXT_ERROR_NOT_FOUND)
         return problem
