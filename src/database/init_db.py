@@ -15,11 +15,11 @@ get_admin_manager_context = asynccontextmanager(get_admin_manager)
 
 
 async def create_superuser(
-        email: EmailStr,
-        password: str,
-        name: str,
-        surname: str,
-        is_superuser: bool = True,
+    email: EmailStr,
+    password: str,
+    name: str,
+    surname: str,
+    is_superuser: bool = True,
 ):
     """
     Корутина, создающая администратора-суперпользователя сервиса с переданными email и паролем.
@@ -48,12 +48,14 @@ async def create_first_superuser():
     Корутина, проверяющая, указаны ли в настройках данные для администратора-суперпользователя.
     При наличии оных, вызывает корутину для создания администратора-суперпользователя.
     """
-    if all((
-        settings.first_superuser_email,
-        settings.first_superuser_password,
-        settings.first_superuser_name,
-        settings.first_superuser_surname,
-    )):
+    if all(
+        (
+            settings.first_superuser_email,
+            settings.first_superuser_password,
+            settings.first_superuser_name,
+            settings.first_superuser_surname,
+        )
+    ):
         await create_superuser(
             email=settings.first_superuser_email,
             password=settings.first_superuser_password,

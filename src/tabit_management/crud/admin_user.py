@@ -1,5 +1,5 @@
 from src.crud import CRUDBase, UserCreateMixin
-from src.users.models import UserTabit
+from src.tabit_management.models import TabitAdminUser
 
 
 class CRUDAdminUser(UserCreateMixin, CRUDBase):
@@ -8,4 +8,4 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
     pass
 
 
-admin_user_crud = CRUDAdminUser(UserTabit)
+admin_user_crud = CRUDAdminUser(TabitAdminUser)
