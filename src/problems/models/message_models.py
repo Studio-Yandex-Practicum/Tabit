@@ -88,7 +88,7 @@ class CommentFeed(BaseTabitModel):
     owner_id: Mapped[owner]
     owner: Mapped['UserTabit'] = relationship(back_populates='comments')
     text: Mapped[str]
-    rating = Mapped[comment_rating]
+    rating: Mapped[comment_rating]
 
     def __repr__(self):
         return (
