@@ -106,3 +106,19 @@ class AssociationUserTask(BaseTabitModel):
             f'id={self.id!r}, '
             f'user id {self.left_id!r} <-> task id {self.right_id!r})'
         )
+
+
+class AssociationUserComment(BaseTabitModel):
+    """Связная таблица UserTabit и CommentFeed"""
+
+    id: Mapped[int_pk]
+    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
+    right_id: Mapped[int] = mapped_column(ForeignKey('commentfeed.id'), primary_key=True)
+    user: Mapped['UserTabit'] = relationship(back_populates='comments_likes')
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'user id {self.left_id!r} <-> comment id {self.right_id!r})'
+        )

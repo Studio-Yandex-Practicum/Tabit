@@ -260,6 +260,7 @@ def upgrade() -> None:
     sa.Column('message_id', sa.Integer(), nullable=False),
     sa.Column('owner_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('text', sa.String(), nullable=False),
+    sa.Column('rating', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['message_id'], ['messagefeed.id'], ),

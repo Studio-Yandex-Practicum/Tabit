@@ -227,4 +227,5 @@ async def like_a_comment(
     user: UserTabit = Depends(current_user),
 ) -> None:
     """Поставить лайк комментарию в треде."""
+    # TODO: автор комменатрия не может поставить себе лайк
     return {'message': 'Поставить лайк комментарию в треде пока нельзя.'}
