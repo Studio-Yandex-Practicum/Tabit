@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +13,7 @@ from src.constants import (
 )
 from src.crud import CRUDBase
 from src.logger import logger
+from src.problems.crud import user_comment_association_crud
 from src.problems.models import CommentFeed
 from src.problems.schemas import CommentCreate
 
@@ -71,6 +74,13 @@ class CRUDComment(CRUDBase):
                 detail=TEXT_ERROR_SERVER_CREATE,
             )
         return db_obj
+
+    async def like(self, comment_id: int, user_id: UUID, session: AsyncSession):
+        comment = self.get_or_404(session, comment_id)
+        await user_comment_association_crud.create(comment_id, user_id, session)
+        comment.rating += 1
+        session.add(comment)
+        await session.commit()
 
 
 comment_crud = CRUDComment(CommentFeed)
