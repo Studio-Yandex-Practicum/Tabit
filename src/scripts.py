@@ -19,9 +19,9 @@ def application_management(reload, create_superuser, host, port):
 
     reload (для флага --reload) - запустит uvicorn с флагом --reload
     host (для флага --host) - для указания хоста при запуске.
-    port (для флага --port) - для указания порта при запуске
+    port (для флага --port) - для указания порта при запуске.
     create_superuser (для флага --create-superuser) - не запускает проект, вместо этого делает
-    первую запись в БД с данными суперпользователя, указанных в .env
+        первую запись в БД с данными суперпользователя, указанных в .env.
     """
     if create_superuser:
         asyncio.run(create_first_superuser())

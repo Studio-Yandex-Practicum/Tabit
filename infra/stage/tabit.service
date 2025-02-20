@@ -1,0 +1,16 @@
+[Unit]
+Description=Tabit Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStartPre=-/usr/bin/docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
+ExecStart=/usr/bin/docker compose -f /home/${{ secrets.USERNAME }}/tabit/infra/stage/docker-compose.stage.yaml up -d
+ExecStop=/usr/bin/docker compose -f /home/${{ secrets.USERNAME }}/tabit/infra/stage/docker-compose.stage.yaml down
+WorkingDirectory=/home/dev_deploy/tabit/infra/stage/
+User=dev_deploy
+Group=dev_deploy
+
+[Install]
+WantedBy=multi-user.target
