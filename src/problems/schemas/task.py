@@ -13,7 +13,7 @@ class TaskBaseSchema(BaseModel):
     name: str
     description: Optional[str] = None
     date_completion: date
-    executor: List[UUID]
+    executors: List[UUID]
 
     @field_validator('date_completion')
     @classmethod
@@ -55,5 +55,5 @@ class TaskUpdateSchema(TaskBaseSchema):
     name: Optional[str] = None
     description: Optional[str] = None
     date_completion: Optional[date] = None
-    executor: Optional[List[UUID]] = None
+    executors: Optional[List[UUID]] = None
     status: Optional[StatusTask] = None

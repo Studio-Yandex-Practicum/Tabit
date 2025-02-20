@@ -15,6 +15,9 @@ TITLE_SLUG_COMPANY: str = 'Slug компании'
 TITLE_NAME_DEPARTMENT: str = 'Название отдела'
 TITLE_SLUG_DEPARTMENT: str = 'Slug отдела'
 
+TEST_ERROR_INVALID_CHARACTERS_NAME = 'Имя содержит недопустимые символы!'
+TEST_ERROR_INVALID_CHARACTERS_SURNAME = 'Фамилия содержит недопустимые символы!'
 TEST_ERROR_LICENSE_FIELDS: str = (
     'Поля начала действия лицензии и тип лицензии заполняются одновременно.'
 )
+TEST_ERROR_UNIQUE_NAME_SURNAME = 'Имя и фамилия не могут совпадать!'
