@@ -216,14 +216,15 @@ async def delete_thread_comment(
 @router.post(
     '/{thread_id}/comments/{comment_id}/like',
     summary='Поставить лайк комментарию в треде.',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_200_OK,
 )
-async def create_comment_like(
+async def like_a_comment(
     company_slug: str,
     problem_id: int,
     thread_id: int,
     comment_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
+    user: UserTabit = Depends(current_user),
+) -> None:
     """Поставить лайк комментарию в треде."""
     return {'message': 'Поставить лайк комментарию в треде пока нельзя.'}
