@@ -1,5 +1,4 @@
 from .company import router as companies_router
-from .company_departments_unused import router as department_router
 from .company_user import router as company_user_router
 from .company_user_auth import router as auth_employees
 from .landing_page import router as landing_page_router

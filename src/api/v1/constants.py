@@ -50,3 +50,4 @@ class TextError:
     FORBIDDEN_ROLE_ADMIN: str = 'Доступно только админам компаний'
     LOGIN = 'Неверные учетные данные для входа в систему'
     IS_SUPERUSER: str = 'Объект - суперпользователь'
+    DEPARTMENT_EXIST_ERROR_MESSAGE = 'Объект с таким именем уже существует.'

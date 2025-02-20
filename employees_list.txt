@@ -1,2 +1,4 @@
-id name surname patronymic phone_number is_active birthday telegram_username role start_date_employment end_date_employment avatar_link company_id current_department_id last_department_id department_transition_date employee_position
-47b19be2-4c7b-433a-946f-82a4759592b7 string string string string True 2025-02-17 str12 Сотрудник 2025-02-17 2025-02-17 string 3 string string string string
+telegram_username  current_department_id  last_department_id  start_date_employment  department_transition_date  id  end_date_employment  email  company_id  surname  supervisor  employee_position  is_active  role  avatar_link  patronymic  is_superuser  name  phone_number  is_verified  birthday
+string1  None  None  2025-02-19  2025-02-19  f032e43b-2e56-462c-a7a7-eed722659d29  2025-02-19  simple@example.com  1  string  None  string  True  Админ  string  string  False  string  string  False  2025-02-19
+string2  1  None  2025-02-19  2025-02-19  4166a039-b8bd-4f6c-b694-ded7ebdd7e5a  2025-02-19  simple2@example.com  1  string  None  string  True  Сотрудник  string  string  False  string  string  False  2025-02-19
+string4  None  None  2025-02-20  2025-02-20  e0edef68-0450-4842-8ddd-979be7eb834d  2025-02-20  3user@example.com  1  string  None  string  True  Сотрудник  string  string  False  string  string  False  2025-02-20

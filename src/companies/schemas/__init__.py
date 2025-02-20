@@ -3,8 +3,8 @@ from src.companies.schemas.company import (  # noqa: F401
     CompanyDepartmentCreateSchema,
     CompanyDepartmentResponseSchema,
     CompanyDepartmentUpdateSchema,
+    CompanyEmployeeUpdateSchema,
     CompanyResponseSchema,
     CompanyUpdateForUserSchema,
     CompanyUpdateSchema,
-    CompanyUserDepartmentUpdateSchema,
 )

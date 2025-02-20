@@ -1,18 +1,16 @@
 """Модуль роутеров для пользователя-админа компании."""
 
-from http import HTTPStatus
 from typing import Any, List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_users.exceptions import InvalidPasswordException, UserAlreadyExists, UserNotExists
 from fastapi_users.manager import BaseUserManager
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_company_admin, current_user_tabit
 from src.api.v1.auth.managers import get_user_manager
-from src.api.v1.constants import Summary
+from src.api.v1.constants import Summary, TextError
 from src.api.v1.validator import validator_check_object_exists
 from src.companies.constants import (
     ERROR_INVALID_PASSWORD,
@@ -24,28 +22,25 @@ from src.companies.schemas import (
     CompanyDepartmentCreateSchema,
     CompanyDepartmentResponseSchema,
     CompanyDepartmentUpdateSchema,
+    CompanyEmployeeUpdateSchema,
     CompanyResponseSchema,
-    CompanyUserDepartmentUpdateSchema,
 )
 from src.database.db_depends import get_async_session
 from src.users.crud.user import user_crud
 from src.users.schemas import UserCreateSchema, UserReadSchema
 
-DEPARTMENT_EXIST_ERROR_MESSAGE = 'Объект с таким именем уже существует.'
-
 router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_company_admin)])
-# router = APIRouter()
 
 
 @router.get(
     '/{company_slug}',
-    response_model=CompanyResponseSchema,
     summary=Summary.TABIT_COMPANY,
+    response_model=CompanyResponseSchema,
 )
 async def get_company(
     company_slug: str,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> CompanyResponseSchema | Any:
     """
     Получает информацию о компании.
     Доступно только пользователю-админу компании.
@@ -86,7 +81,7 @@ async def get_company(
 async def get_all_departments(
     company_slug: str,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> List[CompanyDepartmentResponseSchema]:
     """
     Получает список всех отделов компании.
     Доступно только пользователю-админу компании.
@@ -125,7 +120,7 @@ async def create_department(
     company_slug: str,
     object_in: CompanyDepartmentCreateSchema,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> CompanyDepartmentResponseSchema:
     """
     Создает новый отдел компании.
     Доступно только пользователю-админу компании.
@@ -150,14 +145,14 @@ async def create_department(
       }
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    object_name = object_in.dict()['name']
+    object_name = object_in.model_dump()['name']
     departments = await company_departments_crud.get_multi(
         session=session, filters={'company_id': company.id, 'name': object_name}
     )
     if departments:
         raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail=DEPARTMENT_EXIST_ERROR_MESSAGE,
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
         )
     db_obj = await company_departments_crud.create(
         session=session, obj_in=object_in, auto_commit=False
@@ -196,18 +191,7 @@ async def import_departments(
     departments_list = await company_departments_crud.get_multi(
         session=session, filters={'company_id': company.id}
     )
-    with open('departments_list.txt', 'w') as file:
-        file.write('id  name  slug  company_id\n')
-        for department in departments_list:
-            id = department.id
-            name = department.name
-            slug = department.slug
-            company_id = department.company_id
-            file.write(f'{id}  {name}  {slug}  {company_id}\n')
-    return FileResponse(
-        path='departments_list.txt',
-        filename='departments_list.txt',
-    )
+    return await company_crud.get_import(objects_in=departments_list, file_name='departments_list')
 
 
 @router.get(
@@ -219,7 +203,7 @@ async def get_department(
     company_slug: str,
     department_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> CompanyDepartmentResponseSchema:
     """
     Получает информацию об отделе компании.
     Доступно только пользователю-админу компании.
@@ -249,7 +233,7 @@ async def get_department(
 
 @router.patch(
     '/{company_slug}/departments/{department_id}',
-    response_model=CompanyDepartmentUpdateSchema,
+    response_model=CompanyDepartmentResponseSchema,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_UPDATE,
 )
 async def update_department(
@@ -257,7 +241,7 @@ async def update_department(
     department_id: int,
     object_in: CompanyDepartmentUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> CompanyDepartmentResponseSchema:
     """
     Обновляет данные отдела компании.
     Доступно только пользователю-админу компании.
@@ -286,14 +270,14 @@ async def update_department(
     Если отдел не найден вернет ответ со статусом 404.
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    object_name = object_in.dict()['name']
+    object_name = object_in.model_dump()['name']
     departments = await company_departments_crud.get_multi(
         session=session, filters={'company_id': company.id, 'name': object_name}
     )
     if departments:
         raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail=DEPARTMENT_EXIST_ERROR_MESSAGE,
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
         )
     db_object = await company_departments_crud.get_or_404(session, obj_id=department_id)
     return await company_departments_crud.update(session, db_obj=db_object, obj_in=object_in)
@@ -302,7 +286,7 @@ async def update_department(
 @router.delete(
     '/{company_slug}/departments/{department_id}',
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_DELETE,
-    status_code=HTTPStatus.NO_CONTENT,
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_department(
     company_slug: str,
@@ -332,7 +316,7 @@ async def delete_department(
     )
     await company_departments_crud.remove(session, db_object=department)
 
-    return HTTPStatus.NO_CONTENT
+    return status.HTTP_204_NO_CONTENT
 
 
 @router.get(
@@ -343,7 +327,7 @@ async def delete_department(
 async def get_all_employees(
     company_slug: str,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> List[UserReadSchema]:
     """
     Получает список всех сотрудников компании.
     Доступно только пользователю-админу компании.
@@ -394,12 +378,12 @@ async def get_all_employees(
     response_model=UserReadSchema,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_CREATE,
 )
-async def add_employee_to_department(
+async def create_company_employee(
     company_slug: str,
     create_data: UserCreateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
     session: AsyncSession = Depends(get_async_session),
-):
+) -> UserReadSchema:
     """
     Создает сотрудника в компании.
     Доступно только пользователю-админу компании.
@@ -445,9 +429,11 @@ async def add_employee_to_department(
     try:
         created_user = await user_manager.create(create_data)
     except UserAlreadyExists:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS
+        )
     except InvalidPasswordException:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
     return created_user
 
 
@@ -458,7 +444,7 @@ async def add_employee_to_department(
 async def import_employees(
     company_slug: str,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> Any:
     """
     Импортирует список сотрудников компании.
     Доступно только пользователю-админу компании.
@@ -474,42 +460,7 @@ async def import_employees(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     employees_list = await user_crud.get_multi(session, filters={'company_id': company.id})
-    # TODO: Разработать импорт отделов компании
-    with open('employees_list.txt', 'w') as file:
-        file.write(
-            'id name surname patronymic phone_number is_active '
-            'birthday telegram_username role start_date_employment '
-            'end_date_employment avatar_link company_id current_department_id '
-            'last_department_id department_transition_date employee_position\n'
-        )
-        for employee in employees_list:
-            id = employee.id
-            name = employee.name
-            surname = employee.surname
-            patronymic = employee.patronymic
-            phone_number = employee.phone_number
-            is_active = employee.is_active
-            birthday = employee.birthday
-            telegram_username = employee.telegram_username
-            role = employee.role
-            start_date_employment = employee.start_date_employment
-            end_date_employment = employee.end_date_employment
-            avatar_link = employee.avatar_link
-            company_id = employee.company_id
-            current_department_id = employee.surname
-            last_department_id = employee.surname
-            department_transition_date = employee.surname
-            employee_position = employee.surname
-            file.write(
-                f'{id} {name} {surname} {patronymic} {phone_number} {is_active} '
-                f'{birthday} {telegram_username} {role} {start_date_employment} '
-                f'{end_date_employment} {avatar_link} {company_id} {current_department_id} '
-                f'{last_department_id} {department_transition_date} {employee_position}\n'
-            )
-    return FileResponse(
-        path='employees_list.txt',
-        filename='employees_list.txt',
-    )
+    return await company_crud.get_import(objects_in=employees_list, file_name='employees_list')
 
 
 @router.get(
@@ -521,7 +472,7 @@ async def get_employee(
     company_slug: str,
     uuid: UUID,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> UserReadSchema:
     """
     Получает информацию о сотруднике компании.
     Доступно только пользователю-админу компании.
@@ -572,12 +523,12 @@ async def get_employee(
     response_model=UserReadSchema,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_UPDATE,
 )
-async def change_department_of_employee(
+async def update_company_employee(
     company_slug: str,
     uuid: UUID,
-    object_in: CompanyUserDepartmentUpdateSchema,
+    object_in: CompanyEmployeeUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> UserReadSchema:
     """
     Обновляет данные сотрудника компании.
     Доступно только пользователю-админу компании.
@@ -628,10 +579,10 @@ async def change_department_of_employee(
 
 @router.delete(
     '/{company_slug}/employees/{uuid}',
-    status_code=HTTPStatus.NO_CONTENT,
+    status_code=status.HTTP_204_NO_CONTENT,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_DELETE,
 )
-async def delete_employee_from_department(
+async def delete_company_employee(
     company_slug: str,
     uuid: UUID,
     user_manager: BaseUserManager = Depends(get_user_manager),
@@ -660,5 +611,5 @@ async def delete_employee_from_department(
         user = await user_manager.get(uuid)
         await user_manager.delete(user)
     except UserNotExists:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
-    return HTTPStatus.NO_CONTENT
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
+    return status.HTTP_204_NO_CONTENT
