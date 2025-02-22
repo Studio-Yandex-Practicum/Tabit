@@ -1,6 +1,6 @@
 """Модуль роутеров для пользователя-админа компании."""
 
-from typing import Any, List
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -176,7 +176,7 @@ async def create_department(
 async def import_departments(
     company_slug: str,
     session: AsyncSession = Depends(get_async_session),
-) -> Any:
+):
     """
     Импортирует список отделов компании.
     Доступно только пользователю-админу компании.
@@ -453,7 +453,7 @@ async def create_company_employee(
 async def import_employees(
     company_slug: str,
     session: AsyncSession = Depends(get_async_session),
-) -> Any:
+):
     """
     Импортирует список сотрудников компании.
     Доступно только пользователю-админу компании.
