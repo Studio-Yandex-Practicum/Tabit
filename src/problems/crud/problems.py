@@ -8,24 +8,24 @@ from src.problems.models import AssociationUserProblem, Problem
 from src.problems.schemas.problem import ProblemCreateSchema, ProblemUpdateSchema
 
 
-# TODO Надо доработать CRUD на получение и обновление проблем со списком участников
+# TODO Надо доработать CRUD на получение проблем со списком участников
 class CRUDProblem(CRUDBase):
     """CRUD операции для модели проблемы."""
 
-    async def create_with_members(
+    async def create_problem_with_members(
         self, session: AsyncSession, problem_data: dict, members: list[UUID]
     ) -> Problem:
         """Создание встречи с участниками.
 
         Назначение:
-            Создает новую встречу и добавляет участников через ассоциативную таблицу.
+            Создает новую проблемы и добавляет участников через ассоциативную таблицу.
             Выполняет все операции в рамках одной транзакции.
         Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            problem_data: Словарь с данными для создания встречи.
-            members: Список UUID участников встречи.
+            problem_data: Словарь с данными для создания проблемы.
+            members: Список UUID участников проблемы.
         Возвращаемое значение:
-            Созданный объект встречи с обновленными данными.
+            Созданный объект проблемы с обновленными данными.
         """
         try:
             problem_data['members'] = members
