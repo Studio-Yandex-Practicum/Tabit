@@ -1,16 +1,17 @@
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
+
 
 from src.problems.models import Problem
 from src.problems.models.association_models import AssociationUserTask
 from src.problems.models.file_path_models import FileTask
-from src.problems.schemas.task import TaskCreateSchema, TaskResponseSchema
+from src.problems.schemas.task import TaskCreateSchema, TaskResponseSchema, TaskUpdateSchema
 from src.users.models import UserTabit
 from src.crud import CRUDBase
 from src.problems.models import Task
 from src.companies.models import Company
-# from src.problems.models.enums import StatusTask
 
 
 class CRUDTask(CRUDBase):
@@ -20,151 +21,53 @@ class CRUDTask(CRUDBase):
         self, session: AsyncSession, company_slug: str, problem_id: int
     ):
         """Получает все задачи по company_slug и problem_id."""
-
-        # query = (
-        #     select(self.model)
-        #     .join(  # Соединяем Task -> Problem
-        #         Problem, Problem.id == self.model.problem_id
-        #     )
-        #     .join(  # Присоединяем UserTabit через Task.executors (минуя связную таблицу)
-        #         UserTabit, UserTabit.id.in_(
-        #             select(AssociationUserTask.left_id).where(
-        #                 AssociationUserTask.right_id == self.model.id
-        #             )
-        #         )
-        #     )
-        #     .join(  # Присоединяем Company через UserTabit
-        #         Company, Company.id == UserTabit.company_id
-        #     )
-        #     .where(Company.slug == company_slug)
-        #     .where(self.model.problem_id == problem_id)
-        #     .options(
-        #         selectinload(self.model.executors),  # Подгружаем исполнителей
-        #         selectinload(self.model.file),       # Подгружаем файлы
-        #     )
-        # )
-
         query = (
             select(self.model)
-            .join(Problem, Problem.id == self.model.problem_id)
-            .join(UserTabit, UserTabit.id == Problem.owner_id)
-            .join(Company, Company.id == UserTabit.company_id)
+            .join(self.model.problem)
+            .join(Problem.owner)
+            .join(UserTabit.company)
             .where(Company.slug == company_slug)
             .where(self.model.problem_id == problem_id)
             .options(
                 selectinload(self.model.file),
-                selectinload(self.model.executors),  # Загружаем связанные данные
+                selectinload(self.model.executors),
             )
         )
         result = await session.execute(query)
         tasks = result.scalars().all()
-
-        # Преобразуем ORM-объекты в Pydantic-модели
         return [TaskResponseSchema.model_validate(task) for task in tasks]
 
-        # task_ids = [task.id for task in tasks]
-
-        # executor_query = (
-        #     select(AssociationUserTask.left_id, AssociationUserTask.right_id)
-        #     .where(AssociationUserTask.right_id.in_(task_ids))
-        # )
-        # executor_result = await session.execute(executor_query)
-
-        # # Получаем список кортежей (исполнитель_id, задача_id)
-        # executor_pairs = executor_result.all()
-
-        # # Преобразуем в task_id -> list of executors
-        # executor_map = {task_id: [] for task_id in task_ids}
-        # for executor_id, task_id in executor_pairs:
-        #     if task_id in executor_map:
-        #         executor_map[task_id].append(uuid.UUID(executor_id))  # Преобразуем ID исполнителя в строку
-        # print(executor_map)
-        # # Присваиваем список исполнителей каждой задаче
-        # for task in tasks:
-        #     task.executors = executor_map.get(task.id, [])
-
-        # print(task.owner_id)
-        # Получаем ID задач
-        # task_ids = [task.id for task in tasks]
-
-        # if task_ids:
-        # Запрос на получение исполнителей для этих задач
-        # executor_query = (
-        #     select(AssociationUserTask.left_id)
-        #     .where(AssociationUserTask.right_id.in_(task_ids))
-        # )
-        # executor_result = await session.execute(executor_query)
-
-        # # Получаем список всех исполнителей (left_id)
-        # executors = executor_result.scalars().all()  # Это будет список всех left_id
-        # # print(executors)
-        # # Преобразуем результат в формат task_id -> list of executors
-        # executor_map = {task_id: [] for task_id in task_ids}
-        # # list_exec = []
-        # for executor_id in executors:
-        #     # task_id = executor_id  # Для каждой строки добавляем task_id
-        #     print(executor_id)
-        #     # print(task_id)
-        #     # if task_id in executor_map:
-        #     executor_map['task_id'].append(str(executor_id))  # Добавляем строковое представление исполнителя
-        # # print(executor_map)
-        # # Присваиваем список исполнителей каждой задаче
-        # for task in tasks:
-        #     task.executors = executor_map.get(task.id, [])
-        # print(task.executors)
-
-        # query = (
-        #     select(self.model)
-        #     .join(Problem, Problem.id == self.model.problem_id)
-        #     .join(UserTabit, UserTabit.id == Problem.owner_id)
-        #     .join(Company, Company.id == UserTabit.company_id)
-        #     .where(Company.slug == company_slug)
-        #     .where(self.model.problem_id == problem_id)
-        #     .options(
-        #         selectinload(self.model.executors),  # Загружаем исполнителей
-        #         selectinload(self.model.file),
-        #     )
-        # )
-        # # query = select(AssociationUserTask.left_id)
-        # # print(query)
-        # result = await session.execute(query)
-        # tasks = result.scalars().all()
-        # # print(tasks)
-        # return tasks
-
     async def get_task_by_id(
-        self, session: AsyncSession, company_slug: str, problem_id: int, task_id: int
+        self,
+        session: AsyncSession,
+        company_slug: str,
+        problem_id: int,
+        task_id: int,
+        as_object: bool = False,  # Новый параметр
     ):
+        """Получает задачу по id с проверкой принадлежности к компании и проблеме."""
         query = (
             select(self.model)
-            .join(Problem, Problem.id == self.model.problem_id)
-            .join(UserTabit, UserTabit.id == Problem.owner_id)
-            .join(Company, Company.id == UserTabit.company_id)
-            .where(Company.slug == company_slug)
-            .where(self.model.problem_id == problem_id)
-            .where(self.model.id == task_id)
+            .join(self.model.problem)
+            .join(Problem.owner)
+            .join(UserTabit.company)
+            .where(
+                Company.slug == company_slug,
+                self.model.problem_id == problem_id,
+                self.model.id == task_id,
+            )
             .options(
                 selectinload(self.model.file),
-                selectinload(self.model.executors),  # Загружаем связанные данные
+                selectinload(self.model.executors),
             )
         )
-
         result = await session.execute(query)
-        task = result.scalars().first()
-
-        if task:
-            # Преобразуем ORM-объект в Pydantic-модель
-            return TaskResponseSchema.model_validate(task)
-        return None
-        # task = await session.execute(select(Task).where(Task.id == task_id).options(selectinload(self.model.executors)))
-        # task = task.scalars().first()
-        # if task:
-        # Преобразуем ORM-объект в Pydantic-модель
-        #     return TaskResponseSchema.model_validate(task)
-        # return None
-        # return task
-        # task = select(Task).where(Task.id == task_id)
-        # result = await session.execute(query)
+        task = result.scalar_one_or_none()
+        # task = await session.get(Task, task_id)
+        # print(task)
+        if as_object:
+            return task
+        return TaskResponseSchema.model_validate(task)
 
     async def create_task(self, session: AsyncSession, obj_in: TaskCreateSchema):
         """Создает новую задачу."""
@@ -186,27 +89,56 @@ class CRUDTask(CRUDBase):
 
         await session.commit()
         await session.refresh(new_task)  # Загружаем обновлённый объект
-        # return None
+        await session.execute(
+            select(Task)
+            .filter_by(id=new_task.id)
+            .options(selectinload(Task.executors), selectinload(Task.file))
+        )
         return TaskResponseSchema.model_validate(new_task)
 
-    # async def update_task(
-    #         self,
-    #         session: AsyncSession,
-    #         task_id: int,
-    #         task_data: TaskUpdateSchema) -> Task:
-    #     query = select(Task).where(Task.id == task_id)
-    #     result = await session.execute(query)
-    #     task = result.scalars().first()
+    async def update_task(
+        self, session: AsyncSession, task: Task, task_update: TaskUpdateSchema
+    ) -> TaskResponseSchema:
+        update_data = task_update.model_dump(exclude_unset=True)
+        executors_data = update_data.pop('executors', None)
+        for field, value in update_data.items():
+            setattr(task, field, value)
+        if executors_data is not None:
+            await session.execute(
+                delete(AssociationUserTask).where(AssociationUserTask.right_id == task.id)
+            )
+            for executor_id in executors_data:
+                association = AssociationUserTask(left_id=executor_id, right_id=task.id)
+                session.add(association)
+        await session.commit()
+        await session.refresh(task)
+        # Если нужно, можно также принудительно загрузить связанные объекты:
+        # task = (await session.execute(select(Task)
+        #         .filter_by(id=task.id)
+        #         .options(selectinload(Task.executors), selectinload(Task.file)))).scalar_one()
+        return TaskResponseSchema.model_validate(task)
 
-    #     if not task:
-    #         raise HTTPException(status_code=404, detail="Задача не найдена")
+    async def delete_task(
+        self,
+        company_slug: str,
+        problem_id: int,
+        task_id: int,
+        session: AsyncSession,
+    ):
+        """Метод не закончен, не удаляются данные из бд, а просто 'съезжают вниз'"""
+        task = await task_crud.get_task_by_id(
+            session, company_slug, problem_id, task_id, as_object=True
+        )
+        if not task:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Задача не найдена')
 
-    #     for key, value in task_data.model_dump(exclude_unset=True).items():
-    #         setattr(task, key, value)
+        # Очистка исполнителей перед удалением задачи
+        task.executors = []
+        await session.commit()
 
-    #     await session.commit()
-    #     await session.refresh(task)
-    #     return task
+        await task_crud.remove(session, task)
+
+        return {'detail': 'Задача успешно удалена'}
 
 
 task_crud = CRUDTask(Task)

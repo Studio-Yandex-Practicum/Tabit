@@ -47,7 +47,7 @@ class Task(BaseTabitModel):
     date_completion: Mapped[date] = mapped_column(nullable=False)
     owner_id: Mapped[owner]
     owner: Mapped['UserTabit'] = relationship(back_populates='task_owner')
-    problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
+    problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id', ondelete='CASCADE'))
     problem: Mapped['Problem'] = relationship(back_populates='tasks')
     executors: Mapped[List['AssociationUserTask']] = relationship(back_populates='task')
     status: Mapped['StatusTask']
