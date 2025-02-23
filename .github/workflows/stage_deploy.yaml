@@ -86,6 +86,16 @@ jobs:
           target: "/home/${{ secrets.USERNAME }}/tabit/"
           rm: false
 
+      - name: Copy pgadmin via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "pgadmin/"
+          target: "/home/${{ secrets.USERNAME }}/tabit/"
+          rm: false
+
       - name: Deploy systemd service file
         uses: appleboy/ssh-action@master
         with:
@@ -106,6 +116,17 @@ jobs:
           script: |
             cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
             echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Create .pgpass file
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
+            export $(cat .env | xargs)
+            envsubst < /home/${{ secrets.USERNAME }}/tabit/pgadmin/.pgpass.template > /home/${{ secrets.USERNAME }}/tabit/pgadmin/.pgpass
 
       - name: Pull latest Docker image from GHCR
         uses: appleboy/ssh-action@master
