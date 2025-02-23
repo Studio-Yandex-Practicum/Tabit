@@ -5,8 +5,7 @@
 from datetime import datetime
 from typing import Optional, Self
 
-from fastapi_users.schemas import BaseUserUpdate
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 from src.companies.constants import (
@@ -35,7 +34,7 @@ from src.users.constants import (
     title_surname_user,
     title_telegram_username_user,
 )
-from src.users.schemas import UserSchemaMixin
+from src.users.schemas import UserUpdateSchema
 
 
 class CompanyUpdateForUserSchema(BaseModel):
@@ -128,6 +127,14 @@ class CompanyDepartmentUpdateSchema(BaseModel, GetterSlugMixin):
 
     model_config = ConfigDict(extra='forbid')
 
+    @field_validator('name', mode='before')
+    @classmethod
+    def name_cannot_be_null(cls, value: str):
+        """Метод проверки отсутствия имени."""
+        if not value:
+            raise ValueError('Имя отдела не может быть пустым!')
+        return value
+
 
 class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
     """Схема для создания отдела."""
@@ -151,8 +158,26 @@ class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
     company_id: int
 
 
-class CompanyEmployeeUpdateSchema(UserSchemaMixin, BaseUserUpdate):
-    """Схема для изменения данных сотрудника компании."""
+class CompanyEmployeeUpdateSchema(UserUpdateSchema):
+    """Схема для изменения данных сотрудника компании админом компании."""
+
+    @field_validator('name', 'surname', mode='before')
+    @classmethod
+    def name_surname_cannot_be_null(cls, value: str):
+        """Метод проверки отсутствия имени."""
+        if not value:
+            raise ValueError('Имя не может быть пустым!')
+        return value
+
+    @model_validator(mode='after')
+    def validate_unique_name_surname(self) -> Self:
+        if self.name and self.surname and self.name == self.surname:
+            raise ValueError(TEST_ERROR_UNIQUE_NAME_SURNAME)
+        if self.name and not self.name.isalpha():
+            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_NAME)
+        if self.surname and not self.surname.isalpha():
+            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_SURNAME)
+        return self
 
 
 class UserCompanyUpdateSchema(BaseModel):

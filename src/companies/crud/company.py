@@ -4,7 +4,7 @@ from typing import Any, List
 
 from fastapi.responses import FileResponse
 
-from src.companies.models import Company
+from src.companies.models import Company, Department
 from src.crud import CRUDBase
 
 
@@ -44,3 +44,14 @@ class CRUDCompany(CRUDBase):
 
 
 company_crud = CRUDCompany(Company)
+
+
+def company_cruds(model_name='Department'):
+    """
+    Функция выбора модели для CRUD.
+    По умолчанию model_name = 'Department',
+    если необходима Company, ввести 'Company'
+    """
+    if model_name == 'Company':
+        return CRUDCompany(Company)
+    return CRUDCompany(Department)
