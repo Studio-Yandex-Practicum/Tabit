@@ -1,0 +1,65 @@
+name: Build and push Docker image
+
+on:
+  workflow_call:
+    secrets:
+      GHCR_PAT:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+      USERNAME:
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: studio-yandex-practicum/tabit
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.GHCR_PAT }}" ]; then
+            echo "Error: Secret GHCR_PAT is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "Error: Secret SSH_PRIVATE_KEY is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.USERNAME }}" ]; then
+            echo "Error: Secret USERNAME is not set!"
+            exit 1
+          fi
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+          logout: false
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          pull: true
+          context: .
+          file: infra/stage/stage.Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-to: type=inline

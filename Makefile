@@ -2,17 +2,27 @@
 
 # Docker Compose команды
 up:
-	docker compose -f infra/docker-compose.local.yaml up -d
+	docker compose -f infra/docker-compose.local-db.yaml up -d
 
 down:
-	docker compose -f infra/docker-compose.local.yaml down
+	docker compose -f infra/docker-compose.local-db.yaml down
 
 logs:
-	docker compose -f infra/docker-compose.local.yaml logs -f
+	docker compose -f infra/docker-compose.local-db.yaml logs -f
 
 # Команда для создания миграции
 init-migrations:
 	poetry run alembic revision --autogenerate -m "initial migration"
+
+# Команда создания автогенерируемой миграции с возможностью передачи коммита
+# через флаг m='...' для составления названия миграции
+auto-migration:
+	poetry run alembic revision --autogenerate -m "$(m)"
+
+# Команда создания пустой миграции с возможностью передачи коммита
+# через флаг m='...' для составления названия миграции
+empty-migration:
+	poetry run alembic revision -m "$(m)"
 
 # Команда для применения миграций
 apply-migrations:
@@ -24,7 +34,7 @@ reset-db: clean-volumes up apply-migrations
 
 # Удаление Docker volumes (очистка данных базы)
 clean-volumes:
-	docker compose -f infra/docker-compose.local.yaml down -v
+	docker compose -f infra/docker-compose.local-db.yaml down -v
 	@echo "Docker volumes removed. Database data reset."
 
 # Полный процесс инициализации базы данных
