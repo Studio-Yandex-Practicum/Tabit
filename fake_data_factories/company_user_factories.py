@@ -52,9 +52,9 @@ class CompanyUserFactory(BaseUserFactory):
         return super()._create(model_class, *args, **kwargs)
 
 
-async def create_company_users(count: int = FAKER_USER_COUNT, company_id=None) -> None:
-    await CompanyUserFactory.create_batch(count, company_id=company_id)
-    cprint(f'Создано {count} Companies', 'green')
+async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
+    await CompanyUserFactory.create_batch(count, **kwargs)
+    cprint(f'Создано {count} работников компании', 'green')
 
 
 if __name__ == '__main__':

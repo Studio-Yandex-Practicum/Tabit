@@ -3,6 +3,7 @@ import asyncio
 from termcolor import colored, cprint
 
 from fake_data_factories.company_user_factories import create_company_users
+from fake_data_factories.tabit_user_factories import create_tabit_admin_users
 
 
 async def fill_all_data():
@@ -13,7 +14,10 @@ async def fill_all_data():
         colored('Начинаем генерацию тестовых данных...', 'red', attrs=['reverse', 'blink']),
     )
 
-    await create_company_users(count=3, company_id=6)
+    # companies = await create_companies(count=1)  # Если хотим создавать компанию отдельно
+    # first_company_id = companies[0].id if companies else None  # вытаскиваем id нужной
+    await create_tabit_admin_users(count=3)  #  и сюда можем поместить company_id=first_company_id
+    await create_company_users(count=3)
 
     cprint(
         colored('Генерация завершена!', 'red', attrs=['reverse', 'blink']),

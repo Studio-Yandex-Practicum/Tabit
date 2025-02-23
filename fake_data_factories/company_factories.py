@@ -28,8 +28,9 @@ class CompanyFactory(AsyncSQLAlchemyFactory):
 
 
 async def create_companies(count: int = FAKER_COMPANY_COUNT) -> None:
-    await CompanyFactory.create_batch(count)
+    companies = await CompanyFactory.create_batch(count)
     cprint(f'Создано {count} Companies', 'green')
+    return companies
 
 
 if __name__ == '__main__':
