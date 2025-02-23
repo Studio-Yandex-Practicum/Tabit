@@ -13,7 +13,7 @@ async def fill_all_data():
         colored('Начинаем генерацию тестовых данных...', 'red', attrs=['reverse', 'blink']),
     )
 
-    await create_company_users()
+    await create_company_users(count=3, company_id=6)
 
     cprint(
         colored('Генерация завершена!', 'red', attrs=['reverse', 'blink']),
