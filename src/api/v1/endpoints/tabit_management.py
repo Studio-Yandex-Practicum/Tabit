@@ -6,6 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_admin_tabit
 from src.api.v1.auth.managers import get_user_manager
+from src.api.v1.validators import (
+    check_telegram_username_for_duplicates,
+)
 from src.database.db_depends import get_async_session
 from src.tabit_management.crud.admin_company import admin_company_crud
 from src.tabit_management.crud.admin_user import admin_user_crud
@@ -91,6 +94,7 @@ async def create_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
+    await check_telegram_username_for_duplicates(create_data.telegram_username, session)
     return await admin_user_crud.create(session, create_data, user_manager)
 
 
@@ -137,6 +141,7 @@ async def full_update_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
+    await check_telegram_username_for_duplicates(update_data.telegram_username, session)
     return await admin_user_crud.update(user_id, update_data, session, user_manager)
 
 
@@ -163,6 +168,7 @@ async def update_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
+    await check_telegram_username_for_duplicates(update_data.telegram_username, session)
     return await admin_user_crud.update(user_id, update_data, session, user_manager)
 
 

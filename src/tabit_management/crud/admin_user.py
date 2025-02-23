@@ -126,7 +126,6 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
             для создания админа компании;
             user_manager - менеджер пользователей.
         """
-        await self.check_telegram_username_for_duplicates(create_data.telegram_username, session)
         try:
             created_admin_user = await user_manager.create(create_data)
         except UserAlreadyExists:
@@ -156,7 +155,6 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
             session: асинхронная сессия SQLAlchemy;
             user_manager: менеджер пользователей.
         """
-        await self.check_telegram_username_for_duplicates(update_data.telegram_username, session)
         try:
             admin_user = await user_manager.get(user_id)
             admin_user = await user_manager.update(update_data, admin_user)
