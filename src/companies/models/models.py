@@ -1,4 +1,3 @@
-# TODO: Разбить на отдельные файлы
 """
 Модели для компании и департамента.
 """
@@ -81,7 +80,7 @@ class Company(BaseTabitModel):
             f'{self.__class__.__name__}('
             f'id={self.id!r}, '
             f'name={self.name!r}, '
-            f'surname={self.is_active!r})'
+            f'is_active={self.is_active!r})'
         )
 
 

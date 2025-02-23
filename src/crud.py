@@ -167,7 +167,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         # TODO: Добавить возможность автозаполнение поля owner у модели.
         obj_data = obj_in.model_dump()
         db_obj = self.model(**obj_data)
-
         try:
             session.add(db_obj)
             if auto_commit:
@@ -233,7 +232,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def remove(
         self, session: AsyncSession, db_object: ModelType, auto_commit: bool = DEFAULT_AUTO_COMMIT
-    ) -> ModelType:
+    ) -> Any:
         """
         Удаляет переданный объект.
         """
