@@ -37,9 +37,13 @@ class CompanyUserFactory(BaseUserFactory):
         sqlalchemy_session = sc_session
 
     employee_position: str = factory.LazyFunction(lambda: random.choice(list(PositionEnum)))
-    company_id = factory.SubFactory(CompanyFactory)
     current_department_id: Optional[int] = None
     role: str = 'Сотрудник'
+
+    @factory.lazy_attribute
+    async def company_id(self):
+        company = await CompanyFactory.create()
+        return company.id
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):

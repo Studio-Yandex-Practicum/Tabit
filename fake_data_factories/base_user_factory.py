@@ -39,7 +39,7 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
     patronymic: str = factory.LazyFunction(lambda: random.choice(PATRONYMIC))
     phone_number: str = factory.Faker('msisdn', locale='ru_RU')
     email: str = factory.Faker('email')
-    password: str = factory.Faker('password')
+    hashed_password: str = factory.Faker('password')
     is_active: bool = True
     is_superuser: bool = False
     is_verified: bool = True
