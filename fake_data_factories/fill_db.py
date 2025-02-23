@@ -2,7 +2,7 @@ import asyncio
 
 from termcolor import colored, cprint
 
-from fake_data_factories.company_factories import create_companies
+from fake_data_factories.company_user_factories import create_company_users
 
 
 async def fill_all_data():
@@ -13,7 +13,7 @@ async def fill_all_data():
         colored('Начинаем генерацию тестовых данных...', 'red', attrs=['reverse', 'blink']),
     )
 
-    await create_companies()
+    await create_company_users()
 
     cprint(
         colored('Генерация завершена!', 'red', attrs=['reverse', 'blink']),
