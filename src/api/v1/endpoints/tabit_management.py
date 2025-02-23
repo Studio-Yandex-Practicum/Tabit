@@ -149,7 +149,7 @@ async def full_update_staff(
     '/staff/{user_id}',
     summary='Частично изменить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
-    response_model=CompanyAdminUpdateSchema,
+    response_model=CompanyAdminReadSchema,
 )
 async def update_staff(
     user_id: UUID,
