@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.annotations import int_pk
-from src.models.base import BaseTabitModel
+from src.models import BaseTabitModel, TagUser
 
 if TYPE_CHECKING:
     from src.models import Meeting, Problem, Task, UserTabit
@@ -104,4 +104,37 @@ class AssociationUserTask(BaseTabitModel):
             f'{self.__class__.__name__}('
             f'id={self.id!r}, '
             f'user id {self.left_id!r} <-> task id {self.right_id!r})'
+        )
+
+
+class AssociationUserTags(BaseTabitModel):
+    """
+    Связная таблица UserTabit и Tag.
+
+    Назначение:
+        Обеспечить связь Many to Many между двумя другими таблицами.
+
+    Поля:
+        id: Идентификатор.
+        left_id: Внешний ключ первой таблицы.
+        right_id: Внешний ключ второй таблицы.
+        created_at: Дата создания записи в таблице. Автозаполнение.
+        updated_at: Дата изменения записи в таблице. Автозаполнение.
+
+    Связи (атрибут - Модель):
+        user - UserTabit;
+        tag - TagUser.
+    """
+
+    id: Mapped[int_pk]
+    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
+    right_id: Mapped[int] = mapped_column(ForeignKey('taguser.id'), primary_key=True)
+    user: Mapped['UserTabit'] = relationship(back_populates='tags')
+    tag: Mapped['TagUser'] = relationship(back_populates='user')
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'user id {self.left_id!r} <-> tag id {self.right_id!r})'
         )

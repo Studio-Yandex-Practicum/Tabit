@@ -1,4 +1,4 @@
-from .association_models import AssociationUserTask, AssociationUserProblem, AssociationUserMeeting
+from .association_models import AssociationUserTask, AssociationUserProblem, AssociationUserMeeting, AssociationUserTags
 from .base import BaseTabitModel, BaseUser, BaseTag, BaseFileLink
 from .company import Company, Department
 from .enum import RoleUserTabit, ColorProblem, TypeProblem, StatusProblem, StatusMeeting, ResultMeetingEnum, StatusTask
@@ -6,9 +6,11 @@ from .file_path import FileProblem, FileMeeting, FileTask, FileMessage
 from .problem import Problem
 from .problem_meeting import Meeting, ResultMeeting
 from .problem_message import MessageFeed, CommentFeed, VotingFeed, VotingByUser
-from .tabit_management import TabitAdminUser, LicenseType, LandingPage
+from .landing_page import LandingPage
+from .license_type import LicenseType
+from .tag import TagUser
 from .task import Task
-from .user import AssociationUserTags, TagUser, UserTabit
+from .user import AssociationUserTags, UserTabit, TabitAdminUser
 
 __all__ = [
     # Association
@@ -47,13 +49,14 @@ __all__ = [
     'CommentFeed',
     'VotingFeed',
     'VotingByUser',
-    # Tabit Management
-    'TabitAdminUser',
+    # License Type
     'LicenseType',
+    # Landing Page
     'LandingPage',
     # Task
     'Task',
     # User
     'TagUser',
     'UserTabit',
+    'TabitAdminUser',
 ]

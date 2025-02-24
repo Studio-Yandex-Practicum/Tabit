@@ -4,7 +4,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.annotations import int_pk, owner
-from src.models.base import BaseTabitModel, BaseTag
+from src.models import BaseTabitModel, BaseTag
 
 if TYPE_CHECKING:
     from src.models import FileMessage, Problem, UserTabit

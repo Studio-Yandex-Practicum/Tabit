@@ -1,15 +1,13 @@
 from datetime import date
 from typing import TYPE_CHECKING, List, Optional
-from uuid import UUID
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
 
 from src.core.constants.common import LENGTH_TELEGRAM_USERNAME
-from src.core.annotations import int_pk, url_link_field
-from src.models.base import BaseTabitModel, BaseTag, BaseUser
-from src.models.enum import RoleUserTabit
+from src.core.annotations import url_link_field
+from src.models import BaseUser, AssociationUserTags, RoleUserTabit
 
 if TYPE_CHECKING:
     from src.models import (
@@ -26,63 +24,6 @@ if TYPE_CHECKING:
         Task,
         VotingByUser,
     )
-
-
-class AssociationUserTags(BaseTabitModel):
-    """
-    Связная таблица UserTabit и Tag.
-
-    Назначение:
-        Обеспечить связь Many to Many между двумя другими таблицами.
-
-    Поля:
-        id: Идентификатор.
-        left_id: Внешний ключ первой таблицы.
-        right_id: Внешний ключ второй таблицы.
-        created_at: Дата создания записи в таблице. Автозаполнение.
-        updated_at: Дата изменения записи в таблице. Автозаполнение.
-
-    Связи (атрибут - Модель):
-        user - UserTabit;
-        tag - TagUser.
-    """
-
-    id: Mapped[int_pk]
-    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
-    right_id: Mapped[int] = mapped_column(ForeignKey('taguser.id'), primary_key=True)
-    user: Mapped['UserTabit'] = relationship(back_populates='tags')
-    tag: Mapped['TagUser'] = relationship(back_populates='user')
-
-    def __repr__(self):
-        return (
-            f'{self.__class__.__name__}('
-            f'id={self.id!r}, '
-            f'user id {self.left_id!r} <-> tag id {self.right_id!r})'
-        )
-
-
-class TagUser(BaseTag):
-    """
-    Модель тэгов пользователей.
-
-    Назначение:
-        Админ от компании может для сотрудников своей компании придумывать свои тэги.
-
-    Поля:
-        id: Идентификационный номер тэга.
-        name: Имя тега.
-        company_id: Идентификатор компании, в которой будет использоваться тэг.
-        created_at: Дата создания записи в таблице. Автозаполнение.
-        updated_at: Дата изменения записи в таблице. Автозаполнение.
-
-    Связи (атрибут - Модель):
-        user - AssociationUserTags -> UserTabit;
-        company - Company.
-    """
-
-    user: Mapped[List['AssociationUserTags']] = relationship(back_populates='tag')
-    company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
-    company: Mapped['Company'] = relationship(back_populates='tags_users')
 
 
 class UserTabit(BaseUser):
@@ -184,3 +125,28 @@ class UserTabit(BaseUser):
     )
 
     # TODO: На уровне базы запретить ставить is_superuser = True.
+
+
+class TabitAdminUser(BaseUser):
+    """
+    Модель пользователей-админов сервиса Tabit.
+
+    Назначение:
+        Хранит сведения о админов и модераторов, обслуживающих сервис Tabit.
+
+    Поля:
+        id: Идентификационный номер пользователя - UUID.
+        name: Имя пользователя.
+        surname: Фамилия пользователя.
+        patronymic: Отчество пользователя.
+        phone_number: Номер телефона пользователя.
+        email: Адрес электронной почты пользователя.
+        hashed_password: Хэш пароля пользователя.
+        is_active: bool - активен ли пользователь.
+        is_superuser: bool - суперюзер ли пользователь.
+        is_verified: bool - проверен ли пользователь.
+        created_at: Дата создания записи в таблице. Автозаполнение.
+        updated_at: Дата изменения записи в таблице. Автозаполнение.
+    """
+
+    pass

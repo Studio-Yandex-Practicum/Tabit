@@ -26,7 +26,7 @@ from .company import (
 )
 from .enum import MeetingStatus, MeetingResult, MeetingProblemSolution, MeetingParticipiantEngagement
 from .file import BaseFileSchema, FileCreateSchema, FileUpdateSchema, FileResponseSchema
-from .landing import (
+from .landing_page import (
     LandingPageBaseSchema,
     LandingPageCreateSchema,
     LandingPageUpdateSchema,

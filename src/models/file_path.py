@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.models.base import BaseFileLink
+from src.models import BaseFileLink
 
 if TYPE_CHECKING:
     from src.models import Meeting, MessageFeed, Problem, Task

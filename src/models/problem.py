@@ -3,8 +3,7 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy.orm import Mapped, relationship
 
 from src.core.annotations import description, int_pk, name_problem, owner
-from src.models.base import BaseTabitModel
-from src.models.enum import ColorProblem, StatusProblem, TypeProblem
+from src.models import BaseTabitModel, ColorProblem, StatusProblem, TypeProblem
 
 if TYPE_CHECKING:
     from src.models import (
