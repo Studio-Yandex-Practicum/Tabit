@@ -1,5 +1,5 @@
-from src.crud import CRUDBase, UserCreateMixin
-from src.tabit_management.models import TabitAdminUser
+from src.core.crud_base import CRUDBase, UserCreateMixin
+from src.models import TabitAdminUser
 
 
 class CRUDAdminUser(UserCreateMixin, CRUDBase):

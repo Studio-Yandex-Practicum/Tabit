@@ -25,9 +25,9 @@ from pydantic import BaseModel
 
 from src.api.v1.auth.managers import get_admin_manager, get_user_manager
 from src.api.v1.auth.protocol import StrategyT, TransportT
-from src.config import settings
-from src.tabit_management.models import TabitAdminUser
-from src.users.models import UserTabit
+from src.core.config.app import settings
+from src.models.tabit_management import TabitAdminUser
+from src.models import UserTabit
 
 
 class TransportShema(BaseModel):

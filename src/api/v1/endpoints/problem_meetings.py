@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database.db_depends import get_async_session
+from src.core.database.db_depends import get_async_session
 from src.problems.crud.meeting import meeting_crud
-from src.problems.schemas.meeting import (
+from src.schemas import (
     MeetingCreateSchema,
     MeetingResponseSchema,
     MeetingUpdateSchema,

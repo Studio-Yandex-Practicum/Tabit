@@ -1,9 +1,9 @@
 from fastapi import Depends
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 
-from src.database.db_depends import get_async_session
-from src.tabit_management.models import TabitAdminUser
-from src.users.models import UserTabit
+from src.core.database.db_depends import get_async_session
+from src.models.tabit_management import TabitAdminUser
+from src.models import UserTabit
 
 
 async def get_admin_db(session=Depends(get_async_session)):

@@ -2,8 +2,8 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.crud import CRUDBase
-from src.tabit_management.models import LicenseType
+from src.core.crud_base import CRUDBase
+from src.models import LicenseType
 
 
 class CRUDLicenseType(CRUDBase):

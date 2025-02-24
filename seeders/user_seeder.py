@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.companies.models.models import User
+from src.models import UserTabit
 
 from .base_seeder import BaseSeeder
 from .constants import FAKER_USER_COUNT
@@ -25,7 +25,7 @@ class UserSeeder(BaseSeeder):
         :param session: асинхронная сессия SQLAlchemy
         """
         # TODO: когда будет модель, поправлю поля
-        users = [User(username=fake.user_name(), email=fake.email()) for _ in range(self.count)]
+        users = [UserTabit(username=fake.user_name(), email=fake.email()) for _ in range(self.count)]
         session.add_all(users)
         await session.commit()
 

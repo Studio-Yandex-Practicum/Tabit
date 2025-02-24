@@ -1,5 +1,5 @@
-from src.crud import CRUDBase
-from src.users.models import UserTabit
+from src.core.crud_base import CRUDBase
+from src.models import UserTabit
 
 
 class CRUDUsers(CRUDBase):

@@ -2,10 +2,10 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.crud import CRUDBase
+from src.core.crud_base import CRUDBase
 from src.problems.crud.association_utils import create_associations
-from src.problems.models import AssociationUserProblem, Problem
-from src.problems.schemas.problem import ProblemCreateSchema, ProblemUpdateSchema
+from src.models import AssociationUserProblem, Problem
+from src.schemas.problem import ProblemCreateSchema, ProblemUpdateSchema
 
 
 # TODO Надо доработать CRUD на получение и обновление проблем со списком участников

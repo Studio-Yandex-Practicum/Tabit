@@ -3,9 +3,9 @@ from http import HTTPStatus
 from fastapi import Depends, HTTPException
 
 from src.api.v1.auth.jwt import tabit_admin, tabit_user
-from src.api.v1.constants import TextError
-from src.users.models import UserTabit
-from src.users.models.enum import RoleUserTabit
+from src.core.constants.endpoints import TextError
+from src.models import UserTabit
+from src.models.enum import RoleUserTabit
 
 current_superuser = tabit_admin.current_user(active=True, superuser=True)
 """

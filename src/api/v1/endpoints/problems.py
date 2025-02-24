@@ -3,9 +3,9 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database.db_depends import get_async_session
+from src.core.database.db_depends import get_async_session
 from src.problems.crud.problems import problem_crud
-from src.problems.schemas.problem import (
+from src.schemas.problem import (
     ProblemCreateSchema,
     ProblemResponseSchema,
     ProblemUpdateSchema,

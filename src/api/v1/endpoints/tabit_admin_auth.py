@@ -19,17 +19,17 @@ from src.api.v1.auth.dependencies import (
 from src.api.v1.auth.jwt import jwt_auth_backend_admin
 from src.api.v1.auth.managers import get_admin_manager
 from src.api.v1.auth.protocol import StrategyT
-from src.api.v1.auth.schema_token import TokenReadSchemas
-from src.api.v1.constants import Description, Summary
+from src.schemas.token import TokenReadSchemas
+from src.core.constants.endpoints import Description, Summary
 from src.api.v1.validator import (
     check_user_is_active,
     validator_check_not_is_superuser,
     validator_check_object_exists,
 )
-from src.database.db_depends import get_async_session
+from src.core.database.db_depends import get_async_session
+from src.models.tabit_management import TabitAdminUser
 from src.tabit_management.crud import admin_user_crud
-from src.tabit_management.models import TabitAdminUser
-from src.tabit_management.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
+from src.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
 
 router = APIRouter()
 

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database.db_depends import get_async_session
-from src.tabit_management.constants import (
+from src.core.database.db_depends import get_async_session
+from src.core.constants.tabit_management import (
     SUMMARY_CREATE_LICENSE,
     SUMMARY_DELETE_LICENSE,
     SUMMARY_GET_LICENSE,
@@ -10,12 +10,10 @@ from src.tabit_management.constants import (
     SUMMARY_UPDATE_LICENSE,
 )
 from src.tabit_management.crud import license_type_crud
-from src.tabit_management.schemas import (
+from src.schemas import (
     LicenseTypeCreateSchema,
     LicenseTypeResponseSchema,
     LicenseTypeUpdateSchema,
-)
-from src.tabit_management.schemas.license_type import (
     LicenseTypeFilterSchema,
     LicenseTypeListResponseSchema,
 )

@@ -8,15 +8,15 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_admin_tabit
-from src.api.v1.constants import Description, Summary
+from src.core.constants.endpoints import Description, Summary
 from src.api.v1.validator import validator_check_object_exists
 from src.companies.crud import company_crud
-from src.companies.schemas import (
+from src.schemas import (
     CompanyCreateSchema,
     CompanyResponseSchema,
     CompanyUpdateSchema,
 )
-from src.database.db_depends import get_async_session
+from src.core.database.db_depends import get_async_session
 
 router = APIRouter()
 

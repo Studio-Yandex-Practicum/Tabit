@@ -2,8 +2,8 @@ from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, InvalidPasswordException, UUIDIDMixin, models, schemas
 
 from src.api.v1.auth.access_to_db import get_admin_db, get_user_db
-from src.constants import ERROR_INVALID_PASSWORD_LENGTH, MIN_LENGTH_PASSWORD
-from src.tabit_management.models import TabitAdminUser
+from src.core.constants.common import ERROR_INVALID_PASSWORD_LENGTH, MIN_LENGTH_PASSWORD
+from src.models.tabit_management import TabitAdminUser
 
 
 class BaseTabitUserManager(UUIDIDMixin, BaseUserManager):

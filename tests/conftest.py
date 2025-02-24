@@ -8,10 +8,10 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from src.database import Base
-from src.database.db_depends import get_async_session
+from src.core.database import BaseTabitModel
+from src.core.database.db_depends import get_async_session
 from src.main import app_v1
-from src.tabit_management.models import LicenseType
+from src.models.tabit_management import LicenseType
 
 
 @pytest.fixture
@@ -26,11 +26,11 @@ def test_db(postgresql):
 
     async def init_db():
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+            await conn.run_sync(BaseTabitModel.metadata.create_all)
 
     async def drop_db():
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(BaseTabitModel.metadata.drop_all)
         await engine.dispose()
 
     pytest.db_engine = engine

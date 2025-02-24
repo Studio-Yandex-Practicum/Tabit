@@ -1,6 +1,6 @@
 import typer
 
-from src.database import async_session
+from src.core.database.db_depends import get_async_session
 
 from .base_runner import seed_all
 
@@ -14,7 +14,7 @@ def seed_all_data():
     """
 
     async def run():
-        async with async_session() as session:
+        async with get_async_session() as session:
             await seed_all(session)
 
     typer.echo('Начинаем генерацию всех тестовых данных...')

@@ -4,10 +4,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.companies.schemas.company import CompanyFeedbackCreateShema, UserCompanyUpdateSchema
-from src.database.db_depends import get_async_session
+from src.schemas.company import CompanyFeedbackCreateShema, UserCompanyUpdateSchema
+from src.core.database.db_depends import get_async_session
 from src.users.crud.user import user_crud
-from src.users.schemas import UserReadSchema
+from src.schemas import UserReadSchema
 
 router = APIRouter()
 
