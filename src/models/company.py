@@ -17,10 +17,6 @@ from src.core.annotations import (
     url_link_field,
 )
 from src.models import BaseTabitModel
-from src.models.types import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from src.models import LicenseType, TagUser, UserTabit
 
 
 class Company(BaseTabitModel):

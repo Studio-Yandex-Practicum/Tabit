@@ -6,10 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.annotations import description, int_pk, name_problem, owner
 from src.models import BaseTabitModel, StatusTask
-from src.models.types import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from src.models.types import AssociationUserTask, FileTask, Problem, UserTabit
 
 
 class Task(BaseTabitModel):

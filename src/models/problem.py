@@ -4,17 +4,6 @@ from sqlalchemy.orm import Mapped, relationship
 
 from src.core.annotations import description, int_pk, name_problem, owner
 from src.models import BaseTabitModel, ColorProblem, StatusProblem, TypeProblem
-from src.models.types import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from src.models.types import (
-        AssociationUserProblem,
-        FileProblem,
-        Meeting,
-        MessageFeed,
-        Task,
-        UserTabit,
-    )
 
 
 class Problem(BaseTabitModel):

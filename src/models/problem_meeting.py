@@ -7,10 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.core.constants.common import LENGTH_NAME_MEETING_PLACE
 from src.core.annotations import description, int_pk, int_zero, name_problem, owner
 from src.models import BaseTabitModel, ResultMeetingEnum, StatusMeeting
-from src.models.types import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from src.models.types import AssociationUserMeeting, FileMeeting, Problem, UserTabit
 
 
 class Meeting(BaseTabitModel):

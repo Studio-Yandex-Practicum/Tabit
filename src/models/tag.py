@@ -4,9 +4,6 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import BaseTag
-from src.models.types import TYPE_CHECKING
-if TYPE_CHECKING:
-    from src.models.types import AssociationUserTags, Company
 
 
 class TagUser(BaseTag):
