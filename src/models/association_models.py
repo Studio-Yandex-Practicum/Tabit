@@ -5,10 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.annotations import int_pk
 from src.models import BaseTabitModel
-from src.models.types import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from src.models.types import UserTabit, Problem, Meeting, Task, TagUser
 
 
 class AssociationUserProblem(BaseTabitModel):

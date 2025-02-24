@@ -86,6 +86,8 @@ from .user import (
 )
 
 __all__ = [
+    'GetterSlugMixin',
+    'UserSchemaMixin',
     'AdminCompanyResponseSchema',
     'CompanyAdminReadSchema',
     'CompanyAdminSchemaMixin',
@@ -100,7 +102,6 @@ __all__ = [
     'CompanyUpdateSchema',
     'CompanyResponseSchema',
     'CompanyCreateSchema',
-    'DepartmentResponseSchema',
     'CompanyEmployeeUpdateSchema',
     'UserCompanyUpdateSchema',
     'CompanyFeedbackCreateShema',
@@ -143,7 +144,6 @@ __all__ = [
     'VotingInDB',
     'VotingByUserCreate',
     'VotingByUserInDB',
-    'GetterSlugMixin',
     'ProblemBaseSchema',
     'ProblemResponseSchema',
     'ProblemCreateSchema',
@@ -159,7 +159,6 @@ __all__ = [
     'TaskCreateSchema',
     'TaskUpdateSchema',
     'TokenReadSchemas',
-    'UserSchemaMixin',
     'UserReadSchema',
     'UserCreateSchema',
     'UserUpdateSchema',

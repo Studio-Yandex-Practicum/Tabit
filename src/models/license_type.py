@@ -6,10 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.core.annotations import int_pk, license_name_field
 from src.models import BaseTabitModel
 from src.core.constants.tabit_management import DEFAULT_NUMBER_DEY_LICENSE
-from src.models.types import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from src.models.types import Company
 
 class LicenseType(BaseTabitModel):
     """

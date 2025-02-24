@@ -7,26 +7,7 @@ from sqlalchemy.sql.schema import UniqueConstraint
 
 from src.core.constants.common import LENGTH_TELEGRAM_USERNAME
 from src.core.annotations import url_link_field
-from src.models.base import BaseUser
-from src.models.enum import RoleUserTabit
-from src.models.types import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from src.models.types import (
-        Company,
-        Department,
-        AssociationUserMeeting,
-        AssociationUserProblem,
-        AssociationUserTask,
-        CommentFeed,
-        Meeting,
-        MessageFeed,
-        Problem,
-        ResultMeeting,
-        Task,
-        VotingByUser,
-        AssociationUserTags,
-    )
+from src.models import BaseUser, RoleUserTabit
 
 
 class UserTabit(BaseUser):
