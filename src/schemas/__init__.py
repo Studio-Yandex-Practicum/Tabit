@@ -1,3 +1,4 @@
+from .mixins import GetterSlugMixin, UserSchemaMixin
 from .admin_company import (
     AdminCompanyResponseSchema,
     CompanyAdminReadSchema,
@@ -62,7 +63,6 @@ from .problem_message import (
     VotingByUserCreate,
     VotingByUserInDB,
 )
-from .mixins import GetterSlugMixin
 from .problem import (
     ProblemBaseSchema,
     ProblemResponseSchema,
@@ -79,7 +79,6 @@ from .task import (
 )
 from .token import TokenReadSchemas
 from .user import (
-    UserSchemaMixin,
     UserReadSchema,
     UserCreateSchema,
     UserUpdateSchema,
@@ -87,19 +86,16 @@ from .user import (
 )
 
 __all__ = [
-    # Admin Company
     'AdminCompanyResponseSchema',
     'CompanyAdminReadSchema',
     'CompanyAdminSchemaMixin',
     'CompanyAdminCreateSchema',
     'CompanyAdminUpdateSchema',
-    # Admin User
     'BaseAdminSchema',
     'AdminReadSchema',
     'AdminCreateSchema',
     'AdminUpdateSchema',
     'AdminCreateFirstSchema',
-    # Company
     'CompanyUpdateForUserSchema',
     'CompanyUpdateSchema',
     'CompanyResponseSchema',
@@ -111,29 +107,24 @@ __all__ = [
     'CompanyDepartmentUpdateSchema',
     'CompanyDepartmentCreateSchema',
     'CompanyDepartmentResponseSchema',
-    # Enums
     'MeetingStatus',
     'MeetingResult',
     'MeetingProblemSolution',
     'MeetingParticipiantEngagement',
-    # File
     'BaseFileSchema',
     'FileCreateSchema',
     'FileUpdateSchema',
     'FileResponseSchema',
-    # Landing
     'LandingPageBaseSchema',
     'LandingPageCreateSchema',
     'LandingPageUpdateSchema',
     'LandingPageResponseSchema',
-    # License
     'LicenseTypeBaseSchema',
     'LicenseTypeCreateSchema',
     'LicenseTypeUpdateSchema',
     'LicenseTypeResponseSchema',
     'LicenseTypeListResponseSchema',
     'LicenseTypeFilterSchema',
-    # Meeting
     'MeetingBaseSchema',
     'MeetingCreateSchema',
     'MeetingUpdateSchema',
@@ -141,7 +132,6 @@ __all__ = [
     'ResultMeetingBaseSchema',
     'ResultMeetingCreateSchema',
     'ResultMeetingInDB',
-    # Message
     'MessageBase',
     'MessageCreate',
     'MessageInDB',
@@ -153,29 +143,22 @@ __all__ = [
     'VotingInDB',
     'VotingByUserCreate',
     'VotingByUserInDB',
-    # Mixins
     'GetterSlugMixin',
-    # Problem
     'ProblemBaseSchema',
     'ProblemResponseSchema',
     'ProblemCreateSchema',
     'ProblemUpdateSchema',
-    # Query Params
     'BaseFilterSchema',
     'CompanyFilterSchema',
     'UserFilterSchema',
-    # Tag
     'TagUserUpdateSchema',
     'TagUserCreateSchema',
     'TagUserResponseSchema',
-    # Task
     'TaskBaseSchema',
     'TaskResponseSchema',
     'TaskCreateSchema',
     'TaskUpdateSchema',
-    # Token
     'TokenReadSchemas',
-    # User
     'UserSchemaMixin',
     'UserReadSchema',
     'UserCreateSchema',

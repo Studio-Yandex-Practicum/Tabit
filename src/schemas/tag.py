@@ -3,7 +3,7 @@ from datetime import date
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.core.constants.common import LENGTH_NAME_USER, MIN_LENGTH_NAME
-from src.core.constants.user import title_company_id_tag, title_name_tag
+from src.core.constants.user import TITLE_COMPANY_ID_TAG, TITLE_NAME_TAG
 
 
 class TagUserUpdateSchema(BaseModel):
@@ -13,7 +13,7 @@ class TagUserUpdateSchema(BaseModel):
         ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=title_name_tag,
+        title=TITLE_NAME_TAG,
     )
 
 
@@ -22,7 +22,7 @@ class TagUserCreateSchema(TagUserUpdateSchema):
 
     company_id: int = Field(
         ...,
-        title=title_company_id_tag,
+        title=TITLE_COMPANY_ID_TAG,
     )
 
 

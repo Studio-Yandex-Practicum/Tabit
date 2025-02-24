@@ -19,7 +19,7 @@ from src.api.v1.auth.dependencies import (
 from src.api.v1.auth.jwt import jwt_auth_backend_admin
 from src.api.v1.auth.managers import get_admin_manager
 from src.api.v1.auth.protocol import StrategyT
-from src.schemas.token import TokenReadSchemas
+from src.schemas import TokenReadSchemas
 from src.core.constants.endpoints import Description, Summary
 from src.api.v1.validator import (
     check_user_is_active,

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
-from src.models.enum import ColorProblem, StatusProblem, TypeProblem
+from src.models import ColorProblem, StatusProblem, TypeProblem
 
 
 class ProblemBaseSchema(BaseModel):

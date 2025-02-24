@@ -22,7 +22,6 @@ from src.core.constants.company import (
     TITLE_SLUG_DEPARTMENT,
     TITLE_START_LICENSE_TIME_COMPANY,
 )
-from src.schemas.mixins import GetterSlugMixin
 from src.core.constants.common import (
     LENGTH_NAME_COMPANY,
     LENGTH_NAME_USER,
@@ -35,7 +34,7 @@ from src.core.constants.user import (
     TITLE_SURNAME_USER,
     TITLE_TELEGRAM_USERNAME_USER,
 )
-from src.schemas import UserSchemaMixin
+from src.schemas import UserSchemaMixin, GetterSlugMixin
 
 
 class CompanyUpdateForUserSchema(BaseModel):

@@ -2,7 +2,7 @@
 Модели для компании и департамента.
 """
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import List, Optional
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -17,6 +17,7 @@ from src.core.annotations import (
     url_link_field,
 )
 from src.models import BaseTabitModel
+from src.models.types import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.models import LicenseType, TagUser, UserTabit

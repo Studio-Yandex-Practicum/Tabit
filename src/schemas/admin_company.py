@@ -27,7 +27,7 @@ from src.core.constants.user import (
     TITLE_SURNAME_USER,
     TITLE_TELEGRAM_USERNAME_USER,
 )
-from src.models.enum import RoleUserTabit
+from src.models import RoleUserTabit
 
 
 class AdminCompanyResponseSchema(BaseModel):
