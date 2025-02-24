@@ -14,7 +14,7 @@ from src.core.auth.managers import get_user_manager
 from src.core.auth.protocol import StrategyT
 from src.schemas import TokenReadSchemas
 from src.core.constants.endpoints import Description, Summary
-from src.api.v1.validator import check_user_is_active
+from src.validators.endpoints.common import check_user_is_active
 from src.models import TabitAdminUser
 
 router = APIRouter()

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.constants.endpoints import Description, Summary
-from src.api.v1.validator import validator_check_object_exists
+from src.validators.endpoints.common import validator_check_object_exists
 from src.companies.crud import company_crud
 from src.schemas import (
     CompanyCreateSchema,

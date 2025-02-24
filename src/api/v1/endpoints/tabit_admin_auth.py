@@ -21,7 +21,7 @@ from src.core.auth.managers import get_admin_manager
 from src.core.auth.protocol import StrategyT
 from src.schemas import TokenReadSchemas
 from src.core.constants.endpoints import Description, Summary
-from src.api.v1.validator import (
+from src.validators.endpoints.common import (
     check_user_is_active,
     validator_check_not_is_superuser,
     validator_check_object_exists,
