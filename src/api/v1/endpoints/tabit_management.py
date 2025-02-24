@@ -6,19 +6,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_admin_tabit
 from src.api.v1.auth.managers import get_user_manager
-from src.api.v1.validators import (
-    check_telegram_username_for_duplicates,
+from src.core.database.db_depends import get_async_session
+from src.core.config.logging import logger
+from src.core.constants.tabit_management import (
+    ERROR_INTERNAL_SERVER,
+    ERROR_INVALID_PASSWORD,
+    ERROR_USER_ALREADY_EXISTS,
+    ERROR_USER_NOT_EXISTS,
 )
-from src.database.db_depends import get_async_session
 from src.tabit_management.crud.admin_company import admin_company_crud
 from src.tabit_management.crud.admin_user import admin_user_crud
-from src.tabit_management.schemas.admin_company import (
+from src.schemas import (
     AdminCompanyResponseSchema,
     CompanyAdminCreateSchema,
     CompanyAdminReadSchema,
     CompanyAdminUpdateSchema,
+    CompanyFilterSchema,
+    UserFilterSchema,
 )
-from src.tabit_management.schemas.query_params import CompanyFilterSchema, UserFilterSchema
+from src.models import UserTabit
 
 router = APIRouter()
 

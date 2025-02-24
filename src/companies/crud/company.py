@@ -7,9 +7,8 @@ from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from src.companies.models import Company
-from src.crud import CRUDBase
-from src.tabit_management.models import LicenseType
+from src.models import Company
+from src.core.crud_base import CRUDBase
 
 
 class CRUDCompany(CRUDBase):

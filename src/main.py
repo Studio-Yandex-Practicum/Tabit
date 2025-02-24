@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 
 from src.api.v1.routers import main_router
-from src.config import settings
-from src.logger import LoggingMiddleware
-from src.scripts import application_management
+from src.core.config.app import settings
+from src.core.config.logging import LoggingMiddleware
+from scripts.pre_start import application_management
 
 app_v1 = FastAPI(
     title=settings.app_title,

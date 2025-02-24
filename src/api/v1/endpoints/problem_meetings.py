@@ -9,7 +9,7 @@ from src.api.v1.validators.meeting_validators import (
 from src.api.v1.validators.problems_validators import check_company_exists
 from src.database.db_depends import get_async_session
 from src.problems.crud.meeting import meeting_crud
-from src.problems.schemas.meeting import (
+from src.schemas import (
     MeetingCreateSchema,
     MeetingResponseSchema,
     MeetingUpdateSchema,

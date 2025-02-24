@@ -14,3 +14,4 @@ __all__ = [
     'MessageFeedCreate',
     'MessageFeedRead',
 ]
+

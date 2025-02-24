@@ -16,7 +16,7 @@ from src.api.v1.validators.tabit_management_companies_validators import (
     validate_license_exists,
 )
 from src.companies.crud import company_crud
-from src.companies.schemas import (
+from src.schemas import (
     CompanyCreateSchema,
     CompanyResponseSchema,
     CompanyUpdateSchema,

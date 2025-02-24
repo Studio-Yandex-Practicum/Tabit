@@ -1,14 +1,5 @@
-from typing import Any, Optional
-
-from fastapi import HTTPException, status
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from src.companies.models import Company
-from src.constants import DEFAULT_LIMIT, DEFAULT_SKIP
-from src.crud import CRUDBase
-from src.logger import logger
-from src.tabit_management.constants import ERROR_INTERNAL_SERVER
+from src.models import Company
+from src.core.crud_base import CRUDBase
 
 
 class CRUDAdminCompany(CRUDBase):

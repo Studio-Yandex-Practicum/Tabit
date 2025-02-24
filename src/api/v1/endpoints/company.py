@@ -9,28 +9,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_company_admin, current_user_tabit
 from src.api.v1.auth.managers import get_user_manager
-
-# from src.api.v1.permissions import company_permissions
-from src.api.v1.constants import Summary
+from src.core.constants.endpoints import Summary, TextError
 from src.api.v1.validator import validator_check_object_exists
-from src.api.v1.validators.company_validators import (
-    check_department_name_duplicate,
-    check_slug_duplicate,
-    validate_password,
-    validate_user_not_exists,
+from src.core.constants.company import (
+    ERROR_INVALID_PASSWORD,
+    ERROR_USER_ALREADY_EXISTS,
+    ERROR_USER_NOT_EXISTS,
 )
 from src.companies.crud import company_crud, company_departments_crud
-from src.companies.schemas import (
+from src.schemas import (
     CompanyDepartmentCreateSchema,
     CompanyDepartmentResponseSchema,
     CompanyDepartmentUpdateSchema,
     CompanyEmployeeUpdateSchema,
     CompanyResponseSchema,
 )
-from src.database.db_depends import get_async_session
+from src.core.database.db_depends import get_async_session
 from src.users.crud.user import user_crud
-from src.users.schemas import UserCreateSchema, UserReadSchema
-from src.utils.email_service.email_schema import EmailCreateSchema
+from src.schemas import UserCreateSchema, UserReadSchema
 
 router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_company_admin)])
 

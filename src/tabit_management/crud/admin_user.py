@@ -1,27 +1,5 @@
-from typing import Any, Optional
-from uuid import UUID
-
-from fastapi import HTTPException, status
-from fastapi_users.exceptions import InvalidPasswordException, UserAlreadyExists, UserNotExists
-from fastapi_users.manager import BaseUserManager
-from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from src.constants import DEFAULT_LIMIT, DEFAULT_SKIP
-from src.crud import CRUDBase, UserCreateMixin
-from src.logger import logger
-from src.tabit_management.constants import (
-    ERROR_INTERNAL_SERVER,
-    ERROR_INVALID_PASSWORD,
-    ERROR_USER_ALREADY_EXISTS,
-    ERROR_USER_NOT_EXISTS,
-)
-from src.tabit_management.schemas.admin_company import (
-    CompanyAdminCreateSchema,
-    CompanyAdminUpdateSchema,
-)
-from src.users.models import UserTabit
+from src.core.crud_base import CRUDBase, UserCreateMixin
+from src.models import TabitAdminUser
 
 
 class CRUDAdminUser(UserCreateMixin, CRUDBase):
