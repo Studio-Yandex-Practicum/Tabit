@@ -1,8 +1,11 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from pydantic import ConfigDict, EmailStr, SecretStr
 from pydantic_settings import BaseSettings
+
+from src.constants import BASE_DIR
 
 load_dotenv()
 
@@ -33,6 +36,18 @@ class Settings(BaseSettings):
     first_superuser_password: str | None = None
     first_superuser_name: str | None = None
     first_superuser_surname: str | None = None
+
+    mail_username: str = os.getenv('MAIL_USERNAME')
+    mail_password: SecretStr = os.getenv('MAIL_PASSWORD')
+    mail_from: str = os.getenv('MAIL_FROM')
+    mail_port: str = os.getenv('MAIL_PORT')
+    mail_server: str = os.getenv('MAIL_SERVER')
+    mail_from_name: str = os.getenv('MAIL_FROM_NAME')
+    mail_starttls: bool = True  # Для соединений STARTTLS (шифрование).
+    mail_ssl_tls: bool = False  # Для подключения по протоколу TLS / SSL.
+    use_credentials: bool = True  # По умолчанию True. Подключаться к SMTP-серверу или нет.
+    validate_certs: bool = True  # Cледует ли проверять сертификат почтового сервера.
+    template_folder: Path = BASE_DIR / 'templates'
 
     @property
     def database_url(self):

@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # TODO: создать класс Length, декорировать dataclass. Все длины упаковать в этот класс, из названий
 # констант удалить слово LENGTH
