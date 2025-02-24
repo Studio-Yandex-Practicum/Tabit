@@ -33,7 +33,7 @@ router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_co
 
 
 @router.get(
-    '/{company_slug}',
+    '/',
     summary=Summary.TABIT_COMPANY,
     status_code=status.HTTP_200_OK,
     response_model=CompanyResponseSchema,
@@ -75,7 +75,7 @@ async def get_company(
 
 
 @router.get(
-    '/{company_slug}/departments',
+    '/departments',
     response_model=List[CompanyDepartmentResponseSchema],
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_LIST,
@@ -114,7 +114,7 @@ async def get_all_departments(
 
 
 @router.post(
-    '/{company_slug}/departments',
+    '/departments',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_201_CREATED,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_CREATE,
@@ -166,7 +166,7 @@ async def create_department(
 
 
 @router.post(
-    '/{company_slug}/departments/import',
+    '/departments/import',
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_IMPORT,
 )
@@ -196,7 +196,7 @@ async def import_departments(
 
 
 @router.get(
-    '/{company_slug}/departments/{department_id}',
+    '/departments/{department_id}',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENT,
@@ -234,7 +234,7 @@ async def get_department(
 
 
 @router.patch(
-    '/{company_slug}/departments/{department_id}',
+    '/departments/{department_id}',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_UPDATE,
@@ -291,7 +291,7 @@ async def update_department(
 
 
 @router.delete(
-    '/{company_slug}/departments/{department_id}',
+    '/departments/{department_id}',
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_DELETE,
     status_code=status.HTTP_204_NO_CONTENT,
 )
@@ -327,7 +327,7 @@ async def delete_department(
 
 
 @router.get(
-    '/{company_slug}/employees',
+    '/employees',
     response_model=List[UserReadSchema],
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_LIST,
@@ -382,7 +382,7 @@ async def get_all_employees(
 
 
 @router.post(
-    '/{company_slug}/employees',
+    '/employees',
     response_model=UserReadSchema,
     status_code=status.HTTP_201_CREATED,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_CREATE,
@@ -442,7 +442,7 @@ async def create_company_employee(
 
 
 @router.post(
-    '/{company_slug}/employees/import',
+    '/employees/import',
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_IMPORT,
 )
@@ -469,7 +469,7 @@ async def import_employees(
 
 
 @router.get(
-    '/{company_slug}/employees/{uuid}',
+    '/employees/{uuid}',
     response_model=UserReadSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_EMPLOYEE,
@@ -525,7 +525,7 @@ async def get_employee(
 
 
 @router.patch(
-    '/{company_slug}/employees/{uuid}',
+    '/employees/{uuid}',
     response_model=UserReadSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_UPDATE,
@@ -591,7 +591,7 @@ async def update_company_employee(
 
 
 @router.delete(
-    '/{company_slug}/employees/{uuid}',
+    '/employees/{uuid}',
     status_code=status.HTTP_204_NO_CONTENT,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_DELETE,
 )

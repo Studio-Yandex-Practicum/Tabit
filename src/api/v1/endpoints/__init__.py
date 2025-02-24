@@ -1,31 +1,29 @@
-from .company import router as companies_router
-from .company_user import router as company_user_router
-from .company_user_auth import router as auth_employees
+from .company_moderator_management import router as company_moderator_management_router
+from .company_problem_discussion import router as company_problem_discussion_router
+from .company_problem_management import router as company_problem_management_router
+from .company_problem_meetings import router as company_problem_meetings_router
+from .company_problem_tasks import router as company_problem_tasks_router
+from .company_survey_management import router as company_survey_management_router
+from .company_user_auth import router as company_user_auth_router
+from .company_user_profile import router as company_user_profile_router
 from .landing_page import router as landing_page_router
-from .problem_feeds import router as problem_feeds_router
-from .problem_meetings import router as meeting_router
-from .problems import router as problems_router
-from .surveys import router as surveys_router
 from .tabit_admin_auth import router as tabit_admin_auth_router
-from .tabit_management import router as tabit_management_router
-from .tabit_management_companies import router as companies_management_router
-from .tabit_management_licenses import router as licenses_router
-from .tasks import router as task_router
+from .tabit_admin_management import router as tabit_admin_management_router
+from .tabit_company_management import router as tabit_company_management_router
+from .tabit_license_management import router as tabit_license_management_router
 
 __all__ = [
-    'auth_employees',
-    'department_router',
-    'companies_router',
-    'user_router',
-    'problems_router',
-    'problem_feeds_router',
-    'task_router',
+    'company_moderator_management_router',
+    'company_problem_discussion_router',
+    'company_problem_management_router',
+    'company_problem_meetings_router',
+    'company_problem_tasks_router',
+    'company_survey_management_router',
+    'company_user_auth_router',
+    'company_user_profile_router',
     'landing_page_router',
-    'company_user_router',
-    'meeting_router',
-    'licenses_router',
-    'companies_management_router',
-    'tabit_management_router',
     'tabit_admin_auth_router',
-    'surveys_router',
+    'tabit_admin_management_router',
+    'tabit_company_management_router',
+    'tabit_license_management_router',
 ]

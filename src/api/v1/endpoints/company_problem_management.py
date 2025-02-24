@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 @router.get(
-    '/{company_slug}/problems',
+    '/',
     response_model=List[ProblemResponseSchema],
     response_model_exclude_unset=True,
     summary='Получить список всех проблем',
@@ -39,7 +39,7 @@ async def get_all_problems(company_slug: str, session: AsyncSession = Depends(ge
 
 
 @router.post(
-    '/{company_slug}/problems',
+    '/',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
     summary='Создать новую проблему',
@@ -71,7 +71,7 @@ async def create_problem(
 
 
 @router.get(
-    '/{company_slug}/problems/{problem_id}',
+    '/{problem_id}',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
     summary='Получить информацию о проблеме',
@@ -98,7 +98,7 @@ async def get_problem(
 
 
 @router.patch(
-    '/{company_slug}/problems/{problem_id}',
+    '/{problem_id}',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
     summary='Обновить информацию о проблеме',
@@ -127,7 +127,7 @@ async def update_problem(
 
 
 @router.delete(
-    '/{company_slug}/problems/{problem_id}',
+    '/{problem_id}',
     summary='Удалить проблему',
     status_code=status.HTTP_204_NO_CONTENT,
 )

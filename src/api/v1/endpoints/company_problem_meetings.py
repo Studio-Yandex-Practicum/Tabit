@@ -19,7 +19,7 @@ router = APIRouter()
 
 
 @router.get(
-    '/{company_slug}/problems/{problem_id}/meetings',
+    '/',
     response_model=list[MeetingResponseSchema],
     response_model_exclude_none=True,
     summary='Получить список всех встреч',
@@ -48,7 +48,7 @@ async def meetings(
 
 
 @router.post(
-    '/{company_slug}/problems/{problem_id}/meetings',
+    '/',
     response_model=MeetingResponseSchema,
     response_model_exclude_none=True,
     summary='Создать встречу',
@@ -85,7 +85,7 @@ async def create_meeting(
 
 
 @router.get(
-    '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}',
+    '/{meeting_id}',
     response_model=MeetingResponseSchema,
     response_model_exclude_none=True,
     summary='Получить информацию о встрече',
@@ -115,7 +115,7 @@ async def get_meeting(
 
 
 @router.patch(
-    '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}',
+    '/{meeting_id}',
     response_model=MeetingResponseSchema,
     response_model_exclude_none=True,
     summary='Обновить информацию о встрече',
@@ -149,7 +149,7 @@ async def update_meeting(
 
 
 @router.delete(
-    '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}',
+    '/{meeting_id}',
     summary='Удалить встречу',
     status_code=status.HTTP_204_NO_CONTENT,
 )
