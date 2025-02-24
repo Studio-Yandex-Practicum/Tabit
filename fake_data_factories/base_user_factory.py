@@ -42,18 +42,18 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
     patronymic: str = factory.LazyFunction(lambda: random.choice(PATRONYMIC))
     phone_number: str = factory.Faker('msisdn', locale='ru_RU')
     email: str = factory.Faker('email')
+    password = None
     is_active: bool = True
     is_superuser: bool = False
     is_verified: bool = True
 
-    @classmethod
-    async def _create(cls, model_class, *args, **kwargs):
-        # здесь не pop() т.к. в наследниках еще пригодится поле password для логирования
-        password = kwargs.get('password')
-        if password:
-            kwargs['hashed_password'] = password_helper.hash(password)
-        else:
-            password = factory.Faker('password').evaluate(None, None, {'locale': 'ru_RU'})
-            kwargs['hashed_password'] = password_helper.hash(password)
+    # @classmethod
+    # async def _create(cls, model_class, *args, **kwargs):
+    #     password = kwargs.pop('password', None)
+    #     if password:
+    #         kwargs['hashed_password'] = password_helper.hash(password)
+    #     else:
+    #         password = factory.Faker('password').evaluate(None, None, {'locale': 'ru_RU'})
+    #         kwargs['hashed_password'] = password_helper.hash(password)
 
-        return await super()._create(model_class, *args, **kwargs)
+    #     return await super()._create(model_class, *args, **kwargs)
