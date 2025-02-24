@@ -1,5 +1,5 @@
+from typing import List, Optional
 from datetime import date
-from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -7,10 +7,12 @@ from sqlalchemy.sql.schema import UniqueConstraint
 
 from src.core.constants.common import LENGTH_TELEGRAM_USERNAME
 from src.core.annotations import url_link_field
-from src.models import BaseUser, AssociationUserTags, RoleUserTabit
+from src.models.base import BaseUser
+from src.models.enum import RoleUserTabit
+from src.models.types import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.models import (
+    from src.models.types import (
         Company,
         Department,
         AssociationUserMeeting,
@@ -23,6 +25,7 @@ if TYPE_CHECKING:
         ResultMeeting,
         Task,
         VotingByUser,
+        AssociationUserTags,
     )
 
 
@@ -80,7 +83,7 @@ class UserTabit(BaseUser):
     telegram_username: Mapped[Optional[str]] = mapped_column(
         String(LENGTH_TELEGRAM_USERNAME), unique=True, nullable=True
     )
-    role: Mapped['RoleUserTabit']
+    role: Mapped['RoleUserTabit'] = mapped_column(ForeignKey('roleusertabit.id'))
     start_date_employment: Mapped[Optional[date]]
     end_date_employment: Mapped[Optional[date]]
     tags: Mapped[List['AssociationUserTags']] = relationship(back_populates='user')

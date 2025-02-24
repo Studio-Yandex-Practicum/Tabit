@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database.db_depends import get_async_session
-from src.models.enum import StatusTask
+from src.models import StatusTask
 from src.schemas import TaskCreateSchema, TaskResponseSchema, TaskUpdateSchema
 
 router = APIRouter()

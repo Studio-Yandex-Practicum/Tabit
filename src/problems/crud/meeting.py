@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.crud_base import CRUDBase
 from src.problems.crud.association_utils import create_associations
 from src.models import AssociationUserMeeting, Meeting
-from src.schemas.problem_meeting import MeetingCreateSchema
+from src.schemas import MeetingCreateSchema
 
 
 # TODO Если участники встречи переносятся сюда автоматом из проблемы, то поправить этот метод

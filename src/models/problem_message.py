@@ -1,13 +1,14 @@
-from typing import TYPE_CHECKING, List
+from typing import List
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.annotations import int_pk, owner
 from src.models import BaseTabitModel, BaseTag
+from src.models.types import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.models import FileMessage, Problem, UserTabit
+    from src.models.types import FileMessage, Problem, UserTabit
 
 
 class MessageFeed(BaseTabitModel):

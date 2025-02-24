@@ -1,12 +1,13 @@
-from typing import TYPE_CHECKING, List
+from typing import List
 
 from sqlalchemy.orm import Mapped, relationship
 
 from src.core.annotations import description, int_pk, name_problem, owner
 from src.models import BaseTabitModel, ColorProblem, StatusProblem, TypeProblem
+from src.models.types import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.models import (
+    from src.models.types import (
         AssociationUserProblem,
         FileProblem,
         Meeting,

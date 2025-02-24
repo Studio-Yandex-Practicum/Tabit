@@ -1,12 +1,11 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import BaseFileLink
+from src.models.types import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.models import Meeting, MessageFeed, Problem, Task
+    from src.models.types import Meeting, MessageFeed, Problem, Task
 
 
 class FileProblem(BaseFileLink):

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.crud_base import CRUDBase
 from src.problems.crud.association_utils import create_associations
 from src.models import AssociationUserProblem, Problem
-from src.schemas.problem import ProblemCreateSchema, ProblemUpdateSchema
+from src.schemas import ProblemCreateSchema, ProblemUpdateSchema
 
 
 # TODO Надо доработать CRUD на получение и обновление проблем со списком участников

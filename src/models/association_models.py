@@ -1,14 +1,14 @@
-from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.annotations import int_pk
-from src.models import BaseTabitModel, TagUser
+from src.models import BaseTabitModel
+from src.models.types import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.models import Meeting, Problem, Task, UserTabit
+    from src.models.types import UserTabit, Problem, Meeting, Task, TagUser
 
 
 class AssociationUserProblem(BaseTabitModel):
