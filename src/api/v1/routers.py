@@ -1,46 +1,74 @@
 from fastapi import APIRouter
 
 from src.api.v1.endpoints import (
-    auth_employees,
-    companies_management_router,
-    companies_router,
-    company_user_router,
+    company_moderator_management_router,
+    company_problem_discussion_router,
+    company_problem_management_router,
+    company_problem_meetings_router,
+    company_problem_tasks_router,
+    company_survey_management_router,
+    company_user_auth_router,
+    company_user_profile_router,
     landing_page_router,
-    licenses_router,
-    meeting_router,
-    problem_feeds_router,
-    problems_router,
-    surveys_router,
     tabit_admin_auth_router,
-    tabit_management_router,
-    task_router,
+    tabit_admin_management_router,
+    tabit_company_management_router,
+    tabit_license_management_router,
 )
 
 main_router = APIRouter(prefix='/api/v1')
 
+# Tabit Endpoints
 main_router.include_router(
     tabit_admin_auth_router, prefix='/admin/auth', tags=['Tabit Admin Auth']
 )
 main_router.include_router(
-    tabit_management_router, prefix='/admin', tags=['Tabit Management - Staff']
+    tabit_admin_management_router, prefix='/admin', tags=['Tabit Admin Management']
 )
 main_router.include_router(
-    companies_management_router, prefix='/admin/companies', tags=['Tabit Management - Companies']
+    tabit_company_management_router, prefix='/admin/companies', tags=['Tabit Company Management']
 )
 main_router.include_router(
-    licenses_router, prefix='/admin/licenses', tags=[' Tabit Management - licenses']
+    tabit_license_management_router, prefix='/admin/licenses', tags=['Tabit License Management']
 )
-main_router.include_router(auth_employees, prefix='/auth', tags=['Company User Auth (Employees)'])
-main_router.include_router(company_user_router, tags=['Company User'])
-# TODO Дописать Companies Endpoints
-main_router.include_router(companies_router, tags=['Companies'])
-main_router.include_router(problems_router, tags=['Problems'])
-main_router.include_router(meeting_router, prefix='', tags=['Meetings'])
-main_router.include_router(task_router, tags=['Tasks'])
-main_router.include_router(
-    problem_feeds_router, prefix='/{company_slug}/problems/{problem_id}', tags=['Problems Feeds']
-)
-# TODO Дописать Companies Surveys Endpoints
-main_router.include_router(landing_page_router, prefix='/landing', tags=['Landing Page'])
 
-main_router.include_router(surveys_router, prefix='', tags=['Surveys'])
+# Company Endpoints
+main_router.include_router(
+    company_user_auth_router, prefix='/auth', tags=['Company User Auth']
+)
+main_router.include_router(
+    company_user_profile_router, tags=['Company User Profile']
+)
+main_router.include_router(
+    company_moderator_management_router, prefix='/{company_slug}', tags=['Company Moderator Management']
+)
+main_router.include_router(
+    company_problem_management_router, 
+    prefix='/{company_slug}/problems', 
+    tags=['Company Problem Management']
+)
+main_router.include_router(
+    company_problem_meetings_router, 
+    prefix='/{company_slug}/problems/{problem_id}/meetings', 
+    tags=['Company Problem Meetings']
+)
+main_router.include_router(
+    company_problem_tasks_router, 
+    prefix='/{company_slug}/problems/{problem_id}/tasks',
+    tags=['Company Problem Tasks']
+)
+main_router.include_router(
+    company_problem_discussion_router, 
+    prefix='/{company_slug}/problems/{problem_id}',
+    tags=['Company Problem Discussion']
+)
+main_router.include_router(
+    company_survey_management_router, 
+    prefix='/{company_slug}/surveys',
+    tags=['Company Survey Management']
+)
+
+# Landing Page Endpoints
+main_router.include_router(
+    landing_page_router, prefix='/landing', tags=['Landing Page']
+)

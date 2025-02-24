@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get(
-    '/{company_slug}/problems/{problem_id}/tasks',
+    '/',
     response_model=list[TaskResponseSchema],
     response_model_exclude_none=True,
     summary='Получить информацию о всех задачах проблемы',
@@ -44,7 +44,7 @@ async def get_tasks(
 
 
 @router.post(
-    '/{company_slug}/problems/{problem_id}/tasks',
+    '/',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
     summary='Создать новую задачу',
@@ -70,7 +70,7 @@ async def create_task(
 
 
 @router.get(
-    '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
+    '/{task_id}',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
     summary='Получить информацию о задаче',
@@ -102,7 +102,7 @@ async def get_task(
 
 
 @router.patch(
-    '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
+    '/{task_id}',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
     summary='Обновить информацию о задаче',
@@ -139,7 +139,7 @@ async def update_task(
 
 
 @router.delete(
-    '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
+    '/{task_id}',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
     summary='Удалить задачу',
