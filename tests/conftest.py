@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from src.core.database import BaseTabitModel
 from src.core.database.db_depends import get_async_session
 from src.main import app_v1
-from src.models.tabit_management import LicenseType
+from src.models import LicenseType
 
 
 @pytest.fixture

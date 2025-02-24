@@ -16,7 +16,7 @@ from src.core.annotations import (
     timestamp_nullable,
     url_link_field,
 )
-from src.models.base import BaseTabitModel
+from src.models import BaseTabitModel
 
 if TYPE_CHECKING:
     from src.models import LicenseType, TagUser, UserTabit
