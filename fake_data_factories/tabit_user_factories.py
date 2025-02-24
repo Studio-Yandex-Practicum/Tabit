@@ -1,3 +1,5 @@
+import asyncio
+
 from termcolor import cprint
 
 from constants import FAKER_USER_COUNT
@@ -15,3 +17,7 @@ class TabitAdminUserFactory(BaseUserFactory):
 async def create_tabit_admin_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
     await TabitAdminUserFactory.create_batch(count, **kwargs)
     cprint(f'Создано {count} Админов Tabit', 'green')
+
+
+if __name__ == '__main__':
+    asyncio.run(create_tabit_admin_users())

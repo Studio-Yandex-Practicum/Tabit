@@ -2,6 +2,7 @@ import random
 
 import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
+from fastapi_users.password import PasswordHelper
 
 PATRONYMIC = [
     'Александрович',
@@ -14,6 +15,8 @@ PATRONYMIC = [
     'Николаевич',
     'Федосеивич',
 ]
+
+password_helper = PasswordHelper()
 
 
 class BaseUserFactory(AsyncSQLAlchemyFactory):
@@ -39,7 +42,15 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
     patronymic: str = factory.LazyFunction(lambda: random.choice(PATRONYMIC))
     phone_number: str = factory.Faker('msisdn', locale='ru_RU')
     email: str = factory.Faker('email')
-    hashed_password: str = factory.Faker('password')
     is_active: bool = True
     is_superuser: bool = False
     is_verified: bool = True
+
+    @classmethod
+    async def _create(cls, model_class, *args, **kwargs):
+        if not kwargs.get('hashed_password'):
+            random_password = factory.Faker('password').evaluate(None, None, {'locale': 'ru_RU'})
+            kwargs['hashed_password'] = password_helper.hash(random_password)
+        kwargs['hashed_password'] = password_helper.hash(kwargs['hashed_password'])
+
+        return await super()._create(model_class, *args, **kwargs)

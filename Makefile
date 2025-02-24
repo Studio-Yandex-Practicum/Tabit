@@ -54,3 +54,9 @@ fill-db:
 
 fill-companies:
 	poetry run python fake_data_factories/company_factories.py
+
+fill-company-users:
+	poetry run python fake_data_factories/company_user_factories.py
+
+fill-tabit_admin_users:
+	poetry run python fake_data_factories/tabit_user_factories.py
