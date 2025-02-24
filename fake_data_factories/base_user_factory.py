@@ -48,11 +48,12 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
 
     @classmethod
     async def _create(cls, model_class, *args, **kwargs):
-        password = kwargs.pop('password', None)
+        # здесь не pop() т.к. в наследниках еще пригодится поле password для логирования
+        password = kwargs.get('password')
         if password:
             kwargs['hashed_password'] = password_helper.hash(password)
         else:
-            random_password = factory.Faker('password').evaluate(None, None, {'locale': 'ru_RU'})
-            kwargs['hashed_password'] = password_helper.hash(random_password)
+            password = factory.Faker('password').evaluate(None, None, {'locale': 'ru_RU'})
+            kwargs['hashed_password'] = password_helper.hash(password)
 
         return await super()._create(model_class, *args, **kwargs)

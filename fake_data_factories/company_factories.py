@@ -10,6 +10,7 @@ from termcolor import cprint
 from constants import FAKER_COMPANY_COUNT
 from src.database.alembic_models import Company
 from src.database.sc_db_session import sc_session
+from src.logger import fake_db_logger
 
 
 class CompanyFactory(AsyncSQLAlchemyFactory):
@@ -25,6 +26,12 @@ class CompanyFactory(AsyncSQLAlchemyFactory):
     is_active: bool = True
     slug: str = factory.LazyAttribute(lambda obj: f'{obj.name.lower()[:3]}_{uuid.uuid4().hex[:6]}')
     max_admins_count: int = factory.LazyFunction(lambda: randint(1, 5))
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        instance = super()._create(model_class, *args, **kwargs)
+        fake_db_logger.info(f'Создана компания {kwargs.get("name")}')
+        return instance
 
 
 async def create_companies(count: int = FAKER_COMPANY_COUNT) -> None:

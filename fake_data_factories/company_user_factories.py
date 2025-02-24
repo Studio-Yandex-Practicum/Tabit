@@ -11,6 +11,7 @@ from fake_data_factories.base_user_factory import BaseUserFactory
 from fake_data_factories.company_factories import CompanyFactory
 from src.database.alembic_models import UserTabit
 from src.database.sc_db_session import sc_session
+from src.logger import fake_db_logger
 
 
 class PositionEnum(str, Enum):
@@ -47,9 +48,13 @@ class CompanyUserFactory(BaseUserFactory):
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
-        if kwargs.get('company_id') is None:
-            raise ValueError('Ошибка: company_id не передан в фабрику TabitUserFactory.')
-        return super()._create(model_class, *args, **kwargs)
+        instance = super()._create(model_class, *args, **kwargs)
+        password = kwargs.pop('password', None)
+        fake_db_logger.info(
+            f'Сотрудник компании c id={kwargs.get("company_id")}: '
+            f'{kwargs.get("email")}, пасс: {password}'
+        )
+        return instance
 
 
 async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
