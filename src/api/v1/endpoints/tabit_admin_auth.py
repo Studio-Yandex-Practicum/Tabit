@@ -9,16 +9,16 @@ from fastapi_users.authentication import Strategy
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
-from src.api.v1.auth.dependencies import (
+from src.core.auth.dependencies import (
     current_admin_tabit,
     current_superuser,
     get_current_admin_refresh_token,
     get_current_admin_token,
     tabit_admin,
 )
-from src.api.v1.auth.jwt import jwt_auth_backend_admin
-from src.api.v1.auth.managers import get_admin_manager
-from src.api.v1.auth.protocol import StrategyT
+from src.core.auth.jwt import jwt_auth_backend_admin
+from src.core.auth.managers import get_admin_manager
+from src.core.auth.protocol import StrategyT
 from src.schemas import TokenReadSchemas
 from src.core.constants.endpoints import Description, Summary
 from src.api.v1.validator import (

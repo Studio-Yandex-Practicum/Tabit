@@ -8,8 +8,8 @@ from fastapi_users.exceptions import InvalidPasswordException, UserAlreadyExists
 from fastapi_users.manager import BaseUserManager
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.dependencies import current_company_admin, current_user_tabit
-from src.api.v1.auth.managers import get_user_manager
+from src.core.auth.dependencies import current_company_admin, current_user_tabit
+from src.core.auth.managers import get_user_manager
 from src.core.constants.endpoints import Summary, TextError
 from src.api.v1.validator import validator_check_object_exists
 from src.core.constants.company import (

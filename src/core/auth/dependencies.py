@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from fastapi import Depends, HTTPException
 
-from src.api.v1.auth.jwt import tabit_admin, tabit_user
+from src.core.auth.jwt import tabit_admin, tabit_user
 from src.core.constants.endpoints import TextError
 from src.models import UserTabit, RoleUserTabit
 

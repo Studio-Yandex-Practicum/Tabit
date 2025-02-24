@@ -4,14 +4,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users import BaseUserManager, models
 from fastapi_users.authentication import Strategy
 
-from src.api.v1.auth.dependencies import (
+from src.core.auth.dependencies import (
     get_current_user_refresh_token,
     get_current_user_token,
     tabit_user,
 )
-from src.api.v1.auth.jwt import jwt_auth_backend_user
-from src.api.v1.auth.managers import get_user_manager
-from src.api.v1.auth.protocol import StrategyT
+from src.core.auth.jwt import jwt_auth_backend_user
+from src.core.auth.managers import get_user_manager
+from src.core.auth.protocol import StrategyT
 from src.schemas import TokenReadSchemas
 from src.core.constants.endpoints import Description, Summary
 from src.api.v1.validator import check_user_is_active

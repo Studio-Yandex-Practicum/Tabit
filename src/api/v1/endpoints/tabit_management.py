@@ -7,8 +7,8 @@ from fastapi_users.manager import BaseUserManager
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.dependencies import current_admin_tabit
-from src.api.v1.auth.managers import get_user_manager
+from src.core.auth.dependencies import current_admin_tabit
+from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
 from src.core.config.logging import logger
 from src.core.constants.tabit_management import (

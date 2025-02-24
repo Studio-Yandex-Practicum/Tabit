@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi_users.exceptions import UserAlreadyExists
 from pydantic import EmailStr
 
-from src.api.v1.auth.access_to_db import get_admin_db
-from src.api.v1.auth.managers import get_admin_manager
+from src.core.auth.access_to_db import get_admin_db
+from src.core.auth.managers import get_admin_manager
 from src.core.config.app import settings
 from src.core.database.db_depends import get_async_session
 from src.schemas import AdminCreateFirstSchema

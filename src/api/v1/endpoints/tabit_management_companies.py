@@ -7,7 +7,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.dependencies import current_admin_tabit
+from src.core.auth.dependencies import current_admin_tabit
 from src.core.constants.endpoints import Description, Summary
 from src.api.v1.validator import validator_check_object_exists
 from src.companies.crud import company_crud
