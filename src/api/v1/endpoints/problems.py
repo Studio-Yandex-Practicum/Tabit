@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.v1.validators.problems_validators import check_company_exists
 from src.database.db_depends import get_async_session
 from src.problems.crud.problems import problem_crud
-from src.schemas.problem import (
+from src.schemas import (
     ProblemCreateSchema,
     ProblemResponseSchema,
     ProblemUpdateSchema,
