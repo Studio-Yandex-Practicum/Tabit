@@ -16,7 +16,11 @@ from src.core.constants.company import (
     ERROR_USER_ALREADY_EXISTS,
     ERROR_USER_NOT_EXISTS,
 )
-from src.companies.crud import company_crud, company_departments_crud
+from src.features_v1.company_moderator_management import (
+    company_crud,
+    departments_crud,
+    moderator_crud,
+)
 from src.schemas import (
     CompanyDepartmentCreateSchema,
     CompanyDepartmentResponseSchema,
@@ -27,7 +31,6 @@ from src.schemas import (
     UserReadSchema,
 )
 from src.core.database.db_depends import get_async_session
-from src.users.crud.user import user_crud
 
 router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_company_admin)])
 
@@ -108,7 +111,7 @@ async def get_all_departments(
     Если отделов нет вернет пустой список.
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    return await company_departments_crud.get_multi(
+    return await departments_crud.get_multi(
         session=session, filters={'company_id': company.id}
     )
 
@@ -149,10 +152,22 @@ async def create_department(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     object_name = object_in.model_dump()['name']
+<<<<<<< HEAD:src/api/v1/endpoints/company_moderator_management.py
     await check_department_name_duplicate(
         company_id=company.id, department_name=object_name, session=session
     )
     db_obj = await company_departments_crud.create(
+=======
+    departments = await departments_crud.get_multi(
+        session=session, filters={'company_id': company.id, 'name': object_name}
+    )
+    if departments:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
+        )
+    db_obj = await departments_crud.create(
+>>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/company_moderator_management/endpoints.py
         session=session, obj_in=object_in, auto_commit=False
     )
     session.expunge(db_obj)
@@ -189,7 +204,7 @@ async def import_departments(
     Вернет файл .txt с данными отделов.
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    departments_list = await company_departments_crud.get_multi(
+    departments_list = await departments_crud.get_multi(
         session=session, filters={'company_id': company.id}
     )
     return await company_crud.get_import(objects_in=departments_list, file_name='departments_list')
@@ -230,7 +245,7 @@ async def get_department(
     Если отдела нет вернет ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    return await company_departments_crud.get_or_404(session=session, obj_id=department_id)
+    return await departments_crud.get_or_404(session=session, obj_id=department_id)
 
 
 @router.patch(
@@ -274,6 +289,7 @@ async def update_department(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     object_name = object_in.model_dump()['name']
+<<<<<<< HEAD:src/api/v1/endpoints/company_moderator_management.py
     await check_department_name_duplicate(
         company_id=company.id, department_name=object_name, session=session
     )
@@ -288,6 +304,18 @@ async def update_department(
     await session.commit()
     await session.refresh(update_obj)
     return update_obj
+=======
+    departments = await departments_crud.get_multi(
+        session=session, filters={'company_id': company.id, 'name': object_name}
+    )
+    if departments:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
+        )
+    db_object = await departments_crud.get_or_404(session, obj_id=department_id)
+    return await departments_crud.update(session, db_obj=db_object, obj_in=object_in)
+>>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/company_moderator_management/endpoints.py
 
 
 @router.delete(
@@ -319,9 +347,9 @@ async def delete_department(
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     department = await validator_check_object_exists(
-        session, company_departments_crud, object_id=department_id
+        session, departments_crud, object_id=department_id
     )
-    await company_departments_crud.remove(session, db_object=department)
+    await departments_crud.remove(session, db_object=department)
 
     return status.HTTP_204_NO_CONTENT
 
@@ -378,7 +406,7 @@ async def get_all_employees(
     Если сотрудников нет, пустой список.
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    return await user_crud.get_multi(session, filters={'company_id': company.id})
+    return await moderator_crud.get_multi(session, filters={'company_id': company.id})
 
 
 @router.post(
@@ -464,7 +492,7 @@ async def import_employees(
     Вернет файл .txt с данными сотрудников.
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    employees_list = await user_crud.get_multi(session, filters={'company_id': company.id})
+    employees_list = await moderator_crud.get_multi(session, filters={'company_id': company.id})
     return await company_crud.get_import(objects_in=employees_list, file_name='employees_list')
 
 
@@ -521,7 +549,7 @@ async def get_employee(
     Если сотрудник не найден ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    return await user_crud.get_or_404(session=session, obj_id=uuid)
+    return await moderator_crud.get_or_404(session=session, obj_id=uuid)
 
 
 @router.patch(
@@ -581,6 +609,7 @@ async def update_company_employee(
     Если сотрудник не найден ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
+<<<<<<< HEAD:src/api/v1/endpoints/company_moderator_management.py
     await validator_check_object_exists(session, user_crud, object_id=uuid)
     await validate_user_not_exists(user_data=object_in, user_manager=user_manager)
     await validate_password(user_data=object_in, user_manager=user_manager)
@@ -588,6 +617,10 @@ async def update_company_employee(
     user_manager.parse_id
     user = await user_manager.update(object_in, user)
     return user
+=======
+    db_object = await moderator_crud.get_or_404(session=session, obj_id=uuid)
+    return await moderator_crud.update(session=session, db_obj=db_object, obj_in=object_in)
+>>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/company_moderator_management/endpoints.py
 
 
 @router.delete(

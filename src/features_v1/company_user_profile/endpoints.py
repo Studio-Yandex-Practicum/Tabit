@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.schemas import CompanyFeedbackCreateShema, UserCompanyUpdateSchema, UserReadSchema
 from src.core.database.db_depends import get_async_session
-from src.users.crud.user import user_crud
+from src.features_v1.company_user_profile.crud import user_crud
 
 router = APIRouter()
 

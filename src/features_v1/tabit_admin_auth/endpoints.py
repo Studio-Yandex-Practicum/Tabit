@@ -26,10 +26,17 @@ from src.validators.endpoints.common import (
     validator_check_not_is_superuser,
     validator_check_object_exists,
 )
+<<<<<<< HEAD:src/api/v1/endpoints/tabit_admin_auth.py
 from src.database.db_depends import get_async_session
 from src.tabit_management.crud import admin_crud
 from src.tabit_management.models import TabitAdminUser
 from src.tabit_management.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
+=======
+from src.core.database.db_depends import get_async_session
+from src.models import TabitAdminUser
+from src.features_v1.tabit_admin_auth.crud import admin_user_crud
+from src.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
+>>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/tabit_admin_auth/endpoints.py
 
 router = APIRouter()
 

@@ -10,7 +10,7 @@ from src.tabit_management.constants import (
     SUMMARY_GET_LICENSES,
     SUMMARY_UPDATE_LICENSE,
 )
-from src.tabit_management.crud import license_type_crud
+from src.features_v1.tabit_license_management.crud import license_type_crud
 from src.schemas import (
     LicenseTypeCreateSchema,
     LicenseTypeResponseSchema,

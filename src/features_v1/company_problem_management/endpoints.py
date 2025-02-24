@@ -3,9 +3,14 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+<<<<<<< HEAD:src/api/v1/endpoints/company_problem_management.py
 from src.api.v1.validators.problems_validators import check_company_exists
 from src.database.db_depends import get_async_session
 from src.problems.crud.problems import problem_crud
+=======
+from src.core.database.db_depends import get_async_session
+from src.features_v1.company_problem_management.crud import problem_crud
+>>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/company_problem_management/endpoints.py
 from src.schemas import (
     ProblemCreateSchema,
     ProblemResponseSchema,
