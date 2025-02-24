@@ -1,5 +1,7 @@
 from datetime import date
 
+from src.problems.constants import ERROR_DATE_CANNOT_BE_EARLIER, ERROR_MEETING_TITLE_EMPTY
+
 
 def validate_not_empty(value: str) -> str:
     """Валидирует название встречи.
@@ -16,7 +18,7 @@ def validate_not_empty(value: str) -> str:
         ValueError: Если значение пустое или состоит только из пробелов.
     """
     if not value.strip():
-        raise ValueError('Строка не может быть пустой или состоять только из пробелов')
+        raise ValueError(ERROR_MEETING_TITLE_EMPTY)
     return value.strip()
 
 
@@ -34,5 +36,5 @@ def validate_date(value: date) -> date:
         ValueError: Если дата в прошлом.
     """
     if value < date.today():
-        raise ValueError(f'Дата не может быть раньше {date.today()}')
+        raise ValueError(f'{ERROR_DATE_CANNOT_BE_EARLIER} {date.today()}')
     return value

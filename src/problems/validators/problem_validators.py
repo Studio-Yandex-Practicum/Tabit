@@ -1,8 +1,4 @@
-"""Модуль валидаторов для схем проблем.
-
-Назначение:
-    Содержит функции валидации для полей схем, связанных с проблемами.
-"""
+from src.problems.constants import ERROR_PROBLEM_NAME_EMPTY
 
 
 def validate_not_empty(value: str) -> str:
@@ -20,5 +16,5 @@ def validate_not_empty(value: str) -> str:
         ValueError: Если значение пустое или состоит только из пробелов.
     """
     if not value.strip():
-        raise ValueError('Строка не может быть пустой или состоять только из пробелов')
+        raise ValueError(ERROR_PROBLEM_NAME_EMPTY)
     return value.strip()
