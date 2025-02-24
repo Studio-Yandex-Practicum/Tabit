@@ -24,10 +24,11 @@ from src.schemas import (
     CompanyDepartmentUpdateSchema,
     CompanyEmployeeUpdateSchema,
     CompanyResponseSchema,
+    UserCreateSchema,
+    UserReadSchema,
 )
 from src.core.database.db_depends import get_async_session
 from src.users.crud.user import user_crud
-from src.schemas import UserCreateSchema, UserReadSchema
 
 router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_company_admin)])
 

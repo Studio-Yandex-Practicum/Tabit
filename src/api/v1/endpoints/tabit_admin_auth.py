@@ -27,7 +27,7 @@ from src.api.v1.validator import (
     validator_check_object_exists,
 )
 from src.core.database.db_depends import get_async_session
-from src.models.tabit_management import TabitAdminUser
+from src.models import TabitAdminUser
 from src.tabit_management.crud import admin_user_crud
 from src.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
 
