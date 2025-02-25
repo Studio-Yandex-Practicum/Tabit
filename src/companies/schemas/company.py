@@ -201,5 +201,4 @@ class CompanyFeedbackCreateShema(BaseModel):
     # TODO: Обдумать. Скорее всего надо будет реализовать ограничение на количество символов.
     # Схема на данный момент является по большей части заглушкой.
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

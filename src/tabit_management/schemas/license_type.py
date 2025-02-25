@@ -8,10 +8,7 @@ from src.tabit_management.constants import (
     DEFAULT_LICENSE_TERM,
     DEFAULT_PAGE,
     DEFAULT_PAGE_SIZE,
-    ERROR_FIELD_INTERVAL,
-    ERROR_FIELD_START_OR_END_SPACE,
     FILTER_NAME_DESCRIPTION,
-    LICENSE_TERM_REGEX,
     MAX_PAGE_SIZE,
     MIN_PAGE_SIZE,
     PAGE_DESCRIPTION,
@@ -22,59 +19,24 @@ from src.tabit_management.constants import (
     TITLE_MAX_EMPLOYEES_COUNT,
     TITLE_NAME_LICENSE,
 )
+from src.tabit_management.validators.license_type_validators import (
+    validate_license_term,
+    validate_string,
+)
 
 
 class LicenseTypeBaseSchema(BaseModel):
     """Базовая схема лицензии, содержащая валидаторы."""
 
+    @field_validator('name', mode='after', check_fields=False)
     @classmethod
-    def _validator_field_string(cls, value: str):
-        """
-        Проверяет строковое поле на наличие пробелов в начале или конце.
+    def validate_name(cls, value: str):
+        return validate_string(value)
 
-        Args:
-            value (str): Входное строковое значение.
-
-        Returns:
-            str: Очищенное от пробелов значение.
-
-        Raises:
-            ValueError: Если строка содержит пробелы в начале или в конце.
-        """
-        if value != value.strip():
-            raise ValueError(ERROR_FIELD_START_OR_END_SPACE)
-        return value
-
+    @field_validator('license_term', mode='before', check_fields=False)
     @classmethod
-    def _validator_field_interval(cls, value: int):
-        """
-        Проверяет поле времени действия лицензии и конвертирует его в timedelta.
-
-        Допустимые форматы:
-            - "P1D" (1 день)
-            - "P1Y" (1 год)
-            - "P1Y1D" (1 год и 1 день)
-            - Целое число (интерпретируется как дни)
-
-        Args:
-            value (int | str): Входное значение.
-
-        Returns:
-            timedelta | str: Обработанное значение (timedelta или исходная строка).
-
-        Raises:
-            ValueError: Если значение не соответствует допустимым форматам.
-        """
-        if isinstance(value, str):
-            if value.isdigit():
-                value = int(value)
-            elif LICENSE_TERM_REGEX.match(value):
-                return value
-
-        if isinstance(value, int):
-            return timedelta(days=value)
-
-        raise ValueError(ERROR_FIELD_INTERVAL)
+    def validate_license_term(cls, value: int):
+        return validate_license_term(value)
 
 
 class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
@@ -102,34 +64,6 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
         title=TITLE_MAX_EMPLOYEES_COUNT,
     )
 
-    @field_validator('name', mode='after')
-    @classmethod
-    def str_field(cls, value: str):
-        """
-        Валидатор для названия лицензии.
-
-        Args:
-            value (str): Название лицензии.
-
-        Returns:
-            str: Очищенное название лицензии.
-        """
-        return cls._validator_field_string(value)
-
-    @field_validator('license_term', mode='before')
-    @classmethod
-    def interval_field(cls, value: int):
-        """
-        Валидатор для поля срока действия лицензии.
-
-        Args:
-            value (int | str): Входное значение.
-
-        Returns:
-            timedelta | str: Обработанное значение.
-        """
-        return cls._validator_field_interval(value)
-
 
 class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
     """Схема для частичного изменения лицензии."""
@@ -154,34 +88,6 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
         gt=ZERO,
         title=TITLE_MAX_EMPLOYEES_COUNT,
     )
-
-    @field_validator('name', mode='after')
-    @classmethod
-    def str_field(cls, value: str):
-        """
-        Валидатор для названия лицензии.
-
-        Args:
-            value (str): Название лицензии.
-
-        Returns:
-            str: Очищенное название лицензии.
-        """
-        return cls._validator_field_string(value)
-
-    @field_validator('license_term', mode='before')
-    @classmethod
-    def interval_field(cls, value: int):
-        """
-        Валидатор для поля срока действия лицензии.
-
-        Args:
-        value (int | str): Входное значение срока действия.
-
-        Returns:
-            timedelta | str: Обработанное значение.
-        """
-        return cls._validator_field_interval(value)
 
     model_config = ConfigDict(extra='forbid')
 
