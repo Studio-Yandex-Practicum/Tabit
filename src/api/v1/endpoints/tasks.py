@@ -61,7 +61,7 @@ async def create_task(
     task_schema = TaskResponseSchema(
         id=123,
         problem_id=problem_id,
-        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
+        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',  # type: ignore
         status=StatusTask.NEW,
         transfer_counter=0,
         **task.model_dump(exclude_none=True),
