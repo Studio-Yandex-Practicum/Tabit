@@ -14,7 +14,6 @@ from src.logger import logger
 from src.tabit_management.constants import (
     ERROR_INTERNAL_SERVER,
     ERROR_INVALID_PASSWORD,
-    ERROR_INVALID_TELEGRAM_USERNAME,
     ERROR_USER_ALREADY_EXISTS,
     ERROR_USER_NOT_EXISTS,
 )
@@ -27,23 +26,6 @@ from src.users.models import UserTabit
 
 class CRUDAdminUser(UserCreateMixin, CRUDBase):
     """CRUD операций для моделей администраторов сервиса Табит."""
-
-    async def check_telegram_username_for_duplicates(
-        self, username: str, session: AsyncSession
-    ) -> None:
-        """
-        Функция проверяет, что в БД не существует пользователя с переданным telegram_username.
-        В случае, если пользователь существует, то выбрасывается ошибка HTTP 400.
-
-        Параметры:
-            username: telegram_username, переданный в запросе к API;
-            session: асинхронная сессия SQLAlchemy;
-        """
-        if username:
-            if await self.get_by_telegram_username(username, session):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_TELEGRAM_USERNAME
-                )
 
     async def get_multi(
         self,
