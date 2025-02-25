@@ -1,4 +1,4 @@
-.PHONY: up down up-pgadmin down-pgadmin clear-pgadmin-volume logs init-migrations apply-migrations reset-db init-db run clean-volumes
+.PHONY: up down up-pgadmin down-pgadmin logs init-migrations apply-migrations reset-db init-db run clean-volumes
 
 # Docker Compose команды
 up:
@@ -16,9 +16,9 @@ down-pgadmin:
 logs:
 	docker compose -f infra/docker-compose.local-db.yaml logs -f
 
-# Команда для удаления данных конфигурации PGAdmin
-clear-pgadmin-volume: down-pgadmin
-	docker volume rm infra_pgadmin_data
+# Команда для остановки контейнеров и удаления volumes, связанных с конфигурацией
+down-pgadmin-volumes:
+	docker compose -f infra/docker-compose.local-with-pgadmin.yaml down -v
 
 # Команда для создания миграции
 init-migrations:

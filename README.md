@@ -625,5 +625,5 @@ make clear-pgadmin-volume
 ```
 2) Для всех остальных (перед этим необходимо остановить контейнеры):
 ```
-docker volume rm infra_pgadmin_data
+docker compose -f infra/docker-compose.local-with-pgadmin.yaml down -v
 ```
