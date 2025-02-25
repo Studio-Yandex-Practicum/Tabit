@@ -572,7 +572,7 @@ docker-compose -f infra/local/docker-compose.local.yaml down
 ```
 
 После этих шагов можно быть уверенным, что CI/CD собирает проект корректно.
-```
+
 
 ## pgAdmin
 
