@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi_users.schemas import CreateUpdateDictModel
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from src.constants import MIN_LENGTH_NAME, LENGTH_NAME_USER
+from src.constants import LENGTH_NAME_USER, MIN_LENGTH_NAME
 from src.tabit_management.constants import (
     TITLE_EMAIL,
     TITLE_IS_SUPERUSER_ADMIN,
@@ -33,7 +33,7 @@ class BaseAdminSchema:
         title=TITLE_PHONE_NUMBER_ADMIN,
     )
 
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
 class AdminReadSchema(CreateUpdateDictModel):

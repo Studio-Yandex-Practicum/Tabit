@@ -1,7 +1,8 @@
 import typer
 
-from .base_runner import seed_all
 from src.database import async_session
+
+from .base_runner import seed_all
 
 app = typer.Typer()
 

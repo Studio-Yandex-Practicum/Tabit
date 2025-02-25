@@ -8,4 +8,4 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
     pass
 
 
-admin_crud = CRUDAdminUser(TabitAdminUser)
+admin_user_crud = CRUDAdminUser(TabitAdminUser)

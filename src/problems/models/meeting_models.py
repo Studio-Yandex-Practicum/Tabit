@@ -1,13 +1,13 @@
 from datetime import date
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
-from sqlalchemy import String, ForeignKey, Text
+from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import description, int_pk, owner, int_zero, name_problem
-from src.database.models import BaseTabitModel
-from src.problems.models.enums import StatusMeeting, ResultMeetingEnum
 from src.constants import LENGTH_NAME_MEETING_PLACE
+from src.database.annotations import description, int_pk, int_zero, name_problem, owner
+from src.database.models import BaseTabitModel
+from src.problems.models.enums import ResultMeetingEnum, StatusMeeting
 
 if TYPE_CHECKING:
     from src.problems.models import AssociationUserMeeting, FileMeeting, Problem
@@ -45,7 +45,7 @@ class Meeting(BaseTabitModel):
     id: Mapped[int_pk]
     title: Mapped[name_problem]
     description: Mapped[description]
-    problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
+    problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'))
     problem: Mapped['Problem'] = relationship(back_populates='meetings')
     owner_id: Mapped[owner]
     owner: Mapped['UserTabit'] = relationship(back_populates='meeting_owner')

@@ -11,13 +11,12 @@
 """
 
 from http import HTTPStatus
-from typing import Any, Generic, List, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from fastapi_users import BaseUserManager, exceptions, models
 from fastapi.encoders import jsonable_encoder
-from fastapi_users import schemas
+from fastapi_users import BaseUserManager, exceptions, models, schemas
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,8 +25,8 @@ from starlette.requests import Request
 
 from src.constants import (
     DEFAULT_AUTO_COMMIT,
-    DEFAULT_SKIP,
     DEFAULT_LIMIT,
+    DEFAULT_SKIP,
     TEXT_ERROR_EXISTS_EMAIL,
     TEXT_ERROR_INVALID_PASSWORD,
     TEXT_ERROR_NOT_FOUND,
@@ -72,9 +71,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.scalars().first()
 
     async def get_or_404(
-        self, session: AsyncSession,
-        obj_id: int | UUID,
-        message: str = TEXT_ERROR_NOT_FOUND
+        self, session: AsyncSession, obj_id: int | UUID, message: str = TEXT_ERROR_NOT_FOUND
     ) -> ModelType:
         """
         Получает объект по ID или выбрасывает 404-ошибку.
@@ -89,10 +86,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return obj
 
     async def get_by_slug(
-        self, session: AsyncSession,
+        self,
+        session: AsyncSession,
         obj_slug: str,
         raise_404: bool = False,
-        message: str = TEXT_ERROR_NOT_FOUND
+        message: str = TEXT_ERROR_NOT_FOUND,
     ) -> Optional[ModelType]:
         """
         Получает объект по полю slug.
@@ -111,7 +109,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         skip: int = DEFAULT_SKIP,
         limit: int = DEFAULT_LIMIT,
-        filters: dict[str, Any] | None = None,
+        filters: Optional[Dict[str, Any]] = None,
         order_by: list[str] | None = None,
     ) -> List[ModelType]:
         """
@@ -143,7 +141,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         query = select(self.model)
 
         if filters:
-            query = self._apply_filters(query, filters)
+            valid_filters = {key: value for key, value in filters.items() if value is not None}
+
+            if valid_filters:
+                query = self._apply_filters(query, valid_filters)
 
         if order_by:
             query = self._apply_order_by(query, order_by)
@@ -164,9 +165,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         При нарушении уникальности выбрасывает 400-ошибку.
         """
         # TODO: Добавить возможность автозаполнение поля owner у модели.
-        obj_data = obj_in.dict()
+        obj_data = obj_in.model_dump()
         db_obj = self.model(**obj_data)
-
         try:
             session.add(db_obj)
             if auto_commit:
@@ -203,7 +203,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         Принимает объект и данные (Pydantic) для обновления.
         """
         obj_data = jsonable_encoder(db_obj)
-        update_data = obj_in.dict(exclude_unset=True)
+        update_data = obj_in.model_dump(exclude_unset=True)
 
         for field in obj_data:
             if field in update_data:
@@ -232,7 +232,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def remove(
         self, session: AsyncSession, db_object: ModelType, auto_commit: bool = DEFAULT_AUTO_COMMIT
-    ) -> ModelType:
+    ) -> Any:
         """
         Удаляет переданный объект.
         """
@@ -240,7 +240,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await session.delete(db_object)
             if auto_commit:
                 await session.commit()
-            return db_object
         except Exception as e:
             await session.rollback()
             logger.error(f'{TEXT_ERROR_SERVER_DELETE_LOG} {self.model.__name__}: {e}')
@@ -321,9 +320,7 @@ class UserCreateMixin:
         В БД данных пароль не сохраняется, сохраняется его хэш.
         """
         try:
-            created_user = await user_manager.create(
-                user_create, safe=False, request=request
-            )
+            created_user = await user_manager.create(user_create, safe=False, request=request)
         except exceptions.UserAlreadyExists:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,

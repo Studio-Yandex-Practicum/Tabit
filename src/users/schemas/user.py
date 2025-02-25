@@ -1,9 +1,9 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
-from pydantic import Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.constants import (
     LENGTH_FILE_LINK,
@@ -11,15 +11,16 @@ from src.constants import (
     LENGTH_TELEGRAM_USERNAME,
     MIN_LENGTH_NAME,
 )
-from src.users.models.enum import RoleUserTabit
 from src.users.constants import (
     title_avatar_link_user,
     title_birthday_user,
     title_company_id_user,
+    title_created_at_user,
     title_current_department_id_user,
     title_department_transition_date_user,
     title_employee_position_user,
     title_end_date_employment_user,
+    title_is_active_user,
     title_last_department_id_user,
     title_name_user,
     title_patronymic_user,
@@ -28,7 +29,9 @@ from src.users.constants import (
     title_start_date_employment_user,
     title_surname_user,
     title_telegram_username_user,
+    title_updated_at_user,
 )
+from src.users.models.enum import RoleUserTabit
 
 
 class UserSchemaMixin:
@@ -88,29 +91,33 @@ class UserSchemaMixin:
         None,
         title=title_employee_position_user,
     )
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
 class UserReadSchema(BaseUser[UUID]):
     """Схема пользователя сервиса для ответов."""
 
-    name: str
-    surname: str
-    patronymic: Optional[str]
-    phone_number: Optional[str]
-    is_active: bool
-    birthday: Optional[date]
-    telegram_username: Optional[str]
-    role: str
-    start_date_employment: Optional[date]
-    end_date_employment: Optional[date]
-    avatar_link: Optional[str]
-    company_id: int
-    current_department_id: Optional[int]
-    last_department_id: Optional[int]
-    department_transition_date: Optional[date]
-    employee_position: Optional[str]
-    created_at: date
-    updated_at: date
+    name: str = Field(..., title=title_name_user)
+    surname: str = Field(..., title=title_surname_user)
+    patronymic: Optional[str] = Field(None, title=title_patronymic_user)
+    phone_number: Optional[str] = Field(None, title=title_phone_number_user)
+    is_active: bool = Field(..., title=title_is_active_user)
+    birthday: Optional[date] = Field(None, title=title_birthday_user)
+    telegram_username: Optional[str] = Field(None, title=title_telegram_username_user)
+    role: str = Field(..., title=title_role_user)
+    start_date_employment: Optional[date] = Field(None, title=title_start_date_employment_user)
+    end_date_employment: Optional[date] = Field(None, title=title_end_date_employment_user)
+    avatar_link: Optional[str] = Field(None, title=title_avatar_link_user)
+    company_id: int = Field(..., title=title_company_id_user)
+    current_department_id: Optional[int] = Field(None, title=title_current_department_id_user)
+    last_department_id: Optional[int] = Field(None, title=title_last_department_id_user)
+    department_transition_date: Optional[date] = Field(
+        None, title=title_department_transition_date_user
+    )
+    employee_position: Optional[str] = Field(None, title=title_employee_position_user)
+    created_at: Optional[datetime] = Field(None, title=title_created_at_user)
+    updated_at: Optional[datetime] = Field(None, title=title_updated_at_user)
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
@@ -161,3 +168,10 @@ class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
         None,
         title=title_company_id_user,
     )
+
+
+class ResetPasswordByAdmin(BaseModel):
+    """Схема для сброса пароля админа."""
+
+    password: str
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)

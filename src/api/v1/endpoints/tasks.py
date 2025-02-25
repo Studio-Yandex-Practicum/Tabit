@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
-from src.problems.schemas.task import TaskResponseSchema, TaskCreateSchema, TaskUpdateSchema
 from src.problems.models.enums import StatusTask
+from src.problems.schemas.task import TaskCreateSchema, TaskResponseSchema, TaskUpdateSchema
 
 router = APIRouter()
 
@@ -19,7 +19,7 @@ async def get_tasks(
     company_slug: str, problem_id: int, session: AsyncSession = Depends(get_async_session)
 ):
     """Возвращает информацию о всех задачах проблемы"""
-    # TODO: Реализовать получение задачь для проблемы из БД
+    # TODO: Реализовать получение задач для проблемы из БД
     task_schema = TaskResponseSchema(
         **{
             'id': 1,
@@ -71,6 +71,8 @@ async def create_task(
 
 @router.get(
     '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
+    response_model=TaskResponseSchema,
+    response_model_exclude_none=True,
     summary='Получить информацию о задаче',
     dependencies=[Depends(get_async_session)],
 )
@@ -147,6 +149,7 @@ async def delete_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
+    session: AsyncSession = Depends(get_async_session),
 ):
     """Удаляет задачу"""
     # TODO: Реализовать удаление задачи из БД
