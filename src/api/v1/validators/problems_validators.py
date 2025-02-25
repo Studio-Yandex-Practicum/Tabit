@@ -1,11 +1,12 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
-from src.companies.models.models import Company
+from src.companies.crud.company import company_crud
 from src.problems.constants import ERROR_COMPANY_NOT_FOUND
 
 
+# TODO Вместо get_by_company_slug можно использовать метод базового crud
+# get_by_slug если исправть как описано в src/companies/crud/company
 async def check_company_exists(company_slug: str, session: AsyncSession):
     """Проверяет существование компании по slug.
 
@@ -20,7 +21,5 @@ async def check_company_exists(company_slug: str, session: AsyncSession):
         HTTPException: Если компания не найдена.
     """
 
-    company = await session.execute(select(Company).where(Company.slug == company_slug))
-    company = company.scalar_one_or_none()
-    if not company:
-        raise HTTPException(status_code=404, detail=ERROR_COMPANY_NOT_FOUND)
+    if not await company_crud.get_by_company_slug(session, company_slug):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_COMPANY_NOT_FOUND)

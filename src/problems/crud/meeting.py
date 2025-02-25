@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from src.crud import CRUDBase
 from src.problems.crud.association_utils import create_associations
@@ -80,6 +81,28 @@ class CRUDMeeting(CRUDBase):
         """
         db_obj = await self.get_or_404(session, meeting_id)
         await self.remove(session, db_obj)
+
+    async def get_meeting(self, session: AsyncSession, **filters):
+        """Получает встречу по указанным параметрам модели.
+
+        Назначение:
+            Извлекает встречу из базы данных по указанным параметрам,
+            соответствующим полям модели Meeting. Возвращает объект встречи,
+            если такая встреча существует; иначе - None.
+        Параметры:
+            session: Асинхронная сессия SQLAlchemy.
+            filters: Ключевые аргументы, представляющие поля модели Meeting
+            и их значения для фильтрации.
+        Возвращаемое значение:
+            Объект встречи, если такая встреча существует с заданными параметрами, иначе None.
+        """
+
+        query = select(Meeting)
+        for key, value in filters.items():
+            if hasattr(Meeting, key):
+                query = query.where(getattr(Meeting, key) == value)
+        result = await session.execute(query)
+        return result.scalar_one_or_none() is None
 
 
 meeting_crud = CRUDMeeting(Meeting)

@@ -72,10 +72,10 @@ async def create_meeting(
     Возвращаемое значение:
         Объект MeetingResponseSchema.
     """
-    await check_meeting_title_unique(meeting.title, session)
-    await check_meeting_date_available(meeting.date_meeting, session)
     await check_company_exists(company_slug, session)
     await check_problem_exists(problem_id, session)
+    await check_meeting_title_unique(meeting.title, session)
+    await check_meeting_date_available(meeting.date_meeting, session)
     meeting_data = meeting.model_dump()
     members = meeting.members or []
     created_meeting = await meeting_crud.create_with_members(
@@ -141,10 +141,10 @@ async def update_meeting(
     Возвращаемое значение:
         Объект MeetingResponseSchema.
     """
-    await check_meeting_title_unique(meeting.title, session)
-    await check_meeting_date_available(meeting.date_meeting, session)
     await check_company_exists(company_slug, session)
     await check_problem_exists(problem_id, session)
+    await check_meeting_title_unique(meeting.title, session)
+    await check_meeting_date_available(meeting.date_meeting, session)
     return await meeting_crud.update_meeting(session, meeting_id, meeting.model_dump())
 
 

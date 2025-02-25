@@ -1,13 +1,13 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 from src.problems.constants import (
     ERROR_DATE_MEETING_ALREADY_IN_USE,
     ERROR_MEETING_TITLE_ALREADY_IN_USE,
     ERROR_PROBLEM_NOT_FOUND,
 )
-from src.problems.models import Meeting, Problem
+from src.problems.crud.meeting import meeting_crud
+from src.problems.crud.problems import problem_crud
 
 
 async def check_problem_exists(problem_id: int, session: AsyncSession):
@@ -24,9 +24,9 @@ async def check_problem_exists(problem_id: int, session: AsyncSession):
         HTTPException: Если проблема не найдена.
     """
 
-    problem = await session.execute(select(Problem).where(Problem.id == problem_id))
-    problem = problem.scalar_one_or_none()
-    if not problem:
+    try:
+        await problem_crud.get_or_404(session, problem_id)
+    except HTTPException:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_PROBLEM_NOT_FOUND)
 
 
@@ -42,8 +42,7 @@ async def check_meeting_title_unique(title: str, session: AsyncSession):
         HTTPException: Если название встречи уже используется.
     """
 
-    existing_meeting = await session.execute(select(Meeting).where(Meeting.title == title))
-    if existing_meeting.scalar_one_or_none():
+    if not await meeting_crud.get_meeting(title=title, session=session):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_MEETING_TITLE_ALREADY_IN_USE
         )
@@ -61,10 +60,7 @@ async def check_meeting_date_available(date_meeting: str, session: AsyncSession)
         HTTPException: Если дата встречи уже занята.
     """
 
-    existing_meeting = await session.execute(
-        select(Meeting).where(Meeting.date_meeting == date_meeting)
-    )
-    if existing_meeting.scalar_one_or_none():
+    if not await meeting_crud.get_meeting(date_meeting=date_meeting, session=session):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_DATE_MEETING_ALREADY_IN_USE
         )
