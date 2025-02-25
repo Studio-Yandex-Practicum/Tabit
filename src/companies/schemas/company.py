@@ -1,15 +1,26 @@
+"""
+Модуль схем для компании, отдела и сотрудника отдела.
+"""
+
 from datetime import datetime
 from typing import Optional, Self
 
+from fastapi_users.schemas import BaseUserUpdate
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from pydantic_extra_types.phone_numbers import PhoneNumber
 
 from src.companies.constants import (
+    TEST_ERROR_INVALID_CHARACTERS_NAME,
+    TEST_ERROR_INVALID_CHARACTERS_SURNAME,
     TEST_ERROR_LICENSE_FIELDS,
-    title_license_id_company,
-    title_logo_company,
-    title_name_company,
-    title_slug_company,
-    title_start_license_time,
+    TEST_ERROR_UNIQUE_NAME_SURNAME,
+    TITLE_LICENSE_ID_COMPANY,
+    TITLE_LOGO_COMPANY,
+    TITLE_NAME_COMPANY,
+    TITLE_NAME_DEPARTMENT,
+    TITLE_SLUG_COMPANY,
+    TITLE_SLUG_DEPARTMENT,
+    TITLE_START_LICENSE_TIME_COMPANY,
 )
 from src.companies.schemas.mixins import GetterSlugMixin
 from src.constants import (
@@ -24,6 +35,7 @@ from src.users.constants import (
     title_surname_user,
     title_telegram_username_user,
 )
+from src.users.schemas import UserSchemaMixin
 
 
 class CompanyUpdateForUserSchema(BaseModel):
@@ -31,11 +43,11 @@ class CompanyUpdateForUserSchema(BaseModel):
 
     description: Optional[str] = Field(
         None,
-        title=title_name_company,
+        title=TITLE_NAME_COMPANY,
     )
     logo: Optional[str] = Field(
         None,
-        title=title_logo_company,
+        title=TITLE_LOGO_COMPANY,
     )
 
 
@@ -46,15 +58,15 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_COMPANY,
-        title=title_name_company,
+        title=TITLE_NAME_COMPANY,
     )
     license_id: Optional[int] = Field(
         None,
-        title=title_license_id_company,
+        title=TITLE_LICENSE_ID_COMPANY,
     )
     start_license_time: Optional[datetime] = Field(
         None,
-        title=title_start_license_time,
+        title=TITLE_START_LICENSE_TIME_COMPANY,
     )
 
     @model_validator(mode='after')
@@ -78,9 +90,9 @@ class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
         ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_COMPANY,
-        title=title_name_company,
+        title=TITLE_NAME_COMPANY,
     )
-    slug: str = Field(..., title=title_slug_company)
+    slug: str = Field(..., title=TITLE_SLUG_COMPANY)
 
 
 class CompanyResponseSchema(BaseModel):
@@ -103,6 +115,46 @@ class CompanyResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class CompanyDepartmentUpdateSchema(BaseModel, GetterSlugMixin):
+    """Схема для обновления данных об отделе."""
+
+    name: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_COMPANY,
+        title=TITLE_NAME_DEPARTMENT,
+    )
+    slug: Optional[str] = Field(None, title=TITLE_SLUG_DEPARTMENT)
+
+    model_config = ConfigDict(extra='forbid')
+
+
+class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
+    """Схема для создания отдела."""
+
+    name: str = Field(
+        ...,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_COMPANY,
+        title=TITLE_NAME_DEPARTMENT,
+    )
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
+    """Схема для получения данных отдела."""
+
+    id: int
+    name: str
+    slug: str
+    company_id: int
+
+
+class CompanyEmployeeUpdateSchema(UserSchemaMixin, BaseUserUpdate):
+    """Схема для изменения данных сотрудника компании."""
+
+
 class UserCompanyUpdateSchema(BaseModel):
     """Схема для редактирования пользователем компании своего профиля."""
 
@@ -118,7 +170,7 @@ class UserCompanyUpdateSchema(BaseModel):
         max_length=LENGTH_NAME_USER,
         title=title_surname_user,
     )
-    phone_number: Optional[str] = Field(
+    phone_number: Optional[PhoneNumber] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
@@ -131,6 +183,16 @@ class UserCompanyUpdateSchema(BaseModel):
         title=title_telegram_username_user,
     )
 
+    @model_validator(mode='after')
+    def validate_unique_name_surname(self) -> Self:
+        if self.name and self.surname and self.name == self.surname:
+            raise ValueError(TEST_ERROR_UNIQUE_NAME_SURNAME)
+        if self.name and not self.name.isalpha():
+            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_NAME)
+        if self.surname and not self.surname.isalpha():
+            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_SURNAME)
+        return self
+
 
 class CompanyFeedbackCreateShema(BaseModel):
     """Схема для создания пользователем компании обратной связи."""
@@ -139,5 +201,4 @@ class CompanyFeedbackCreateShema(BaseModel):
     # TODO: Обдумать. Скорее всего надо будет реализовать ограничение на количество символов.
     # Схема на данный момент является по большей части заглушкой.
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
