@@ -1,4 +1,5 @@
 from src.problems.models.association_models import (
+    AssociationUserComment,
     AssociationUserMeeting,
     AssociationUserProblem,
     AssociationUserTask,
@@ -20,6 +21,7 @@ from src.problems.models.problem_models import Problem
 from src.problems.models.task_models import Task
 
 __all__ = [
+    'AssociationUserComment',
     'AssociationUserProblem',
     'AssociationUserMeeting',
     'AssociationUserTask',
