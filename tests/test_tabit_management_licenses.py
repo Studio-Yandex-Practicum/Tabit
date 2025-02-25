@@ -3,8 +3,8 @@ import uuid
 import pytest
 from httpx import AsyncClient
 
-from src.constants import LENGTH_NAME_USER
-from src.tabit_management.constants import DEFAULT_PAGE_SIZE
+from src.core.constants.common import LENGTH_NAME_USER
+from src.core.constants.tabit_management import DEFAULT_PAGE_SIZE
 
 
 def generate_license_data():

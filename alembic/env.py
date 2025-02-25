@@ -7,10 +7,10 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from src.database import Base
-from src.config import settings
+from src.core.database import BaseTabitModel
+from src.core.config.app import settings
 
-from scripts.auto_migration_naming import generate_migration_name  # noqa
+from scripts.migration_auto_naming import generate_migration_name  # noqa
 
 
 # this is the Alembic Config object, which provides
@@ -27,7 +27,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata
+target_metadata = BaseTabitModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
