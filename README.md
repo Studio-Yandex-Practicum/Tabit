@@ -623,7 +623,7 @@ docker compose -f infra/docker-compose.local-with-pgadmin.yaml down
 ```
 make down-pgadmin-volumes
 ```
-2) Для всех остальных (перед этим необходимо остановить контейнеры):
+2) Для всех остальных:
 ```
 docker compose -f infra/docker-compose.local-with-pgadmin.yaml down -v
 ```
