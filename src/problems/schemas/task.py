@@ -5,6 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, field_validator
 
 from src.problems.models.enums import StatusTask
+from src.constants import ZERO
 
 
 class TaskBaseSchema(BaseModel):
@@ -48,7 +49,7 @@ class TaskResponseSchema(TaskBaseSchema):
     @field_validator('executors', mode='before')
     def transform_executors(cls, executors):
         """Преобразует список объектов AssociationUserTask в список UUID."""
-        if executors and isinstance(executors[0], object):
+        if executors and isinstance(executors[ZERO], object):
             return [executor.left_id for executor in executors]
         return executors
 
@@ -61,7 +62,7 @@ class TaskCreateSchema(TaskBaseSchema):
 
     owner_id: Optional[UUID] = None
     status: Optional[StatusTask] = None
-    transfer_counter: int = 0
+    transfer_counter: int = ZERO
     file: Optional[List[str]] = None
     executors: Optional[List[UUID]] = None
 

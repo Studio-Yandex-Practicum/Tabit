@@ -1,6 +1,5 @@
 from datetime import date
 from typing import List, TYPE_CHECKING
-# from uuid import UUID
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -57,10 +56,6 @@ class Task(BaseTabitModel):
     file: Mapped[List['FileTask']] = relationship(
         back_populates='task', cascade='all, delete-orphan'
     )
-
-    # @property
-    # def executor_ids(self) -> List[UUID]:
-    #     return [executor.left_id for executor in self.executors]
 
     def __repr__(self):
         return (

@@ -1,4 +1,3 @@
-# from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
@@ -43,7 +42,7 @@ class CRUDTask(CRUDBase):
         company_slug: str,
         problem_id: int,
         task_id: int,
-        as_object: bool = False,  # Новый параметр
+        as_object: bool = False,
     ):
         """Получает задачу по id с проверкой принадлежности к компании и проблеме."""
         query = (
@@ -63,8 +62,6 @@ class CRUDTask(CRUDBase):
         )
         result = await session.execute(query)
         task = result.scalar_one_or_none()
-        # task = await session.get(Task, task_id)
-        # print(task)
         if as_object:
             return task
         return TaskResponseSchema.model_validate(task)
@@ -73,13 +70,9 @@ class CRUDTask(CRUDBase):
         """Создает новую задачу."""
         new_task = Task(**obj_in.model_dump(exclude={'executors', 'file'}))
         session.add(new_task)
-        await session.flush()  # Получаем ID задачи без коммита
-
-        # Добавляем файлы (если есть)
+        await session.flush()
         if obj_in.file:
             new_task.file = [FileTask(url=url, task_id=new_task.id) for url in obj_in.file]
-
-        # Добавляем исполнителей (если есть)
         if obj_in.executors:
             associations = [
                 AssociationUserTask(left_id=executor_id, right_id=new_task.id)
@@ -88,7 +81,7 @@ class CRUDTask(CRUDBase):
             session.add_all(associations)
 
         await session.commit()
-        await session.refresh(new_task)  # Загружаем обновлённый объект
+        await session.refresh(new_task)
         await session.execute(
             select(Task)
             .filter_by(id=new_task.id)
@@ -99,6 +92,7 @@ class CRUDTask(CRUDBase):
     async def update_task(
         self, session: AsyncSession, task: Task, task_update: TaskUpdateSchema
     ) -> TaskResponseSchema:
+        old_date_completion = task.date_completion
         update_data = task_update.model_dump(exclude_unset=True)
         executors_data = update_data.pop('executors', None)
         for field, value in update_data.items():
@@ -110,12 +104,10 @@ class CRUDTask(CRUDBase):
             for executor_id in executors_data:
                 association = AssociationUserTask(left_id=executor_id, right_id=task.id)
                 session.add(association)
+        if task.date_completion > old_date_completion:
+            task.transfer_counter += 1
         await session.commit()
         await session.refresh(task)
-        # Если нужно, можно также принудительно загрузить связанные объекты:
-        # task = (await session.execute(select(Task)
-        #         .filter_by(id=task.id)
-        #         .options(selectinload(Task.executors), selectinload(Task.file)))).scalar_one()
         return TaskResponseSchema.model_validate(task)
 
 
