@@ -24,5 +24,24 @@ services:
       - POETRY_VIRTUALENVS_IN_PROJECT=true
       - PATH="/app/.venv/bin:$PATH"
 
+  pgadmin:
+    container_name: pgadmin_local
+    image: dpage/pgadmin4:8.14
+    restart: always
+    env_file:
+      - /home/dev_deploy/tabit/infra/stage/.env
+    ports:
+      - "5600:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - /home/${{ secrets.USERNAME }}/tabit/pgadmin/servers.json:/pgadmin4/servers.json
+      - /home/${{ secrets.USERNAME }}/tabit/pgadmin/config_local.py:/pgadmin4/config_local.py
+      - /home/${{ secrets.USERNAME }}/tabit/pgadmin/.pgpass:/pgadmin4/.pgpass
+      - /home/${{ secrets.USERNAME }}/tabit/pgadmin/create-admin-folder.sh:/create-admin-folder.sh
+    entrypoint: ["/bin/sh", "/create-admin-folder.sh"]
+
 volumes:
   postgres_data:
+  pgadmin_data:
