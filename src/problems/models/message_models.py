@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import int_pk, owner
+from src.database.annotations import comment_rating, int_pk, owner
 from src.database.models import BaseTabitModel, BaseTag
 
 if TYPE_CHECKING:
@@ -88,6 +88,7 @@ class CommentFeed(BaseTabitModel):
     owner_id: Mapped[owner]
     owner: Mapped['UserTabit'] = relationship(back_populates='comments')
     text: Mapped[str]
+    rating: Mapped[comment_rating]
 
     def __repr__(self):
         return (

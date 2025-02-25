@@ -31,6 +31,7 @@ class CommentRead(CommentBase):
     id: int
     message_id: int
     owner_id: UUID
+    rating: int
     created_at: datetime
     updated_at: datetime
     model_config = ConfigDict(from_attributes=True)

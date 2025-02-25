@@ -9,3 +9,6 @@ VALID_WRONG_COMPANY: str = 'Разрешён доступ только к сво
 VALID_WRONG_PROBLEM: str = 'Разрешён доступ только к проблемам своей компании.'
 VALID_WRONG_MESSAGE_FEED: str = 'Для указанной проблемы запрошенный тред не найден.'
 VALID_COMMENT_NOT_OWNER: str = 'Вы можете изменять только свои комментарии.'
+VALID_LIKE_OWN_COMMENT: str = 'Нельзя менять рейтинг собственного комментария.'
+VALID_REPEATED_LIKE: str = 'Вы уже лайкнули данный комментарий.'
+VALID_NOT_LIKED_COMMENT: str = 'Вы не лайкали данный комментарий.'

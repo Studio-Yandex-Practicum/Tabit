@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +13,8 @@ from src.constants import (
 )
 from src.crud import CRUDBase
 from src.logger import logger
-from src.problems.models import CommentFeed
+from src.problems.crud import user_comment_association_crud
+from src.problems.models import AssociationUserComment, CommentFeed
 from src.problems.schemas import CommentCreate
 
 
@@ -71,6 +74,54 @@ class CRUDComment(CRUDBase):
                 detail=TEXT_ERROR_SERVER_CREATE,
             )
         return db_obj
+
+    async def like(self, comment: CommentFeed, user_id: UUID, session: AsyncSession):
+        """
+        Функция для лайка комментариев.
+        Создаёт запись о лайке в связанной таблице и увеличивает рейтинг на 1.
+
+        Параметры:
+            comment: объект модели CommentFeed;
+            user_id: UUID пользователя, сделавшего запрос;
+            session: асинхронная сессия SQLAlchemy.
+        """
+        try:
+            await user_comment_association_crud.create(comment.id, user_id, session)
+            comment.rating += 1
+            session.add(comment)
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            logger.error(f'{TEXT_ERROR_SERVER_CREATE_LOG} {self.model.__name__}: {e}')
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=TEXT_ERROR_SERVER_CREATE,
+            )
+
+    async def unlike(
+        self, user_comment_obj: AssociationUserComment, comment: CommentFeed, session: AsyncSession
+    ):
+        """
+        Функция для снятия лайка с комментариев.
+        Удалёет запись о лайке в связанной таблице и уменьшает рейтинг на 1.
+
+        Параметры:
+            user_comment_obj: объект модели AssociationUserComment;
+            comment: объект модели CommentFeed;
+            session: асинхронная сессия SQLAlchemy.
+        """
+        try:
+            await user_comment_association_crud.remove(user_comment_obj, session)
+            comment.rating -= 1
+            session.add(comment)
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            logger.error(f'{TEXT_ERROR_SERVER_CREATE_LOG} {self.model.__name__}: {e}')
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=TEXT_ERROR_SERVER_CREATE,
+            )
 
 
 comment_crud = CRUDComment(CommentFeed)

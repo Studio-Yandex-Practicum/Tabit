@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.dependencies import current_user
+from src.api.v1.auth.dependencies import current_user_tabit
 from src.api.v1.validators import (
+    check_comment_has_likes_from_user,
     check_comment_owner,
-    check_message_feed_and_problem,
+    get_access_to_comments,
     get_access_to_feeds,
 )
 from src.database.db_depends import get_async_session
@@ -26,13 +27,14 @@ router = APIRouter()
     '/thread',
     summary='Получить список всех тредов по проблеме.',
     response_model=list[MessageFeedRead],
+    status_code=status.HTTP_200_OK,
 )
 async def get_all_threads(
     company_slug: str,
     problem_id: int,
     query_params: FeedsFilterSchema = Depends(),
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user),
+    user: UserTabit = Depends(current_user_tabit),
 ) -> list[MessageFeedRead]:
     """
     Получает список всех тредов по проблеме.
@@ -51,13 +53,18 @@ async def get_all_threads(
     )
 
 
-@router.post('/thread', summary='Создать тред по проблеме.', response_model=MessageFeedRead)
+@router.post(
+    '/thread',
+    summary='Создать тред по проблеме.',
+    response_model=MessageFeedRead,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_problem_thread(
     company_slug: str,
     problem_id: int,
     create_data: MessageFeedCreate,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user),
+    user: UserTabit = Depends(current_user_tabit),
 ) -> MessageFeedRead:
     """
     Создание треда по проблеме.
@@ -79,6 +86,7 @@ async def create_problem_thread(
     '/{thread_id}/comments',
     summary='Получить все комментарии треда.',
     response_model=list[CommentRead],
+    status_code=status.HTTP_200_OK,
 )
 async def get_thread_comments(
     company_slug: str,
@@ -86,7 +94,7 @@ async def get_thread_comments(
     thread_id: int,
     query_params: FeedsFilterSchema = Depends(),
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user),
+    user: UserTabit = Depends(current_user_tabit),
 ) -> list[CommentRead]:
     """
     Получить все комментарии треда.
@@ -100,15 +108,17 @@ async def get_thread_comments(
         user: объект пользователя, сделавшего запрос к API.
     Доступ только для сотрудников компаний.
     """
-    await get_access_to_feeds(user.company_id, company_slug, problem_id, session)
-    await check_message_feed_and_problem(thread_id, problem_id, session)
+    await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
     return await comment_crud.get_multi(
         session, query_params.skip, query_params.limit, filters={'message_id': thread_id}
     )
 
 
 @router.post(
-    '/{thread_id}/comments', summary='Создать комментарий в треде.', response_model=CommentRead
+    '/{thread_id}/comments',
+    summary='Создать комментарий в треде.',
+    response_model=CommentRead,
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_thread_comment(
     company_slug: str,
@@ -116,7 +126,7 @@ async def create_thread_comment(
     thread_id: int,
     create_data: CommentCreate,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user),
+    user: UserTabit = Depends(current_user_tabit),
 ) -> CommentRead:
     """
     Создание комментария к треду.
@@ -130,8 +140,7 @@ async def create_thread_comment(
         user: объект пользователя, сделавшего запрос к API.
     Доступ только для сотрудников компаний.
     """
-    await get_access_to_feeds(user.company_id, company_slug, problem_id, session)
-    await check_message_feed_and_problem(thread_id, problem_id, session)
+    await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
     return await comment_crud.create(session, create_data, thread_id, user.id)
 
 
@@ -139,6 +148,7 @@ async def create_thread_comment(
     '/{thread_id}/comments/{comment_id}',
     summary='Обновить комментарий в треде.',
     response_model=CommentRead,
+    status_code=status.HTTP_200_OK,
 )
 async def update_thread_comment(
     company_slug: str,
@@ -147,7 +157,7 @@ async def update_thread_comment(
     comment_id: int,
     update_data: CommentUpdate,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user),
+    user: UserTabit = Depends(current_user_tabit),
 ) -> CommentRead:
     """
     Обновление комментария в треде.
@@ -162,8 +172,7 @@ async def update_thread_comment(
         user: объект пользователя, сделавшего запрос к API.
     Доступ только для сотрудников компаний.
     """
-    await get_access_to_feeds(user.company_id, company_slug, problem_id, session)
-    await check_message_feed_and_problem(thread_id, problem_id, session)
+    await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
     comment = await check_comment_owner(comment_id, user.id, session)
     return await comment_crud.update(session, comment, update_data)
 
@@ -179,8 +188,8 @@ async def delete_thread_comment(
     thread_id: int,
     comment_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user),
-):
+    user: UserTabit = Depends(current_user_tabit),
+) -> None:
     """
     Удаление комментария в треде.
 
@@ -193,26 +202,68 @@ async def delete_thread_comment(
         user: объект пользователя, сделавшего запрос к API.
     Доступ только для сотрудников компаний.
     """
-    await get_access_to_feeds(user.company_id, company_slug, problem_id, session)
-    await check_message_feed_and_problem(thread_id, problem_id, session)
+    await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
     comment = await check_comment_owner(comment_id, user.id, session)
     await comment_crud.remove(session, comment)
 
 
-# TODO: Уточнить, нужна ли реализация данного функционала.
-# Если нужна, то, возможно, стоит реализовать и дизлайки? Оба случая решаются добавлением
-# одного параметра в модель (rating/likes и т.п.).
-@router.post(
+@router.get(
     '/{thread_id}/comments/{comment_id}/like',
     summary='Поставить лайк комментарию в треде.',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_200_OK,
 )
-async def create_comment_like(
+async def like_a_comment(
     company_slug: str,
     problem_id: int,
     thread_id: int,
     comment_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
-    """Поставить лайк комментарию в треде."""
-    return {'message': 'Поставить лайк комментарию в треде пока нельзя.'}
+    user: UserTabit = Depends(current_user_tabit),
+) -> None:
+    """
+    Поставить лайк комментарию в треде.
+
+    Параметры:
+        company_slug: path-параметр, слаг компании;
+        problem_id: path-параметр, id запрашиваемой проблемы;
+        thread_id: path-параметр, id запрашиваемого треда;
+        comment_id: paht-параметр, id запрашиваемого комментария;
+        session: асинхронная сессия SQLAlchemy;
+        user: объект пользователя, сделавшего запрос к API.
+    Доступ только для сотрудников компаний.
+    """
+    await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
+    await check_comment_has_likes_from_user(user.id, comment_id, session, like_mode=True)
+    comment = await check_comment_owner(comment_id, user.id, session, like_mode=True)
+    await comment_crud.like(comment, user.id, session)
+
+
+@router.get(
+    '{thread_id}/comments/{comment_id}/unlike',
+    summary='Убрать свой лайк комментарию в треде.',
+    status_code=status.HTTP_200_OK,
+)
+async def unlike_a_comment(
+    company_slug: str,
+    problem_id: int,
+    thread_id: int,
+    comment_id: int,
+    session: AsyncSession = Depends(get_async_session),
+    user: UserTabit = Depends(current_user_tabit),
+) -> None:
+    """
+    Убрать лайк с комментария.
+
+    Параметры:
+        company_slug: path-параметр, слаг компании;
+        problem_id: path-параметр, id запрашиваемой проблемы;
+        thread_id: path-параметр, id запрашиваемого треда;
+        comment_id: paht-параметр, id запрашиваемого комментария;
+        session: асинхронная сессия SQLAlchemy;
+        user: объект пользователя, сделавшего запрос к API.
+    Доступ только для сотрудников компаний.
+    """
+    await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
+    comment = await check_comment_owner(comment_id, user.id, session, like_mode=True)
+    user_comment_obj = await check_comment_has_likes_from_user(user.id, comment_id, session)
+    await comment_crud.unlike(user_comment_obj, comment, session)
