@@ -8,11 +8,9 @@ from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.constants import TextError
+from src.constants import TEXT_ERROR_NOT_FOUND
 from src.crud import CRUDBase
-from src.constants import (
-    TEXT_ERROR_NOT_FOUND,
-    TEXT_ERROR_IS_SUPERUSER,
-)
 
 
 async def validator_check_object_exists(
@@ -23,8 +21,10 @@ async def validator_check_object_exists(
     message: str = TEXT_ERROR_NOT_FOUND,
 ):
     """Проверит наличие и вернет объект из таблицы по id или slug."""
-    object_model = await model_crud.get_or_404(session, object_id) if object_id else (
-        await model_crud.get_by_slug(session, object_slug, raise_404=True)
+    object_model = (
+        await model_crud.get_or_404(session, object_id)
+        if object_id
+        else (await model_crud.get_by_slug(session, object_slug, raise_404=True))
     )
     if object_model is None:
         raise HTTPException(
@@ -34,12 +34,25 @@ async def validator_check_object_exists(
     return object_model
 
 
-def validator_check_is_superuser(
+def validator_check_not_is_superuser(
     user_model_object,
-    message: str = TEXT_ERROR_IS_SUPERUSER,
+    message: str = TextError.IS_SUPERUSER,
 ) -> None:
+    """
+    Проверит, не является ли пользователь суперпользователем.
+    Если является: выкинет ошибку 400.
+    """
     if user_model_object.is_superuser:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=message,
+        )
+
+
+def check_user_is_active(user):
+    """Проверит, что пользователь передан и является активным. Иначе ошибка 400."""
+    if user is None or not user.is_active:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=TextError.LOGIN,
         )

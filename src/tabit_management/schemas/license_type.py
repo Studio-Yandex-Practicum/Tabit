@@ -1,48 +1,42 @@
 from datetime import datetime, timedelta
-from re import compile
-from typing import Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.constants import LENGTH_NAME_LICENSE, MIN_LENGTH_NAME, ZERO
 from src.tabit_management.constants import (
     DEFAULT_LICENSE_TERM,
-    ERROR_FIELD_INTERVAL,
-    ERROR_FIELD_START_OR_END_SPACE,
+    DEFAULT_PAGE,
+    DEFAULT_PAGE_SIZE,
+    FILTER_NAME_DESCRIPTION,
+    MAX_PAGE_SIZE,
+    MIN_PAGE_SIZE,
+    PAGE_DESCRIPTION,
+    PAGE_SIZE_DESCRIPTION,
+    SORTING_DESCRIPTION,
     TITLE_LICENSE_TERM,
     TITLE_MAX_ADMINS_COUNT,
     TITLE_MAX_EMPLOYEES_COUNT,
     TITLE_NAME_LICENSE,
 )
+from src.tabit_management.validators.license_type_validators import (
+    validate_license_term,
+    validate_string,
+)
 
 
 class LicenseTypeBaseSchema(BaseModel):
-    """Базовая схема лицензии."""
+    """Базовая схема лицензии, содержащая валидаторы."""
 
+    @field_validator('name', mode='after', check_fields=False)
     @classmethod
-    def _validator_field_string(cls, value: str):
-        """Проверит строковое поле, чтобы не было пробелов вначале или конце."""
-        if value != value.strip():
-            raise ValueError(ERROR_FIELD_START_OR_END_SPACE)
-        return value
+    def validate_name(cls, value: str):
+        return validate_string(value)
 
+    @field_validator('license_term', mode='before', check_fields=False)
     @classmethod
-    def _validator_field_interval(cls, value: int):
-        """
-        Проверка поля timedelta.
-        Проверка происходит до проверки по типу.
-        Поле может принимать строку формата "P1D", "P1Y", "P1Y1D", где:
-            P - обязательный указатель, ставится в начале строки,
-            1D - количество дней, в данном случае: 1 день,
-            1Y - количество лет, в данном случае: 1 год.
-        """
-        if isinstance(value, str) and value.isdigit():
-            value = int(value)
-        if isinstance(value, int):
-            return timedelta(days=value)
-        if compile(r'^P.*Y$|^P.*D$').match(value):
-            return value
-        raise ValueError(ERROR_FIELD_INTERVAL)
+    def validate_license_term(cls, value: int):
+        return validate_license_term(value)
 
 
 class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
@@ -70,16 +64,6 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
         title=TITLE_MAX_EMPLOYEES_COUNT,
     )
 
-    @field_validator('name', mode='after')
-    @classmethod
-    def str_field(cls, value: str):
-        return cls._validator_field_string(value)
-
-    @field_validator('license_term', mode='before')
-    @classmethod
-    def interval_field(cls, value: int):
-        return cls._validator_field_interval(value)
-
 
 class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
     """Схема для частичного изменения лицензии."""
@@ -105,16 +89,6 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
         title=TITLE_MAX_EMPLOYEES_COUNT,
     )
 
-    @field_validator('name', mode='after')
-    @classmethod
-    def str_field(cls, value: str):
-        return cls._validator_field_string(value)
-
-    @field_validator('license_term', mode='before')
-    @classmethod
-    def interval_field(cls, value: int):
-        return cls._validator_field_interval(value)
-
     model_config = ConfigDict(extra='forbid')
 
 
@@ -130,3 +104,43 @@ class LicenseTypeResponseSchema(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class LicenseTypeListResponseSchema(BaseModel):
+    """
+    Схема ответа для списка лицензий с пагинацией.
+
+    Attributes:
+        items (List[LicenseTypeResponseSchema]): Список лицензий.
+        total (int): Общее количество записей.
+        page (int): Текущая страница.
+        page_size (int): Количество записей на странице.
+    """
+
+    items: List[LicenseTypeResponseSchema]
+    total: int
+    page: int
+    page_size: int
+
+
+class LicenseTypeFilterSchema(BaseModel):
+    """
+    Схема фильтрации списка лицензий с возможностью сортировки и пагинации.
+
+    Attributes:
+        name (Optional[str]): Фильтр по названию лицензии.
+        ordering (Optional[Literal]): Сортировка (по полям name, created_at, updated_at).
+        page (Optional[int]): Номер страницы.
+        page_size (Optional[int]): Количество записей на странице.
+    """
+
+    name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
+
+    ordering: Optional[
+        Literal['name', '-name', 'created_at', '-created_at', 'updated_at', '-updated_at']
+    ] = Field(None, description=SORTING_DESCRIPTION)
+
+    page: Optional[int] = Field(DEFAULT_PAGE, ge=MIN_PAGE_SIZE, description=PAGE_DESCRIPTION)
+    page_size: Optional[int] = Field(
+        DEFAULT_PAGE_SIZE, ge=MIN_PAGE_SIZE, le=MAX_PAGE_SIZE, description=PAGE_SIZE_DESCRIPTION
+    )

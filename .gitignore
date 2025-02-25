@@ -183,3 +183,7 @@ cython_debug/
 
 #MacOs files
 .DS_Store
+
+#others
+departments_list.txt
+employees_list.txt

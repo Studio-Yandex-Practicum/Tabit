@@ -1,11 +1,11 @@
 from datetime import date
-from typing import Optional, List
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, field_validator
 
-from src.problems.models.enums import StatusTask
 from src.constants import ZERO
+from src.problems.models.enums import StatusTask
 
 
 class TaskBaseSchema(BaseModel):

@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
+from src.problems.crud import task_crud
+from src.problems.models.enums import StatusTask
 from src.problems.schemas.task import (
-    TaskResponseSchema,
     TaskCreateSchema,
+    TaskResponseSchema,
     TaskUpdateSchema,
 )
-from src.problems.models.enums import StatusTask
-from src.problems.crud import task_crud
 
 router = APIRouter()
 
@@ -32,6 +32,8 @@ async def get_tasks(
         company_slug: Уникальный идентификатор компании
         problem_id: Идентификатор проблемы
         session: Сессия базы данных
+    Возвращаемое значение:
+        Объект TaskResponseSchema.
     """
     tasks = await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
     if not tasks:
@@ -50,10 +52,21 @@ async def create_task(
     task: TaskCreateSchema,
     company_slug: str,
     problem_id: int,
-    # current_user: UserTabit = Depends(get_current_user),
+    #  Пока используем левого пользователя отцом для задачи
+    #  current_user: UserTabit = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Создает новую задачу."""
+    """Создание задачи.
+
+    Назначение:
+        Создаёт задачу.
+    Args:
+        problem_id: ID проблемы.
+        company_slug: Уникальный идентификатор компании.
+        session: Асинхронная сессия SQLAlchemy.
+    Возвращаемое значение:
+        Объект TaskResponseSchema.
+    """
     task_data = task.model_dump()
     task_data['owner_id'] = '3fa85f64-5717-4562-b3fc-2c963f66af66'
     task_data['status'] = StatusTask.NEW
