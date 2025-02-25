@@ -7,8 +7,8 @@ from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from src.models import Company
 from src.core.crud_base import CRUDBase
+from src.models import Company
 
 
 class CRUDCompany(CRUDBase):

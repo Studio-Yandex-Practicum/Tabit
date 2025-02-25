@@ -1,10 +1,15 @@
-from typing import List
+"""Модели для ленты сообщений к проблеме."""
+
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.annotations import int_pk, owner
 from src.models import BaseTabitModel, BaseTag
+
+if TYPE_CHECKING:
+    from src.models import CommentFeed, FileMessage, Problem, UserTabit, VotingFeed
 
 
 class MessageFeed(BaseTabitModel):

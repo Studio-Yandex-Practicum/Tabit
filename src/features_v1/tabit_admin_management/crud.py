@@ -1,5 +1,5 @@
-from src.models import Company
 from src.core.crud_base import CRUDBase
+from src.models import Company
 
 
 class CRUDAdminCompany(CRUDBase):

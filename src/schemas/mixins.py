@@ -1,9 +1,9 @@
 """Модуль миксинов для схем приложения company."""
 
-from typing import Any, Optional
 from datetime import date
+from typing import Any, Optional
 
-from pydantic import Field, ConfigDict, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
 from src.core.constants.common import (
     LENGTH_FILE_LINK,

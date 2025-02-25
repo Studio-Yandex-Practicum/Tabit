@@ -1,12 +1,17 @@
+"""Модели для встреч и результатов встреч."""
+
 from datetime import date
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.constants.common import LENGTH_NAME_MEETING_PLACE
 from src.core.annotations import description, int_pk, int_zero, name_problem, owner
+from src.core.constants.common import LENGTH_NAME_MEETING_PLACE
 from src.models import BaseTabitModel, ResultMeetingEnum, StatusMeeting
+
+if TYPE_CHECKING:
+    from src.models import AssociationUserMeeting, FileMeeting, Problem, ResultMeeting, UserTabit
 
 
 class Meeting(BaseTabitModel):

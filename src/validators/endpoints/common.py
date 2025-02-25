@@ -8,8 +8,8 @@ from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.constants.endpoints import TextError
 from src.core.constants.common import TEXT_ERROR_NOT_FOUND
+from src.core.constants.endpoints import TextError
 from src.core.crud_base import CRUDBase
 
 

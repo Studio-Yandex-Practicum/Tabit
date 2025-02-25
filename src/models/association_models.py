@@ -1,3 +1,6 @@
+"""Модели для связных таблиц."""
+
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import ForeignKey
@@ -5,6 +8,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.annotations import int_pk
 from src.models import BaseTabitModel
+
+if TYPE_CHECKING:
+    from src.models import Meeting, Problem, TagUser, Task, UserTabit
 
 
 class AssociationUserProblem(BaseTabitModel):

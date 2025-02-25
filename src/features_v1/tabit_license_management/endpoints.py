@@ -1,22 +1,27 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+<<<<<<< HEAD
 from src.api.v1.validators.tabit_management_licenses_validators import validate_license_name
 from src.database.db_depends import get_async_session
 from src.tabit_management.constants import (
+=======
+from src.core.constants.tabit_management import (
+>>>>>>> 7896363 (Pass ruff check)
     SUMMARY_CREATE_LICENSE,
     SUMMARY_DELETE_LICENSE,
     SUMMARY_GET_LICENSE,
     SUMMARY_GET_LICENSES,
     SUMMARY_UPDATE_LICENSE,
 )
+from src.core.database.db_depends import get_async_session
 from src.features_v1.tabit_license_management.crud import license_type_crud
 from src.schemas import (
     LicenseTypeCreateSchema,
-    LicenseTypeResponseSchema,
-    LicenseTypeUpdateSchema,
     LicenseTypeFilterSchema,
     LicenseTypeListResponseSchema,
+    LicenseTypeResponseSchema,
+    LicenseTypeUpdateSchema,
 )
 
 router = APIRouter()

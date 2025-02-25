@@ -19,13 +19,17 @@ from src.core.auth.dependencies import (
 from src.core.auth.jwt import jwt_auth_backend_admin
 from src.core.auth.managers import get_admin_manager
 from src.core.auth.protocol import StrategyT
-from src.schemas import TokenReadSchemas
 from src.core.constants.endpoints import Description, Summary
+from src.core.database.db_depends import get_async_session
+from src.features_v1.tabit_admin_auth.crud import admin_user_crud
+from src.models import TabitAdminUser
+from src.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema, TokenReadSchemas
 from src.validators.endpoints.common import (
     check_user_is_active,
     validator_check_not_is_superuser,
     validator_check_object_exists,
 )
+<<<<<<< HEAD
 <<<<<<< HEAD:src/api/v1/endpoints/tabit_admin_auth.py
 from src.database.db_depends import get_async_session
 from src.tabit_management.crud import admin_crud
@@ -37,6 +41,8 @@ from src.models import TabitAdminUser
 from src.features_v1.tabit_admin_auth.crud import admin_user_crud
 from src.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
 >>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/tabit_admin_auth/endpoints.py
+=======
+>>>>>>> 7896363 (Pass ruff check)
 
 router = APIRouter()
 

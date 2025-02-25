@@ -1,0 +1,40 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.models import UserTabit
+
+from .base_seeder import BaseSeeder
+from .constants import FAKER_USER_COUNT
+from .faker_instance import fake
+
+
+class UserSeeder(BaseSeeder):
+    """
+    Асинхронный сидер для генерации тестовых пользователей.
+    """
+
+    def __init__(self, count=FAKER_USER_COUNT):
+        """
+        Инициализация сидера пользователей.
+        :param count: количество пользователей для генерации
+        """
+        super().__init__(count)
+
+    async def run(self, session: AsyncSession):
+        """
+        Генерация и добавление пользователей в базу данных.
+        :param session: асинхронная сессия SQLAlchemy
+        """
+        # TODO: когда будет модель, поправлю поля
+        users = [UserTabit(
+            username=fake.user_name(),
+            email=fake.email(),
+            hashed_password=fake.password(),
+            is_active=True,
+            is_superuser=False,
+            is_verified=True,
+        ) for _ in range(self.count)]
+        session.add_all(users)
+        await session.commit()
+
+        # TODO: пока print, но нужно логирование
+        print(f'Создано {self.count} пользователей.')

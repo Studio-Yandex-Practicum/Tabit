@@ -1,9 +1,14 @@
-from typing import List
+"""Модели для тэгов."""
+
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import BaseTag
+
+if TYPE_CHECKING:
+    from src.models import AssociationUserTags, Company
 
 
 class TagUser(BaseTag):

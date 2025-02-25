@@ -1,9 +1,21 @@
-from typing import List
+"""Модели для проблем."""
+
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy.orm import Mapped, relationship
 
 from src.core.annotations import description, int_pk, name_problem, owner
 from src.models import BaseTabitModel, ColorProblem, StatusProblem, TypeProblem
+
+if TYPE_CHECKING:
+    from src.models import (
+        AssociationUserProblem,
+        FileProblem,
+        Meeting,
+        MessageFeed,
+        Task,
+        UserTabit,
+    )
 
 
 class Problem(BaseTabitModel):

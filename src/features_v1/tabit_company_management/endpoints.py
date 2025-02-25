@@ -20,7 +20,7 @@ from src.companies.crud import company_crud
 =======
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.constants.endpoints import Description, Summary
-from src.validators.endpoints.common import validator_check_object_exists
+from src.core.database.db_depends import get_async_session
 from src.features_v1.tabit_company_management.crud import tabit_company_crud
 >>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/tabit_company_management/endpoints.py
 from src.schemas import (
@@ -28,8 +28,12 @@ from src.schemas import (
     CompanyResponseSchema,
     CompanyUpdateSchema,
 )
+<<<<<<< HEAD
 from src.companies.schemas.company import CompanyTypeFilterSchema
 from src.database.db_depends import get_async_session
+=======
+from src.validators.endpoints.common import validator_check_object_exists
+>>>>>>> 7896363 (Pass ruff check)
 
 router = APIRouter()
 
@@ -133,6 +137,7 @@ async def update_company(
         object_in: данные переданные в запросе, предварительно подготовленные согласно схеме.
         session: асинхронная сессия через зависимость.
     """
+<<<<<<< HEAD
 <<<<<<< HEAD:src/api/v1/endpoints/tabit_company_management.py
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
 
@@ -146,6 +151,13 @@ async def update_company(
     return await company_crud.update(session, company, object_in)
 =======
     company = await validator_check_object_exists(session, tabit_company_crud, object_slug=company_slug)
+=======
+    company = await validator_check_object_exists(
+        session,
+        tabit_company_crud,
+        object_slug=company_slug,
+    )
+>>>>>>> 7896363 (Pass ruff check)
     return await tabit_company_crud.update(session, company, object_in)
 >>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/tabit_company_management/endpoints.py
 
@@ -174,11 +186,19 @@ async def delete_company(
         user_id: уникальный идентификатор компании `slug`, указанный в path.
         session: асинхронная сессия через зависимость.
     """
+<<<<<<< HEAD
 <<<<<<< HEAD:src/api/v1/endpoints/tabit_company_management.py
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     await company_crud.remove(session, company)
 =======
     company = await validator_check_object_exists(session, tabit_company_crud, object_slug=company_slug)
+=======
+    company = await validator_check_object_exists(
+        session,
+        tabit_company_crud,
+        object_slug=company_slug,
+    )
+>>>>>>> 7896363 (Pass ruff check)
     await tabit_company_crud.remove(session, company)
     return
 >>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/tabit_company_management/endpoints.py

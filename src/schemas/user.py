@@ -31,7 +31,8 @@ from src.core.constants.user import (
     TITLE_TELEGRAM_USERNAME_USER,
     TITLE_UPDATED_AT_USER,
 )
-from src.models.enum import RoleUserTabit
+from src.models import RoleUserTabit
+from src.schemas import UserSchemaMixin
 
 
 class UserReadSchema(BaseUser[UUID]):
