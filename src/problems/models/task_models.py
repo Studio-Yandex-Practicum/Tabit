@@ -49,7 +49,9 @@ class Task(BaseTabitModel):
     owner: Mapped['UserTabit'] = relationship(back_populates='task_owner')
     problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id', ondelete='CASCADE'))
     problem: Mapped['Problem'] = relationship(back_populates='tasks')
-    executors: Mapped[List['AssociationUserTask']] = relationship(back_populates='task')
+    executors: Mapped[List['AssociationUserTask']] = relationship(
+        back_populates='task', cascade='all, delete-orphan'
+    )
     status: Mapped['StatusTask']
     transfer_counter: Mapped[int_zero]  # Добавлено поле transfer_counter
     file: Mapped[List['FileTask']] = relationship(

@@ -169,7 +169,9 @@ class UserTabit(BaseUser):
     meetings: Mapped[List['AssociationUserMeeting']] = relationship(back_populates='user')
     meeting_result: Mapped['ResultMeeting'] = relationship(back_populates='owner')
     task_owner: Mapped['Task'] = relationship(back_populates='owner')
-    tasks: Mapped[List['AssociationUserTask']] = relationship(back_populates='user')
+    tasks: Mapped[List['AssociationUserTask']] = relationship(
+        back_populates='user', cascade='all, delete-orphan'
+    )
     messages: Mapped[List['MessageFeed']] = relationship(back_populates='owner')
     comments: Mapped[List['CommentFeed']] = relationship(back_populates='owner')
     voting_by: Mapped[List['VotingByUser']] = relationship(back_populates='user')

@@ -143,5 +143,8 @@ async def delete_task(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Удаляет задачу."""
-    await task_crud.get_task_by_id(session, company_slug, problem_id, task_id, as_object=True)
-    # return {"detail": "Задача успешно удалена"}
+    task = await task_crud.get_task_by_id(
+        session, company_slug, problem_id, task_id, as_object=True
+    )
+    await task_crud.remove(session, task)
+    return {'detail': 'Задача успешно удалена'}

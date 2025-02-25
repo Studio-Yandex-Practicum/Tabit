@@ -48,7 +48,7 @@ class TaskResponseSchema(TaskBaseSchema):
     @field_validator('executors', mode='before')
     def transform_executors(cls, executors):
         """Преобразует список объектов AssociationUserTask в список UUID."""
-        if executors and isinstance(executors[0], object):  # Проверяем, что это объекты
+        if executors and isinstance(executors[0], object):
             return [executor.left_id for executor in executors]
         return executors
 

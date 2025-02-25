@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+# from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
@@ -117,28 +117,6 @@ class CRUDTask(CRUDBase):
         #         .filter_by(id=task.id)
         #         .options(selectinload(Task.executors), selectinload(Task.file)))).scalar_one()
         return TaskResponseSchema.model_validate(task)
-
-    async def delete_task(
-        self,
-        company_slug: str,
-        problem_id: int,
-        task_id: int,
-        session: AsyncSession,
-    ):
-        """Метод не закончен, не удаляются данные из бд, а просто 'съезжают вниз'"""
-        task = await task_crud.get_task_by_id(
-            session, company_slug, problem_id, task_id, as_object=True
-        )
-        if not task:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Задача не найдена')
-
-        # Очистка исполнителей перед удалением задачи
-        task.executors = []
-        await session.commit()
-
-        await task_crud.remove(session, task)
-
-        return {'detail': 'Задача успешно удалена'}
 
 
 task_crud = CRUDTask(Task)
