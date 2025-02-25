@@ -9,6 +9,12 @@ from fastapi_users.schemas import BaseUserUpdate
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
+from src.core.constants.common import (
+    LENGTH_NAME_COMPANY,
+    LENGTH_NAME_USER,
+    LENGTH_TELEGRAM_USERNAME,
+    MIN_LENGTH_NAME,
+)
 from src.core.constants.company import (
     TEST_ERROR_INVALID_CHARACTERS_NAME,
     TEST_ERROR_INVALID_CHARACTERS_SURNAME,
@@ -22,19 +28,13 @@ from src.core.constants.company import (
     TITLE_SLUG_DEPARTMENT,
     TITLE_START_LICENSE_TIME_COMPANY,
 )
-from src.core.constants.common import (
-    LENGTH_NAME_COMPANY,
-    LENGTH_NAME_USER,
-    LENGTH_TELEGRAM_USERNAME,
-    MIN_LENGTH_NAME,
-)
 from src.core.constants.user import (
     TITLE_NAME_USER,
     TITLE_PHONE_NUMBER_USER,
     TITLE_SURNAME_USER,
     TITLE_TELEGRAM_USERNAME_USER,
 )
-from src.schemas import UserSchemaMixin, GetterSlugMixin
+from src.schemas import GetterSlugMixin, UserSchemaMixin
 
 
 class CompanyUpdateForUserSchema(BaseModel):

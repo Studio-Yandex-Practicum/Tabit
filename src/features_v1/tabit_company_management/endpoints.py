@@ -9,14 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.constants.endpoints import Description, Summary
-from src.validators.endpoints.common import validator_check_object_exists
+from src.core.database.db_depends import get_async_session
 from src.features_v1.tabit_company_management.crud import tabit_company_crud
 from src.schemas import (
     CompanyCreateSchema,
     CompanyResponseSchema,
     CompanyUpdateSchema,
 )
-from src.core.database.db_depends import get_async_session
+from src.validators.endpoints.common import validator_check_object_exists
 
 router = APIRouter()
 
@@ -101,7 +101,11 @@ async def update_company(
         object_in: данные переданные в запросе, предварительно подготовленные согласно схеме.
         session: асинхронная сессия через зависимость.
     """
-    company = await validator_check_object_exists(session, tabit_company_crud, object_slug=company_slug)
+    company = await validator_check_object_exists(
+        session,
+        tabit_company_crud,
+        object_slug=company_slug,
+    )
     return await tabit_company_crud.update(session, company, object_in)
 
 
@@ -129,6 +133,10 @@ async def delete_company(
         user_id: уникальный идентификатор компании `slug`, указанный в path.
         session: асинхронная сессия через зависимость.
     """
-    company = await validator_check_object_exists(session, tabit_company_crud, object_slug=company_slug)
+    company = await validator_check_object_exists(
+        session,
+        tabit_company_crud,
+        object_slug=company_slug,
+    )
     await tabit_company_crud.remove(session, company)
     return

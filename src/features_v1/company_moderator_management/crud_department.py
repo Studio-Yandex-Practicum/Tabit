@@ -1,7 +1,7 @@
 """Модуль CRUD для отдела."""
 
-from src.models import Department
 from src.core.crud_base import CRUDBase
+from src.models import Department
 
 
 class CRUDDepartments(CRUDBase):

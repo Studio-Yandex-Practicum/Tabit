@@ -1,11 +1,16 @@
+"""Модели для задач."""
+
 from datetime import date
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.annotations import description, int_pk, name_problem, owner
 from src.models import BaseTabitModel, StatusTask
+
+if TYPE_CHECKING:
+    from src.models import AssociationUserTask, FileTask, Problem, UserTabit
 
 
 class Task(BaseTabitModel):

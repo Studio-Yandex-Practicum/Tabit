@@ -12,10 +12,10 @@ from src.core.auth.dependencies import (
 from src.core.auth.jwt import jwt_auth_backend_user
 from src.core.auth.managers import get_user_manager
 from src.core.auth.protocol import StrategyT
-from src.schemas import TokenReadSchemas
 from src.core.constants.endpoints import Description, Summary
-from src.validators.endpoints.common import check_user_is_active
 from src.models import TabitAdminUser
+from src.schemas import TokenReadSchemas
+from src.validators.endpoints.common import check_user_is_active
 
 router = APIRouter()
 

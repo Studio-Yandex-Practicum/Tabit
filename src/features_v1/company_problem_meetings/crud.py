@@ -3,9 +3,9 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.crud_base import CRUDBase
-from src.utils.association_utils import create_associations
 from src.models import AssociationUserMeeting, Meeting
 from src.schemas import MeetingCreateSchema
+from src.utils.association_utils import create_associations
 
 
 # TODO Если участники встречи переносятся сюда автоматом из проблемы, то поправить этот метод

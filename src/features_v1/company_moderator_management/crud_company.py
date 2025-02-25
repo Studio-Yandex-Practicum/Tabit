@@ -4,8 +4,8 @@ from typing import Any, List
 
 from fastapi.responses import FileResponse
 
-from src.models import Company
 from src.core.crud_base import CRUDBase
+from src.models import Company
 
 
 class CRUDCompany(CRUDBase):

@@ -1,3 +1,5 @@
+"""Модели для хранения общей информации сайта."""
+
 from typing import Optional
 
 from sqlalchemy.orm import Mapped

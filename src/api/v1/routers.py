@@ -40,7 +40,9 @@ main_router.include_router(
     company_user_profile_router, tags=['Company User Profile']
 )
 main_router.include_router(
-    company_moderator_management_router, prefix='/{company_slug}', tags=['Company Moderator Management']
+    company_moderator_management_router,
+    prefix='/{company_slug}',
+    tags=['Company Moderator Management']
 )
 main_router.include_router(
     company_problem_management_router, 

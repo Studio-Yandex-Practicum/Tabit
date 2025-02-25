@@ -10,13 +10,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.dependencies import current_company_admin, current_user_tabit
 from src.core.auth.managers import get_user_manager
-from src.core.constants.endpoints import Summary, TextError
-from src.validators.endpoints.common import validator_check_object_exists
 from src.core.constants.company import (
     ERROR_INVALID_PASSWORD,
     ERROR_USER_ALREADY_EXISTS,
     ERROR_USER_NOT_EXISTS,
 )
+from src.core.constants.endpoints import Summary, TextError
+from src.core.database.db_depends import get_async_session
 from src.features_v1.company_moderator_management import (
     company_crud,
     departments_crud,
@@ -31,7 +31,7 @@ from src.schemas import (
     UserCreateSchema,
     UserReadSchema,
 )
-from src.core.database.db_depends import get_async_session
+from src.validators.endpoints.common import validator_check_object_exists
 
 router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_company_admin)])
 

@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException
 
 from src.core.auth.jwt import tabit_admin, tabit_user
 from src.core.constants.endpoints import TextError
-from src.models import UserTabit, RoleUserTabit
+from src.models import RoleUserTabit, UserTabit
 
 current_superuser = tabit_admin.current_user(active=True, superuser=True)
 """

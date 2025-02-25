@@ -23,6 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 from starlette.requests import Request
 
+from src.core.config.logging import logger
 from src.core.constants.common import (
     DEFAULT_AUTO_COMMIT,
     DEFAULT_LIMIT,
@@ -40,7 +41,6 @@ from src.core.constants.common import (
     TEXT_ERROR_UNIQUE_CREATE_LOG,
     TEXT_ERROR_UNIQUE_UPDATE_LOG,
 )
-from src.core.config.logging import logger
 
 ModelType = TypeVar('ModelType')
 CreateSchemaType = TypeVar('CreateSchemaType')

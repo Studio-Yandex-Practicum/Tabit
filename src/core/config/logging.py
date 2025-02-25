@@ -5,8 +5,7 @@ from fastapi import Request
 from loguru import logger
 
 from src.core.config.app import settings
-from src.core.constants.logging import LOG_FILE, LOG_ROTATION, LOG_RETENTION
-
+from src.core.constants.logging import LOG_FILE, LOG_RETENTION, LOG_ROTATION
 
 # Logger initialization
 logger.remove(0)  # Remove old config

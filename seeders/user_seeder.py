@@ -25,7 +25,14 @@ class UserSeeder(BaseSeeder):
         :param session: асинхронная сессия SQLAlchemy
         """
         # TODO: когда будет модель, поправлю поля
-        users = [UserTabit(username=fake.user_name(), email=fake.email()) for _ in range(self.count)]
+        users = [UserTabit(
+            username=fake.user_name(),
+            email=fake.email(),
+            hashed_password=fake.password(),
+            is_active=True,
+            is_superuser=False,
+            is_verified=True,
+        ) for _ in range(self.count)]
         session.add_all(users)
         await session.commit()
 

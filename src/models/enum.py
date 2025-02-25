@@ -1,3 +1,5 @@
+"""Модели для перечислений."""
+
 from enum import IntEnum, StrEnum
 
 

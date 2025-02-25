@@ -4,9 +4,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.schemas import CompanyFeedbackCreateShema, UserCompanyUpdateSchema, UserReadSchema
 from src.core.database.db_depends import get_async_session
 from src.features_v1.company_user_profile.crud import user_crud
+from src.schemas import CompanyFeedbackCreateShema, UserCompanyUpdateSchema, UserReadSchema
 
 router = APIRouter()
 

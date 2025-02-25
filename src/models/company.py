@@ -1,13 +1,10 @@
-"""
-Модели для компании и департамента.
-"""
+"""Модели для компании и департамента."""
 
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.constants.common import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
 from src.core.annotations import (
     description,
     int_pk,
@@ -16,7 +13,11 @@ from src.core.annotations import (
     timestamp_nullable,
     url_link_field,
 )
+from src.core.constants.common import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
 from src.models import BaseTabitModel
+
+if TYPE_CHECKING:
+    from src.models import Department, LicenseType, TagUser, UserTabit
 
 
 class Company(BaseTabitModel):

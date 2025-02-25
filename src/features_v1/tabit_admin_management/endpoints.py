@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.auth.managers import get_user_manager
-from src.core.database.db_depends import get_async_session
 from src.core.config.logging import logger
 from src.core.constants.tabit_management import (
     ERROR_INTERNAL_SERVER,
@@ -17,7 +16,9 @@ from src.core.constants.tabit_management import (
     ERROR_USER_ALREADY_EXISTS,
     ERROR_USER_NOT_EXISTS,
 )
+from src.core.database.db_depends import get_async_session
 from src.features_v1.tabit_admin_management.crud import admin_company_crud
+from src.models import UserTabit
 from src.schemas import (
     AdminCompanyResponseSchema,
     CompanyAdminCreateSchema,
@@ -26,7 +27,6 @@ from src.schemas import (
     CompanyFilterSchema,
     UserFilterSchema,
 )
-from src.models import UserTabit
 
 router = APIRouter()
 

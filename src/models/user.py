@@ -1,13 +1,32 @@
-from typing import List, Optional
+"""Модели для пользователей."""
+
 from datetime import date
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
 
-from src.core.constants.common import LENGTH_TELEGRAM_USERNAME
 from src.core.annotations import url_link_field
+from src.core.constants.common import LENGTH_TELEGRAM_USERNAME
 from src.models import BaseUser, RoleUserTabit
+
+if TYPE_CHECKING:
+    from src.models import (
+        AssociationUserMeeting,
+        AssociationUserProblem,
+        AssociationUserTags,
+        AssociationUserTask,
+        CommentFeed,
+        Company,
+        Department,
+        Meeting,
+        MessageFeed,
+        Problem,
+        ResultMeeting,
+        Task,
+        VotingByUser,
+    )
 
 
 class UserTabit(BaseUser):
