@@ -615,13 +615,13 @@ make down-pgadmin
 docker compose -f infra/docker-compose.local-with-pgadmin.yaml down
 ```
 
-### 4. Удаление volumes pgAdmin
-Удаление данного volume может потребоваться, если нужно будет протестировать новую конфигурацию pgAdmin.</br>
+### 4. Удаление volumes
+Останавливает контейнеры и удаляет все volumes, связанные с конфигурацией (и pgAdmin, и PostgreSQL)
 Выполнить одну из двух комманд:
 
 1) Для тех у кого работают make-команды:
 ```
-make clear-pgadmin-volume
+make down-pgadmin-volumes
 ```
 2) Для всех остальных (перед этим необходимо остановить контейнеры):
 ```
