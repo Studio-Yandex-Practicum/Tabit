@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
-from src.problems.crud import task_crud
 from src.problems.models.enums import StatusTask
 from src.problems.schemas.task import (
     TaskCreateSchema,
     TaskResponseSchema,
     TaskUpdateSchema,
 )
+from src.problems.task_crud import task_crud
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ async def get_tasks(
     company_slug: str,
     problem_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> list[TaskResponseSchema]:
     """
     Возвращает информацию о всех задачах проблемы.
 
@@ -52,10 +52,8 @@ async def create_task(
     task: TaskCreateSchema,
     company_slug: str,
     problem_id: int,
-    #  Пока используем левого пользователя отцом для задачи
-    #  current_user: UserTabit = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
-):
+) -> TaskResponseSchema:
     """Создание задачи.
 
     Назначение:
@@ -66,12 +64,21 @@ async def create_task(
         session: Асинхронная сессия SQLAlchemy.
     Возвращаемое значение:
         Объект TaskResponseSchema.
+    TODO:
+        1. Заменить фиктивного пользователя на реального:
+           - Использовать `current_user: UserTabit = Depends(get_current_user)`.
+           - Убедиться, что пользователь авторизован и имеет права на создание задачи.
+        2. Добавить проверку прав доступа:
+           - Убедиться, что пользователь имеет доступ к компании и проблеме.
+           - Проверить, что пользователь может создавать задачи в данной компании.
     """
     task_data = task.model_dump()
-    task_data['owner_id'] = '3fa85f64-5717-4562-b3fc-2c963f66af66'
+    task_data['owner_id'] = (
+        '3fa85f64-5717-4562-b3fc-2c963f66af66'  # TODO: Заменить на реального пользователя
+    )
     task_data['status'] = StatusTask.NEW
     task_data['problem_id'] = problem_id
-    return await task_crud.create_task(session, TaskCreateSchema(**task_data))
+    return await task_crud.create(session, TaskCreateSchema(**task_data))
 
 
 @router.get(
@@ -86,7 +93,7 @@ async def get_task(
     problem_id: int,
     task_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> TaskResponseSchema:
     """
     Получает информацию о задаче.
 
@@ -102,7 +109,7 @@ async def get_task(
     task = await task_crud.get_task_by_id(session, company_slug, problem_id, task_id)
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Задача не найдена')
-    return task
+    return task  # type: ignore
 
 
 @router.patch(
@@ -118,7 +125,7 @@ async def update_task(
     problem_id: int,
     task_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> TaskResponseSchema:
     """
     Обновляет информацию задачи.
 
@@ -141,7 +148,7 @@ async def update_task(
     )
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Задача не найдена')
-    return await task_crud.update_task(session, task, task_update)  # type: ignore
+    return await task_crud.update(session, task, task_update)  # type: ignore
 
 
 @router.delete(
@@ -154,10 +161,9 @@ async def delete_task(
     problem_id: int,
     task_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> None:
     """Удаляет задачу."""
     task = await task_crud.get_task_by_id(
         session, company_slug, problem_id, task_id, as_object=True
     )
     await task_crud.remove(session, task)
-    return {'detail': 'Задача успешно удалена'}

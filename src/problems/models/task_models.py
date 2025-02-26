@@ -30,14 +30,15 @@ class Task(BaseTabitModel):
         status: Статус выполнения задачи.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
+        transfer_counter: Счетчик переносов даты решения задач.
+
+        # Это имелось ввиду обьяснение в документации?
 
     Связи (атрибут - Модель):
         owner - UserTabit;
         problem - Problem;
         executors - AssociationUserTask -> UserTabit: исполнители задачи;
         file - FileTask: к задаче могут быть прикреплены файлы.
-
-        Добавлено поле transfer_counter
     """
 
     id: Mapped[int_pk]

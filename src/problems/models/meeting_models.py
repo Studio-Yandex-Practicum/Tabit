@@ -30,7 +30,7 @@ class Meeting(BaseTabitModel):
         date_meeting: Дата встречи.
         status: Статус встречи.
         place: Место встречи.
-        transger_counter: Счетчик переносов даты встречи.
+        transfer_counter: Счетчик переносов даты встречи.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
