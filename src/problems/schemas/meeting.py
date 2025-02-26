@@ -28,18 +28,6 @@ class MeetingBaseSchema(BaseModel):
     place: Optional[str]
     # TODO Надо реализовать добавление файлов в встречу
 
-    @field_validator('title')
-    @classmethod
-    def validate_title_not_empty(cls, value: str) -> str:
-        """Проверка, что название проблемы не пустое."""
-        return validate_not_empty(value)
-
-    @field_validator('date_meeting')
-    @classmethod
-    def validate_date_meeting(cls, value: date) -> date:
-        """Проверка, что дата не может быть меньше текущей."""
-        return validate_date(value)
-
 
 class MeetingCreateSchema(MeetingBaseSchema):
     """Pydantic-схема для создания встреч.
@@ -58,6 +46,18 @@ class MeetingCreateSchema(MeetingBaseSchema):
     members: Optional[List[UUID]] = Field(exclude=True)
 
     model_config = ConfigDict(extra='forbid', str_min_length=1)
+
+    @field_validator('title')
+    @classmethod
+    def validate_title_not_empty(cls, value: str) -> str:
+        """Проверка, что название проблемы не пустое."""
+        return validate_not_empty(value)
+
+    @field_validator('date_meeting')
+    @classmethod
+    def validate_date_meeting(cls, value: date) -> date:
+        """Проверка, что дата не может быть меньше текущей."""
+        return validate_date(value)
 
 
 class MeetingUpdateSchema(MeetingBaseSchema):
@@ -80,6 +80,18 @@ class MeetingUpdateSchema(MeetingBaseSchema):
     place: Optional[str]
 
     model_config = ConfigDict(extra='forbid', str_min_length=1)
+
+    @field_validator('title')
+    @classmethod
+    def validate_title_not_empty(cls, value: str) -> str:
+        """Проверка, что название проблемы не пустое."""
+        return validate_not_empty(value)
+
+    @field_validator('date_meeting')
+    @classmethod
+    def validate_date_meeting(cls, value: date) -> date:
+        """Проверка, что дата не может быть меньше текущей."""
+        return validate_date(value)
 
 
 class MeetingResponseSchema(MeetingBaseSchema):
