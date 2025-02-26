@@ -43,3 +43,7 @@ owner = Annotated[UUID, mapped_column(ForeignKey('usertabit.id'), nullable=False
 int_zero = Annotated[int, mapped_column(Integer, nullable=False, default=ZERO)]
 name_problem = Annotated[str, mapped_column(String(LENGTH_NAME_PROBLEM), nullable=False)]
 slug = Annotated[str, mapped_column(String(LENGTH_SLUG), nullable=False, unique=True)]
+comment_rating = Annotated[int, mapped_column(Integer, nullable=False, default=ZERO)]
+int_pk_autoincrement = Annotated[
+    int, mapped_column(primary_key=True, unique=True, autoincrement=True)
+]
