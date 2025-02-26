@@ -14,6 +14,7 @@ from src.users.models.enum import RoleUserTabit
 if TYPE_CHECKING:
     from src.companies.models import Company, Department
     from src.problems.models import (
+        AssociationUserComment,
         AssociationUserMeeting,
         AssociationUserProblem,
         AssociationUserTask,
@@ -174,6 +175,7 @@ class UserTabit(BaseUser):
     )
     messages: Mapped[List['MessageFeed']] = relationship(back_populates='owner')
     comments: Mapped[List['CommentFeed']] = relationship(back_populates='owner')
+    comments_likes: Mapped[List['AssociationUserComment']] = relationship(back_populates='user')
     voting_by: Mapped[List['VotingByUser']] = relationship(back_populates='user')
 
     department_transition_date: Mapped[Optional[date]]

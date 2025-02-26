@@ -10,6 +10,7 @@ from src.constants import (
     LENGTH_NAME_USER,
     LENGTH_TELEGRAM_USERNAME,
     MIN_LENGTH_NAME,
+    MIN_LENGTH_TELEGRAM_USERNAME,
 )
 from src.users.constants import (
     title_avatar_link_user,
@@ -56,6 +57,7 @@ class UserSchemaMixin:
     )
     telegram_username: Optional[str] = Field(
         None,
+        min_length=MIN_LENGTH_TELEGRAM_USERNAME,
         max_length=LENGTH_TELEGRAM_USERNAME,
         title=title_telegram_username_user,
     )
