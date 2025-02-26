@@ -41,11 +41,6 @@ class CompanyUserFactory(BaseUserFactory):
     role: str = 'Сотрудник'
     company_id: int
 
-    # @factory.lazy_attribute
-    # async def company_id(self):
-    #     company = await CompanyFactory.create()
-    #     return company.id
-
 
 async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
     if __name__ == '__main__':
