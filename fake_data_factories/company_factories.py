@@ -14,6 +14,19 @@ from src.logger import fake_db_logger
 
 
 class CompanyFactory(AsyncSQLAlchemyFactory):
+    """
+    Фабрика генерации данных компании.
+
+    Поля:
+        name: Faker генерированное поле.
+        description: Faker генерированное поле.
+        logo: Faker генерированное поле.
+        max_employees_count: Задается случайное значение от 1 до 10.
+        is_active: Bool значение, по умолчанию True.
+        slug: Slug генерируется из знаков названия + библиотеки uuid.
+        max_admins_count: Задается случайное значение от 1 до 5.
+    """
+
     class Meta:
         model = Company
         sqlalchemy_session = sc_session

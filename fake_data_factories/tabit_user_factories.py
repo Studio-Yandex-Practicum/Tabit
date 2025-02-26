@@ -8,6 +8,13 @@ from src.database.sc_db_session import sc_session
 
 
 class TabitAdminUserFactory(BaseUserFactory):
+    """
+    Фабрика генерации данных для сотрудника платформы Tabit.
+
+    Поля:
+        Все поля базового класса BaseUserFactory.
+    """
+
     class Meta:
         model = TabitAdminUser
         sqlalchemy_session = sc_session

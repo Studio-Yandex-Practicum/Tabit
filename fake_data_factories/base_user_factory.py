@@ -36,7 +36,7 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
         8. is_verified: По умолчанию True, пользователь прошел верификацию.
 
     Примечание:
-        Все поля могут быть переопределены при вызове `.build()` или `.create()`.
+        Данные полей могут быть переопределены при вызове `create_batch()` или `.create()`.
     """
 
     name: str = factory.Faker('first_name_male', locale='ru_RU')
