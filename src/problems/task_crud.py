@@ -1,16 +1,14 @@
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
 
-
-from src.problems.models import Problem
+from src.companies.models import Company
+from src.crud import CRUDBase
+from src.problems.models import Problem, Task
 from src.problems.models.association_models import AssociationUserTask
 from src.problems.models.file_path_models import FileTask
 from src.problems.schemas.task import TaskCreateSchema, TaskResponseSchema, TaskUpdateSchema
 from src.users.models import UserTabit
-from src.crud import CRUDBase
-from src.problems.models import Task
-from src.companies.models import Company
 
 
 class CRUDTask(CRUDBase):

@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import int_pk
+from src.database.annotations import int_pk, int_pk_autoincrement
 from src.database.models import BaseTabitModel
 
 if TYPE_CHECKING:
@@ -109,4 +109,32 @@ class AssociationUserTask(BaseTabitModel):
             f'{self.__class__.__name__}('
             f'id={self.id!r}, '
             f'user id {self.left_id!r} <-> task id {self.right_id!r})'
+        )
+
+
+class AssociationUserComment(BaseTabitModel):
+    """
+    Связная таблица UserTabit и CommentFeed для учёта лайков.
+
+    Поля:
+        id: Идентификатор.
+        left_id: Внешний ключ модели UserTabit.
+        right_id: Внешний ключ модели CommentFeed.
+        created_at: Дата создания записи в таблице. Автозаполнение.
+        updated_at: Дата изменения записи в таблице. Автозаполнение.
+
+    Связи (атрибут - Модель):
+        user - UserTabit;
+    """
+
+    id: Mapped[int_pk_autoincrement]
+    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
+    right_id: Mapped[int] = mapped_column(ForeignKey('commentfeed.id'), primary_key=True)
+    user: Mapped['UserTabit'] = relationship(back_populates='comments_likes')
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'user id {self.left_id!r} <-> comment id {self.right_id!r})'
         )
