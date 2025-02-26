@@ -39,14 +39,18 @@ class CompanyUserFactory(BaseUserFactory):
     employee_position: str = factory.LazyFunction(lambda: random.choice(list(PositionEnum)))
     current_department_id: Optional[int] = None
     role: str = 'Сотрудник'
+    company_id: int
 
-    @factory.lazy_attribute
-    async def company_id(self):
-        company = await CompanyFactory.create()
-        return company.id
+    # @factory.lazy_attribute
+    # async def company_id(self):
+    #     company = await CompanyFactory.create()
+    #     return company.id
 
 
 async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
+    if __name__ == '__main__':
+        company = await CompanyFactory.create()
+        kwargs['company_id'] = company.id
     await CompanyUserFactory.create_batch(count, **kwargs)
     cprint(f'Создано {count} работников компании', 'green')
 
