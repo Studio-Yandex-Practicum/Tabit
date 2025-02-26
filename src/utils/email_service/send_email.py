@@ -2,7 +2,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 from fastapi_mail import FastMail, MessageSchema, MessageType
 from starlette.responses import JSONResponse
 
-from src.utils.email_service.email_config import config_email
+from src.config import email_settings
 from src.utils.email_service.email_schema import EmailCreateSchema
 
 router = APIRouter()
@@ -30,7 +30,7 @@ async def simple_send_email(
             template_body=email.model_dump().get('message'),
             subtype=MessageType.html,
         )
-        fm = FastMail(config_email)
+        fm = FastMail(email_settings.config_email)
         background_tasks.add_task(fm.send_message, message)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'{e}')

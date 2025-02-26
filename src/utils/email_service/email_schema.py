@@ -20,7 +20,7 @@ class EmailCreateSchema(BaseModel):
 
     @field_validator('message')
     @classmethod
-    def validate_unique_name_surname(cls, value: str) -> str:
+    def validate_empty_message(cls, value: str) -> str:
         if value == '':
             raise ValueError(VALUE_ERROR_EMPTY)
         return value
