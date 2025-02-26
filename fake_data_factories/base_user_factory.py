@@ -4,6 +4,8 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from fastapi_users.password import PasswordHelper
 
+from src.logger import fake_db_logger
+
 PATRONYMIC = [
     'Александрович',
     'Алексеевич',
@@ -47,13 +49,21 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
     is_superuser: bool = False
     is_verified: bool = True
 
-    # @classmethod
-    # async def _create(cls, model_class, *args, **kwargs):
-    #     password = kwargs.pop('password', None)
-    #     if password:
-    #         kwargs['hashed_password'] = password_helper.hash(password)
-    #     else:
-    #         password = factory.Faker('password').evaluate(None, None, {'locale': 'ru_RU'})
-    #         kwargs['hashed_password'] = password_helper.hash(password)
-
-    #     return await super()._create(model_class, *args, **kwargs)
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        password = kwargs.pop('password', None)
+        if password:
+            kwargs['hashed_password'] = password_helper.hash(password)
+        else:
+            password = factory.Faker('password').evaluate(None, None, {'locale': 'ru_RU'})
+            kwargs['hashed_password'] = password_helper.hash(password)
+        if kwargs.get('company_id'):
+            fake_db_logger.info(
+                f'Сотрудник компании c id={kwargs.get("company_id")}: '
+                f'{kwargs.get("email")}, пасс: {password}'
+            )
+        else:
+            fake_db_logger.info(
+                f'Сотрудник платформы Tabit: {kwargs.get("email")}, пасс: {password}'
+            )
+        return super()._create(model_class, *args, **kwargs)

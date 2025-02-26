@@ -15,12 +15,12 @@ async def fill_all_data():
         colored('Начинаем генерацию тестовых данных...', 'red', attrs=['reverse', 'blink']),
     )
 
-    companies = await create_companies(count=1)  # Если хотим создавать компанию отдельно
+    companies = await create_companies(count=5)  # Если хотим создавать компанию отдельно
     first_company_id = companies[0].id if companies else None  # вытаскиваем id нужной
     await create_company_users(
-        count=1, company_id=first_company_id
+        count=5, company_id=first_company_id
     )  #  и сюда можем поместить company_id=first_company_id
-    await create_tabit_admin_users(count=1)
+    await create_tabit_admin_users(count=5)
 
     cprint(
         colored('Генерация завершена!', 'red', attrs=['reverse', 'blink']),
