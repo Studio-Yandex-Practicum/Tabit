@@ -12,6 +12,7 @@ class GetterSlugMixin:
     @classmethod
     def get_slug(cls, data: Any) -> Any:
         """Метод для формирования `slug` объекта на основе его `name`."""
+
         if isinstance(data, dict):
             data['slug'] = data['name']
         return data
