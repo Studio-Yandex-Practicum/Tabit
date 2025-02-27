@@ -5,7 +5,6 @@
 from datetime import datetime
 from typing import Optional, Self
 
-from fastapi_users.schemas import BaseUserUpdate
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
