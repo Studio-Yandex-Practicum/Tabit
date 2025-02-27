@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
+from src.utils.email_service.email_schema import EmailCreateSchema
 
 router = APIRouter()
 
@@ -197,3 +198,20 @@ async def delete_employee_from_department(
     """Удаление сотрудника компании."""
     # TODO: Проверить существование компании + сотрудника
     return {'message': 'Удаление сотрудника компании временно недоступно'}
+
+
+@router.post(
+    '/{company_slug}/feedback/',
+    summary='Задать вопрос для обратной связи',
+    response_model=dict[str, str],
+)
+async def post_feedback(
+    company_slug: str,
+    question: EmailCreateSchema,
+    session: AsyncSession = Depends(get_async_session),
+) -> dict[str, str]:
+    """
+    Задать вопрос в разделе 'Помощь'.
+    """
+    # TODO: Подключить почту.
+    return {'message': f'Обратная связь отправлена для компании {company_slug}'}
