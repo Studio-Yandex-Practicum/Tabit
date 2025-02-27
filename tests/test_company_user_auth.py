@@ -46,7 +46,7 @@ class TestLoginUser:
         )
         for user, text in variants:
             login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
-            response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
+            response = await client.post(URL.USER_LOGIN, data=login_payload)
             assert (
                 response.status_code == HTTPStatus.BAD_REQUEST
             ), f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
@@ -116,7 +116,7 @@ class TestLogoutUser:
             ({}, 'неавторизованного пользователя'),
         )
         for token, text in variants:
-            response = await client.post(URL.ADMIN_LOGOUT, headers=token)
+            response = await client.post(URL.USER_LOGOUT, headers=token)
             assert (
                 response.status_code == HTTPStatus.UNAUTHORIZED
             ), f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
