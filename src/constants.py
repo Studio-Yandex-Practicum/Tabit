@@ -7,6 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # констант удалить слово LENGTH
 MIN_LENGTH_NAME: int = 2
 MIN_LENGTH_PASSWORD: int = 8
+MIN_LENGTH_TELEGRAM_USERNAME: int = 5
 LENGTH_NAME_USER: int = 100
 LENGTH_NAME_LICENSE: int = 100
 LENGTH_NAME_COMPANY: int = 255

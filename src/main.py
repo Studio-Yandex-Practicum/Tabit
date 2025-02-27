@@ -6,7 +6,10 @@ from src.logger import LoggingMiddleware
 from src.scripts import application_management
 
 app_v1 = FastAPI(
-    title=settings.app_title, description=settings.description, version=settings.version
+    title=settings.app_title,
+    description=settings.description,
+    version=settings.version,
+    swagger_ui_parameters={'filter': True},
 )
 app_v1.middleware('http')(LoggingMiddleware())  # Add logging requests feature as middleware
 app_v1.include_router(main_router)

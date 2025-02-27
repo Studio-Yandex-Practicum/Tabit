@@ -1,13 +1,26 @@
-from typing import Optional
+from datetime import datetime
+from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
+from src.problems.validators.problem_validators import validate_not_empty
 
 
 class ProblemBaseSchema(BaseModel):
-    """Базовая схема Проблеммы"""
+    """Базовая схема Проблеммы.
+
+    Назначение:
+        Определяет базовую структуру данных для проблемы.
+    Параметры:
+        name: Название проблемы.
+        description: Описание проблемы (опционально).
+        color: Цвет проблемы из перечисления ColorProblem.
+        type: Тип проблемы из перечисления TypeProblem.
+        status: Статус проблемы из перечисления StatusProblem.
+        owner_id: UUID владельца проблемы.
+    """
 
     name: str
     description: Optional[str] = None
@@ -15,30 +28,56 @@ class ProblemBaseSchema(BaseModel):
     type: TypeProblem
     status: StatusProblem
     owner_id: UUID
+    # TODO Надо реализовать добавление файлов в проблему
 
     @field_validator('name')
     @classmethod
-    def _validator_not_empty(cls, value: str) -> str:
-        """Значение не может быть пустой строкой"""
-        if value == '':
-            raise ValueError('Name cannot be an empty string')
-        return value
+    def validate_name_not_empty(cls, value: str) -> str:
+        """Проверка, что название проблемы не пустое."""
+        return validate_not_empty(value)
 
 
 class ProblemResponseSchema(ProblemBaseSchema):
-    """Схема Проблемы для ответа"""
+    """Схема Проблемы для ответа.
+
+    Назначение:
+        Определяет структуру данных для ответа с информацией о проблеме.
+    Параметры:
+        id: Уникальный идентификатор проблемы.
+        created_at: Время создания проблемы.
+        updated_at: Время последнего обновления проблемы.
+    """
 
     id: int
+    company_id: int
+    created_at: datetime
+    updated_at: datetime
 
 
 class ProblemCreateSchema(ProblemBaseSchema):
-    """Схема для создания проблемы"""
+    """Схема для создания проблемы.
 
-    pass
+    Назначение:
+        Определяет структуру данных для создания новой проблемы.
+    """
+
+    company_id: int
+    members: Optional[List[UUID]] = Field(exclude=True)
 
 
 class ProblemUpdateSchema(ProblemBaseSchema):
-    """Схема для обновления проблемы"""
+    """Схема для обновления проблемы.
+
+    Назначение:
+        Определяет структуру данных для обновления существующей проблемы.
+    Параметры:
+        name: Новое название проблемы (опционально).
+        description: Новое описание проблемы (опционально).
+        color: Новый цвет проблемы (опционально).
+        type: Новый тип проблемы (опционально).
+        status: Новый статус проблемы (опционально).
+        owner_id: Новый владелец проблемы (опционально).
+    """
 
     name: Optional[str] = None
     description: Optional[str] = None

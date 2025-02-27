@@ -1,0 +1,185 @@
+name: Deploy to Stage
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: studio-yandex-practicum/tabit
+
+jobs:
+  build:
+    uses: ./.github/workflows/build_and_push.yaml
+    secrets:
+      GHCR_PAT: ${{ secrets.GHCR_PAT }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      USERNAME: ${{ secrets.USERNAME }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.HOST }}" ]; then
+            echo "Error: Secret HOST is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.USERNAME }}" ]; then
+            echo "Error: Secret USERNAME is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "Error: Secret SSH_PRIVATE_KEY is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.GHCR_PAT }}" ]; then
+            echo "Error: Secret GHCR_PAT is not set!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.ENV_FILE }}" ]; then
+            echo "Error: Secret ENV_FILE is not set!"
+            exit 1
+          fi
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Stop old containers
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            if systemctl list-units --full -all | grep -q "tabit.service"; then
+              sudo systemctl stop tabit.service || true
+            fi
+            docker compose -f /home/${{ secrets.USERNAME }}/tabit/infra/stage/docker-compose.stage.yaml down || true
+
+      - name: Clean infra folder before copying
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            find /home/${{ secrets.USERNAME }}/tabit -mindepth 1 -maxdepth 1 ! -name ".ssh" -exec rm -rf {} +
+            mkdir -p /home/${{ secrets.USERNAME }}/tabit
+
+      - name: Copy infra via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "infra/"
+          target: "/home/${{ secrets.USERNAME }}/tabit/"
+          rm: false
+
+      - name: Copy pgadmin via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "pgadmin/"
+          target: "/home/${{ secrets.USERNAME }}/tabit/"
+          rm: false
+
+      - name: Deploy systemd service file
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo cp /home/${{ secrets.USERNAME }}/tabit/infra/stage/tabit.service /etc/systemd/system/tabit.service
+            sudo systemctl daemon-reload
+            sudo systemctl enable tabit.service
+
+      - name: Configure environment variables on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
+            echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Create .pgpass file
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
+            export $(cat .env | xargs)
+            envsubst < /home/${{ secrets.USERNAME }}/tabit/pgadmin/.pgpass.template > /home/${{ secrets.USERNAME }}/tabit/pgadmin/.pgpass
+
+      - name: Pull latest Docker image from GHCR
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Создаем временный каталог
+            mkdir -p /home/${{ secrets.USERNAME }}/tabit/tmp
+
+            # Скачиваем образ и сохраняем его в .tar
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
+            docker save -o /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar ghcr.io/${{ env.IMAGE_NAME }}:latest
+
+      - name: Load Docker image on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker load -i /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar
+            docker tag ghcr.io/${{ env.IMAGE_NAME }}:latest ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Restart services
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.USERNAME }}/tabit/infra/stage/
+            sudo systemctl restart tabit.service
+            docker compose -f docker-compose.stage.yaml up -d --force-recreate
+
+      - name: Run database migrations inside container
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker exec tabit poetry run alembic upgrade head
+
+      - name: Remove old Docker images (keep last 5)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Получаем список всех образов для проекта, сортируем по дате и удаляем все, кроме последних 5
+            docker images --format "{{.Repository}}:{{.Tag}} {{.CreatedAt}}" | grep "ghcr.io/${{ env.IMAGE_NAME }}" | sort -r | tail -n +6 | awk '{print $1}' | xargs -r docker rmi || true
