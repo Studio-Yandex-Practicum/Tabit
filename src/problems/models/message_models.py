@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import int_pk, owner
+from src.database.annotations import comment_rating, int_pk, owner
 from src.database.models import BaseTabitModel, BaseTag
 
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class MessageFeed(BaseTabitModel):
     """
-    Модель ленты сообщений к проблеме.
+    Модель ленты сообщений/треда к проблеме.
 
     Назначение:
         На странице с проблемой есть возможность вести короткие сообщения по форме форума.
@@ -22,8 +22,8 @@ class MessageFeed(BaseTabitModel):
         id: Идентификатор.
         problem_id: Идентификатор проблемы, к которой относится лента сообщений.
         owner_id: Автор сообщения. Внешний ключ.
-        text: Текст сообщения.
-        important: bool - Есть возможность указать, что сообщение важное.
+        text: Название треда.
+        important: Есть возможность указать, что сообщение важное.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
@@ -63,15 +63,15 @@ class MessageFeed(BaseTabitModel):
 
 class CommentFeed(BaseTabitModel):
     """
-    Модель комментариев к сообщению, оставленного к проблеме.
+    Модель комментариев к сообщению, оставленного к треде.
 
     Назначение:
-        На странице с проблемой есть возможность вести короткие сообщения по форме форума.
-        Эта модель описывает комментарии к этим сообщениям.
+        На странице треда есть возможность вести короткие сообщения по форме форума.
+        Эта модель описывает комментарии к этим тредам.
 
     Поля:
         id: Идентификатор.
-        message_id: Идентификатор сообщения, к которому относится комментарий.
+        message_id: Идентификатор треда, к которому относится комментарий.
         owner_id: Автор комментария. Внешний ключ.
         text: Текст комментария.
         created_at: Дата создания записи в таблице. Автозаполнение.
@@ -88,6 +88,7 @@ class CommentFeed(BaseTabitModel):
     owner_id: Mapped[owner]
     owner: Mapped['UserTabit'] = relationship(back_populates='comments')
     text: Mapped[str]
+    rating: Mapped[comment_rating]
 
     def __repr__(self):
         return (

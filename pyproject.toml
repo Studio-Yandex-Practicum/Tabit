@@ -38,11 +38,13 @@ black = "^24.10.0"
 ruff = "^0.8.4"
 pre-commit = "^4.0.1"
 faker = "^33.3.1"
-factory-boy = "^3.3.1"
 pytest = "^8.3.4"
 httpx = "^0.28.1"
 pytest-asyncio = "^0.25.3"
 pytest-postgresql = "^6.1.1"
+termcolor = "^2.5.0"
+factory-boy = "^3.3.3"
+async-factory-boy = "^1.0.1"
 
 [build-system]
 requires = ["poetry-core"]
