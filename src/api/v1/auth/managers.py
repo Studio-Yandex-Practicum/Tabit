@@ -1,8 +1,11 @@
-from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, InvalidPasswordException, UUIDIDMixin, models, schemas
+import re
+from http import HTTPStatus
+
+from fastapi import Depends, HTTPException, Request
+from fastapi_users import BaseUserManager, UUIDIDMixin, models, schemas
 
 from src.api.v1.auth.access_to_db import get_admin_db, get_user_db
-from src.constants import ERROR_INVALID_PASSWORD_LENGTH, MIN_LENGTH_PASSWORD
+from src.constants import PATTERN_PASSWORD, TEXT_ERROR_INVALID_PASSWORD
 from src.tabit_management.models import TabitAdminUser
 
 
@@ -15,9 +18,11 @@ class BaseTabitUserManager(UUIDIDMixin, BaseUserManager):
         user: schemas.UC | models.UP,
     ) -> None:
         """Условия валидации пароля."""
-        if len(password) < MIN_LENGTH_PASSWORD:
-            raise InvalidPasswordException(reason=ERROR_INVALID_PASSWORD_LENGTH)
-        # TODO: Расширить валидацию.
+        if re.match(PATTERN_PASSWORD, password) is None:
+            raise HTTPException(
+                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                detail=TEXT_ERROR_INVALID_PASSWORD,
+            )
 
     async def on_after_register(self, user: TabitAdminUser, request: Request | None = None):
         """Действия после успешной регистрации пользователя."""

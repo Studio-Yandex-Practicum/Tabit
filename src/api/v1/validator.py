@@ -26,11 +26,6 @@ async def validator_check_object_exists(
         if object_id
         else (await model_crud.get_by_slug(session, object_slug, raise_404=True))
     )
-    if object_model is None:
-        raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail=message,
-        )
     return object_model
 
 
