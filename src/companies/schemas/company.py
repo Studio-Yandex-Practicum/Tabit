@@ -5,7 +5,7 @@
 from datetime import datetime
 from typing import Optional, Self
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 from src.companies.constants import (
@@ -127,14 +127,6 @@ class CompanyDepartmentUpdateSchema(BaseModel, GetterSlugMixin):
 
     model_config = ConfigDict(extra='forbid')
 
-    @field_validator('name', mode='before')
-    @classmethod
-    def name_cannot_be_null(cls, value: str):
-        """Метод проверки отсутствия имени."""
-        if not value:
-            raise ValueError('Имя отдела не может быть пустым!')
-        return value
-
 
 class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
     """Схема для создания отдела."""
@@ -160,14 +152,6 @@ class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
 
 class CompanyEmployeeUpdateSchema(UserUpdateSchema):
     """Схема для изменения данных сотрудника компании админом компании."""
-
-    @field_validator('name', 'surname', mode='before')
-    @classmethod
-    def name_surname_cannot_be_null(cls, value: str):
-        """Метод проверки отсутствия имени."""
-        if not value:
-            raise ValueError('Имя не может быть пустым!')
-        return value
 
     @model_validator(mode='after')
     def validate_unique_name_surname(self) -> Self:
@@ -226,5 +210,4 @@ class CompanyFeedbackCreateShema(BaseModel):
     # TODO: Обдумать. Скорее всего надо будет реализовать ограничение на количество символов.
     # Схема на данный момент является по большей части заглушкой.
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

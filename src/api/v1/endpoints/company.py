@@ -10,16 +10,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_company_admin, current_user_tabit
 from src.api.v1.auth.managers import get_user_manager
-from src.api.v1.constants import Summary, TextError
+from src.api.v1.constants import Summary
 from src.api.v1.validator import validator_check_object_exists
-from src.api.v1.validators.company_validators import check_department_name_duplicate
+from src.api.v1.validators.company_validators import (
+    check_department_name_duplicate,
+    check_slug_duplicate,
+)
 from src.companies.constants import (
     ERROR_INVALID_PASSWORD,
     ERROR_USER_ALREADY_EXISTS,
     ERROR_USER_NOT_EXISTS,
 )
 from src.companies.crud import company_crud, company_departments_crud
-from src.companies.crud.company import company_cruds
 from src.companies.schemas import (
     CompanyDepartmentCreateSchema,
     CompanyDepartmentResponseSchema,
@@ -73,12 +75,7 @@ async def get_company(
     }
     Если компании не существует вернет ответ со статусом 404.
     """
-    return await company_cruds('Company').get_by_slug(
-        session=session, obj_slug=company_slug, raise_404=True
-    )
-
-
-#    return await company_crud.get_by_slug(session=session, obj_slug=company_slug, raise_404=True)
+    return await company_crud.get_by_slug(session=session, obj_slug=company_slug, raise_404=True)
 
 
 @router.get(
@@ -159,19 +156,13 @@ async def create_department(
     await check_department_name_duplicate(
         company_id=company.id, department_name=object_name, session=session
     )
-    #    departments = await company_departments_crud.get_multi(
-    #        session=session, filters={'company_id': company.id, 'name': object_name}
-    #    )
-    #    if departments:
-    #        raise HTTPException(
-    #            status_code=status.HTTP_400_BAD_REQUEST,
-    #            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
-    #        )
     db_obj = await company_departments_crud.create(
         session=session, obj_in=object_in, auto_commit=False
     )
     session.expunge(db_obj)
     db_obj.company_id = company.id
+    slug = await check_slug_duplicate(db_obj=db_obj, session=session)
+    db_obj.slug = slug
     session.add(db_obj)
     await session.commit()
     await session.refresh(db_obj)
@@ -287,16 +278,20 @@ async def update_department(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     object_name = object_in.model_dump()['name']
-    departments = await company_departments_crud.get_multi(
-        session=session, filters={'company_id': company.id, 'name': object_name}
+    await check_department_name_duplicate(
+        company_id=company.id, department_name=object_name, session=session
     )
-    if departments:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
-        )
     db_object = await company_departments_crud.get_or_404(session, obj_id=department_id)
-    return await company_departments_crud.update(session, db_obj=db_object, obj_in=object_in)
+    update_obj = await company_departments_crud.update(
+        session, db_obj=db_object, obj_in=object_in, auto_commit=False
+    )
+    session.expunge(update_obj)
+    slug = await check_slug_duplicate(db_obj=update_obj, session=session)
+    update_obj.slug = slug
+    session.add(update_obj)
+    await session.commit()
+    await session.refresh(update_obj)
+    return update_obj
 
 
 @router.delete(
@@ -608,11 +603,6 @@ async def update_company_employee(
     except InvalidPasswordException:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
     return user
-
-
-#    await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-#    db_object = await user_crud.get_or_404(session=session, obj_id=uuid)
-#    return await user_crud.update(session=session, db_obj=db_object, obj_in=object_in)
 
 
 @router.delete(

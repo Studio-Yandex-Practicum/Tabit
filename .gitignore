@@ -185,4 +185,5 @@ cython_debug/
 .DS_Store
 
 #others
-_list.txt
+departments_list.txt
+employees_list.txt
