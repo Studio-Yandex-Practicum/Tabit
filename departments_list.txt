@@ -1,4 +1,0 @@
-name  slug  company_id  id
-dept  dept  1  1
-dept2  dept2  1  3
-dept3  dept3  1  2
