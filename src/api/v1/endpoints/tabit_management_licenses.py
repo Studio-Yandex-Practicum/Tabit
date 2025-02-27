@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.validators.tabit_management_licenses_validators import validate_license_name
 from src.database.db_depends import get_async_session
 from src.tabit_management.constants import (
     SUMMARY_CREATE_LICENSE,
@@ -84,7 +85,7 @@ async def create_license(
     Raises:
         HTTPException: Если лицензия с таким именем уже существует.
     """
-    await license_type_crud.is_license_name_exists(session, license.name)
+    await validate_license_name(session, license.name)
     return await license_type_crud.create(session=session, obj_in=license)
 
 
@@ -141,7 +142,7 @@ async def update_license(
     db_license = await license_type_crud.get_or_404(session=session, obj_id=license_id)
 
     if license.name and license.name != db_license.name:
-        await license_type_crud.is_license_name_exists(session, license.name)
+        await validate_license_name(session, license.name)
 
     return await license_type_crud.update(session=session, db_obj=db_license, obj_in=license)
 

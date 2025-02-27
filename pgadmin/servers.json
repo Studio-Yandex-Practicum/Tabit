@@ -1,0 +1,14 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "Tabit Database",
+            "Group": "Tabit Server Group",
+            "Port": 5432,
+            "Host": "postgres_local",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "tabit",
+            "Username": "warlock",
+            "PassFile": "/.pgpass"
+        }
+    }
+}
