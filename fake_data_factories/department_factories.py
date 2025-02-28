@@ -60,4 +60,4 @@ async def create_company_department(count=FAKER_DEPARTMENT_COUNT, **kwargs):
 
 
 if __name__ == '__main__':
-    asyncio.run(create_company_department(count=10))
+    asyncio.run(create_company_department())

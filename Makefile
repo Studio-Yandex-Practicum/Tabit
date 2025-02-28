@@ -60,3 +60,6 @@ fill-company-users:
 
 fill-tabit-admin-users:
 	poetry run python fake_data_factories/tabit_user_factories.py
+
+fill-company-departments:
+	poetry run python fake_data_factories/department_factories.py
