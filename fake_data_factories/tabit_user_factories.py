@@ -22,6 +22,9 @@ class TabitAdminUserFactory(BaseUserFactory):
 
 
 async def create_tabit_admin_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
+    """
+    Функция для наполнения таблицы бд TabitAdminUser.
+    """
     await TabitAdminUserFactory.create_batch(count, **kwargs)
     cprint(f'Создано {count} Админов Tabit', 'green')
 
