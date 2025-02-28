@@ -11,3 +11,4 @@ DEFAULT_DEPARTMENT_NAMES = [
     'Технический отдел',
 ]  # Имена для отделов компании
 AMOUNT_OF_ADMIN = 1  # количество админов создаваемых для компании за 1 запуск скрипта
+COMPANY_USER_CREATED_TEXT = '{role} компании c id={company_id}: {user_email}, пасс: {password}'

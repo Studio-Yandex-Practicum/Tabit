@@ -5,6 +5,7 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from fastapi_users.password import PasswordHelper
 
+from fake_data_factories.constants import COMPANY_USER_CREATED_TEXT
 from src.logger import fake_db_logger
 
 PATRONYMIC = [
@@ -63,8 +64,12 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
             kwargs['hashed_password'] = password_helper.hash(password)
         if kwargs.get('company_id'):
             fake_db_logger.info(
-                f'Сотрудник компании c id={kwargs.get("company_id")}: '
-                f'{kwargs.get("email")}, пасс: {password}'
+                COMPANY_USER_CREATED_TEXT.format(
+                    role=kwargs.get('role'),
+                    company_id=kwargs.get('company_id'),
+                    user_email=kwargs.get('email'),
+                    password=password,
+                )
             )
         else:
             fake_db_logger.info(
