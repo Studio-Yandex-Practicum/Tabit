@@ -1,4 +1,3 @@
-# TODO: Разбить на отдельные файлы
 """
 Модели для компании и департамента.
 """
@@ -20,6 +19,7 @@ from src.database.annotations import (
 from src.database.models import BaseTabitModel
 
 if TYPE_CHECKING:
+    from src.problems.models.problem_models import Problem
     from src.tabit_management.models import LicenseType
     from src.users.models import TagUser, UserTabit
 
@@ -52,6 +52,7 @@ class Company(BaseTabitModel):
         employees - UserTabit;
         license - LicenseType;
         tags_users - TagUser: админ от компании может придумывать свои тэги для пользователей.
+        problems - Problem: связь к созданным проблемам, определенной компании;
     """
 
     id: Mapped[int_pk]
@@ -63,6 +64,9 @@ class Company(BaseTabitModel):
     )
     employees: Mapped[List['UserTabit']] = relationship(
         back_populates='company', cascade='all, delete', lazy='selectin'
+    )
+    problems: Mapped[List['Problem']] = relationship(
+        back_populates='company', cascade='all, delete-orphan'
     )
     license_id: Mapped[Optional[int]] = mapped_column(ForeignKey('licensetype.id'), nullable=True)
     license: Mapped[Optional['LicenseType']] = relationship(back_populates='companies')
@@ -81,7 +85,7 @@ class Company(BaseTabitModel):
             f'{self.__class__.__name__}('
             f'id={self.id!r}, '
             f'name={self.name!r}, '
-            f'surname={self.is_active!r})'
+            f'is_active={self.is_active!r})'
         )
 
 

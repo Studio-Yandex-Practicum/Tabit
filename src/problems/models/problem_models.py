@@ -1,12 +1,14 @@
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.annotations import description, int_pk, name_problem, owner
 from src.database.models import BaseTabitModel
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 
 if TYPE_CHECKING:
+    from src.companies.models import Company
     from src.problems.models import AssociationUserProblem, FileProblem, Meeting, MessageFeed, Task
     from src.users.models import UserTabit
 
@@ -22,6 +24,7 @@ class Problem(BaseTabitModel):
         id: Идентификатор.
         name: Название проблемы.
         description: Описание.
+        company_id: Идентификатор компании, к которой относится проблема.
         color: Проблеме присваивается цвет.
         type: Проблема относится к определенному типу.
         status: Статус проблемы.
@@ -30,6 +33,7 @@ class Problem(BaseTabitModel):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
+        company - Company
         owner - UserTabit;
         meetings - Meeting: связь к назначенным встречам, для решения проблемы;
         tasks - Task: связь к задачам, для решения проблемы;
@@ -40,6 +44,8 @@ class Problem(BaseTabitModel):
     id: Mapped[int_pk]
     name: Mapped[name_problem]
     description: Mapped[description]
+    company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
+    company: Mapped['Company'] = relationship(back_populates='problems')
     color: Mapped['ColorProblem']
     type: Mapped['TypeProblem']
     status: Mapped['StatusProblem']

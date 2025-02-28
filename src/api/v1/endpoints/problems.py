@@ -3,6 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.validators.problems_validators import check_company_exists
 from src.database.db_depends import get_async_session
 from src.problems.crud.problems import problem_crud
 from src.problems.schemas.problem import (
@@ -32,6 +33,7 @@ async def get_all_problems(company_slug: str, session: AsyncSession = Depends(ge
     Возвращаемое значение:
         Список объектов ProblemResponseSchema.
     """
+    await check_company_exists(company_slug, session)
     filters = {'company_slug': company_slug}
     return await problem_crud.get_multi(session, filters=filters)
 
@@ -59,9 +61,10 @@ async def create_problem(
     Возвращаемое значение:
         Созданный объект ProblemResponseSchema.
     """
+    await check_company_exists(company_slug, session)
     problem_data = problem.model_dump()
     members = problem.members or []
-    created_problem = await problem_crud.create_with_members(
+    created_problem = await problem_crud.create_problem_with_members(
         session=session, problem_data=problem_data, members=members
     )
     return created_problem
@@ -90,6 +93,7 @@ async def get_problem(
     Возвращаемое значение:
         Объект ProblemResponseSchema.
     """
+    await check_company_exists(company_slug, session)
     return await problem_crud.get_or_404(session, problem_id)
 
 
@@ -118,6 +122,7 @@ async def update_problem(
     Возвращаемое значение:
         Обновленный объект ProblemResponseSchema.
     """
+    await check_company_exists(company_slug, session)
     return await problem_crud.update_problem(session, problem_id, problem)
 
 
@@ -142,4 +147,5 @@ async def delete_problem(
     Возвращаемое значение:
         None
     """
+    await check_company_exists(company_slug, session)
     await problem_crud.delete_problem(session, problem_id)
