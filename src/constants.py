@@ -19,9 +19,17 @@ LENGTH_TELEGRAM_USERNAME: int = 100
 LENGTH_FILE_LINK: int = 2048
 LENGTH_SLUG: int = 25
 
+# Проверяет наличие символов в обоих регистрах, числел и минимальную длину 8 символов
+PATTERN_PASSWORD: str = rf'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{{{MIN_LENGTH_PASSWORD},}}$'
+# Проверяет наличие символов в обоих регистрах, чисел, спецсимволов и минимальную длину 8 символов
+# PATTERN_PASSWORD: str = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'
+
 ZERO: int = 0
 
-ERROR_INVALID_PASSWORD_LENGTH = f'Пароль не может быть короче {MIN_LENGTH_PASSWORD} символов.'
+TEXT_ERROR_INVALID_PASSWORD: str = (
+    'Пароль должен содержать символы латинского алфавита в обоих регистрах, числа и иметь '
+    f'минимальную длину в {MIN_LENGTH_PASSWORD} символов.'
+)
 
 # crud
 DEFAULT_SKIP: int = 0  # Значение по умолчанию для пропуска записей

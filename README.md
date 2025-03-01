@@ -548,7 +548,7 @@ python src/main.py -r -h 127.0.0.1 -p 1234
 Для создания автоматически суперпользователя, заполните `.env` согласно `.env.example`.
 
 - FIRST_SUPERUSER_EMAIL=yandex@yandex.ru  # Почта суперпользователя.
-- FIRST_SUPERUSER_PASSWORD=password123  # Пароль суперпользователя.
+- FIRST_SUPERUSER_PASSWORD=Password123  # Пароль суперпользователя. Латинские символы обоих регистров и цифры. Длиной не менее 8 символов.
 - FIRST_SUPERUSER_NAME=Ип  # Имя суперпользователя.
 - FIRST_SUPERUSER_SURNAME=Ман  # Фамилия суперпользователя.
 
