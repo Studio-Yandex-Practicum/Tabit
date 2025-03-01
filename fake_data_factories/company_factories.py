@@ -27,10 +27,6 @@ class CompanyFactory(AsyncSQLAlchemyFactory):
         max_admins_count: Задается случайное значение от 1 до 5.
     """
 
-    class Meta:
-        model = Company
-        sqlalchemy_session = sc_session
-
     id = None
     name: str = factory.Faker('company', locale='ru_RU')
     description: str = factory.Faker('text', max_nb_chars=256)
@@ -38,7 +34,7 @@ class CompanyFactory(AsyncSQLAlchemyFactory):
     max_employees_count: int = factory.LazyFunction(lambda: randint(1, 10))
     is_active: bool = True
     slug: str = factory.LazyAttribute(lambda obj: f'{obj.name.lower()[:3]}_{uuid.uuid4().hex[:6]}')
-    max_admins_count: int = factory.LazyFunction(lambda: randint(1, 5))
+    max_admins_count: int = factory.LazyFunction(lambda: randint(20, 30))
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
@@ -46,8 +42,15 @@ class CompanyFactory(AsyncSQLAlchemyFactory):
         fake_db_logger.info(f'Создана компания {kwargs.get("name")}')
         return instance
 
+    class Meta:
+        model = Company
+        sqlalchemy_session = sc_session
+
 
 async def create_companies(count: int = FAKER_COMPANY_COUNT) -> None:
+    """
+    Функция для наполнения таблицы бд Company.
+    """
     companies = await CompanyFactory.create_batch(count)
     cprint(f'Создано {count} Companies', 'green')
     return companies

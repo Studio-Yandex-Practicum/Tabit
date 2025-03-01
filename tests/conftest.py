@@ -268,9 +268,15 @@ async def get_token_for_user(client: AsyncClient):
 
     Например, в тесте:
     ```
-    user_2 = await employee()
-    access_token_user_2 = await get_token_for_user(user_2)
-    refresh_token_user_2 = await get_token_for_user(user_2, refresh=True)
+    class TestExample:
+
+        @pytest.mark.asyncio
+        async def test_example(self, employee_of_company):
+            user_1 = await employee_of_company({name: user_1})
+            user_2 = await employee_of_company({name: user_2})
+            access_token_user_1 = await get_token_for_user(user_1)
+            access_token_user_2 = await get_token_for_user(user_2)
+            refresh_token_user_2 = await get_token_for_user(user_2, refresh=True)
     ```
     """
 
