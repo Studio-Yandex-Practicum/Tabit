@@ -70,7 +70,6 @@ class EmailSettings:
 
     @property
     def config_email(self) -> ConnectionConfig:
-        # Проверяем, что все необходимые настройки почты заданы
         if not all([
             settings.mail_username,
             settings.mail_password,
@@ -79,8 +78,8 @@ class EmailSettings:
             settings.mail_server,
             settings.mail_from_name
         ]):
-            raise ValueError("Не все необходимые настройки электронной почты предоставлены")
-            
+            raise ValueError('Не все необходимые настройки электронной почты предоставлены')
+
         return ConnectionConfig(
             MAIL_USERNAME=settings.mail_username,
             MAIL_PASSWORD=settings.mail_password,
