@@ -13,6 +13,10 @@ class URL:
     USER_LOGIN: str = '/api/v1/auth/login'
     USER_LOGOUT: str = '/api/v1/auth/logout'
     USER_REFRESH: str = '/api/v1/auth/refresh-token'
+    MESSAGE_FEED_URL: str = '/api/v1/Zorg/problems/1/thread'
+    COMMENTS_URL: str = '/api/v1/Zorg/problems/1/1/comments'
+    LIKE_URL: str = '/api/v1/Zorg/problems/1/1/comments/1/like'
+    UNLIKE_URL: str = '/api/v1/Zorg/problems/1/1/comments/1/unlike'
 
 
 GOOD_PASSWORD: str = 'string123STRING'
