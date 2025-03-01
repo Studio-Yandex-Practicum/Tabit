@@ -8,7 +8,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from src.database import Base
+from src.database.alembic_models import Base
 from src.database.db_depends import get_async_session
 from src.main import app_v1
 from src.tabit_management.models import LicenseType

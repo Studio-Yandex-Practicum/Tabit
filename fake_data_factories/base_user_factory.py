@@ -1,9 +1,11 @@
 import random
+import uuid
 
 import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from fastapi_users.password import PasswordHelper
 
+from fake_data_factories.constants import COMPANY_USER_CREATED_TEXT
 from src.logger import fake_db_logger
 
 PATRONYMIC = [
@@ -29,8 +31,8 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
         1. name: Faker генерированное поле.
         2. surname: Faker генерированное поле.
         3. patronymic: Поле определяется через lambda функцию.
-        4. hone_number: Faker генерированное поле.
-        5. password: Faker генерированное поле.
+        4. Phone_number: Faker генерированное поле.
+        5. password: Faker генерирует поле в методе _create фабрики, если password не был передан.
         6. is_active: По умолчанию True, пользователь активен.
         7. is_superuser: По умолчанию False, пользователь не является суперюзером.
         8. is_verified: По умолчанию True, пользователь прошел верификацию.
@@ -43,7 +45,10 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
     surname: str = factory.Faker('last_name_male', locale='ru_RU')
     patronymic: str = factory.LazyFunction(lambda: random.choice(PATRONYMIC))
     phone_number: str = factory.Faker('msisdn', locale='ru_RU')
-    email: str = factory.Faker('email')
+    email = factory.LazyFunction(
+        lambda: f'{uuid.uuid4().hex[:3]}'
+        f'{factory.Faker("email").evaluate(None, None, {"locale": "en_US"})}'
+    )
     password = None
     is_active: bool = True
     is_superuser: bool = False
@@ -59,8 +64,12 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
             kwargs['hashed_password'] = password_helper.hash(password)
         if kwargs.get('company_id'):
             fake_db_logger.info(
-                f'Сотрудник компании c id={kwargs.get("company_id")}: '
-                f'{kwargs.get("email")}, пасс: {password}'
+                COMPANY_USER_CREATED_TEXT.format(
+                    role=kwargs.get('role'),
+                    company_id=kwargs.get('company_id'),
+                    user_email=kwargs.get('email'),
+                    password=password,
+                )
             )
         else:
             fake_db_logger.info(
