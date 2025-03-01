@@ -38,12 +38,12 @@ class Settings(BaseSettings):
     first_superuser_name: str | None = None
     first_superuser_surname: str | None = None
 
-    mail_username: str = os.getenv('MAIL_USERNAME')
-    mail_password: SecretStr = os.getenv('MAIL_PASSWORD')
-    mail_from: str = os.getenv('MAIL_FROM')
-    mail_port: str = os.getenv('MAIL_PORT')
-    mail_server: str = os.getenv('MAIL_SERVER')
-    mail_from_name: str = os.getenv('MAIL_FROM_NAME')
+    mail_username: str | None = None
+    mail_password: str | None = None
+    mail_from: str | None = None
+    mail_port: str | None = None
+    mail_server: str | None = None
+    mail_from_name: str | None = None
     mail_starttls: bool = True  # Для соединений STARTTLS (шифрование).
     mail_ssl_tls: bool = False  # Для подключения по протоколу TLS / SSL.
     use_credentials: bool = True  # По умолчанию True. Подключаться к SMTP-серверу или нет.
@@ -68,19 +68,31 @@ settings = Settings()
 class EmailSettings:
     """Класс для настройки подключения отправки электронной почты."""
 
-    config_email: ConnectionConfig = ConnectionConfig(
-        MAIL_USERNAME=settings.mail_username,
-        MAIL_PASSWORD=settings.mail_password,
-        MAIL_FROM=settings.mail_from,
-        MAIL_PORT=settings.mail_port,
-        MAIL_SERVER=settings.mail_server,
-        MAIL_FROM_NAME=settings.mail_from_name,
-        MAIL_STARTTLS=settings.mail_starttls,
-        MAIL_SSL_TLS=settings.mail_ssl_tls,
-        USE_CREDENTIALS=settings.use_credentials,
-        VALIDATE_CERTS=settings.validate_certs,
-        TEMPLATE_FOLDER=settings.template_folder,
-    )
+    @property
+    def config_email(self) -> ConnectionConfig:
+        if not all([
+            settings.mail_username,
+            settings.mail_password,
+            settings.mail_from,
+            settings.mail_port,
+            settings.mail_server,
+            settings.mail_from_name
+        ]):
+            raise ValueError('Не все необходимые настройки электронной почты предоставлены')
+
+        return ConnectionConfig(
+            MAIL_USERNAME=settings.mail_username,
+            MAIL_PASSWORD=settings.mail_password,
+            MAIL_FROM=settings.mail_from,
+            MAIL_PORT=settings.mail_port,
+            MAIL_SERVER=settings.mail_server,
+            MAIL_FROM_NAME=settings.mail_from_name,
+            MAIL_STARTTLS=settings.mail_starttls,
+            MAIL_SSL_TLS=settings.mail_ssl_tls,
+            USE_CREDENTIALS=settings.use_credentials,
+            VALIDATE_CERTS=settings.validate_certs,
+            TEMPLATE_FOLDER=settings.template_folder,
+        )
 
 
 email_settings = EmailSettings()
