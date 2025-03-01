@@ -55,8 +55,9 @@ async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
         company = await CompanyFactory.create()
         kwargs['company_id'] = company.id
     await CompanyUserFactory.create_batch(AMOUNT_OF_ADMIN, role='Админ', **kwargs)
-    await CompanyUserFactory.create_batch(count - AMOUNT_OF_ADMIN, **kwargs)
+    users = await CompanyUserFactory.create_batch(count - AMOUNT_OF_ADMIN, **kwargs)
     cprint(f'Создано {count} работников компании c id: {kwargs["company_id"]}', 'green')
+    return users
 
 
 if __name__ == '__main__':

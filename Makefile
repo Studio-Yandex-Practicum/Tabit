@@ -63,3 +63,9 @@ fill-tabit-admin-users:
 
 fill-company-departments:
 	poetry run python fake_data_factories/department_factories.py
+
+fill-company-tags:
+	poetry run python fake_data_factories/tag_user_factories.py
+
+fill-user-tag-lings:
+	poetry run python fake_data_factories/association_user_tags_factories.py

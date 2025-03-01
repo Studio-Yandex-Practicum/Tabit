@@ -41,7 +41,7 @@ async def create_uset_tag(count=USER_TAGS_COUNT, **kwargs):
         company = await CompanyFactory.create()
         kwargs['company_id'] = company.id
     await TagUserFactory.create_batch(count, **kwargs)
-    cprint(f'Создано {count} тегов-сотрудников компании c id: {kwargs["company_id"]}', 'green')
+    cprint(f'Создано {count} тегов для сотрудников компании c id: {kwargs["company_id"]}', 'green')
 
 
 if __name__ == '__main__':

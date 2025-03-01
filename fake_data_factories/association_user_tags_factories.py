@@ -23,9 +23,8 @@ class AssociationUserTagsFactory(AsyncSQLAlchemyFactory):
     2. right_id: Обязательное, уникальное FK поле на модель TagUser. Ссылается на конкретный тег.
     """
 
-    id: int
-    left_id: UUID
-    right_id: int
+    user_id: UUID
+    tag_id: int
 
     class Meta:
         model = AssociationUserTags
@@ -46,11 +45,9 @@ async def create_user_tag_links(count=USER_TAGS_COUNT, **kwargs):
         company_user = await CompanyUserFactory.create(company_id=company.id)
         company_tags = await TagUserFactory.create_batch(USER_TAGS_COUNT, company_id=company.id)
         kwargs['left_id'] = company_user.id
-        id = 7
-    for tag in company_tags:
-        kwargs['id'] = id
-        await AssociationUserTagsFactory.create(right_id=tag.id, **kwargs)
-        id += 1
+        for tag in company_tags:
+            await AssociationUserTagsFactory.create(right_id=tag.id, **kwargs)
+    await AssociationUserTagsFactory.create(**kwargs)
     cprint(
         f'Создано 5 тегов компании c id={company.id} и присвоены '
         f'сотруднику с id={company_user.id}',
