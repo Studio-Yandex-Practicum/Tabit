@@ -96,7 +96,6 @@ class ResultMeeting(BaseTabitModel):
         owner - UserTabit.
     """
 
-    id: Mapped[int_pk]
     meeting_id: Mapped[int] = mapped_column(ForeignKey('meeting.id'), primary_key=True)
     meeting: Mapped['Meeting'] = relationship(back_populates='result')
     owner_id: Mapped[owner]

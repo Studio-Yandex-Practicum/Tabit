@@ -4,7 +4,6 @@ from uuid import UUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import int_pk, int_pk_autoincrement
 from src.database.models import BaseTabitModel
 
 if TYPE_CHECKING:
@@ -32,7 +31,6 @@ class AssociationUserProblem(BaseTabitModel):
         problem - Problem.
     """
 
-    id: Mapped[int_pk]
     left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
     right_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
     user: Mapped['UserTabit'] = relationship(back_populates='problems')
@@ -64,7 +62,6 @@ class AssociationUserMeeting(BaseTabitModel):
         meeting - Meeting.
     """
 
-    id: Mapped[int_pk]
     left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
     right_id: Mapped[int] = mapped_column(ForeignKey('meeting.id'), primary_key=True)
     user: Mapped['UserTabit'] = relationship(back_populates='meetings')
@@ -94,7 +91,6 @@ class AssociationUserTask(BaseTabitModel):
         task - Task.
     """
 
-    id: Mapped[int_pk]
     left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
     right_id: Mapped[int] = mapped_column(ForeignKey('task.id'), primary_key=True)
     user: Mapped['UserTabit'] = relationship(back_populates='tasks')
@@ -123,7 +119,6 @@ class AssociationUserComment(BaseTabitModel):
         user - UserTabit;
     """
 
-    id: Mapped[int_pk_autoincrement]
     left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
     right_id: Mapped[int] = mapped_column(ForeignKey('commentfeed.id'), primary_key=True)
     user: Mapped['UserTabit'] = relationship(back_populates='comments_likes')
