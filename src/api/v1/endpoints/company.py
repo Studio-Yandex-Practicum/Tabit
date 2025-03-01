@@ -28,6 +28,7 @@ from src.companies.schemas import (
 from src.database.db_depends import get_async_session
 from src.users.crud.user import user_crud
 from src.users.schemas import UserCreateSchema, UserReadSchema
+from src.utils.email_service.email_schema import EmailCreateSchema
 
 router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_company_admin)])
 
@@ -624,3 +625,20 @@ async def delete_company_employee(
     except UserNotExists:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
     return status.HTTP_204_NO_CONTENT
+
+
+@router.post(
+    '/{company_slug}/feedback/',
+    summary='Задать вопрос для обратной связи',
+    response_model=dict[str, str],
+)
+async def post_feedback(
+    company_slug: str,
+    question: EmailCreateSchema,
+    session: AsyncSession = Depends(get_async_session),
+) -> dict[str, str]:
+    """
+    Задать вопрос в разделе 'Помощь'.
+    """
+    # TODO: Подключить почту.
+    return {'message': f'Обратная связь отправлена для компании {company_slug}'}

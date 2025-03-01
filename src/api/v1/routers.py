@@ -15,9 +15,11 @@ from src.api.v1.endpoints import (
     tabit_management_router,
     task_router,
 )
+from src.utils.email_service import email_router
 
 main_router = APIRouter(prefix='/api/v1')
 
+main_router.include_router(email_router, prefix='', tags=['Send Email'])
 main_router.include_router(
     tabit_admin_auth_router, prefix='/admin/auth', tags=['Tabit Admin Auth']
 )
