@@ -1,14 +1,27 @@
+import asyncio
+import uuid
+
 import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
 from fake_data_factories.company_factories import CompanyFactory
+from fake_data_factories.constants import USER_TAGS_COUNT
 from src.database.alembic_models import TagUser
 from src.database.sc_db_session import sc_session
 
 
 class TagUserFactory(AsyncSQLAlchemyFactory):
-    name: str = factory.Faker('word')
+    """
+    Фабрика генерации тегов для сотрудников компании в таблице TagUser.
+
+    Поля:
+        1. name: Обязательное поле. Уникальное название тега в пределах компании(не всей таблицы).
+        2. company_id: Обязательное поле. Указывает, какой компании принадлежит
+        тег для сотрудников.
+    """
+
+    name: str = factory.LazyFunction(lambda: uuid.uuid4().hex[:4])
     company_id: int
 
     class Meta:
@@ -16,7 +29,7 @@ class TagUserFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
-async def create_company_department(count, **kwargs):
+async def create_uset_tag(count=USER_TAGS_COUNT, **kwargs):
     """
     Функция для наполнения таблицы бд TagUser.
     Если функция запускается напрямую из текущего модуля, для этих департаментов создается
@@ -28,4 +41,8 @@ async def create_company_department(count, **kwargs):
         company = await CompanyFactory.create()
         kwargs['company_id'] = company.id
     await TagUserFactory.create_batch(count, **kwargs)
-    cprint(f'Создано {count} департаментов компании c id: {kwargs["company_id"]}', 'green')
+    cprint(f'Создано {count} тегов-сотрудников компании c id: {kwargs["company_id"]}', 'green')
+
+
+if __name__ == '__main__':
+    asyncio.run(create_uset_tag())

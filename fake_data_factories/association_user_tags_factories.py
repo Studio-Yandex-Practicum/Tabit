@@ -1,0 +1,62 @@
+import asyncio
+from uuid import UUID
+
+from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
+from termcolor import cprint
+
+from fake_data_factories.company_factories import CompanyFactory
+from fake_data_factories.company_user_factories import CompanyUserFactory
+from fake_data_factories.constants import USER_TAGS_COUNT
+from fake_data_factories.tag_user_factories import TagUserFactory
+from src.database.alembic_models import AssociationUserTags
+from src.database.sc_db_session import sc_session
+
+
+class AssociationUserTagsFactory(AsyncSQLAlchemyFactory):
+    """
+    Фабрика генерации объектов в связующей таблице AssociationUserTags. Каждый объект таблицы
+    связывает работника компании(UserTabit) с определенным тегом(TagUser).
+
+    Поля:
+    1. left_id: Обязательное, уникальное FK поле на модель UserTabit. Ссылается на конретного
+    сотрудника компании.
+    2. right_id: Обязательное, уникальное FK поле на модель TagUser. Ссылается на конкретный тег.
+    """
+
+    id: int
+    left_id: UUID
+    right_id: int
+
+    class Meta:
+        model = AssociationUserTags
+        sqlalchemy_session = sc_session
+
+
+async def create_user_tag_links(count=USER_TAGS_COUNT, **kwargs):
+    """
+    Функция для наполнения таблицы бд AssociationUserTags.
+    Если функция запускается напрямую из текущего модуля, для создающихся связей между тегами
+    и сотрудниками: создается компания, отталкиваясь от id компании создается сотрудник компании,
+    и теги компании. id
+    Если функция запускается через импорт, в неё нужно передать именованный аргумент company_id,
+    чтобы он попал в kwargs для заполнения обязательного поля фабрики company_id.
+    """
+    if __name__ == '__main__':
+        company = await CompanyFactory.create()
+        company_user = await CompanyUserFactory.create(company_id=company.id)
+        company_tags = await TagUserFactory.create_batch(USER_TAGS_COUNT, company_id=company.id)
+        kwargs['left_id'] = company_user.id
+        id = 7
+    for tag in company_tags:
+        kwargs['id'] = id
+        await AssociationUserTagsFactory.create(right_id=tag.id, **kwargs)
+        id += 1
+    cprint(
+        f'Создано 5 тегов компании c id={company.id} и присвоены '
+        f'сотруднику с id={company_user.id}',
+        'green',
+    )
+
+
+if __name__ == '__main__':
+    asyncio.run(create_user_tag_links())

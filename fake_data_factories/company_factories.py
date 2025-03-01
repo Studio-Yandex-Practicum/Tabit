@@ -18,13 +18,13 @@ class CompanyFactory(AsyncSQLAlchemyFactory):
     Фабрика генерации данных компании.
 
     Поля:
-        name: Faker генерированное поле.
-        description: Faker генерированное поле.
-        logo: Faker генерированное поле.
-        max_employees_count: Задается случайное значение от 1 до 10.
-        is_active: Bool значение, по умолчанию True.
-        slug: Slug генерируется из знаков названия + библиотеки uuid.
-        max_admins_count: Задается случайное значение от 1 до 5.
+        1. name: Faker генерированное поле.
+        2. description: Faker генерированное поле.
+        3. logo: Faker генерированное поле.
+        4. max_employees_count: Задается случайное значение от 1 до 10.
+        5. is_active: Bool значение, по умолчанию True.
+        6. slug: Slug генерируется из знаков названия + библиотеки uuid.
+        7. max_admins_count: Задается случайное значение от 1 до 5.
     """
 
     id = None
