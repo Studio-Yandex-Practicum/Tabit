@@ -116,7 +116,7 @@ class TestCreateLicense:
         со статус-кодом 422 и корректным сообщением.
         """
         data = generate_license_data()
-        data['name'] = 'A' * 101
+        data['name'] = 'A' * (LENGTH_NAME_USER + 1)
 
         response = await client.post('/api/v1/admin/licenses/', json=data)
 

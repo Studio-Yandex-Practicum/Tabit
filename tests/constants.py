@@ -31,3 +31,70 @@ BAD_EMAIL: tuple[str, ...] = (
     'user@exa mple.com',
     'user@ex@ample.com',
 )
+PAYLOAD_FOR_CREATE_ADMIN: tuple[dict, ...] = (
+    {
+        'patronymic': 'string',
+        'phone_number': 'string',
+        'email': 'user1@example.com',
+        'password': GOOD_PASSWORD,
+        'name': 'string',
+        'surname': 'string',
+    },
+    {
+        'phone_number': 'string',
+        'email': 'user2@example.com',
+        'password': GOOD_PASSWORD,
+        'name': 'string',
+        'surname': 'string',
+    },
+    {
+        'patronymic': 'string',
+        'email': 'user3@example.com',
+        'password': GOOD_PASSWORD,
+        'name': 'string',
+        'surname': 'string',
+    },
+    {
+        'email': 'user4@example.com',
+        'password': GOOD_PASSWORD,
+        'name': 'string',
+        'surname': 'string',
+    },
+)
+PAYLOAD_BAD_FOR_CREATE_ADMIN: tuple[dict, ...] = (
+    {
+        'email': 'user1@example.com',
+        'password': GOOD_PASSWORD,
+        'name': 'string',
+    },
+    {
+        'email': 'user2@example.com',
+        'password': GOOD_PASSWORD,
+        'surname': 'string',
+    },
+    {
+        'password': GOOD_PASSWORD,
+        'name': 'string',
+        'surname': 'string',
+    },
+    {
+        'email': 'user4@example.com',
+        'name': 'string',
+        'surname': 'string',
+    },
+)
+PAYLOAD_FOR_PATCH_ADMIN: tuple[dict, ...] = (
+    {
+        'patronymic': 'Императрица',
+        'phone_number': '8 800 700-06-11',
+        'name': 'Киширика',
+        'surname': 'Киширису',
+    },
+    {
+        'phone_number': '8 800 700-06-11',
+        'surname': 'Киширису',
+    },
+    {
+        'patronymic': 'Императрица',
+    },
+)

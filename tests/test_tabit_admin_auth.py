@@ -7,6 +7,9 @@ from tests.constants import (
     BAD_EMAIL,
     BAD_PASSWORD,
     GOOD_PASSWORD,
+    PAYLOAD_BAD_FOR_CREATE_ADMIN,
+    PAYLOAD_FOR_CREATE_ADMIN,
+    PAYLOAD_FOR_PATCH_ADMIN,
     URL,
 )
 from tests.utils import is_valid_uuid
@@ -27,7 +30,10 @@ class TestLoginAdminTabit:
             (admin, 'администратора сервиса'),
         )
         for user, text in variants:
-            login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
+            login_payload = {
+                'username': user.email,
+                'password': GOOD_PASSWORD,
+            }
             response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
             assert (
                 response.status_code == HTTPStatus.OK
@@ -50,7 +56,10 @@ class TestLoginAdminTabit:
             (employee, 'пользователя от компании'),
         )
         for user, text in variants:
-            login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
+            login_payload = {
+                'username': user.email,
+                'password': GOOD_PASSWORD,
+            }
             response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
             assert (
                 response.status_code == HTTPStatus.BAD_REQUEST
@@ -83,7 +92,10 @@ class TestLoginAdminTabit:
     @pytest.mark.asyncio
     async def test_login_admin_bad_password(self, client: AsyncClient, admin):
         """Тест на вход в систему администраторов сервиса под неверным паролем."""
-        login_payload = {'username': admin.email, 'password': f'NOT {GOOD_PASSWORD}'}
+        login_payload = {
+            'username': admin.email,
+            'password': f'NOT {GOOD_PASSWORD}',
+        }
         response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
         assert (
             response.status_code == HTTPStatus.BAD_REQUEST
@@ -142,36 +154,7 @@ class TestCreateAdminTabit:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'payload',
-        (
-            {
-                'patronymic': 'string',
-                'phone_number': 'string',
-                'email': 'user1@example.com',
-                'password': GOOD_PASSWORD,
-                'name': 'string',
-                'surname': 'string',
-            },
-            {
-                'phone_number': 'string',
-                'email': 'user2@example.com',
-                'password': GOOD_PASSWORD,
-                'name': 'string',
-                'surname': 'string',
-            },
-            {
-                'patronymic': 'string',
-                'email': 'user3@example.com',
-                'password': GOOD_PASSWORD,
-                'name': 'string',
-                'surname': 'string',
-            },
-            {
-                'email': 'user4@example.com',
-                'password': GOOD_PASSWORD,
-                'name': 'string',
-                'surname': 'string',
-            },
-        ),
+        PAYLOAD_FOR_CREATE_ADMIN,
     )
     async def test_create_admin(
         self,
@@ -220,28 +203,7 @@ class TestCreateAdminTabit:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'bad_payload',
-        (
-            {
-                'email': 'user1@example.com',
-                'password': GOOD_PASSWORD,
-                'name': 'string',
-            },
-            {
-                'email': 'user2@example.com',
-                'password': GOOD_PASSWORD,
-                'surname': 'string',
-            },
-            {
-                'password': GOOD_PASSWORD,
-                'name': 'string',
-                'surname': 'string',
-            },
-            {
-                'email': 'user4@example.com',
-                'name': 'string',
-                'surname': 'string',
-            },
-        ),
+        PAYLOAD_BAD_FOR_CREATE_ADMIN,
     )
     async def test_create_admin_bad_request(
         self,
@@ -524,21 +486,7 @@ class TestPatchMeAdminTabit:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'payload',
-        (
-            {
-                'patronymic': 'Императрица',
-                'phone_number': '8 800 700-06-11',
-                'name': 'Киширика',
-                'surname': 'Киширису',
-            },
-            {
-                'phone_number': '8 800 700-06-11',
-                'surname': 'Киширису',
-            },
-            {
-                'patronymic': 'Императрица',
-            },
-        ),
+        PAYLOAD_FOR_PATCH_ADMIN,
     )
     async def test_patch_me_admin(
         self,
@@ -696,21 +644,7 @@ class TestPatchIdAdminTabit:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'payload',
-        (
-            {
-                'patronymic': 'Императрица',
-                'phone_number': '8 800 700-06-11',
-                'name': 'Киширика',
-                'surname': 'Киширису',
-            },
-            {
-                'phone_number': '8 800 700-06-11',
-                'surname': 'Киширису',
-            },
-            {
-                'patronymic': 'Императрица',
-            },
-        ),
+        PAYLOAD_FOR_PATCH_ADMIN,
     )
     async def test_patch_id_admin(
         self,

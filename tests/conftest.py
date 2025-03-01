@@ -126,69 +126,40 @@ async def company_for_test(async_session):
 
 
 @pytest_asyncio.fixture
-async def superuser(async_session):
-    """
-    Фикстура для создания суперпользователя сервиса в таблице tabitadminuser.
-    """
+async def administrator_tabit(async_session):
 
-    superuser_data = {
-        'name': 'Ип',
-        'surname': 'Ман',
-        'email': 'yandex@yandex.ru',
-        'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
-        'is_active': True,
-        'is_superuser': True,
-        'is_verified': False,
-    }
+    async def _create_administrator_tabit(administrator_data=False):
 
-    return await make_entry_in_table(async_session, superuser_data, TabitAdminUser)
-
-
-@pytest_asyncio.fixture
-async def admin(async_session: AsyncSession):
-    """
-    Фикстура для создания администратора сервиса в таблице tabitadminuser.
-    """
-
-    admin_data = {
-        'name': 'Брюс',
-        'surname': 'Ли',
-        'email': 'mail@yandex.ru',
-        'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
-        'is_active': True,
-        'is_superuser': False,
-        'is_verified': False,
-    }
-
-    return await make_entry_in_table(async_session, admin_data, TabitAdminUser)
-
-
-@pytest_asyncio.fixture
-async def moderator_of_company(async_session: AsyncSession, company_for_test):
-    """
-    Фикстура, создающая модератора тестовой компании с возможностью изменения полей.
-    По умолчанию, только обязательные поля.
-    """
-
-    async def _create_moderator(user_data=None):
-        """Функция-обёртка для модератора тестовой компании с изменяемыми параметрами."""
-        company = await company_for_test()
         default_data = {
-            'name': 'Корбен ',
-            'surname': 'Даллас',
+            'name': 'Ип',
+            'surname': 'Ман',
             'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
             'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
             'is_active': True,
             'is_superuser': False,
             'is_verified': False,
-            'role': RoleUserTabit.ADMIN,
-            'company_id': company.id,
         }
-        if user_data:
-            default_data.update(user_data)
-        return await make_entry_in_table(async_session, default_data, UserTabit)
+        if administrator_data:
+            default_data.update(administrator_data)
+        return await make_entry_in_table(async_session, default_data, TabitAdminUser)
 
-    return _create_moderator
+    return _create_administrator_tabit
+
+
+@pytest_asyncio.fixture
+async def superuser(administrator_tabit):
+    """
+    Фикстура для создания суперпользователя сервиса в таблице tabitadminuser.
+    """
+    return await administrator_tabit({'is_superuser': True})
+
+
+@pytest_asyncio.fixture
+async def admin(administrator_tabit):
+    """
+    Фикстура для создания администратора сервиса в таблице tabitadminuser.
+    """
+    return await administrator_tabit()
 
 
 @pytest_asyncio.fixture
@@ -202,8 +173,8 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
         """Функция-обёртка для пользователя тестовой компании с изменяемыми параметрами."""
         company = await company_for_test()
         default_data = {
-            'name': 'Руби ',
-            'surname': 'Род',
+            'name': 'Брюс',
+            'surname': 'Ли',
             'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
             'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
             'is_active': True,
@@ -217,6 +188,22 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
         return await make_entry_in_table(async_session, default_data, UserTabit)
 
     return _create_employee
+
+
+@pytest_asyncio.fixture
+async def moderator_of_company(employee_of_company):
+    """
+    Фикстура, создающая модератора тестовой компании с возможностью изменения полей.
+    По умолчанию, только обязательные поля.
+    """
+
+    async def _create_moderator(moderator_data=None):
+        """Функция-обёртка для модератора тестовой компании с изменяемыми параметрами."""
+        default = moderator_data or {}
+        default['role'] = RoleUserTabit.ADMIN
+        return await employee_of_company(default)
+
+    return _create_moderator
 
 
 @pytest_asyncio.fixture
