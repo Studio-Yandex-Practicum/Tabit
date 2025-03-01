@@ -121,6 +121,8 @@ async def license_for_test(async_session):
 
 
 @pytest_asyncio.fixture
+async def company_for_test(async_session, license_for_test):
+    """Фикстура, создающая тестовую компанию с возможностью изменения полей."""
 async def company_for_test(async_session):
     """
     Фикстура, создающая тестовую компанию с возможностью изменения полей.
@@ -129,6 +131,8 @@ async def company_for_test(async_session):
 
     async def _create_company(company_data=None):
         """Функция-обёртка для создания компании с изменяемыми параметрами."""
+        license_instance = await license_for_test()
+
         default_data = {
             'name': f'Test Company {uuid.uuid4().hex[:8]}',
             'slug': f'Test_Company_{uuid.uuid4().hex[:8]}',
