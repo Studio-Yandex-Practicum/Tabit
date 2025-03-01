@@ -37,12 +37,12 @@ class TestCreateLicense:
         assert result['max_employees_count'] == license_data['max_employees_count']
 
     @pytest.mark.asyncio
-    async def test_create_license_with_duplicate_name(self, client: AsyncClient, test_license):
+    async def test_create_license_with_duplicate_name(self, client: AsyncClient, license_for_test):
         """Тест создания лицензии с дублирующимся `name`.
 
         Проверяет, что API отклоняет запрос с дубликатом имени и возвращает ошибку 400.
         """
-        new_license = await test_license()
+        new_license = await license_for_test()
 
         duplicate_data = generate_license_data()
         duplicate_data['name'] = new_license.name
@@ -353,12 +353,12 @@ class TestCreateLicense:
 
 class TestGetLicense:
     @pytest.mark.asyncio
-    async def test_get_licenses_default_pagination(self, client: AsyncClient, test_license):
+    async def test_get_licenses_default_pagination(self, client: AsyncClient, license_for_test):
         """Тест получения списка лицензий с параметрами по умолчанию.
 
         Проверяет, что API возвращает не более 20 записей на странице по умолчанию.
         """
-        licenses = [await test_license() for _ in range(30)]
+        licenses = [await license_for_test() for _ in range(30)]
 
         response = await client.get('/api/v1/admin/licenses/')
 
@@ -377,12 +377,12 @@ class TestGetLicense:
         assert len(result['items']) == DEFAULT_PAGE_SIZE
 
     @pytest.mark.asyncio
-    async def test_get_licenses_custom_pagination(self, client: AsyncClient, test_license):
+    async def test_get_licenses_custom_pagination(self, client: AsyncClient, license_for_test):
         """Тест получения списка лицензий с кастомной пагинацией.
 
         Проверяет, что API корректно обрабатывает параметры `page` и `page_size`.
         """
-        licenses = [await test_license() for _ in range(30)]
+        licenses = [await license_for_test() for _ in range(30)]
 
         response = await client.get('/api/v1/admin/licenses/?page=2&page_size=5')
 
@@ -407,14 +407,14 @@ class TestGetLicense:
         assert response.status_code == 422
 
     @pytest.mark.asyncio
-    async def test_get_licenses_sorting(self, client: AsyncClient, test_license):
+    async def test_get_licenses_sorting(self, client: AsyncClient, license_for_test):
         """Тест сортировки лицензий по полям `name`, `created_at` и `updated_at`.
 
         Проверяет, что API корректно сортирует список лицензий.
         """
-        (await test_license({'name': 'B'}),)
-        (await test_license({'name': 'A'}),)
-        (await test_license({'name': 'C'}),)
+        (await license_for_test({'name': 'B'}),)
+        (await license_for_test({'name': 'A'}),)
+        (await license_for_test({'name': 'C'}),)
 
         # Проверяем сортировку по имени (по возрастанию)
         response = await client.get('/api/v1/admin/licenses/?ordering=name')
@@ -459,13 +459,13 @@ class TestGetLicense:
         assert updated_dates_desc == sorted(updated_dates, reverse=True)
 
     @pytest.mark.asyncio
-    async def test_get_license_by_id(self, client: AsyncClient, async_session, test_license):
+    async def test_get_license_by_id(self, client: AsyncClient, async_session, license_for_test):
         """Тест получения лицензии по ID.
 
         Перед тестом вручную создаём запись в БД, чтобы гарантировать её существование.
         Затем делаем GET-запрос и проверяем корректность данных.
         """
-        new_license = await test_license()
+        new_license = await license_for_test()
 
         response = await client.get(f'/api/v1/admin/licenses/{new_license.id}')
 
@@ -495,12 +495,12 @@ class TestGetLicense:
 
 class TestPatchLicense:
     @pytest.mark.asyncio
-    async def test_patch_license_success(self, client: AsyncClient, test_license):
+    async def test_patch_license_success(self, client: AsyncClient, license_for_test):
         """Тест успешного обновления лицензии.
 
         Проверяет, что API корректно обновляет лицензию при передаче валидных данных.
         """
-        new_license = await test_license()
+        new_license = await license_for_test()
 
         patch_data = {
             'name': 'Updated License',
@@ -521,13 +521,13 @@ class TestPatchLicense:
         assert result['max_employees_count'] == patch_data['max_employees_count']
 
     @pytest.mark.asyncio
-    async def test_update_license_with_duplicate_name(self, client: AsyncClient, test_license):
+    async def test_update_license_with_duplicate_name(self, client: AsyncClient, license_for_test):
         """Тест обновления лицензии с `name`, которое уже существует у другой лицензии.
 
         Проверяет, что API отклоняет обновление имени на уже существующее и возвращает 400.
         """
-        license_1 = await test_license()
-        license_2 = await test_license()
+        license_1 = await license_for_test()
+        license_2 = await license_for_test()
 
         patch_data = {'name': license_1.name}
 
@@ -539,12 +539,12 @@ class TestPatchLicense:
         assert result['detail'] == f"Лицензия с именем '{license_1.name}' уже существует."
 
     @pytest.mark.asyncio
-    async def test_patch_license_missing_name(self, client: AsyncClient, test_license):
+    async def test_patch_license_missing_name(self, client: AsyncClient, license_for_test):
         """Тест обновления лицензии без поля `name`.
 
         Проверяет, что API корректно обновляет лицензию, если `name` не передан.
         """
-        new_license = await test_license()
+        new_license = await license_for_test()
 
         patch_data = {'license_term': 'P1D'}
 
@@ -556,12 +556,12 @@ class TestPatchLicense:
         assert result['license_term'] == patch_data['license_term']
 
     @pytest.mark.asyncio
-    async def test_patch_license_invalid_name(self, client: AsyncClient, test_license):
+    async def test_patch_license_invalid_name(self, client: AsyncClient, license_for_test):
         """Тест обновления лицензии с некорректным `name`.
 
         Проверяет, что API отклоняет запрос, если `name` содержит неверные данные.
         """
-        new_license = await test_license()
+        new_license = await license_for_test()
 
         patch_data = {'name': 123}
 
@@ -573,12 +573,12 @@ class TestPatchLicense:
         assert result['detail'][0]['msg'] == 'Input should be a valid string'
 
     @pytest.mark.asyncio
-    async def test_patch_license_name_too_long(self, client: AsyncClient, test_license):
+    async def test_patch_license_name_too_long(self, client: AsyncClient, license_for_test):
         """Тест обновления лицензии с `name`, содержащим 101 символ.
 
         Проверяет, что API отклоняет запрос со слишком длинным `name`.
         """
-        new_license = await test_license()
+        new_license = await license_for_test()
 
         patch_data = {'name': 'A' * (LENGTH_NAME_USER + 1)}
 
@@ -590,12 +590,12 @@ class TestPatchLicense:
         assert result['detail'][0]['msg'] == 'String should have at most 100 characters'
 
     @pytest.mark.asyncio
-    async def test_patch_license_invalid_license_term(self, client: AsyncClient, test_license):
+    async def test_patch_license_invalid_license_term(self, client: AsyncClient, license_for_test):
         """Тест обновления лицензии с некорректным `license_term`.
 
         Проверяет, что API отклоняет запрос, если `license_term` не соответствует ISO 8601.
         """
-        new_license = await test_license()
+        new_license = await license_for_test()
 
         patch_data = {'license_term': '1Y1S'}
 
@@ -610,12 +610,12 @@ class TestPatchLicense:
         )
 
     @pytest.mark.asyncio
-    async def test_patch_license_negative_max_admins(self, client: AsyncClient, test_license):
+    async def test_patch_license_negative_max_admins(self, client: AsyncClient, license_for_test):
         """Тест обновления лицензии с отрицательным `max_admins_count`.
 
         Проверяет, что API отклоняет запрос, если `max_admins_count` < 1.
         """
-        new_license = await test_license()
+        new_license = await license_for_test()
 
         patch_data = {'max_admins_count': -5}
 
@@ -628,13 +628,13 @@ class TestPatchLicense:
 
     @pytest.mark.asyncio
     async def test_patch_license_invalid_max_employees_count(
-        self, client: AsyncClient, test_license
+        self, client: AsyncClient, license_for_test
     ):
         """Тест обновления лицензии с некорректным `max_employees_count`.
 
         Проверяет, что API отклоняет запрос, если `max_employees_count` передан как строка.
         """
-        new_license = await test_license()
+        new_license = await license_for_test()
 
         patch_data = {'max_employees_count': 'true'}
 
@@ -664,12 +664,12 @@ class TestPatchLicense:
 
 class TestDeleteLicense:
     @pytest.mark.asyncio
-    async def test_delete_license_success(self, client: AsyncClient, test_license):
+    async def test_delete_license_success(self, client: AsyncClient, license_for_test):
         """Тест успешного удаления лицензии.
 
         Проверяет, что API корректно удаляет лицензию и возвращает статус 204.
         """
-        new_license = await test_license()
+        new_license = await license_for_test()
 
         response = await client.delete(f'/api/v1/admin/licenses/{new_license.id}')
 

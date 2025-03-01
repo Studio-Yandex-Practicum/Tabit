@@ -17,11 +17,11 @@ class TestLoginUser:
     """
 
     @pytest.mark.asyncio
-    async def test_login_user(self, client: AsyncClient, moderator_1_company_1, user_1_company_1):
+    async def test_login_user(self, client: AsyncClient, moderator, employee):
         """Тест на вход в систему пользователей сервиса с валидными данными."""
         variants = (
-            (moderator_1_company_1, 'модератора от компании'),
-            (user_1_company_1, 'пользователя от компании'),
+            (moderator, 'модератора от компании'),
+            (employee, 'пользователя от компании'),
         )
         for user, text in variants:
             login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
@@ -54,14 +54,16 @@ class TestLoginUser:
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
     @pytest.mark.asyncio
-    async def test_login_user_invalid(self, client: AsyncClient, user_1_company_1):
+    async def test_login_user_invalid(self, client: AsyncClient, employee):
         """
         Тест на вход в систему пользователей сервиса без заполнения обязательных полей формы.
         """
         bad_login_payloads: tuple[dict, ...] = (
-            {'password': GOOD_PASSWORD},
             {
-                'username': user_1_company_1.email,
+                'password': GOOD_PASSWORD,
+            },
+            {
+                'username': employee.email,
             },
             {},
         )
@@ -74,9 +76,9 @@ class TestLoginUser:
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
     @pytest.mark.asyncio
-    async def test_login_user_bad_password(self, client: AsyncClient, user_1_company_1):
+    async def test_login_user_bad_password(self, client: AsyncClient, employee):
         """Тест на вход в систему пользователей сервиса под неверным паролем."""
-        login_payload = {'username': user_1_company_1.email, 'password': f'NOT {GOOD_PASSWORD}'}
+        login_payload = {'username': employee.email, 'password': f'NOT {GOOD_PASSWORD}'}
         response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
         assert (
             response.status_code == HTTPStatus.BAD_REQUEST
@@ -93,13 +95,11 @@ class TestLogoutUser:
     """
 
     @pytest.mark.asyncio
-    async def test_logout_user(
-        self, client: AsyncClient, moderator_1_company_1_token, user_1_company_1_token
-    ):
+    async def test_logout_user(self, client: AsyncClient, moderator_token, employee_token):
         """Тест на выход из системы пользователей сервиса."""
         variants = (
-            (moderator_1_company_1_token, 'модератора от компании'),
-            (user_1_company_1_token, 'пользователя от компании'),
+            (moderator_token, 'модератора от компании'),
+            (employee_token, 'пользователя от компании'),
         )
         for token, text in variants:
             response = await client.post(URL.USER_LOGOUT, headers=token)
@@ -133,13 +133,13 @@ class TestRefreshTokenUser:
     async def test_refresh_token_user(
         self,
         client: AsyncClient,
-        moderator_company_refresh_token,
-        user_company_refresh_token,
+        moderator_refresh_token,
+        employee_refresh_token,
     ):
         """Тест получения нового токена по refresh-token для пользователя сервиса Tabit."""
         variants = (
-            (moderator_company_refresh_token, 'модератором от компании'),
-            (user_company_refresh_token, 'пользователем от компании'),
+            (moderator_refresh_token, 'модератором от компании'),
+            (employee_refresh_token, 'пользователем от компании'),
         )
         for token, text in variants:
             response = await client.post(URL.USER_REFRESH, headers=token)

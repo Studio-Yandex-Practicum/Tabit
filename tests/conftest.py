@@ -10,9 +10,9 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from src.companies.models import Company
-from src.database import Base
+from src.companies.models.models import Company
 from src.database.db_depends import get_async_session
+from src.database.models import BaseTabitModel as Base
 from src.main import app_v1
 from src.tabit_management.models import LicenseType, TabitAdminUser
 from src.users.models import UserTabit
@@ -84,7 +84,7 @@ async def make_entry_in_table(async_session: AsyncSession, payload: dict[str, An
 
 
 @pytest_asyncio.fixture
-async def test_license(async_session):
+async def license_for_test(async_session):
     """Фикстура, создающая тестовую лицензию с возможностью изменения полей."""
 
     async def _create_license(license_data=None):
@@ -105,14 +105,24 @@ async def test_license(async_session):
 
 
 @pytest_asyncio.fixture
-async def company_1(async_session):
-    """Фикстура для создания компании №1 в таблице company."""
-    company_data = {
-        'name': 'Zorg',
-        'is_active': True,
-        'slug': 'Zorg',
-    }
-    return await make_entry_in_table(async_session, company_data, Company)
+async def company_for_test(async_session):
+    """
+    Фикстура, создающая тестовую компанию с возможностью изменения полей.
+    По умолчанию, только обязательные поля.
+    """
+
+    async def _create_company(company_data=None):
+        """Функция-обёртка для создания компании с изменяемыми параметрами."""
+        default_data = {
+            'name': f'Test Company {uuid.uuid4().hex[:8]}',
+            'slug': f'Test_Company_{uuid.uuid4().hex[:8]}',
+            'is_active': True,
+        }
+        if company_data:
+            default_data.update(company_data)
+        return await make_entry_in_table(async_session, default_data, Company)
+
+    return _create_company
 
 
 @pytest_asyncio.fixture
@@ -154,45 +164,75 @@ async def admin(async_session: AsyncSession):
 
 
 @pytest_asyncio.fixture
-async def moderator_1_company_1(async_session: AsyncSession, company_1):
+async def moderator_of_company(async_session: AsyncSession, company_for_test):
     """
-    Фикстура для создания модератора от компании в таблице tabitadminuser.
+    Фикстура, создающая модератора тестовой компании с возможностью изменения полей.
+    По умолчанию, только обязательные поля.
     """
 
-    moderator_data = {
-        'name': 'Корбен ',
-        'surname': 'Даллас',
-        'email': 'yandex@yandex.ru',
-        'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
-        'is_active': True,
-        'is_superuser': False,
-        'is_verified': False,
-        'role': RoleUserTabit.ADMIN,
-        'company_id': company_1.id,
-    }
+    async def _create_moderator(user_data=None):
+        """Функция-обёртка для модератора тестовой компании с изменяемыми параметрами."""
+        company = await company_for_test()
+        default_data = {
+            'name': 'Корбен ',
+            'surname': 'Даллас',
+            'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
+            'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
+            'is_active': True,
+            'is_superuser': False,
+            'is_verified': False,
+            'role': RoleUserTabit.ADMIN,
+            'company_id': company.id,
+        }
+        if user_data:
+            default_data.update(user_data)
+        return await make_entry_in_table(async_session, default_data, UserTabit)
 
-    return await make_entry_in_table(async_session, moderator_data, UserTabit)
+    return _create_moderator
 
 
 @pytest_asyncio.fixture
-async def user_1_company_1(async_session: AsyncSession, company_1):
+async def employee_of_company(async_session: AsyncSession, company_for_test):
+    """
+    Фикстура, создающая пользователя тестовой компании с возможностью изменения полей.
+    По умолчанию, только обязательные поля.
+    """
+
+    async def _create_employee(user_data=None):
+        """Функция-обёртка для пользователя тестовой компании с изменяемыми параметрами."""
+        company = await company_for_test()
+        default_data = {
+            'name': 'Руби ',
+            'surname': 'Род',
+            'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
+            'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
+            'is_active': True,
+            'is_superuser': False,
+            'is_verified': False,
+            'role': RoleUserTabit.EMPLOYEE,
+            'company_id': company.id,
+        }
+        if user_data:
+            default_data.update(user_data)
+        return await make_entry_in_table(async_session, default_data, UserTabit)
+
+    return _create_employee
+
+
+@pytest_asyncio.fixture
+async def moderator(moderator_of_company):
+    """
+    Фикстура для создания модератора от компании в таблице tabitadminuser.
+    """
+    return await moderator_of_company()
+
+
+@pytest_asyncio.fixture
+async def employee(employee_of_company):
     """
     Фикстура для создания пользователя от компании в таблице tabitadminuser.
     """
-
-    user = {
-        'name': 'Руби ',
-        'surname': 'Род',
-        'email': 'mail@yandex.ru',
-        'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
-        'is_active': True,
-        'is_superuser': False,
-        'is_verified': False,
-        'role': RoleUserTabit.EMPLOYEE,
-        'company_id': company_1.id,
-    }
-
-    return await make_entry_in_table(async_session, user, UserTabit)
+    return await employee_of_company()
 
 
 async def get_token(client: AsyncClient, user, url: str, refresh: bool = False) -> dict[str, str]:
@@ -222,19 +262,39 @@ async def admin_token(client: AsyncClient, admin):
 
 
 @pytest_asyncio.fixture
-async def moderator_1_company_1_token(client: AsyncClient, moderator_1_company_1):
+async def get_token_for_user(client: AsyncClient):
     """
-    Фикстура для получения заголовков авторизации модератора от компании c access-token.
+    Фикстура, создающая заголовков авторизации пользователя от тестовой компании.
+
+    Например, в тесте:
+    ```
+    user_2 = await employee()
+    access_token_user_2 = await get_token_for_user(user_2)
+    refresh_token_user_2 = await get_token_for_user(user_2, refresh=True)
+    ```
     """
-    return await get_token(client, moderator_1_company_1, URL.USER_LOGIN)
+
+    async def _get_token_for_user(user, refresh: bool = False):
+        """Функция-обёртка для заголовков авторизации пользователя от тестовой компании."""
+        return await get_token(client, user, URL.USER_LOGIN, refresh)
+
+    return _get_token_for_user
 
 
 @pytest_asyncio.fixture
-async def user_1_company_1_token(client: AsyncClient, user_1_company_1):
+async def moderator_token(get_token_for_user, moderator):
+    """
+    Фикстура для получения заголовков авторизации модератора от компании c access-token.
+    """
+    return await get_token_for_user(moderator)
+
+
+@pytest_asyncio.fixture
+async def employee_token(get_token_for_user, employee):
     """
     Фикстура для получения заголовков авторизации пользователя от компании c access-token.
     """
-    return await get_token(client, user_1_company_1, URL.USER_LOGIN)
+    return await get_token_for_user(employee)
 
 
 @pytest_asyncio.fixture
@@ -254,16 +314,16 @@ async def admin_refresh_token(client: AsyncClient, admin):
 
 
 @pytest_asyncio.fixture
-async def moderator_company_refresh_token(client: AsyncClient, moderator_1_company_1):
-    """
-    Фикстура для получения заголовков авторизации модератора от компании c refresh-token.
-    """
-    return await get_token(client, moderator_1_company_1, URL.USER_LOGIN, refresh=True)
-
-
-@pytest_asyncio.fixture
-async def user_company_refresh_token(client: AsyncClient, user_1_company_1):
+async def moderator_refresh_token(get_token_for_user, moderator):
     """
     Фикстура для получения заголовков авторизации пользователя от компании c refresh-token.
     """
-    return await get_token(client, user_1_company_1, URL.USER_LOGIN, refresh=True)
+    return await get_token_for_user(moderator, refresh=True)
+
+
+@pytest_asyncio.fixture
+async def employee_refresh_token(get_token_for_user, employee):
+    """
+    Фикстура для получения заголовков авторизации пользователя от компании c refresh-token.
+    """
+    return await get_token_for_user(employee, refresh=True)

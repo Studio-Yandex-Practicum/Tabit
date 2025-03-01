@@ -41,13 +41,13 @@ class TestLoginAdminTabit:
     async def test_login_not_admin(
         self,
         client: AsyncClient,
-        moderator_1_company_1,
-        user_1_company_1,
+        moderator,
+        employee,
     ):
         """Тест на вход в систему администраторов сервиса модератора и пользователя от компании."""
         variants = (
-            (moderator_1_company_1, 'модератора от компании'),
-            (user_1_company_1, 'пользователя от компании'),
+            (moderator, 'модератора от компании'),
+            (employee, 'пользователя от компании'),
         )
         for user, text in variants:
             login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
@@ -64,7 +64,9 @@ class TestLoginAdminTabit:
         Тест на вход в систему администраторов сервиса без заполнения обязательных полей формы.
         """
         bad_login_payloads: tuple[dict, ...] = (
-            {'password': GOOD_PASSWORD},
+            {
+                'password': GOOD_PASSWORD,
+            },
             {
                 'username': admin.email,
             },
@@ -112,12 +114,15 @@ class TestLogoutAdminTabit:
 
     @pytest.mark.asyncio
     async def test_logout_admin_not_access(
-        self, client: AsyncClient, moderator_1_company_1_token, user_1_company_1_token
+        self,
+        client: AsyncClient,
+        moderator_token,
+        employee_token,
     ):
         """Тест на выход из системы администраторов сервиса."""
         variants: tuple = (
-            (moderator_1_company_1_token, 'модератора от компании'),
-            (user_1_company_1_token, 'пользователя от компании'),
+            (moderator_token, 'модератора от компании'),
+            (employee_token, 'пользователя от компании'),
             ({}, 'неавторизованного пользователя'),
         )
         for token, text in variants:
@@ -343,8 +348,8 @@ class TestCreateAdminTabit:
         self,
         client: AsyncClient,
         admin_token,
-        moderator_1_company_1_token,
-        user_1_company_1_token,
+        moderator_token,
+        employee_token,
     ):
         """
         Тест на ошибку при создании администратора сервиса Tabit,
@@ -359,8 +364,8 @@ class TestCreateAdminTabit:
         variants: tuple = (
             ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
             (admin_token, HTTPStatus.FORBIDDEN, 'администратором сервиса'),
-            (moderator_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (user_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
         )
         for token, status, text in variants:
             response = await client.post(
@@ -389,7 +394,11 @@ class TestGetAdminTabit:
         response = await client.get(URL.ADMIN_AUTH, headers=superuser_token)
         assert response.status_code == HTTPStatus.OK, response.text
 
-        data = response.json()[0]
+        data = response.json()
+        assert isinstance(data, list), 'Ответ должен возвращаться в виде списка'
+        assert len(data) != 0, 'Ответ должен возвращаться не с пустым списком'
+
+        data_row = data[0]
         for key in (
             'id',
             'email',
@@ -400,20 +409,22 @@ class TestGetAdminTabit:
             'created_at',
             'updated_at',
         ):
-            assert key in data, f'Ключа {key} нет в теле ответа:\n{data}'
+            assert key in data_row, f'Ключа {key} нет в теле ответа:\n{data_row}'
             assert (
-                data[key] if key not in ('patronymic', 'phone_number') else True
-            ), f'Значение ключа {key} не должно быть пустым или быть null:\n{data}'
+                data_row[key] if key not in ('patronymic', 'phone_number') else True
+            ), f'Значение ключа {key} не должно быть пустым или быть null:\n{data_row}'
         for key in ('password', 'hashed_password', 'is_active', 'is_superuser', 'is_verified'):
-            assert key not in data, f'Значение ключа {key} не должно быть в теле ответа:\n{data}'
+            assert (
+                key not in data_row
+            ), f'Значение ключа {key} не должно быть в теле ответа:\n{data_row}'
 
     @pytest.mark.asyncio
     async def test_get_admin_not_access(
         self,
         client: AsyncClient,
         admin_token,
-        moderator_1_company_1_token,
-        user_1_company_1_token,
+        moderator_token,
+        employee_token,
     ):
         """
         Тест на ошибку при получение списка администраторов сервиса Tabit,
@@ -422,8 +433,8 @@ class TestGetAdminTabit:
         variants: tuple = (
             ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
             (admin_token, HTTPStatus.FORBIDDEN, 'администратором сервиса'),
-            (moderator_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (user_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
         )
         for token, status, text in variants:
             response = await client.get(URL.ADMIN_AUTH, headers=token)
@@ -481,8 +492,8 @@ class TestGetMeAdminTabit:
     async def test_get_me_admin_not_access(
         self,
         client: AsyncClient,
-        moderator_1_company_1_token,
-        user_1_company_1_token,
+        moderator_token,
+        employee_token,
     ):
         """
         Тест на ошибку при получение личных данных для администраторов сервиса Tabit,
@@ -490,8 +501,8 @@ class TestGetMeAdminTabit:
         """
         variants: tuple = (
             ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
-            (moderator_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (user_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
         )
         for token, status, text in variants:
             response = await client.get(URL.ADMIN_AUTH, headers=token)
@@ -520,7 +531,10 @@ class TestPatchMeAdminTabit:
                 'name': 'Киширика',
                 'surname': 'Киширису',
             },
-            {'phone_number': '8 800 700-06-11', 'surname': 'Киширису'},
+            {
+                'phone_number': '8 800 700-06-11',
+                'surname': 'Киширису',
+            },
             {
                 'patronymic': 'Императрица',
             },
@@ -573,8 +587,8 @@ class TestPatchMeAdminTabit:
     async def test_patch_me_admin_not_access(
         self,
         client: AsyncClient,
-        moderator_1_company_1_token,
-        user_1_company_1_token,
+        moderator_token,
+        employee_token,
     ):
         """
         Тест на ошибку при изменение личных данных для администраторов сервиса Tabit,
@@ -583,8 +597,8 @@ class TestPatchMeAdminTabit:
         payload: dict[str, str] = {'name': 'Киширика', 'surname': 'Киширису'}
         variants: tuple = (
             ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
-            (moderator_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (user_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
         )
         for token, status, text in variants:
             response = await client.patch(
@@ -648,8 +662,8 @@ class TestGetIdAdminTabit:
         client: AsyncClient,
         admin,
         admin_token,
-        moderator_1_company_1_token,
-        user_1_company_1_token,
+        moderator_token,
+        employee_token,
     ):
         """
         Тест на ошибку при получение личных данных для администраторов сервиса Tabit по его id,
@@ -658,8 +672,8 @@ class TestGetIdAdminTabit:
         variants: tuple = (
             ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
             (admin_token, HTTPStatus.FORBIDDEN, 'администратором сервиса'),
-            (moderator_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (user_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
         )
         url = URL.ADMIN_AUTH + str(admin.id)
         for token, status, text in variants:
@@ -689,7 +703,10 @@ class TestPatchIdAdminTabit:
                 'name': 'Киширика',
                 'surname': 'Киширису',
             },
-            {'phone_number': '8 800 700-06-11', 'surname': 'Киширису'},
+            {
+                'phone_number': '8 800 700-06-11',
+                'surname': 'Киширису',
+            },
             {
                 'patronymic': 'Императрица',
             },
@@ -746,8 +763,8 @@ class TestPatchIdAdminTabit:
         client: AsyncClient,
         admin,
         admin_token,
-        moderator_1_company_1_token,
-        user_1_company_1_token,
+        moderator_token,
+        employee_token,
     ):
         """
         Тест на ошибку при изменение личных данных для администраторов сервиса Tabit,
@@ -758,8 +775,8 @@ class TestPatchIdAdminTabit:
         variants: tuple = (
             ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
             (admin_token, HTTPStatus.FORBIDDEN, 'администратором сервиса'),
-            (moderator_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (user_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
         )
         for token, status, text in variants:
             response = await client.patch(
@@ -843,8 +860,8 @@ class TestDeleteIdAdminTabit:
         admin,
         superuser_token,
         admin_token,
-        moderator_1_company_1_token,
-        user_1_company_1_token,
+        moderator_token,
+        employee_token,
     ):
         """
         Тест на ошибку при удалении администраторов сервиса Tabit по его id,
@@ -854,8 +871,8 @@ class TestDeleteIdAdminTabit:
         variants: tuple = (
             ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
             (admin_token, HTTPStatus.FORBIDDEN, 'администратором сервиса'),
-            (moderator_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (user_1_company_1_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
         )
         for token, status, text in variants:
             response_delete = await client.delete(
@@ -910,8 +927,8 @@ class TestRefreshTokenAdminTabit:
     async def test_refresh_token_admin_not_access(
         self,
         client: AsyncClient,
-        moderator_company_refresh_token,
-        user_company_refresh_token,
+        moderator_refresh_token,
+        employee_refresh_token,
     ):
         """
         Тест на ошибку получения нового токена по refresh-token для администраторов сервиса Tabit,
@@ -919,8 +936,8 @@ class TestRefreshTokenAdminTabit:
         """
         variants: tuple = (
             ({}, 'не авторизированным пользователем'),
-            (moderator_company_refresh_token, 'модератором от компании'),
-            (user_company_refresh_token, 'пользователем от компании'),
+            (moderator_refresh_token, 'модератором от компании'),
+            (employee_refresh_token, 'пользователем от компании'),
         )
         for token, text in variants:
             response = await client.post(URL.ADMIN_REFRESH, headers=token)
