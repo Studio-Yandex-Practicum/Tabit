@@ -5,6 +5,7 @@ from httpx import AsyncClient
 
 from src.constants import LENGTH_NAME_USER
 from src.tabit_management.constants import DEFAULT_PAGE_SIZE
+from tests.constants import URL
 
 
 def generate_license_data():
@@ -26,7 +27,7 @@ class TestCreateLicense:
         Убедимся, что ответ содержит правильные значения и API возвращает статус-код 201.
         """
         license_data = generate_license_data()
-        response = await client.post('/api/v1/admin/licenses/', json=license_data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=license_data)
 
         assert response.status_code == 201
         result = response.json()
@@ -47,7 +48,7 @@ class TestCreateLicense:
         duplicate_data = generate_license_data()
         duplicate_data['name'] = new_license.name
 
-        response = await client.post('/api/v1/admin/licenses/', json=duplicate_data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=duplicate_data)
 
         assert response.status_code == 400
         result = response.json()
@@ -64,7 +65,7 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['name']
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -82,7 +83,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = 11
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -100,7 +101,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = ''
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -118,7 +119,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = 'A' * (LENGTH_NAME_USER + 1)
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -136,7 +137,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = ' пробелы '
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -156,7 +157,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = '1Y1S'
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -177,7 +178,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = 360
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 201
         result = response.json()
@@ -195,7 +196,7 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['license_term']
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -213,7 +214,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = -11
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -230,7 +231,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = 0
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -248,7 +249,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_admins_count'] = 0
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -266,7 +267,7 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['max_admins_count']
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -284,7 +285,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_admins_count'] = 'true'
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -304,7 +305,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_employees_count'] = 0
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -322,7 +323,7 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['max_employees_count']
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -340,7 +341,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_employees_count'] = 'true'
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == 422
         result = response.json()
@@ -360,7 +361,7 @@ class TestGetLicense:
         """
         licenses = [await license_for_test() for _ in range(30)]
 
-        response = await client.get('/api/v1/admin/licenses/')
+        response = await client.get(URL.LICENSES_ENDPOINT)
 
         assert response.status_code == 200
         result = response.json()

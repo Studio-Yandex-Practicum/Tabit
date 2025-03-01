@@ -1,12 +1,13 @@
 import uuid
 from collections.abc import AsyncGenerator
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import pytest
 import pytest_asyncio
 from fastapi_users.password import PasswordHelper
 from httpx import ASGITransport, AsyncClient
+from slugify import slugify
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -72,6 +73,21 @@ async def client(async_session):
         finally:
             await ac.aclose()
             app_v1.dependency_overrides.clear()
+
+
+@pytest_asyncio.fixture
+async def test_admin_token(client: AsyncClient, superadmin_user):
+    """
+    Фикстура для получения заголовков авторизации администратора.
+    """
+    login_payload = {'username': superadmin_user.email, 'password': 'password123'}
+
+    response = await client.post('/api/v1/admin/auth/login', data=login_payload)
+    assert response.status_code == 200, f'Ошибка авторизации: {response.text}'
+
+    tokens = response.json()
+    access_token = tokens['access_token']
+    return {'Authorization': f'Bearer {access_token}'}
 
 
 async def make_entry_in_table(async_session: AsyncSession, payload: dict[str, Any], model):
