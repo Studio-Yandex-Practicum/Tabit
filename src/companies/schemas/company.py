@@ -153,6 +153,7 @@ class CompanyEmployeeUpdateSchema(UserUpdateSchema):
 
     @model_validator(mode='after')
     def validate_fields(self) -> Self:
+        """Валидатор полей схемы."""
         validate_name_surname_unique(self.name, self.surname)
         validate_name_characters(self.name)
         validate_surname_characters(self.surname)
@@ -189,6 +190,7 @@ class UserCompanyUpdateSchema(BaseModel):
 
     @model_validator(mode='after')
     def validate_fields(self) -> Self:
+        """Валидатор полей схемы."""
         validate_name_surname_unique(self.name, self.surname)
         validate_name_characters(self.name)
         validate_surname_characters(self.surname)

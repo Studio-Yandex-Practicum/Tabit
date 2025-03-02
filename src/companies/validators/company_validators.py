@@ -1,3 +1,7 @@
+"""
+Модуль валидаторов приложения companies.
+"""
+
 from datetime import datetime
 from typing import Optional
 
