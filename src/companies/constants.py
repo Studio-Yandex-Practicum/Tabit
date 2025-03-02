@@ -21,3 +21,9 @@ TEST_ERROR_LICENSE_FIELDS: str = (
     'Поля начала действия лицензии и тип лицензии заполняются одновременно.'
 )
 TEST_ERROR_UNIQUE_NAME_SURNAME = 'Имя и фамилия не могут совпадать!'
+
+# Фильтрация и сортировка для лицензии
+FILTER_NAME_DESCRIPTION = 'Фильтр по названию компании'
+SORTING_DESCRIPTION = (
+    "Сортировка по полю (name, created_at, updated_at). '-' означает сортировку в обратном порядке"
+)

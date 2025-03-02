@@ -10,12 +10,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.v1.auth.dependencies import current_admin_tabit
 from src.api.v1.constants import Description, Summary
 from src.api.v1.validator import validator_check_object_exists
+from src.api.v1.validators.tabit_management_companies_validators import (
+    generate_slug,
+    validate_company_slug,
+    validate_license_exists,
+)
 from src.companies.crud import company_crud
 from src.companies.schemas import (
     CompanyCreateSchema,
     CompanyResponseSchema,
     CompanyUpdateSchema,
 )
+from src.companies.schemas.company import CompanyTypeFilterSchema
 from src.database.db_depends import get_async_session
 
 router = APIRouter()
@@ -30,6 +36,7 @@ router = APIRouter()
 )
 async def get_companies(
     session: AsyncSession = Depends(get_async_session),
+    filters: CompanyTypeFilterSchema = Depends(),
 ) -> list[CompanyResponseSchema]:
     """
     Возвращает список всех компаний. Доступно только администраторам сервиса.
@@ -43,7 +50,11 @@ async def get_companies(
     Параметры функции:
         session: асинхронная сессия через зависимость.
     """
-    return await company_crud.get_multi(session)
+    return await company_crud.get_multi(
+        session,
+        filters=filters.model_dump(exclude_unset=True),
+        order_by=[filters.ordering] if filters.ordering else None,
+    )
 
 
 @router.post(
@@ -72,6 +83,18 @@ async def create_company(
         company: схема для создания компании.
         session: асинхронная сессия через зависимость.
     """
+    if company.license_id:
+        await validate_license_exists(session, company.license_id)
+        end_license_time = await company_crud.save_end_license_time(
+            session, company.start_license_time, company.license_id
+        )
+        company = company.model_copy(update={'end_license_time': end_license_time})
+
+    if company.slug:
+        await validate_company_slug(session, company.slug)
+    else:
+        company.slug = await generate_slug(session, company.name)
+
     return await company_crud.create(session, company)
 
 
@@ -102,6 +125,14 @@ async def update_company(
         session: асинхронная сессия через зависимость.
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
+
+    if object_in.license_id:
+        await validate_license_exists(session, object_in.license_id)
+        end_license_time = await company_crud.save_end_license_time(
+            session, object_in.start_license_time, object_in.license_id
+        )
+        object_in = object_in.model_copy(update={'end_license_time': end_license_time})
+
     return await company_crud.update(session, company, object_in)
 
 
@@ -131,4 +162,3 @@ async def delete_company(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     await company_crud.remove(session, company)
-    return
