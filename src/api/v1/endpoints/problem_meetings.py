@@ -1,6 +1,12 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.validators.meeting_validators import (
+    check_meeting_date_available,
+    check_meeting_title_unique,
+    check_problem_exists,
+)
+from src.api.v1.validators.problems_validators import check_company_exists
 from src.database.db_depends import get_async_session
 from src.problems.crud.meeting import meeting_crud
 from src.problems.schemas.meeting import (
@@ -35,6 +41,8 @@ async def meetings(
     Возвращаемое значение:
         Список объектов MeetingResponseSchema.
     """
+    await check_company_exists(company_slug, session)
+    await check_problem_exists(problem_id, session)
     filters = {'problem_id': problem_id}
     return await meeting_crud.get_multi(session, filters=filters)
 
@@ -64,8 +72,10 @@ async def create_meeting(
     Возвращаемое значение:
         Объект MeetingResponseSchema.
     """
-    # TODO: Проверить уникальность названия встречи
-    # TODO: Проверить доступность даты встречи?
+    await check_company_exists(company_slug, session)
+    await check_problem_exists(problem_id, session)
+    await check_meeting_title_unique(meeting.title, session)
+    await check_meeting_date_available(meeting.date_meeting, session)
     meeting_data = meeting.model_dump()
     members = meeting.members or []
     created_meeting = await meeting_crud.create_with_members(
@@ -99,7 +109,8 @@ async def get_meeting(
     Возвращаемое значение:
         Объект MeetingResponseSchema.
     """
-
+    await check_company_exists(company_slug, session)
+    await check_problem_exists(problem_id, session)
     return await meeting_crud.get_or_404(session, meeting_id)
 
 
@@ -130,8 +141,10 @@ async def update_meeting(
     Возвращаемое значение:
         Объект MeetingResponseSchema.
     """
-    # TODO: Проверить уникальность названия встречи
-    # TODO: Проверить доступность даты встречи?
+    await check_company_exists(company_slug, session)
+    await check_problem_exists(problem_id, session)
+    await check_meeting_title_unique(meeting.title, session)
+    await check_meeting_date_available(meeting.date_meeting, session)
     return await meeting_crud.update_meeting(session, meeting_id, meeting.model_dump())
 
 
@@ -158,5 +171,6 @@ async def delete_meeting(
     Возвращаемое значение:
         None.
     """
-    # TODO: Проверить существование компании + проблемы + встречи
+    await check_company_exists(company_slug, session)
+    await check_problem_exists(problem_id, session)
     await meeting_crud.delete_meeting(session, meeting_id)

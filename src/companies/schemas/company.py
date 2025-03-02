@@ -195,13 +195,3 @@ class UserCompanyUpdateSchema(BaseModel):
         validate_name_characters(self.name)
         validate_surname_characters(self.surname)
         return self
-
-
-class CompanyFeedbackCreateShema(BaseModel):
-    """Схема для создания пользователем компании обратной связи."""
-
-    question: str = Field(..., title='Задать вопрос для обратной связи')
-    # TODO: Обдумать. Скорее всего надо будет реализовать ограничение на количество символов.
-    # Схема на данный момент является по большей части заглушкой.
-
-    model_config = ConfigDict(from_attributes=True)

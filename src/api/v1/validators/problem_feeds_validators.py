@@ -46,8 +46,8 @@ async def check_company_problem(
         user_company_id: значение company_id в объекте пользователя;
         problem_id: path-параметр, соответствующий id запрашиваемой проблемы.
     """
-    problem = await problem_crud.get_with_owner(session, problem_id)
-    if problem.owner.company_id != user_company_id:
+    problem = await problem_crud.get_or_404(session, problem_id)
+    if problem.company_id != user_company_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=VALID_WRONG_PROBLEM)
 
 

@@ -5,6 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.problems.models.enums import ResultMeetingEnum, StatusMeeting
+from src.problems.validators.meeting_validators import validate_date, validate_not_empty
 
 
 class MeetingBaseSchema(BaseModel):
@@ -46,6 +47,18 @@ class MeetingCreateSchema(MeetingBaseSchema):
 
     model_config = ConfigDict(extra='forbid', str_min_length=1)
 
+    @field_validator('title')
+    @classmethod
+    def validate_title_not_empty(cls, value: str) -> str:
+        """Проверка, что название проблемы не пустое."""
+        return validate_not_empty(value)
+
+    @field_validator('date_meeting')
+    @classmethod
+    def validate_date_meeting(cls, value: date) -> date:
+        """Проверка, что дата не может быть меньше текущей."""
+        return validate_date(value)
+
 
 class MeetingUpdateSchema(MeetingBaseSchema):
     """Pydantic-схема для обновления информации о встрече.
@@ -66,21 +79,19 @@ class MeetingUpdateSchema(MeetingBaseSchema):
     status: Optional[StatusMeeting]
     place: Optional[str]
 
-    @field_validator('title', 'description')
-    @staticmethod
-    def value_cant_be_null(value: str):
-        if not value:
-            raise ValueError('Поле не может быть пустым.')
-        return value
+    model_config = ConfigDict(extra='forbid', str_min_length=1)
+
+    @field_validator('title')
+    @classmethod
+    def validate_title_not_empty(cls, value: str) -> str:
+        """Проверка, что название проблемы не пустое."""
+        return validate_not_empty(value)
 
     @field_validator('date_meeting')
-    @staticmethod
-    def date_meeting_validation(value: date) -> date:
-        if value < date.today():
-            raise ValueError(f'Дата не может быть раньше {date.today()}')
-        return value
-
-    model_config = ConfigDict(extra='forbid', str_min_length=1)
+    @classmethod
+    def validate_date_meeting(cls, value: date) -> date:
+        """Проверка, что дата не может быть меньше текущей."""
+        return validate_date(value)
 
 
 class MeetingResponseSchema(MeetingBaseSchema):

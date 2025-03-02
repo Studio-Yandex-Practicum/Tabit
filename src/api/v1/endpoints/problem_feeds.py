@@ -239,7 +239,7 @@ async def like_a_comment(
 
 
 @router.get(
-    '{thread_id}/comments/{comment_id}/unlike',
+    '/{thread_id}/comments/{comment_id}/unlike',
     summary='Убрать свой лайк комментарию в треде.',
     status_code=status.HTTP_200_OK,
 )
