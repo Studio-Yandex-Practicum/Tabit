@@ -2,6 +2,8 @@
 Константы для моделей компании, департамента и сотрудника отдела.
 """
 
+import string
+
 ERROR_INVALID_PASSWORD: str = 'Пароль не соответвует требованиям.'
 ERROR_USER_ALREADY_EXISTS: str = 'Пользователь с данным email уже существует.'
 ERROR_USER_NOT_EXISTS: str = 'Пользователь с таким UUID не существует.'
@@ -21,3 +23,9 @@ TEST_ERROR_LICENSE_FIELDS: str = (
     'Поля начала действия лицензии и тип лицензии заполняются одновременно.'
 )
 TEST_ERROR_UNIQUE_NAME_SURNAME = 'Имя и фамилия не могут совпадать!'
+SHORT_SYMBOLS = string.ascii_letters
+GENERATED_SLUG_SUFFIX_RANGE = 3
+ATTEMPTS = 100
+SLUG_NOT_GENERATED = (
+    f'Сделано {ATTEMPTS} попыток, но сгенерировать slug не удалось. Попробуйте снова.'
+)
