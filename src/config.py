@@ -1,8 +1,12 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
+from fastapi_mail import ConnectionConfig
 from pydantic import ConfigDict, EmailStr, SecretStr
 from pydantic_settings import BaseSettings
+
+from src.constants import BASE_DIR
 
 load_dotenv()
 
@@ -34,6 +38,18 @@ class Settings(BaseSettings):
     first_superuser_name: str | None = None
     first_superuser_surname: str | None = None
 
+    mail_username: str | None = None
+    mail_password: str | None = None
+    mail_from: str | None = None
+    mail_port: str | None = None
+    mail_server: str | None = None
+    mail_from_name: str | None = None
+    mail_starttls: bool = True  # Для соединений STARTTLS (шифрование).
+    mail_ssl_tls: bool = False  # Для подключения по протоколу TLS / SSL.
+    use_credentials: bool = True  # По умолчанию True. Подключаться к SMTP-серверу или нет.
+    validate_certs: bool = True  # Cледует ли проверять сертификат почтового сервера.
+    template_folder: Path = BASE_DIR / 'templates'
+
     @property
     def database_url(self):
         return (
@@ -47,3 +63,36 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+class EmailSettings:
+    """Класс для настройки подключения отправки электронной почты."""
+
+    @property
+    def config_email(self) -> ConnectionConfig:
+        if not all([
+            settings.mail_username,
+            settings.mail_password,
+            settings.mail_from,
+            settings.mail_port,
+            settings.mail_server,
+            settings.mail_from_name
+        ]):
+            raise ValueError('Не все необходимые настройки электронной почты предоставлены')
+
+        return ConnectionConfig(
+            MAIL_USERNAME=settings.mail_username,
+            MAIL_PASSWORD=settings.mail_password,
+            MAIL_FROM=settings.mail_from,
+            MAIL_PORT=settings.mail_port,
+            MAIL_SERVER=settings.mail_server,
+            MAIL_FROM_NAME=settings.mail_from_name,
+            MAIL_STARTTLS=settings.mail_starttls,
+            MAIL_SSL_TLS=settings.mail_ssl_tls,
+            USE_CREDENTIALS=settings.use_credentials,
+            VALIDATE_CERTS=settings.validate_certs,
+            TEMPLATE_FOLDER=settings.template_folder,
+        )
+
+
+email_settings = EmailSettings()

@@ -27,7 +27,7 @@ from src.api.v1.validator import (
     validator_check_object_exists,
 )
 from src.database.db_depends import get_async_session
-from src.tabit_management.crud import admin_user_crud
+from src.tabit_management.crud import admin_crud
 from src.tabit_management.models import TabitAdminUser
 from src.tabit_management.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
 
@@ -56,7 +56,7 @@ async def get_tabit_admin(
     Параметры функции:
         session: асинхронная сессия через зависимость.
     """
-    return await admin_user_crud.get_multi(session)
+    return await admin_crud.get_multi(session)
 
 
 @router.get(
@@ -65,7 +65,7 @@ async def get_tabit_admin(
     summary=Summary.TABIT_ADMIN_AUTH_GET_ME,
     description=Description.TABIT_ADMIN_AUTH_GET_ME,
 )
-async def me_tabit_admin(
+async def get_me_tabit_admin(
     session: AsyncSession = Depends(get_async_session),
     user: TabitAdminUser = Depends(current_admin_tabit),
 ) -> AdminReadSchema:
@@ -82,7 +82,7 @@ async def me_tabit_admin(
         session: асинхронная сессия через зависимость.
         user: получение администратора через зависимости.
     """
-    return await admin_user_crud.get_or_404(session, user.id)
+    return await admin_crud.get_or_404(session, user.id)
 
 
 @router.patch(
@@ -110,7 +110,7 @@ async def update_me_tabit_admin(
         session: асинхронная сессия через зависимость.
         user: получение администратора через зависимости.
     """
-    return await admin_user_crud.update(session, user, user_in)
+    return await admin_crud.update(session, user, user_in)
 
 
 @router.get(
@@ -137,7 +137,7 @@ async def get_tabit_admin_by_id(
         user_id: идентификационный номер администратора сервиса, указанный в path.
         session: асинхронная сессия через зависимость.
     """
-    return await admin_user_crud.get_or_404(session, user_id)
+    return await admin_crud.get_or_404(session, user_id)
 
 
 @router.patch(
@@ -169,10 +169,10 @@ async def update_tabit_admin_by_id(
     # TODO: разрешить менять email и password.
     user = await validator_check_object_exists(
         session,
-        admin_user_crud,
+        admin_crud,
         object_id=user_id,
     )
-    return await admin_user_crud.update(session, user, user_in)
+    return await admin_crud.update(session, user, user_in)
 
 
 @router.delete(
@@ -202,11 +202,11 @@ async def delete_tabit_admin_by_id(
     """
     user = await validator_check_object_exists(
         session,
-        admin_user_crud,
+        admin_crud,
         object_id=user_id,
     )
     validator_check_not_is_superuser(user)
-    await admin_user_crud.remove(session, user)
+    await admin_crud.remove(session, user)
     return
 
 
@@ -285,7 +285,7 @@ async def create_tabit_admin(
         user_create: схема для создания администратора сервиса.
         user_manager: менеджер управления администраторов сервиса, вызывается через зависимости.
     """
-    created_user = await admin_user_crud.create_user(
+    created_user = await admin_crud.create_user(
         request,
         user_create,
         user_manager,

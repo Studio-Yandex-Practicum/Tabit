@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.companies.schemas.company import CompanyFeedbackCreateShema, UserCompanyUpdateSchema
+from src.companies.schemas.company import UserCompanyUpdateSchema
 from src.database.db_depends import get_async_session
 from src.users.crud.user import user_crud
 from src.users.schemas import UserReadSchema
@@ -57,16 +57,3 @@ async def patch_company_user(
     user_db = await user_crud.get_or_404(session=session, obj_id=uuid)
     update_user_db = await user_crud.update(session=session, db_obj=user_db, obj_in=obj_in)
     return update_user_db
-
-
-@router.post('/{company_slug}/feedback/', response_model=dict[str, str])
-async def post_feedback(
-    company_slug: str,
-    question: CompanyFeedbackCreateShema,
-    session: AsyncSession = Depends(get_async_session),
-) -> dict[str, str]:
-    """
-    Задать вопрос в разделе 'Помощь'.
-    """
-    # TODO: Реализовать функционал отправки сообщения на почту.
-    return {'message': f'Обратная связь отправлена для компании {company_slug}'}

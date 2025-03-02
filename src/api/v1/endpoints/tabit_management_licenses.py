@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.validators.tabit_management_licenses_validators import validate_license_name
@@ -155,7 +155,7 @@ async def update_license(
 async def delete_license(
     license_id: int,
     session: AsyncSession = Depends(get_async_session),
-) -> Response:
+) -> None:
     """
     Удаляет лицензию по её идентификатору.
 
@@ -164,10 +164,11 @@ async def delete_license(
         session (AsyncSession): Асинхронная сессия базы данных.
 
     Returns:
-        Response: Пустой ответ с кодом 204 No Content.
+        Пустой ответ с кодом 204 No Content.
 
     Raises:
         HTTPException: Если лицензия не найдена.
     """
     db_license = await license_type_crud.get_or_404(session=session, obj_id=license_id)
     await license_type_crud.remove(session=session, db_object=db_license)
+    return
