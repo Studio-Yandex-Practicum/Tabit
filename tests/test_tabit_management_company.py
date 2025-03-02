@@ -1,6 +1,7 @@
 import random
 import string
 from datetime import datetime, timedelta
+from http import HTTPStatus
 
 import pytest
 from httpx import AsyncClient
@@ -38,7 +39,7 @@ class TestCreateCompany:
         Тест успешного создания компании с обязательными полями.
 
         Проверяет, что API корректно создаёт компанию при передаче только обязательных данных.
-        Убедимся, что ответ содержит правильные значения и API возвращает статус-код 201.
+        Убедимся, что ответ содержит правильные значения и API возвращает 201
         """
         payload = generate_company_data()
 
@@ -48,7 +49,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 201, response.text
+        assert response.status_code == HTTPStatus.CREATED, response.text
         data = response.json()
         assert data['name'] == payload['name']
         assert 'slug' in data
@@ -65,7 +66,7 @@ class TestCreateCompany:
         Тест успешного создания компании со всеми полями.
 
         Проверяет, что API корректно создаёт компанию при передаче всех полей.
-        Убедимся, что ответ содержит правильные значения и API возвращает статус-код 201.
+        Убедимся, что ответ содержит правильные значения и API возвращает 201
         """
         new_license = await license_for_test()
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
@@ -76,7 +77,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 201, response.text
+        assert response.status_code == HTTPStatus.CREATED, response.text
         data = response.json()
         assert data['name'] == payload['name']
         assert data['slug'] == payload['slug']
@@ -103,7 +104,7 @@ class TestCreateCompany:
             json=payload,
             headers=jwt_token,
         )
-        assert response.status_code == 201, response.text
+        assert response.status_code == HTTPStatus.CREATED, response.text
 
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
@@ -136,7 +137,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['loc'] == ['body', 'name'] and error['msg'] == 'Field required'
@@ -163,7 +164,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['loc'] == ['body', 'name']
@@ -191,7 +192,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['loc'] == ['body', 'name']
@@ -202,10 +203,10 @@ class TestCreateCompany:
     @pytest.mark.asyncio
     async def test_create_company_without_token(self, client: AsyncClient, license_for_test):
         """
-        Тест ошибки 401 при создании компании без токена.
+        Тест ошибки HTTPStatus.UNAUTHORIZED при создании компании без токена.
 
         Проверяет, что API не позволяет создать компанию без авторизации.
-        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
+        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код HTTPStatus.UNAUTHORIZED.
         """
         new_license = await license_for_test()
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
@@ -215,16 +216,16 @@ class TestCreateCompany:
             json=payload,
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.text
         assert response.json()['detail'] == 'Unauthorized'
 
     @pytest.mark.asyncio
     async def test_create_company_invalid_token(self, client: AsyncClient, license_for_test):
         """
-        Тест ошибки 401 при создании компании с некорректным токеном.
+        Тест ошибки HTTPStatus.UNAUTHORIZED при создании компании с некорректным токеном.
 
         Проверяет, что API не позволяет создать компанию с недействительным токеном.
-        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
+        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код HTTPStatus.UNAUTHORIZED.
         """
         new_license = await license_for_test()
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
@@ -237,7 +238,7 @@ class TestCreateCompany:
             headers=invalid_token,
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.text
         assert response.json()['detail'] == 'Unauthorized'
 
     @pytest.mark.asyncio
@@ -260,7 +261,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         assert any(
             error['loc'] == ['body', 'description']
             and error['msg'] == 'Input should be a valid string'
@@ -286,7 +287,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         assert any(
             error['loc'] == ['body', 'logo'] and error['msg'] == 'Input should be a valid string'
             for error in response.json()['detail']
@@ -312,7 +313,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         assert any(
             error['loc'] == ['body', 'license_id']
             and error['msg']
@@ -340,7 +341,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         assert any(
             error['loc'] == ['body', 'start_license_time']
             and error['msg']
@@ -369,7 +370,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['loc'] == ['body', 'description']
@@ -398,7 +399,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['loc'] == ['body', 'description']
@@ -425,7 +426,7 @@ class TestCreateCompany:
             json=payload_1,
             headers=jwt_token,
         )
-        assert response_1.status_code == 201
+        assert response_1.status_code == HTTPStatus.CREATED
         first_company_slug = response_1.json()['slug']
 
         payload_2 = {'name': company_name}
@@ -434,7 +435,7 @@ class TestCreateCompany:
             json=payload_2,
             headers=jwt_token,
         )
-        assert response_2.status_code == 201
+        assert response_2.status_code == HTTPStatus.CREATED
         second_company_slug = response_2.json()['slug']
 
         assert first_company_slug != second_company_slug, 'Слаг должен быть уникальным'
@@ -462,7 +463,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['loc'] == ['body', 'logo']
@@ -505,7 +506,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['loc'] == ['body', field]
@@ -554,7 +555,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 201, response.text
+        assert response.status_code == HTTPStatus.CREATED, response.text
         data = response.json()
         assert data['end_license_time'] is None
 
@@ -588,7 +589,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 201, response.text
+        assert response.status_code == HTTPStatus.CREATED, response.text
         data = response.json()
 
         actual_end_time = (
@@ -619,7 +620,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['msg']
@@ -649,7 +650,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['msg']
@@ -674,7 +675,7 @@ class TestGetCompany:
         """
         Тест успешного получения списка компаний.
 
-        Проверяет, что API возвращает статус-код 200 и список компаний.
+        Проверяет, что API возвращает статус-код HTTPStatus.OK и список компаний.
         Убедимся, что данные содержат ожидаемые поля.
         """
         await company_for_test({'name': 'Компания 1'})
@@ -685,7 +686,7 @@ class TestGetCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 200, response.text
+        assert response.status_code == HTTPStatus.OK, response.text
         companies = response.json()
 
         assert isinstance(companies, list), 'Ответ API должен быть списком компаний'
@@ -748,7 +749,7 @@ class TestGetCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 200, response.text
+        assert response.status_code == HTTPStatus.OK, response.text
         result = response.json()
 
         sorted_companies = expected_sort(result)
@@ -760,26 +761,26 @@ class TestGetCompany:
         client: AsyncClient,
     ):
         """
-        Тест ошибки 401 при получении списка компаний без токена.
+        Тест ошибки HTTPStatus.UNAUTHORIZED при получении списка компаний без токена.
 
         Проверяет, что API не позволяет получить список компаний без авторизации.
-        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
+        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код HTTPStatus.UNAUTHORIZED.
         """
 
         response = await client.get(
             URL.COMPANIES_ENDPOINT,
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.text
         assert response.json()['detail'] == 'Unauthorized'
 
     @pytest.mark.asyncio
     async def test_get_companies_invalid_token(self, client: AsyncClient):
         """
-        Тест ошибки 401 при получении списка компаний с некорректным токеном.
+        Тест ошибки HTTPStatus.UNAUTHORIZED при получении списка компаний с некорректным токеном.
 
         Проверяет, что API не позволяет получить список компаний с недействительным токеном.
-        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
+        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код HTTPStatus.UNAUTHORIZED.
         """
 
         invalid_token = {'Authorization': 'Bearer invalid_token_123'}
@@ -789,7 +790,7 @@ class TestGetCompany:
             headers=invalid_token,
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.text
         assert response.json()['detail'] == 'Unauthorized'
 
     @pytest.mark.asyncio
@@ -829,7 +830,7 @@ class TestGetCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 200, response.text
+        assert response.status_code == HTTPStatus.OK, response.text
         data = response.json()
         assert data[expected_field] == expected_value, (
             f'Ожидалось значение {expected_value} в поле {expected_field}, '
@@ -866,7 +867,7 @@ class TestGetCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 200, response.text
+        assert response.status_code == HTTPStatus.OK, response.text
         data = response.json()
 
         for key, value in update_data.items():
@@ -900,7 +901,7 @@ class TestGetCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['loc'] == ['body', 'name']
@@ -929,7 +930,7 @@ class TestGetCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()['detail']
         assert any(
             error['loc'] == ['body', 'name']
@@ -944,10 +945,10 @@ class TestGetCompany:
         company_for_test,
     ):
         """
-        Тест ошибки 401 при обновлении компании без токена.
+        Тест ошибки HTTPStatus.UNAUTHORIZED при обновлении компании без токена.
 
         Проверяет, что API не позволяет обновить компанию без авторизации.
-        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
+        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код HTTPStatus.UNAUTHORIZED.
         """
         company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
         update_data = {'name': 'Новое имя'}
@@ -957,16 +958,16 @@ class TestGetCompany:
             json=update_data,
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.text
         assert response.json()['detail'] == 'Unauthorized'
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_token(self, client: AsyncClient, company_for_test):
         """
-        Тест ошибки 401 при обновлении компании с некорректным токеном.
+        Тест ошибки HTTPStatus.UNAUTHORIZED при обновлении компании с некорректным токеном.
 
         Проверяет, что API не позволяет обновить компанию с недействительным токеном.
-        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
+        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код HTTPStatus.UNAUTHORIZED.
         """
         company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
 
@@ -980,7 +981,7 @@ class TestGetCompany:
             headers=invalid_token,
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.text
         assert response.json()['detail'] == 'Unauthorized'
 
 
@@ -1001,7 +1002,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_logo_type(
@@ -1017,7 +1018,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_license_id_type(
@@ -1033,7 +1034,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_start_license_time_type(
@@ -1049,7 +1050,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_description_too_short(
@@ -1065,7 +1066,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_description_too_long(
@@ -1081,7 +1082,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_logo_url(
@@ -1097,7 +1098,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_field_with_leading_or_trailing_spaces(
@@ -1113,7 +1114,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_license_id(
@@ -1129,7 +1130,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_only_license_id(
@@ -1145,7 +1146,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_only_start_license_time(
@@ -1161,7 +1162,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 422, response.text
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
     async def test_patch_company_without_license_and_start_time(
@@ -1185,7 +1186,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 200, response.text
+        assert response.status_code == HTTPStatus.OK, response.text
         data = response.json()
 
         assert data['end_license_time'] is None, (
@@ -1226,7 +1227,7 @@ class TestPatchCompanyValidation:
             headers=superuser_token,
         )
 
-        assert response.status_code == 200, response.text
+        assert response.status_code == HTTPStatus.OK, response.text
         data = response.json()
 
         actual_end_time = (
@@ -1259,12 +1260,12 @@ class TestDeleteCompany:
             follow_redirects=False,
         )
 
-        assert response.status_code == 204, response.text
+        assert response.status_code == HTTPStatus.NO_CONTENT, response.text
 
     @pytest.mark.asyncio
     async def test_delete_company_not_found(self, client: AsyncClient, superuser_token: str):
         """
-        Тест ошибки 404 при попытке удаления несуществующей компании.
+        Тест ошибки HTTPStatus.NOT_FOUND при попытке удаления несуществующей компании.
 
         Проверяет, что API возвращает статус-код 404 и сообщение 'Объект не найден',
         если компания с указанным slug не существует.
@@ -1275,7 +1276,7 @@ class TestDeleteCompany:
             headers=superuser_token,
         )
 
-        assert response.status_code == 404, response.text
+        assert response.status_code == HTTPStatus.NOT_FOUND, response.text
         assert response.json()['detail'] == 'Объект не найден'
 
     @pytest.mark.asyncio
@@ -1283,7 +1284,7 @@ class TestDeleteCompany:
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """
-        Тест ошибки 404 при повторном удалении одной и той же компании.
+        Тест ошибки HTTPStatus.NOT_FOUND при повторном удалении одной и той же компании.
 
         Проверяет, что API возвращает статус-код 404 и сообщение 'Объект не найден',
         если попытаться удалить уже удалённую компанию.
@@ -1295,23 +1296,23 @@ class TestDeleteCompany:
             f'{URL.COMPANIES_ENDPOINT}{company.slug}',
             headers=superuser_token,
         )
-        assert response.status_code == 204, response.text
+        assert response.status_code == HTTPStatus.NO_CONTENT, response.text
 
-        # Повторное удаление - должно вернуть 404
+        # Повторное удаление - должно вернуть HTTPStatus.NOT_FOUND
         response = await client.delete(
             f'{URL.COMPANIES_ENDPOINT}{company.slug}',
             headers=superuser_token,
         )
-        assert response.status_code == 404, response.text
+        assert response.status_code == HTTPStatus.NOT_FOUND, response.text
         assert response.json()['detail'] == 'Объект не найден'
 
     @pytest.mark.asyncio
     async def test_delete_company_without_token(self, client: AsyncClient, company_for_test):
         """
-        Тест ошибки 401 при удалении компании без токена.
+        Тест ошибки HTTPStatus.UNAUTHORIZED при удалении компании без токена.
 
         Проверяет, что API не позволяет удалить компанию без авторизации.
-        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
+        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код HTTPStatus.UNAUTHORIZED.
         """
         company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
 
@@ -1319,16 +1320,16 @@ class TestDeleteCompany:
             f'{URL.COMPANIES_ENDPOINT}{company.slug}',
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.text
         assert response.json()['detail'] == 'Unauthorized'
 
     @pytest.mark.asyncio
     async def test_delete_company_invalid_token(self, client: AsyncClient, company_for_test):
         """
-        Тест ошибки 401 при удалении компании с некорректным токеном.
+        Тест ошибки HTTPStatus.UNAUTHORIZED при удалении компании с некорректным токеном.
 
         Проверяет, что API не позволяет удалить компанию с недействительным токеном.
-        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
+        Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код HTTPStatus.UNAUTHORIZED.
         """
         company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
 
@@ -1339,5 +1340,5 @@ class TestDeleteCompany:
             headers=invalid_token,
         )
 
-        assert response.status_code == 401, response.text
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response.text
         assert response.json()['detail'] == 'Unauthorized'
