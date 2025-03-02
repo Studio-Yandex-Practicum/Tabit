@@ -9,10 +9,6 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 from src.companies.constants import (
-    TEST_ERROR_INVALID_CHARACTERS_NAME,
-    TEST_ERROR_INVALID_CHARACTERS_SURNAME,
-    TEST_ERROR_LICENSE_FIELDS,
-    TEST_ERROR_UNIQUE_NAME_SURNAME,
     TITLE_LICENSE_ID_COMPANY,
     TITLE_LOGO_COMPANY,
     TITLE_NAME_COMPANY,
@@ -22,6 +18,12 @@ from src.companies.constants import (
     TITLE_START_LICENSE_TIME_COMPANY,
 )
 from src.companies.schemas.mixins import GetterSlugMixin
+from src.companies.validators.company_validators import (
+    validate_license_fields,
+    validate_name_characters,
+    validate_name_surname_unique,
+    validate_surname_characters,
+)
 from src.constants import (
     LENGTH_NAME_COMPANY,
     LENGTH_NAME_USER,
@@ -74,11 +76,7 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         При присвоении лицензии необходимо указать и её начало.
         Нельзя, что бы одно поле было не заполнено.
         """
-        if not (
-            all((self.license_id, self.start_license_time))
-            or (all((not self.license_id, not self.start_license_time)))
-        ):
-            raise ValueError(TEST_ERROR_LICENSE_FIELDS)
+        validate_license_fields(self.license_id, self.start_license_time)
         return self
 
 
@@ -154,13 +152,10 @@ class CompanyEmployeeUpdateSchema(UserUpdateSchema):
     """Схема для изменения данных сотрудника компании админом компании."""
 
     @model_validator(mode='after')
-    def validate_unique_name_surname(self) -> Self:
-        if self.name and self.surname and self.name == self.surname:
-            raise ValueError(TEST_ERROR_UNIQUE_NAME_SURNAME)
-        if self.name and not self.name.isalpha():
-            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_NAME)
-        if self.surname and not self.surname.isalpha():
-            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_SURNAME)
+    def validate_fields(self) -> Self:
+        validate_name_surname_unique(self.name, self.surname)
+        validate_name_characters(self.name)
+        validate_surname_characters(self.surname)
         return self
 
 
@@ -193,13 +188,10 @@ class UserCompanyUpdateSchema(BaseModel):
     )
 
     @model_validator(mode='after')
-    def validate_unique_name_surname(self) -> Self:
-        if self.name and self.surname and self.name == self.surname:
-            raise ValueError(TEST_ERROR_UNIQUE_NAME_SURNAME)
-        if self.name and not self.name.isalpha():
-            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_NAME)
-        if self.surname and not self.surname.isalpha():
-            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_SURNAME)
+    def validate_fields(self) -> Self:
+        validate_name_surname_unique(self.name, self.surname)
+        validate_name_characters(self.name)
+        validate_surname_characters(self.surname)
         return self
 
 

@@ -3,23 +3,21 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi_users.exceptions import InvalidPasswordException, UserAlreadyExists, UserNotExists
+from fastapi import APIRouter, Depends, status
 from fastapi_users.manager import BaseUserManager
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_company_admin, current_user_tabit
 from src.api.v1.auth.managers import get_user_manager
+
+# from src.api.v1.permissions import company_permissions
 from src.api.v1.constants import Summary
 from src.api.v1.validator import validator_check_object_exists
 from src.api.v1.validators.company_validators import (
     check_department_name_duplicate,
     check_slug_duplicate,
-)
-from src.companies.constants import (
-    ERROR_INVALID_PASSWORD,
-    ERROR_USER_ALREADY_EXISTS,
-    ERROR_USER_NOT_EXISTS,
+    validate_password,
+    validate_user_not_exists,
 )
 from src.companies.crud import company_crud, company_departments_crud
 from src.companies.schemas import (
@@ -439,14 +437,9 @@ async def create_company_employee(
     Если пользователь уже существует или пароль не соответствует требованиям ответ со статусом 400.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    try:
-        created_user = await user_manager.create(create_data)
-    except UserAlreadyExists:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS
-        )
-    except InvalidPasswordException:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
+    await validate_user_not_exists(create_data, user_manager)
+    await validate_password(create_data, user_manager)
+    created_user = await user_manager.create(create_data)
     return created_user
 
 
@@ -590,18 +583,12 @@ async def update_company_employee(
     Если сотрудник не найден ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    try:
-        user = await user_manager.get(uuid)
-        user_manager.parse_id
-        user = await user_manager.update(object_in, user)
-    except UserNotExists:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
-    except UserAlreadyExists:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS
-        )
-    except InvalidPasswordException:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
+    await validator_check_object_exists(session, user_crud, object_id=uuid)
+    await validate_user_not_exists(user_data=object_in, user_manager=user_manager)
+    await validate_password(user_data=object_in, user_manager=user_manager)
+    user = await user_manager.get(uuid)
+    user_manager.parse_id
+    user = await user_manager.update(object_in, user)
     return user
 
 
@@ -635,9 +622,7 @@ async def delete_company_employee(
     Если компания или отдел не найдены ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    try:
-        user = await user_manager.get(uuid)
-        await user_manager.delete(user)
-    except UserNotExists:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
+    await validator_check_object_exists(session, user_crud, object_id=uuid)
+    user = await user_manager.get(uuid)
+    await user_manager.delete(user)
     return status.HTTP_204_NO_CONTENT

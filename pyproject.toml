@@ -30,7 +30,7 @@ loguru = "^0.7.3"
 asyncpg = "^0.30.0"
 sqlalchemy = "^2.0.38"
 click = "^8.1.8"
-pydantic-extra-types = {version = "2.10.2", extras = ["phone-numbers"]}
+pydantic-extra-types = {extras = ["phone-numbers"], version = "^2.10.2"}
 phonenumbers = "^8.13.55"
 
 [tool.poetry.group.dev.dependencies]

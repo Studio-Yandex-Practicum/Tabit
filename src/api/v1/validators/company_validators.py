@@ -1,21 +1,22 @@
 """Модуль валидаторов эндпоинтов Company.py."""
 
-import random
-from typing import Any
-
 from fastapi import Depends, HTTPException, status
+from fastapi_users.exceptions import InvalidPasswordException
+from fastapi_users.manager import BaseUserManager
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.auth.managers import get_user_manager
 from src.api.v1.constants import TextError
+from src.api.v1.utilities import generate_unique_slug
 from src.companies.constants import (
     ATTEMPTS,
-    GENERATED_SLUG_SUFFIX_RANGE,
-    SHORT_SYMBOLS,
     SLUG_NOT_GENERATED,
 )
 from src.companies.crud import company_crud, company_departments_crud
 from src.companies.models import Company, Department
+from src.constants import ERROR_INVALID_PASSWORD_LENGTH, TEXT_ERROR_EXISTS_EMAIL
 from src.database.db_depends import get_async_session
+from src.users.schemas import UserCreateSchema
 
 
 async def check_department_name_duplicate(
@@ -36,31 +37,43 @@ async def check_department_name_duplicate(
 async def check_slug_duplicate(
     db_obj: Department | Company,
     session: AsyncSession = Depends(get_async_session),
-) -> str | Any:
+) -> str:
     """Метод проверки и формирования `slug` объектов Company или Department."""
     db_obj.slug = db_obj.name
     for _ in range(ATTEMPTS):
-        if isinstance(db_obj, Department):
-            db_objects = await company_departments_crud.get_multi(
-                session=session, filters={'slug': db_obj.slug}
-            )
-        if isinstance(db_obj, Company):
-            db_objects = await company_crud.get_multi(
-                session=session, filters={'slug': db_obj.slug}
-            )
-        if db_objects:
-            db_obj.slug = db_obj.slug + ''.join(
-                random.choices(SHORT_SYMBOLS, k=GENERATED_SLUG_SUFFIX_RANGE)
-            )
-            if isinstance(db_obj, Department):
-                db_objects = await company_departments_crud.get_multi(
-                    session=session, filters={'slug': db_obj.slug}
-                )
-            if isinstance(db_obj, Company):
-                db_objects = await company_crud.get_multi(
-                    session=session, filters={'slug': db_obj.slug}
-                )
-        if db_objects:
-            continue
-        return db_obj.slug
+        crud = company_departments_crud if isinstance(db_obj, Department) else company_crud
+        db_objects = await crud.get_multi(session=session, filters={'slug': db_obj.slug})
+        if not db_objects:
+            return db_obj.slug
+        db_obj.slug = generate_unique_slug(db_obj.slug)
+        db_objects = await crud.get_multi(session=session, filters={'slug': db_obj.slug})
+        if not db_objects:
+            return db_obj.slug
     raise OSError(SLUG_NOT_GENERATED)
+
+
+async def validate_user_not_exists(
+    user_data: UserCreateSchema,
+    user_manager: BaseUserManager = Depends(get_user_manager),
+) -> None:
+    """Проверяет, что пользователь с таким email не существует."""
+    if user_data.email:
+        user = await user_manager.user_db.get_by_email(user_data.email)
+        if user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TEXT_ERROR_EXISTS_EMAIL
+            )
+
+
+async def validate_password(
+    user_data: UserCreateSchema,
+    user_manager: BaseUserManager = Depends(get_user_manager),
+) -> None:
+    """Проверяет, что пароль соответствует требованиям."""
+    if user_data.password:
+        try:
+            await user_manager.validate_password(user_data.password, user_data)
+        except InvalidPasswordException:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_PASSWORD_LENGTH
+            )
