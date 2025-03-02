@@ -225,13 +225,16 @@ class TestGetProblemFeed:
             'Рейтинг комментария не должен меняться при неуспешном анлайке'
         )
 
+    # написать тесты для проверки лайка/анлайка комментария при несовпадании
+    # message_id комментария и message_feed_id в запросе
+
     @pytest.mark.asyncio
     @pytest.mark.usefixtures('comment_1')
     @pytest.mark.parametrize(
         'url_404',
         PROBLEM_FEEDS_GET_404,
     )
-    async def test_404_urls(self, client: AsyncClient, employee_1_company_1_token, url_404):
+    async def test_404_get_urls(self, client: AsyncClient, employee_1_company_1_token, url_404):
         """Тест для проверки запросов к несуществующим объектам."""
         response = await client.get(url_404, headers=employee_1_company_1_token)
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -538,3 +541,84 @@ class TestPacthProblemFeed:
         )
         await async_session.refresh(comment_1)
         assert comment_1 == old_comment_1, 'Данные обновляемого комментария изменились'
+
+    # написать тесты для проверки редактирования комментария при несовпадании
+    # message_id комментария и message_feed_id в запросе
+
+    @pytest.mark.asyncio
+    async def test_404_patch_urls(self, client: AsyncClient, employee_1_company_1_token):
+        """Тест для проверки редактивроания несуществующего комментария."""
+        response = await client.patch(
+            URL.COMMENTS_PATCH_DELETE_404_URL,
+            headers=employee_1_company_1_token,
+            json=COMMENT_UPDATE,
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND, (
+            f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
+            f'получен {response.status_code}'
+        )
+
+
+class TestDeleteProblemFeeds:
+    """Класс для тестов DELETE-эндпоинтов problem_feeds.py"""
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures('comment_1')
+    async def test_successful_delete_comment(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_1_company_1_token,
+    ):
+        """Тест проверки успешного удаления комментария."""
+        old_comments_count = await async_session.execute(select(CommentFeed))
+        old_comments_count = len(old_comments_count.all())
+        response = await client.delete(
+            URL.COMMENTS_PATCH_DELETE_URL, headers=employee_1_company_1_token
+        )
+        assert response.status_code == status.HTTP_204_NO_CONTENT, (
+            f'В ответе ожидается status_code {status.HTTP_204_NO_CONTENT}, '
+            f'получен {response.status_code}'
+        )
+        new_comments_count = await async_session.execute(select(CommentFeed))
+        new_comments_count = len(new_comments_count.all())
+        assert new_comments_count == old_comments_count - 1, (
+            f'Количество объектов CommentFeed должно равняться {old_comments_count - 1}. '
+            f'Текущее количество - {new_comments_count}.'
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures('comment_1')
+    async def test_delete_comment_wrong_owner(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_2_company_1_token,
+    ):
+        """Тест проверки неуспешного удаления комментария не автором."""
+        old_comments_count = await async_session.execute(select(CommentFeed))
+        old_comments_count = len(old_comments_count.all())
+        response = await client.delete(
+            URL.COMMENTS_PATCH_DELETE_URL, headers=employee_2_company_1_token
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN, (
+            f'В ответе ожидается status_code {status.HTTP_403_FORBIDDEN}, '
+            f'получен {response.status_code}'
+        )
+        new_comments_count = await async_session.execute(select(CommentFeed))
+        new_comments_count = len(new_comments_count.all())
+        assert new_comments_count == old_comments_count, (
+            f'Количество объектов CommentFeed должно равняться {old_comments_count}. '
+            f'Текущее количество - {new_comments_count}.'
+        )
+
+    @pytest.mark.asyncio
+    async def test_404_delete_urls(self, client: AsyncClient, employee_1_company_1_token):
+        """Тест для проверки удаления несуществующего комментария."""
+        response = await client.delete(
+            URL.COMMENTS_PATCH_DELETE_404_URL, headers=employee_1_company_1_token
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND, (
+            f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
+            f'получен {response.status_code}'
+        )
