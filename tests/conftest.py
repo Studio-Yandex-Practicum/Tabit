@@ -75,21 +75,6 @@ async def client(async_session):
             app_v1.dependency_overrides.clear()
 
 
-@pytest_asyncio.fixture
-async def test_admin_token(client: AsyncClient, superadmin_user):
-    """
-    Фикстура для получения заголовков авторизации администратора.
-    """
-    login_payload = {'username': superadmin_user.email, 'password': 'password123'}
-
-    response = await client.post('/api/v1/admin/auth/login', data=login_payload)
-    assert response.status_code == 200, f'Ошибка авторизации: {response.text}'
-
-    tokens = response.json()
-    access_token = tokens['access_token']
-    return {'Authorization': f'Bearer {access_token}'}
-
-
 async def make_entry_in_table(async_session: AsyncSession, payload: dict[str, Any], model):
     """Функция создаст запись в указанной таблице согласно переданным данным."""
     new_entry = model(**payload)
@@ -107,7 +92,7 @@ async def license_for_test(async_session):
         """Функция-обёртка для создания лицензии с изменяемыми параметрами."""
         default_data = {
             'name': f'Test License {uuid.uuid4().hex[:8]}',
-            'license_term': timedelta(days=1),
+            'license_term': timedelta(days=360),
             'max_admins_count': 5,
             'max_employees_count': 50,
         }
@@ -122,22 +107,29 @@ async def license_for_test(async_session):
 
 @pytest_asyncio.fixture
 async def company_for_test(async_session, license_for_test):
-    """Фикстура, создающая тестовую компанию с возможностью изменения полей."""
-async def company_for_test(async_session):
     """
     Фикстура, создающая тестовую компанию с возможностью изменения полей.
     По умолчанию, только обязательные поля.
     """
 
-    async def _create_company(company_data=None):
+    async def _create_company(company_data=None, all_fields=False):
         """Функция-обёртка для создания компании с изменяемыми параметрами."""
         license_instance = await license_for_test()
 
         default_data = {
             'name': f'Test Company {uuid.uuid4().hex[:8]}',
-            'slug': f'Test_Company_{uuid.uuid4().hex[:8]}',
+            'slug': slugify(f'Test Company {uuid.uuid4().hex[:8]}'),
             'is_active': True,
         }
+        if all_fields:
+            default_data.update(
+                {
+                    'description': 'Тестовое описание компании',
+                    'logo': 'https://example.com/logo.png',
+                    'license_id': license_instance.id,
+                    'start_license_time': datetime.now(timezone.utc).isoformat(),
+                }
+            )
         if company_data:
             default_data.update(company_data)
         return await make_entry_in_table(async_session, default_data, Company)
@@ -147,9 +139,7 @@ async def company_for_test(async_session):
 
 @pytest_asyncio.fixture
 async def administrator_tabit(async_session):
-
     async def _create_administrator_tabit(administrator_data=False):
-
         default_data = {
             'name': 'Ип',
             'surname': 'Ман',

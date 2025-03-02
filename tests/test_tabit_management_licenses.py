@@ -466,7 +466,10 @@ class TestGetLicense:
         Перед тестом вручную создаём запись в БД, чтобы гарантировать её существование.
         Затем делаем GET-запрос и проверяем корректность данных.
         """
-        new_license = await license_for_test()
+        license_term = 'P360D'
+        new_license = await license_for_test(
+            {'license_term': license_term},
+        )
 
         response = await client.get(f'/api/v1/admin/licenses/{new_license.id}')
 
@@ -475,7 +478,7 @@ class TestGetLicense:
 
         assert result['id'] == new_license.id
         assert result['name'] == new_license.name
-        assert result['license_term'] == 'P1D'
+        assert result['license_term'] == license_term
         assert result['max_admins_count'] == new_license.max_admins_count
         assert result['max_employees_count'] == new_license.max_employees_count
 

@@ -162,4 +162,3 @@ async def delete_company(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     await company_crud.remove(session, company)
-    return
