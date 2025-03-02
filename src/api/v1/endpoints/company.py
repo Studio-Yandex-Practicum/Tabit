@@ -1,21 +1,23 @@
 """Модуль роутеров для пользователя-админа компании."""
 
-from typing import List
+from typing import List, Sequence
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi_users.exceptions import InvalidPasswordException, UserAlreadyExists, UserNotExists
+from fastapi import APIRouter, Depends, status
 from fastapi_users.manager import BaseUserManager
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_company_admin, current_user_tabit
 from src.api.v1.auth.managers import get_user_manager
-from src.api.v1.constants import Summary, TextError
+
+# from src.api.v1.permissions import company_permissions
+from src.api.v1.constants import Summary
 from src.api.v1.validator import validator_check_object_exists
-from src.companies.constants import (
-    ERROR_INVALID_PASSWORD,
-    ERROR_USER_ALREADY_EXISTS,
-    ERROR_USER_NOT_EXISTS,
+from src.api.v1.validators.company_validators import (
+    check_department_name_duplicate,
+    check_slug_duplicate,
+    validate_password,
+    validate_user_not_exists,
 )
 from src.companies.crud import company_crud, company_departments_crud
 from src.companies.schemas import (
@@ -28,6 +30,7 @@ from src.companies.schemas import (
 from src.database.db_depends import get_async_session
 from src.users.crud.user import user_crud
 from src.users.schemas import UserCreateSchema, UserReadSchema
+from src.utils.email_service.email_schema import EmailCreateSchema
 
 router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_company_admin)])
 
@@ -149,19 +152,16 @@ async def create_department(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     object_name = object_in.model_dump()['name']
-    departments = await company_departments_crud.get_multi(
-        session=session, filters={'company_id': company.id, 'name': object_name}
+    await check_department_name_duplicate(
+        company_id=company.id, department_name=object_name, session=session
     )
-    if departments:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
-        )
     db_obj = await company_departments_crud.create(
         session=session, obj_in=object_in, auto_commit=False
     )
     session.expunge(db_obj)
     db_obj.company_id = company.id
+    slug = await check_slug_duplicate(db_obj=db_obj, session=session)
+    db_obj.slug = slug
     session.add(db_obj)
     await session.commit()
     await session.refresh(db_obj)
@@ -176,7 +176,7 @@ async def create_department(
 async def import_departments(
     company_slug: str,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> Sequence[bytes]:
     """
     Импортирует список отделов компании.
     Доступно только пользователю-админу компании.
@@ -277,16 +277,20 @@ async def update_department(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     object_name = object_in.model_dump()['name']
-    departments = await company_departments_crud.get_multi(
-        session=session, filters={'company_id': company.id, 'name': object_name}
+    await check_department_name_duplicate(
+        company_id=company.id, department_name=object_name, session=session
     )
-    if departments:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
-        )
     db_object = await company_departments_crud.get_or_404(session, obj_id=department_id)
-    return await company_departments_crud.update(session, db_obj=db_object, obj_in=object_in)
+    update_obj = await company_departments_crud.update(
+        session, db_obj=db_object, obj_in=object_in, auto_commit=False
+    )
+    session.expunge(update_obj)
+    slug = await check_slug_duplicate(db_obj=update_obj, session=session)
+    update_obj.slug = slug
+    session.add(update_obj)
+    await session.commit()
+    await session.refresh(update_obj)
+    return update_obj
 
 
 @router.delete(
@@ -434,14 +438,9 @@ async def create_company_employee(
     Если пользователь уже существует или пароль не соответствует требованиям ответ со статусом 400.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    try:
-        created_user = await user_manager.create(create_data)
-    except UserAlreadyExists:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS
-        )
-    except InvalidPasswordException:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_PASSWORD)
+    await validate_user_not_exists(create_data, user_manager)
+    await validate_password(create_data, user_manager)
+    created_user = await user_manager.create(create_data)
     return created_user
 
 
@@ -453,7 +452,7 @@ async def create_company_employee(
 async def import_employees(
     company_slug: str,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> Sequence[bytes]:
     """
     Импортирует список сотрудников компании.
     Доступно только пользователю-админу компании.
@@ -538,6 +537,7 @@ async def update_company_employee(
     company_slug: str,
     uuid: UUID,
     object_in: CompanyEmployeeUpdateSchema,
+    user_manager: BaseUserManager = Depends(get_user_manager),
     session: AsyncSession = Depends(get_async_session),
 ) -> UserReadSchema:
     """
@@ -584,8 +584,13 @@ async def update_company_employee(
     Если сотрудник не найден ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    db_object = await user_crud.get_or_404(session=session, obj_id=uuid)
-    return await user_crud.update(session=session, db_obj=db_object, obj_in=object_in)
+    await validator_check_object_exists(session, user_crud, object_id=uuid)
+    await validate_user_not_exists(user_data=object_in, user_manager=user_manager)
+    await validate_password(user_data=object_in, user_manager=user_manager)
+    user = await user_manager.get(uuid)
+    user_manager.parse_id
+    user = await user_manager.update(object_in, user)
+    return user
 
 
 @router.delete(
@@ -618,9 +623,24 @@ async def delete_company_employee(
     Если компания или отдел не найдены ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    try:
-        user = await user_manager.get(uuid)
-        await user_manager.delete(user)
-    except UserNotExists:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_USER_NOT_EXISTS)
+    await validator_check_object_exists(session, user_crud, object_id=uuid)
+    user = await user_manager.get(uuid)
+    await user_manager.delete(user)
     return status.HTTP_204_NO_CONTENT
+
+
+@router.post(
+    '/{company_slug}/feedback/',
+    summary='Задать вопрос для обратной связи',
+    response_model=dict[str, str],
+)
+async def post_feedback(
+    company_slug: str,
+    question: EmailCreateSchema,
+    session: AsyncSession = Depends(get_async_session),
+) -> dict[str, str]:
+    """
+    Задать вопрос в разделе 'Помощь'.
+    """
+    # TODO: Подключить почту.
+    return {'message': f'Обратная связь отправлена для компании {company_slug}'}

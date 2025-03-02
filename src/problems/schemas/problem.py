@@ -5,6 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, field_validator
 
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
+from src.problems.validators.problem_validators import validate_not_empty
 
 
 class ProblemBaseSchema(BaseModel):
@@ -31,21 +32,9 @@ class ProblemBaseSchema(BaseModel):
 
     @field_validator('name')
     @classmethod
-    def _validator_not_empty(cls, value: str) -> str:
-        """Проверка, что значение не пустое.
-
-        Назначение:
-            Валидирует, что название проблемы не является пустой строкой.
-        Параметры:
-            value: Значение для валидации.
-        Возвращаемое значение:
-            Проверенное значение.
-        Исключения:
-            ValueError: Если значение пустое.
-        """
-        if value == '':
-            raise ValueError('Name cannot be an empty string')
-        return value
+    def validate_name_not_empty(cls, value: str) -> str:
+        """Проверка, что название проблемы не пустое."""
+        return validate_not_empty(value)
 
 
 class ProblemResponseSchema(ProblemBaseSchema):
@@ -60,6 +49,7 @@ class ProblemResponseSchema(ProblemBaseSchema):
     """
 
     id: int
+    company_id: int
     created_at: datetime
     updated_at: datetime
 
@@ -71,6 +61,7 @@ class ProblemCreateSchema(ProblemBaseSchema):
         Определяет структуру данных для создания новой проблемы.
     """
 
+    company_id: int
     members: Optional[List[UUID]] = Field(exclude=True)
 
 

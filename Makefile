@@ -1,4 +1,4 @@
-.PHONY: up down logs init-migrations apply-migrations reset-db init-db run clean-volumes
+.PHONY: up down up-pgadmin down-pgadmin logs init-migrations apply-migrations reset-db init-db run clean-volumes
 
 # Docker Compose команды
 up:
@@ -7,8 +7,18 @@ up:
 down:
 	docker compose -f infra/docker-compose.local-db.yaml down
 
+up-pgadmin:
+	docker compose -f infra/docker-compose.local-with-pgadmin.yaml up -d
+
+down-pgadmin:
+	docker compose -f infra/docker-compose.local-with-pgadmin.yaml down
+
 logs:
 	docker compose -f infra/docker-compose.local-db.yaml logs -f
+
+# Команда для остановки контейнеров и удаления volumes, связанных с конфигурацией
+down-pgadmin-volumes:
+	docker compose -f infra/docker-compose.local-with-pgadmin.yaml down -v
 
 # Команда для создания миграции
 init-migrations:
@@ -48,3 +58,18 @@ run:
 # Создаст в базе данных суперпользователя.
 create-superuser:
 	python src/main.py -c
+
+fill-db:
+	poetry run python fake_data_factories/fill_db.py
+
+fill-companies:
+	poetry run python fake_data_factories/company_factories.py
+
+fill-company-users:
+	poetry run python fake_data_factories/company_user_factories.py
+
+fill-tabit-admin-users:
+	poetry run python fake_data_factories/tabit_user_factories.py
+
+fill-company-departments:
+	poetry run python fake_data_factories/department_factories.py

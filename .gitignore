@@ -184,6 +184,9 @@ cython_debug/
 #MacOs files
 .DS_Store
 
+# PostgreSQL auth files
+.pgpass
+
 #others
 departments_list.txt
 employees_list.txt
