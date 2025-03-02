@@ -40,7 +40,12 @@ from src.users.schemas import UserUpdateSchema
 
 
 class CompanyUpdateForUserSchema(BaseModel):
-    """Схема для частичного изменения компании пользователем-админом."""
+    """
+    Схема для частичного изменения компании пользователем-админом.
+    Параметры:
+        description: новое описание компании (опционально).
+        logo: логотип (опционально).
+    """
 
     description: Optional[str] = Field(
         None,
@@ -53,7 +58,13 @@ class CompanyUpdateForUserSchema(BaseModel):
 
 
 class CompanyUpdateSchema(CompanyUpdateForUserSchema):
-    """Схема для частичного изменения компании админом сервиса."""
+    """
+    Схема для частичного изменения компании админом сервиса.
+    Параметры:
+        name: новое название компании (опционально).
+        license_id: номер лицензии (опционально).
+        start_license_time: дата начала лицензии (опционально).
+    """
 
     name: Optional[str] = Field(
         None,
@@ -81,7 +92,12 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
 
 
 class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
-    """Схема для создания компании."""
+    """
+    Схема для создания компании.
+    Параметры:
+        name: название компании (обязательно).
+        slug: Короткая строка для пути к эндпоинту компании (формируется программно).
+    """
 
     name: str = Field(
         ...,
@@ -93,7 +109,23 @@ class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
 
 
 class CompanyResponseSchema(BaseModel):
-    """Схема компании для ответов админам сервиса."""
+    """
+    Схема компании для ответов админам сервиса.
+    Параметры:
+        id: идентификатор компании (обязательно).
+        name: название компании (обязательно).
+        description: Описание компании (опционально).
+        logo: логотип (опционально).
+        license_id: номер лицензии (опционально).
+        max_admins_count: максимальное кол-во администраторов (обязательно).
+        max_employees_count: максимальное кол-во сотрудников (обязательно)
+        start_license_time: дата начала лицензии (опционально).
+        end_license_time: дата окончания действия лицензии (опционально).
+        is_active: bool - активна ли лицензия (обязательно).
+        slug: короткая строка для пути к эндпоинту компании (автозаполнение).
+        created_at: дата создания записи в таблице (автозаполнение).
+        updated_at: дата изменения записи в таблице (автозаполнение).
+    """
 
     id: int
     name: str
@@ -113,7 +145,12 @@ class CompanyResponseSchema(BaseModel):
 
 
 class CompanyDepartmentUpdateSchema(BaseModel, GetterSlugMixin):
-    """Схема для обновления данных об отделе."""
+    """
+    Схема для обновления данных об отделе.
+     Параметры:
+        name: новое название отдела (опционально).
+        slug: короткая строка для пути к эндпоинту отдела (автозаполнение).
+    """
 
     name: Optional[str] = Field(
         None,
@@ -127,7 +164,11 @@ class CompanyDepartmentUpdateSchema(BaseModel, GetterSlugMixin):
 
 
 class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
-    """Схема для создания отдела."""
+    """
+    Схема для создания отдела.
+     Параметры:
+        name: название отдела (обязательно).
+    """
 
     name: str = Field(
         ...,
@@ -140,7 +181,14 @@ class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
 
 
 class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
-    """Схема для получения данных отдела."""
+    """
+    Схема для получения данных отдела.
+    Параметры:
+        id: идентификатор отдела (обязательно).
+        name: название отдела (обязательно).
+        slug: короткая строка для пути к эндпоинту отдела (автозаполнение).
+        company_id: идентификатор компании (автозаполнение).
+    """
 
     id: int
     name: str
@@ -161,7 +209,15 @@ class CompanyEmployeeUpdateSchema(UserUpdateSchema):
 
 
 class UserCompanyUpdateSchema(BaseModel):
-    """Схема для редактирования пользователем компании своего профиля."""
+    """
+    Схема для редактирования пользователем компании своего профиля.
+     Параметры:
+        name: новое имя сотрудника (опционально).
+        surname: новая фамилия сотрудника (опционально).
+        phone_number: новый номер телефона сотрудника (опционально).
+        email: новый email сотрудника (опционально).
+        telegram_username: новое имя в Телеграме сотрудника (опционально).
+    """
 
     name: Optional[str] = Field(
         None,
