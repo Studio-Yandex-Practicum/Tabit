@@ -170,6 +170,4 @@ async def delete_license(
         HTTPException: Если лицензия не найдена.
     """
     db_license = await license_type_crud.get_or_404(session=session, obj_id=license_id)
-    print(db_license)
     await license_type_crud.remove(session=session, db_object=db_license)
-    return
