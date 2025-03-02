@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db_depends import get_async_session
+from src.problems.crud.task_crud import task_crud
 from src.problems.models.enums import StatusTask
 from src.problems.schemas.task import (
     TaskCreateSchema,
     TaskResponseSchema,
     TaskUpdateSchema,
 )
-from src.problems.task_crud import task_crud
 
 router = APIRouter()
 

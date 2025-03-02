@@ -32,8 +32,6 @@ class Task(BaseTabitModel):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
         transfer_counter: Счетчик переносов даты решения задач.
 
-        # Это имелось ввиду обьяснение в документации?
-
     Связи (атрибут - Модель):
         owner - UserTabit;
         problem - Problem;
