@@ -236,8 +236,9 @@ async def like_a_comment(
     Доступ только для сотрудников компаний.
     """
     await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
+    comment = await check_comment_and_message_feed(comment_id, thread_id, session)
     await check_comment_has_likes_from_user(user.id, comment_id, session, like_mode=True)
-    comment = await check_comment_owner(comment_id, user.id, session, like_mode=True)
+    await check_comment_owner(comment, user.id, like_mode=True)
     await comment_crud.like(comment, user.id, session)
 
 
@@ -267,6 +268,7 @@ async def unlike_a_comment(
     Доступ только для сотрудников компаний.
     """
     await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
-    comment = await check_comment_owner(comment_id, user.id, session, like_mode=True)
+    comment = await check_comment_and_message_feed(comment_id, thread_id, session)
+    await check_comment_owner(comment, user.id, like_mode=True)
     user_comment_obj = await check_comment_has_likes_from_user(user.id, comment_id, session)
     await comment_crud.unlike(user_comment_obj, comment, session)
