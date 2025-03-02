@@ -1,9 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.validators.meeting_validators import check_problem_exists
+from src.api.v1.validators.problems_validators import check_company_exists
+from src.api.v1.validators.tasks_validators import check_task_exists, check_tasks_exists
 from src.database.db_depends import get_async_session
+from src.problems.crud.task_crud import task_crud
 from src.problems.models.enums import StatusTask
-from src.problems.schemas.task import TaskCreateSchema, TaskResponseSchema, TaskUpdateSchema
+from src.problems.schemas.task import (
+    TaskCreateSchema,
+    TaskResponseSchema,
+    TaskUpdateSchema,
+)
 
 router = APIRouter()
 
@@ -13,34 +21,30 @@ router = APIRouter()
     response_model=list[TaskResponseSchema],
     response_model_exclude_none=True,
     summary='Получить информацию о всех задачах проблемы',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_200_OK,
 )
 async def get_tasks(
-    company_slug: str, problem_id: int, session: AsyncSession = Depends(get_async_session)
-):
-    """Возвращает информацию о всех задачах проблемы"""
-    # TODO: Реализовать получение задач для проблемы из БД
-    task_schema = TaskResponseSchema(
-        **{
-            'id': 1,
-            'name': f'Задача №1 у компании {company_slug}',
-            'problem_id': problem_id,
-            'description': 'Описание задачи #1',
-            'date_completion': '2030-01-01',
-            'owner_id': '3fa85f64-5717-4562-b3fc-2c963f234331',
-            'executor': [
-                '3fa85f64-5717-4562-b3fc-2c963f66afa1',
-                '3fa85f64-5717-4562-b3fc-2c9633333fa1',
-            ],
-            'status': StatusTask.NEW,
-            'transfer_counter': 0,
-            'file': [
-                '/file1.jpg',
-                '/file2.pdf',
-            ],
-        }
-    )
-    return [task_schema] * 2
+    company_slug: str,
+    problem_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> list[TaskResponseSchema]:
+    """
+    Возвращает информацию о всех задачах проблемы.
+
+    Args:
+        company_slug: Уникальный идентификатор компании
+        problem_id: Идентификатор проблемы
+        session: Сессия базы данных
+    Возвращаемое значение:
+        Объект TaskResponseSchema.
+    """
+    await check_company_exists(company_slug, session)
+    await check_problem_exists(problem_id, session)
+    await check_tasks_exists(company_slug, problem_id, session)
+    tasks = await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
+    # if not tasks:
+    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Задачи не найдены')
+    return tasks
 
 
 @router.post(
@@ -48,25 +52,41 @@ async def get_tasks(
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
     summary='Создать новую задачу',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_task(
     task: TaskCreateSchema,
     company_slug: str,
     problem_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
-    """Создает новую задачу"""
-    # TODO: Реализовать создание задачи в БД
-    task_schema = TaskResponseSchema(
-        id=123,
-        problem_id=problem_id,
-        owner_id='3fa85f64-5717-4562-b3fc-2c963f66afa1',
-        status=StatusTask.NEW,
-        transfer_counter=0,
-        **task.model_dump(exclude_none=True),
+) -> TaskResponseSchema:
+    """Создание задачи.
+
+    Назначение:
+        Создаёт задачу.
+    Args:
+        problem_id: ID проблемы.
+        company_slug: Уникальный идентификатор компании.
+        session: Асинхронная сессия SQLAlchemy.
+    Возвращаемое значение:
+        Объект TaskResponseSchema.
+    TODO:
+        1. Заменить фиктивного пользователя на реального:
+           - Использовать `current_user: UserTabit = Depends(get_current_user)`.
+           - Убедиться, что пользователь авторизован и имеет права на создание задачи.
+        2. Добавить проверку прав доступа:
+           - Убедиться, что пользователь имеет доступ к компании и проблеме.
+           - Проверить, что пользователь может создавать задачи в данной компании.
+    """
+    await check_company_exists(company_slug, session)
+    # await check_problem_exists(problem_id, session)
+    task_data = task.model_dump()
+    task_data['owner_id'] = (
+        '3fa85f64-5717-4562-b3fc-2c963f66af66'  # TODO: Заменить на реального пользователя
     )
-    return task_schema
+    task_data['status'] = StatusTask.NEW
+    task_data['problem_id'] = problem_id
+    return await task_crud.create(session, TaskCreateSchema(**task_data))
 
 
 @router.get(
@@ -74,31 +94,30 @@ async def create_task(
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
     summary='Получить информацию о задаче',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_200_OK,
 )
 async def get_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
-    """Получает информацию о задаче"""
-    # TODO: Реализовать получение задачи из БД
-    task_from_db = {
-        'id': task_id,
-        'name': f'Задача №1 у компании {company_slug}',
-        'problem_id': problem_id,
-        'description': 'Описание задачи #1',
-        'date_completion': '2030-01-01',
-        'owner_id': '3fa85f64-5717-4562-b3fc-2c963f234331',
-        'executor': [
-            '3fa85f64-5717-4562-b3fc-2c963f66afa1',
-            '3fa85f64-5717-4562-b3fc-2c9633333fa1',
-        ],
-        'status': StatusTask.NEW,
-        'transfer_counter': 0,
-    }
-    return task_from_db
+) -> TaskResponseSchema:
+    """
+    Получает информацию о задаче.
+
+    Args:
+        company_slug: Уникальный идентификатор компании
+        problem_id: Идентификатор проблемы
+        task_id: Идентификатор задачи
+        session: Сессия базы данных
+
+    Raises:
+        HTTPException: Если задача не найдена
+    """
+    await check_company_exists(company_slug, session)
+    await check_task_exists(task_id, session)
+    # await check_problem_exists(problem_id, session)
+    return await task_crud.get_task_by_id(session, company_slug, problem_id, task_id)  # type: ignore
 
 
 @router.patch(
@@ -106,65 +125,55 @@ async def get_task(
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
     summary='Обновить информацию о задаче',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_200_OK,
 )
 async def update_task(
-    task: TaskUpdateSchema,
+    task_update: TaskUpdateSchema,
     company_slug: str,
     problem_id: int,
     task_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
-    """Обновляет информацию задачи"""
-    # TODO: Реализовать получение задачи из БД
-    task_from_db = {
-        'id': task_id,
-        'name': f'Задача №1 у компании {company_slug}',
-        'problem_id': problem_id,
-        'description': 'Описание задачи #1',
-        'date_completion': '2030-01-01',
-        'owner_id': '3fa85f64-5717-4562-b3fc-2c963f66afa1',
-        'executor': [
-            '3fa85f64-5717-4562-b3fc-2c963f66afa1',
-            '3fa85f64-5717-4562-b3fc-2c9633333fa1',
-        ],
-        'status': StatusTask.NEW,
-        'transfer_counter': 0,
-    }
-    # TODO: Реализовать обновление задачи в БД
-    task_to_update = task.model_dump(exclude_none=True)
-    task_from_db.update(task_to_update)
-    task_schema = TaskResponseSchema(**task_from_db)
-    return task_schema
+) -> TaskResponseSchema:
+    """
+    Обновляет информацию задачи.
+
+    Args:
+        task_update: Данные для обновления
+        company_slug: Уникальный идентификатор компании
+        problem_id: Идентификатор проблемы
+        task_id: Идентификатор задачи
+        session: Сессия базы данных
+        as_object: Если True — возвращает объект Task, иначе TaskResponseSchema
+
+    Returns:
+        Task или TaskResponseSchema (в зависимости от параметра `as_object`)
+
+    Raises:
+        HTTPException: Если задача не найдена
+    """
+    await check_company_exists(company_slug, session)
+    await check_task_exists(task_id, session)
+    task = await task_crud.get_task_by_id(
+        session, company_slug, problem_id, task_id, as_object=True
+    )
+    return await task_crud.update(session, task, task_update)  # type: ignore
 
 
 @router.delete(
     '/{company_slug}/problems/{problem_id}/tasks/{task_id}',
-    response_model=TaskResponseSchema,
-    response_model_exclude_none=True,
     summary='Удалить задачу',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
-    """Удаляет задачу"""
-    # TODO: Реализовать удаление задачи из БД
-    task_from_db = {
-        'id': task_id,
-        'name': f'Задача №1 у компании {company_slug}',
-        'problem_id': problem_id,
-        'description': 'Описание задачи #1',
-        'date_completion': '2030-01-01',
-        'owner_id': '3fa85f64-5717-4562-b3fc-2c963f66afa1',
-        'executor': [
-            '3fa85f64-5717-4562-b3fc-2c963f66afa1',
-            '3fa85f64-5717-4562-b3fc-2c9633333fa1',
-        ],
-        'status': StatusTask.NEW,
-        'transfer_counter': 0,
-    }
-    return TaskResponseSchema(**task_from_db)
+) -> None:
+    """Удаляет задачу."""
+    await check_company_exists(company_slug, session)
+    await check_task_exists(task_id, session)
+    task = await task_crud.get_task_by_id(
+        session, company_slug, problem_id, task_id, as_object=True
+    )
+    await task_crud.remove(session, task)
