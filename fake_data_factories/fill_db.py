@@ -13,7 +13,7 @@ from fake_data_factories.constants import (
 )
 from fake_data_factories.department_factories import create_company_department
 from fake_data_factories.tabit_user_factories import create_tabit_admin_users
-from fake_data_factories.tag_user_factories import create_uset_tag
+from fake_data_factories.tag_user_factories import create_user_tag
 
 
 async def fill_all_data():
@@ -33,7 +33,7 @@ async def fill_all_data():
     companies = await create_companies(count=FAKER_COMPANY_COUNT)
     for company in companies:
         company_users = await create_company_users(count=FAKER_USER_COUNT, company_id=company.id)
-        company_tags = await create_uset_tag(count=USER_TAGS_COUNT, company_id=company.id)
+        company_tags = await create_user_tag(count=USER_TAGS_COUNT, company_id=company.id)
         company_first_tag = company_tags[0]
         await create_company_department(count=FAKER_DEPARTMENT_COUNT, company_id=company.id)
         for user in company_users:

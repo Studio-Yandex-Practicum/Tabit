@@ -29,7 +29,7 @@ class TagUserFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
-async def create_uset_tag(count=USER_TAGS_COUNT, **kwargs):
+async def create_user_tag(count=USER_TAGS_COUNT, **kwargs):
     """
     Функция для наполнения таблицы бд TagUser.
     Если функция запускается напрямую из текущего модуля, для этих департаментов создается
@@ -45,4 +45,4 @@ async def create_uset_tag(count=USER_TAGS_COUNT, **kwargs):
 
 
 if __name__ == '__main__':
-    asyncio.run(create_uset_tag())
+    asyncio.run(create_user_tag())
