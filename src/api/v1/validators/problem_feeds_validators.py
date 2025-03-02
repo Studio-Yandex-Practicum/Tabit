@@ -7,6 +7,7 @@ from src.problems.constants import (
     VALID_LIKE_OWN_COMMENT,
     VALID_NOT_LIKED_COMMENT,
     VALID_REPEATED_LIKE,
+    VALID_WRONG_COMMENT,
     VALID_WRONG_COMPANY,
     VALID_WRONG_MESSAGE_FEED,
     VALID_WRONG_PROBLEM,
@@ -66,8 +67,26 @@ async def check_message_feed_and_problem(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=VALID_WRONG_MESSAGE_FEED)
 
 
+async def check_comment_and_message_feed(
+    comment_id: int, message_feed_id: int, session: AsyncSession
+):
+    """
+    Валидатор, проверяющий принадлежность запрошенного комментария к запрошенному треду.
+
+    Параметры:
+        comment_id: path-параметр, соответствующий id запрашиваемого комментария;
+        message_feed_id: path-параметр, соответствующий id запрашиваемого треда.
+
+    Возвращает объект комментария в случае прохождения проверки.
+    """
+    comment = await comment_crud.get_or_404(session, comment_id)
+    if comment.message_id != message_feed_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=VALID_WRONG_COMMENT)
+    return comment
+
+
 async def check_comment_owner(
-    comment_id: int, user_id: int, session: AsyncSession, like_mode: bool = False
+    comment: CommentFeed, user_id: int, like_mode: bool = False
 ) -> CommentFeed:
     """
     Валидатор, сверяющий автора комментария и текущего пользователя.
@@ -77,14 +96,11 @@ async def check_comment_owner(
         2) False: если текущий пользователь не является автором комментария,то выбрасывается
            ошибка HTTP 403. Нужно для проверки возможности редактирования комментариев.
 
-    Возвращает объект комментария.
-
     Параметры:
-        comment_id: path-параметр, соответствующий id запрашиваемого комментария;
+        comment: объект комментария CommentFeed;
         user_id: UUID пользователя, сделавшего запрос к API;
         like_mode: опциональный параметр, определяет способ применения валидатора.
     """
-    comment = await comment_crud.get_or_404(session, comment_id)
     if like_mode:
         if comment.owner_id == user_id:
             raise HTTPException(
@@ -95,7 +111,6 @@ async def check_comment_owner(
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail=VALID_COMMENT_NOT_OWNER
             )
-    return comment
 
 
 async def get_access_to_feeds(
