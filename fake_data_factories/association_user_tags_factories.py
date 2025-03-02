@@ -18,9 +18,9 @@ class AssociationUserTagsFactory(AsyncSQLAlchemyFactory):
     связывает работника компании(UserTabit) с определенным тегом(TagUser).
 
     Поля:
-    1. left_id: Обязательное, уникальное FK поле на модель UserTabit. Ссылается на конретного
+    1. user_id: Обязательное FK поле на модель UserTabit. Ссылается на конретного
     сотрудника компании.
-    2. right_id: Обязательное, уникальное FK поле на модель TagUser. Ссылается на конкретный тег.
+    2. tag_id: Обязательное FK поле на модель TagUser. Ссылается на конкретный тег.
     """
 
     user_id: UUID
@@ -44,9 +44,9 @@ async def create_user_tag_links(count=USER_TAGS_COUNT, **kwargs):
         company = await CompanyFactory.create()
         company_user = await CompanyUserFactory.create(company_id=company.id)
         company_tags = await TagUserFactory.create_batch(USER_TAGS_COUNT, company_id=company.id)
-        kwargs['left_id'] = company_user.id
+        kwargs['user_id'] = company_user.id
         for tag in company_tags:
-            await AssociationUserTagsFactory.create(right_id=tag.id, **kwargs)
+            await AssociationUserTagsFactory.create(tag_id=tag.id, **kwargs)
     await AssociationUserTagsFactory.create(**kwargs)
     cprint(
         f'Создано 5 тегов компании c id={company.id} и присвоены '
