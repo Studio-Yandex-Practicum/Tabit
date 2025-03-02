@@ -7,13 +7,16 @@ import pytest
 import pytest_asyncio
 from fastapi_users.password import PasswordHelper
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import NullPool
+from sqlalchemy import NullPool, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.companies.models.models import Company
 from src.database.db_depends import get_async_session
 from src.database.models import BaseTabitModel as Base
 from src.main import app_v1
+from src.problems.crud import comment_crud
+from src.problems.models import CommentFeed, MessageFeed, Problem
+from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.tabit_management.models import LicenseType, TabitAdminUser
 from src.users.models import UserTabit
 from src.users.models.enum import RoleUserTabit
@@ -127,9 +130,7 @@ async def company_for_test(async_session):
 
 @pytest_asyncio.fixture
 async def administrator_tabit(async_session):
-
     async def _create_administrator_tabit(administrator_data=False):
-
         default_data = {
             'name': 'Ип',
             'surname': 'Ман',
@@ -320,3 +321,216 @@ async def employee_refresh_token(get_token_for_user, employee):
     Фикстура для получения заголовков авторизации пользователя от компании c refresh-token.
     """
     return await get_token_for_user(employee, refresh=True)
+
+
+# Фикстуры для тестов problem_feeds.py
+@pytest_asyncio.fixture
+async def company_1(company_for_test):
+    """Фикстура для создания компании №1 в таблице company."""
+    return await company_for_test({'name': 'Zorg', 'slug': 'Zorg', 'is_active': True})
+
+
+@pytest_asyncio.fixture
+async def company_2(company_for_test):
+    """Фикстура для создания компании №2 в таблице company."""
+    return await company_for_test(
+        {'name': 'Anaheim Electronics', 'slug': 'Anaheim_Electronics', 'is_active': True}
+    )
+
+
+@pytest_asyncio.fixture
+async def employee_1_company_1(async_session: AsyncSession, company_1):
+    """
+    Фикстура для создания пользователя 1 от компании 1 в таблице tabitadminuser.
+    """
+
+    user = {
+        'name': 'Брюс',
+        'surname': 'Ли',
+        'email': 'mail1@yandex.ru',
+        'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
+        'is_active': True,
+        'is_superuser': False,
+        'is_verified': False,
+        'role': RoleUserTabit.EMPLOYEE,
+        'company_id': company_1.id,
+    }
+
+    return await make_entry_in_table(async_session, user, UserTabit)
+
+
+@pytest_asyncio.fixture
+async def employee_2_company_1(async_session: AsyncSession, company_1):
+    """
+    Фикстура для создания пользователя 1 от компании 1 в таблице tabitadminuser.
+    """
+
+    user = {
+        'name': 'Ким',
+        'surname': 'Кицураги',
+        'email': 'mail2@yandex.ru',
+        'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
+        'is_active': True,
+        'is_superuser': False,
+        'is_verified': False,
+        'role': RoleUserTabit.EMPLOYEE,
+        'company_id': company_1.id,
+    }
+
+    return await make_entry_in_table(async_session, user, UserTabit)
+
+
+@pytest_asyncio.fixture
+async def employee_3_company_2(async_session: AsyncSession, company_2):
+    """
+    Фикстура для создания пользователя 1 от компании 1 в таблице tabitadminuser.
+    """
+
+    user = {
+        'name': 'Нейтан',
+        'surname': 'Дрейк',
+        'email': 'mail3@yandex.ru',
+        'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
+        'is_active': True,
+        'is_superuser': False,
+        'is_verified': False,
+        'role': RoleUserTabit.EMPLOYEE,
+        'company_id': company_2.id,
+    }
+
+    return await make_entry_in_table(async_session, user, UserTabit)
+
+
+@pytest_asyncio.fixture
+async def employee_1_company_1_token(get_token_for_user, employee_1_company_1):
+    """
+    Фикстура для получения заголовков авторизации пользователя 2 от компании 1 c access-token.
+    """
+    return await get_token_for_user(employee_1_company_1)
+
+
+@pytest_asyncio.fixture
+async def employee_2_company_1_token(get_token_for_user, employee_2_company_1):
+    """
+    Фикстура для получения заголовков авторизации пользователя 2 от компании 1 c access-token.
+    """
+    return await get_token_for_user(employee_2_company_1)
+
+
+@pytest_asyncio.fixture
+async def employee_3_company_2_token(get_token_for_user, employee_3_company_2):
+    """
+    Фикстура для получения заголовков авторизации пользователя 3 от компании 2 c access-token.
+    """
+    return await get_token_for_user(employee_3_company_2)
+
+
+@pytest_asyncio.fixture
+async def problem_1(async_session, company_1, employee_1_company_1):
+    """
+    Фикстура для создания проблемы 1 от пользователя 1 компании 1.
+    """
+    problem_data = {
+        'name': 'проблема 1',
+        'description': 'описание проблемы 1',
+        'color': ColorProblem.RED,
+        'type': TypeProblem.B,
+        'status': StatusProblem.NEW,
+        'owner_id': employee_1_company_1.id,
+        'company_id': company_1.id,
+    }
+    return await make_entry_in_table(async_session, problem_data, Problem)
+
+
+@pytest_asyncio.fixture
+async def problem_2(async_session, company_2, employee_3_company_2):
+    """
+    Фикстура для создания проблемы 1 от пользователя 1 компании 1.
+    """
+    problem_data = {
+        'name': 'проблема 2',
+        'description': 'описание проблемы 2',
+        'color': ColorProblem.RED,
+        'type': TypeProblem.B,
+        'status': StatusProblem.NEW,
+        'owner_id': employee_3_company_2.id,
+        'company_id': company_2.id,
+    }
+    return await make_entry_in_table(async_session, problem_data, Problem)
+
+
+@pytest_asyncio.fixture
+async def message_feed_1(async_session, problem_1, employee_1_company_1):
+    """
+    Фикстура для создания треда 1 для проблемы 1.
+    """
+    message_feed_data = {
+        'problem_id': problem_1.id,
+        'owner_id': employee_1_company_1.id,
+        'text': 'текст треда 1',
+        'important': True,
+    }
+    return await make_entry_in_table(async_session, message_feed_data, MessageFeed)
+
+
+@pytest_asyncio.fixture
+async def message_feed_2(async_session, problem_2, employee_3_company_2):
+    """
+    Фикстура для создания треда 1 для проблемы 1.
+    """
+    message_feed_data = {
+        'problem_id': problem_2.id,
+        'owner_id': employee_3_company_2.id,
+        'text': 'текст треда 2',
+        'important': True,
+    }
+    return await make_entry_in_table(async_session, message_feed_data, MessageFeed)
+
+
+@pytest_asyncio.fixture
+async def ten_message_feeds(async_session: AsyncSession, problem_1, employee_1_company_1):
+    """Фикстура для создания списка тредов."""
+    message_feed_data = [
+        MessageFeed(problem_id=problem_1.id, owner_id=employee_1_company_1.id, text=f'тред {i}')
+        for i in range(10)
+    ]
+    async_session.add_all(message_feed_data)
+    await async_session.commit()
+    result = await async_session.execute(select(MessageFeed))
+    return result.all()
+
+
+@pytest_asyncio.fixture
+async def comment_1(async_session, message_feed_1, employee_1_company_1):
+    """
+    Фикстура для создания комментария 1 к треду 1 от пользователя 1
+    """
+    comment_data = {
+        'text': 'текст комментария 1',
+        'message_id': message_feed_1.id,
+        'owner_id': employee_1_company_1.id,
+    }
+    return await make_entry_in_table(async_session, comment_data, CommentFeed)
+
+
+@pytest_asyncio.fixture
+async def liked_comment_1(async_session, employee_2_company_1, comment_1):
+    """Фикстура для лайка комментария comment_1."""
+    await comment_crud.like(comment_1, employee_2_company_1.id, async_session)
+    await async_session.refresh(comment_1)
+    return comment_1
+
+
+@pytest_asyncio.fixture
+async def ten_comments(async_session: AsyncSession, message_feed_1, employee_1_company_1):
+    """Фикстура для создания списка комментариев."""
+    comments_data = [
+        CommentFeed(
+            message_id=message_feed_1.id, owner_id=employee_1_company_1.id, text=f'текст {i}'
+        )
+        for i in range(10)
+    ]
+    async_session.add_all(comments_data)
+    await async_session.commit()
+    result = await async_session.execute(select(CommentFeed))
+    return result.all()
