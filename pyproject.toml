@@ -47,7 +47,6 @@ pytest-postgresql = "^6.1.1"
 termcolor = "^2.5.0"
 factory-boy = "^3.3.3"
 async-factory-boy = "^1.0.1"
-pytest-cov = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]
