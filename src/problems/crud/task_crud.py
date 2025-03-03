@@ -159,30 +159,44 @@ class CRUDTask(CRUDBase):
     async def update(
         self,
         session: AsyncSession,
-        db_obj: Task,
+        task_id: int,
         obj_in: TaskUpdateSchema,
+        company_slug: str,
+        problem_id: int,
         auto_commit: bool = DEFAULT_AUTO_COMMIT,
     ) -> TaskResponseSchema:
         """Обновляет задачу.
 
         Args:
             session: Асинхронная сессия SQLAlchemy.
-            db_obj: Объект задачи для обновления.
+            task_id: Идентификатор задачи для обновления.
             obj_in: Данные для обновления задачи.
+            company_slug: Уникальный идентификатор компании.
+            problem_id: Идентификатор проблемы.
             auto_commit: Автоматически коммитить изменения (по умолчанию True).
 
         Returns:
             TaskResponseSchema: Обновлённая задача.
 
         Raises:
-            HTTPException: Если произошла ошибка при обновлении задачи.
+            HTTPException: Если задача не найдена или произошла ошибка при обновлении.
         """
         try:
+            db_obj = await self.get_task_by_id(
+                session, company_slug, problem_id, task_id, as_object=True
+            )
+            if not db_obj:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Задача не найдена",
+                )
             old_date_completion = db_obj.date_completion
             update_data = obj_in.model_dump(exclude_unset=True)
             executors_data = update_data.pop('executors', None)
+            # Обновляем поля задачи
             for field, value in update_data.items():
                 setattr(db_obj, field, value)
+            # Обновляем исполнителей
             if executors_data is not None:
                 await session.execute(
                     delete(AssociationUserTask).where(AssociationUserTask.right_id == db_obj.id)
@@ -197,7 +211,6 @@ class CRUDTask(CRUDBase):
                 await session.commit()
                 await session.refresh(db_obj)
             return TaskResponseSchema.model_validate(db_obj)
-
         except IntegrityError as e:
             await session.rollback()
             logger.error(f'{TEXT_ERROR_UNIQUE_UPDATE_LOG} {self.model.__name__}: {e}')

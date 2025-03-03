@@ -244,7 +244,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id', 'left_id', 'right_id'),
     sa.UniqueConstraint('id')
     )
-    op.create_table('associationusertask',
+    op.create_table('associationusertask',  # Теперь id автоинкрементный
     sa.Column('id', sa.Integer(), nullable=False, autoincrement=True),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
@@ -252,8 +252,8 @@ def upgrade() -> None:
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['left_id'], ['usertabit.id']),
     sa.ForeignKeyConstraint(['right_id'], ['task.id']),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('left_id', 'right_id')
+    sa.PrimaryKeyConstraint('id'),  # Теперь id - главный ключ
+    sa.UniqueConstraint('left_id', 'right_id')  # Уникальность связки user-task
     )
     op.create_table('commentfeed',
     sa.Column('id', sa.Integer(), nullable=False),
