@@ -185,11 +185,6 @@ class CRUDTask(CRUDBase):
             db_obj = await self.get_task_by_id(
                 session, company_slug, problem_id, task_id, as_object=True
             )
-            if not db_obj:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Задача не найдена",
-                )
             old_date_completion = db_obj.date_completion
             update_data = obj_in.model_dump(exclude_unset=True)
             executors_data = update_data.pop('executors', None)
