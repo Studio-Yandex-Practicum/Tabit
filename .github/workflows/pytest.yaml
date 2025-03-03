@@ -29,7 +29,14 @@ jobs:
         run: |
           poetry install
 
+      - name: Create .env file from secret
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+        shell: bash
+
       - name: Run tests with coverage
+        env:
+          ENV_FILE: .env
         run: |
           poetry run pytest --cov=src --cov-report=html --cov-report=term-missing
 
