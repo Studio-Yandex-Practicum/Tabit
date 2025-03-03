@@ -213,5 +213,22 @@ class CRUDTask(CRUDBase):
                 detail=TEXT_ERROR_SERVER_UPDATE,
             )
 
+    async def delete_task(self, session: AsyncSession, task_id: int) -> None:
+        """
+            Удаляет задачу из базы данных по её ID.
+            Перед удалением проверяет существование задачи.
+
+        Args:
+            session: Асинхронная сессия SQLAlchemy.
+            problem_id: ID проблемы.
+            company_slug: Уникальный идентификатор компании.
+            task_id: ID задачи.
+
+        Returns:
+            None
+        """
+        db_obj = await self.get_or_404(session, task_id)
+        await self.remove(session, db_obj)
+
 
 task_crud = CRUDTask(Task)

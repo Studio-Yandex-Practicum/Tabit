@@ -51,7 +51,7 @@ class Task(BaseTabitModel):
         back_populates='task', cascade='all, delete-orphan'
     )
     status: Mapped['StatusTask']
-    transfer_counter: Mapped[int_zero]  # Добавлено поле transfer_counter
+    transfer_counter: Mapped[int_zero]
     file: Mapped[List['FileTask']] = relationship(
         back_populates='task', cascade='all, delete-orphan'
     )

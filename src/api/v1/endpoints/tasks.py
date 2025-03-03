@@ -41,10 +41,7 @@ async def get_tasks(
     await check_company_exists(company_slug, session)
     await check_problem_exists(problem_id, session)
     await check_tasks_exists(company_slug, problem_id, session)
-    tasks = await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
-    # if not tasks:
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Задачи не найдены')
-    return tasks
+    return await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
 
 
 @router.post(
@@ -79,7 +76,7 @@ async def create_task(
            - Проверить, что пользователь может создавать задачи в данной компании.
     """
     await check_company_exists(company_slug, session)
-    # await check_problem_exists(problem_id, session)
+    await check_problem_exists(problem_id, session)
     task_data = task.model_dump()
     task_data['owner_id'] = (
         '3fa85f64-5717-4562-b3fc-2c963f66af66'  # TODO: Заменить на реального пользователя
@@ -116,7 +113,7 @@ async def get_task(
     """
     await check_company_exists(company_slug, session)
     await check_task_exists(task_id, session)
-    # await check_problem_exists(problem_id, session)
+    await check_problem_exists(problem_id, session)
     return await task_crud.get_task_by_id(session, company_slug, problem_id, task_id)  # type: ignore
 
 
@@ -153,6 +150,7 @@ async def update_task(
     """
     await check_company_exists(company_slug, session)
     await check_task_exists(task_id, session)
+    await check_problem_exists(problem_id, session)
     task = await task_crud.get_task_by_id(
         session, company_slug, problem_id, task_id, as_object=True
     )
@@ -173,7 +171,5 @@ async def delete_task(
     """Удаляет задачу."""
     await check_company_exists(company_slug, session)
     await check_task_exists(task_id, session)
-    task = await task_crud.get_task_by_id(
-        session, company_slug, problem_id, task_id, as_object=True
-    )
-    await task_crud.remove(session, task)
+    await check_problem_exists(problem_id, session)
+    await task_crud.delete_task(session, task_id)

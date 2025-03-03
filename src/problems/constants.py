@@ -17,9 +17,9 @@ ERROR_DATE_MEETING_ALREADY_IN_USE = 'Дата встречи уже занята
 
 # Константы к валидаторам (Task)
 ERROR_TASK_NAME_EMPTY = 'Название задачи не может быть пустым'
-ERROR_MEETING_TITLE_ALREADY_IN_USE = 'Такое название задачи уже используется'
 ERROR_EXECUTORS_MUST_BE_UUID_FORMAT = 'Исполнители должны быть в формате UUID'
 ERROR_TASK_FOR_PROBLEM_NOT_FOUND = 'Задач для проблем нет'
+ERROR_DATE_SHOULD_BE_FUTURE = 'Дата должна быть в будущем'
 
 
 # Константы к схемам
