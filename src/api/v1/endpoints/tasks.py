@@ -114,12 +114,7 @@ async def get_task(
     await check_company_exists(company_slug, session)
     await check_task_exists(task_id, session)
     await check_problem_exists(problem_id, session)
-    return await task_crud.get_task_by_id(
-        session,
-        company_slug,
-        problem_id,
-        task_id
-    )  # type: ignore
+    return await task_crud.get_task_by_id(session, company_slug, problem_id, task_id)  # type: ignore
 
 
 @router.patch(
