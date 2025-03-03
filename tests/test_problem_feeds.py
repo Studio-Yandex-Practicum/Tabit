@@ -225,20 +225,67 @@ class TestGetProblemFeed:
             'Рейтинг комментария не должен меняться при неуспешном анлайке'
         )
 
-    # написать тесты для проверки лайка/анлайка комментария при несовпадании
-    # message_id комментария и message_feed_id в запросе
-    # @pytest.mark.asyncio
-    # @pytest.mark.usefixtures('message_feed_1', 'message_feed_3')
-    # async def test_comment_like_with_wrong_message_feed_id(
-    #     self,
-    #     async_session: AsyncSession,
-    #     client: AsyncClient,
-    #     employee_2_company_1_token,
-    #     comment_1
-    # ):
-    #     old_rating = comment_1.rating
-    #     response = await client.get(URL.LIKE_BAD_URL, headers=employee_2_company_1_token)
-    #     assert response.status_code ==
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures('message_feed_1', 'message_feed_3')
+    async def test_comment_like_with_wrong_message_feed_id(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_2_company_1,
+        employee_2_company_1_token,
+        comment_1,
+    ):
+        """
+        Тест для проверки неуспешного лайка существующего комментария, но в запросе передаётся
+        некорректный message_feed_id/thread_id.
+        """
+        old_rating = comment_1.rating
+        response = await client.get(URL.LIKE_BAD_URL, headers=employee_2_company_1_token)
+        assert response.status_code == status.HTTP_404_NOT_FOUND, (
+            f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
+            f'получен {response.status_code}'
+        )
+        await async_session.refresh(comment_1)
+        assert comment_1.rating == old_rating, (
+            'Рейтинг комментария не должен меняться при неуспешном лайке.'
+        )
+        association_obj = await user_comment_association_crud.get(
+            comment_1.id, employee_2_company_1.id, async_session
+        )
+        assert association_obj is None, (
+            'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures('message_feed_1', 'message_feed_3')
+    async def test_comment_unlike_with_wrong_message_feed_id(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_2_company_1,
+        employee_2_company_1_token,
+        liked_comment_1,
+    ):
+        """
+        Тест для проверки неуспешного анлайка существующего комментария, но в запросе передаётся
+        некорректный message_feed_id/thread_id.
+        """
+        old_rating = liked_comment_1.rating
+        response = await client.get(URL.UNLIKE_BAD_URL, headers=employee_2_company_1_token)
+        assert response.status_code == status.HTTP_404_NOT_FOUND, (
+            f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
+            f'получен {response.status_code}'
+        )
+        await async_session.refresh(liked_comment_1)
+        assert liked_comment_1.rating == old_rating, (
+            'Рейтинг комментария не должен меняться при неуспешном анлайке.'
+        )
+        association_obj = await user_comment_association_crud.get(
+            liked_comment_1.id, employee_2_company_1.id, async_session
+        )
+        assert association_obj is not None, (
+            'При неуспешном анлайке не должна удаляться запись в ассоциативной таблице.'
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.usefixtures('comment_1')
@@ -485,7 +532,7 @@ class TestPostProblemFeed:
         )
 
 
-class TestPacthProblemFeed:
+class TestPatchProblemFeed:
     """Класс для тестов PATCH-эндпоинтов problem_feeds.py"""
 
     @pytest.mark.asyncio
@@ -554,8 +601,31 @@ class TestPacthProblemFeed:
         await async_session.refresh(comment_1)
         assert comment_1 == old_comment_1, 'Данные обновляемого комментария изменились'
 
-    # написать тесты для проверки редактирования комментария при несовпадании
-    # message_id комментария и message_feed_id в запросе
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures('message_feed_1', 'message_feed_3')
+    async def test_patch_comment_with_wrong_message_feed_id(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_1_company_1_token,
+        comment_1,
+    ):
+        """
+        Тест для проверки неуспешного редактирования комментария, но в запросе передаётся
+        некорректный message_feed_id/thread_id.
+        """
+        old_comment_1 = comment_1
+        response = await client.patch(
+            URL.COMMENTS_PATCH_DELETE_BAD_URL,
+            headers=employee_1_company_1_token,
+            json=COMMENT_UPDATE,
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND, (
+            f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
+            f'получен {response.status_code}'
+        )
+        await async_session.refresh(comment_1)
+        assert comment_1 == old_comment_1, 'Данные обновляемого комментария изменились'
 
     @pytest.mark.asyncio
     async def test_404_patch_urls(self, client: AsyncClient, employee_1_company_1_token):
@@ -615,6 +685,31 @@ class TestDeleteProblemFeeds:
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
             f'В ответе ожидается status_code {status.HTTP_403_FORBIDDEN}, '
+            f'получен {response.status_code}'
+        )
+        new_comments_count = await async_session.execute(select(CommentFeed))
+        new_comments_count = len(new_comments_count.all())
+        assert new_comments_count == old_comments_count, (
+            f'Количество объектов CommentFeed должно равняться {old_comments_count}. '
+            f'Текущее количество - {new_comments_count}.'
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures('message_feed_1', 'message_feed_3')
+    async def test_delete_comment_with_wrong_message_feed_id(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_1_company_1_token,
+    ):
+        old_comments_count = await async_session.execute(select(CommentFeed))
+        old_comments_count = len(old_comments_count.all())
+        response = await client.delete(
+            URL.COMMENTS_PATCH_DELETE_BAD_URL,
+            headers=employee_1_company_1_token,
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND, (
+            f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
         )
         new_comments_count = await async_session.execute(select(CommentFeed))

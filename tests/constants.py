@@ -22,10 +22,12 @@ class URL:
     COMMENTS_URL: str = '/api/v1/Zorg/problems/1/1/comments'
     COMMENTS_WRONG_MESSAGE_FEED_URL: str = '/api/v1/Zorg/problems/1/2/comments'
     COMMENTS_PATCH_DELETE_URL: str = '/api/v1/Zorg/problems/1/1/comments/1'
+    COMMENTS_PATCH_DELETE_BAD_URL: str = '/api/v1/Zorg/problems/1/2/comments/1'
     COMMENTS_PATCH_DELETE_404_URL: str = '/api/v1/Zorg/problems/1/1/comments/99'
     LIKE_URL: str = '/api/v1/Zorg/problems/1/1/comments/1/like'
     LIKE_BAD_URL: str = '/api/v1/Zorg/problems/1/2/comments/1/like'
     UNLIKE_URL: str = '/api/v1/Zorg/problems/1/1/comments/1/unlike'
+    UNLIKE_BAD_URL: str = '/api/v1/Zorg/problems/1/2/comments/1/unlike'
 
 
 GOOD_PASSWORD: str = 'string123STRING'
