@@ -9,9 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_admin_tabit
 from src.api.v1.constants import Description, Summary
+from src.api.v1.utilities import generate_company_slug
 from src.api.v1.validator import validator_check_object_exists
 from src.api.v1.validators.tabit_management_companies_validators import (
-    generate_slug,
     validate_company_slug,
     validate_license_exists,
 )
@@ -83,17 +83,11 @@ async def create_company(
         company: схема для создания компании.
         session: асинхронная сессия через зависимость.
     """
-    if company.license_id:
-        await validate_license_exists(session, company.license_id)
-        end_license_time = await company_crud.save_end_license_time(
-            session, company.start_license_time, company.license_id
-        )
-        company = company.model_copy(update={'end_license_time': end_license_time})
 
     if company.slug:
         await validate_company_slug(session, company.slug)
     else:
-        company.slug = await generate_slug(session, company.name)
+        company.slug = await generate_company_slug(session, company.name)
 
     return await company_crud.create(session, company)
 

@@ -1,7 +1,4 @@
-import random
-
 from fastapi import HTTPException, status
-from slugify import slugify
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.companies.crud import company_crud
@@ -21,22 +18,6 @@ async def validate_company_slug(session: AsyncSession, slug: str) -> None:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Компания с таким slug '{slug}' уже существует.",
         )
-
-
-async def generate_slug(session: AsyncSession, name: str) -> str:
-    """
-    Генерирует уникальный slug из имени компании. Если сгенерированный slug уже существует в БД,
-    добавляет случайное число в конец и повторяет проверку.
-
-    :param session: Асинхронная сессия SQLAlchemy
-    :param name: Название компании, из которого создается slug
-    :return: Уникальный slug
-    """
-    new_slug = slugify(name)
-    while await company_crud.is_company_slug_exists(session, new_slug):
-        new_slug = f'{slugify(name)}-{random.randint(1000, 9999)}'
-
-    return new_slug
 
 
 async def validate_license_exists(session: AsyncSession, license_id: int) -> None:

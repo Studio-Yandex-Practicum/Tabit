@@ -2,8 +2,10 @@
 Модуль валидаторов приложения companies.
 """
 
-from datetime import datetime
-from typing import Optional
+import re
+from typing import Optional, Self
+
+from pydantic import HttpUrl
 
 from src.companies.constants import (
     TEST_ERROR_INVALID_CHARACTERS_NAME,
@@ -11,6 +13,7 @@ from src.companies.constants import (
     TEST_ERROR_LICENSE_FIELDS,
     TEST_ERROR_UNIQUE_NAME_SURNAME,
 )
+from src.tabit_management.constants import ERROR_FIELD_START_OR_END_SPACE
 
 
 def validate_name_surname_unique(name: Optional[str], surname: Optional[str]) -> None:
@@ -50,31 +53,6 @@ def validate_surname_characters(surname: Optional[str]) -> None:
     """
     if surname and not surname.isalpha():
         raise ValueError(TEST_ERROR_INVALID_CHARACTERS_SURNAME)
-
-
-def validate_license_fields(
-    license_id: Optional[int], start_license_time: Optional[datetime]
-) -> None:
-    """
-    Проверяет, что поля лицензии либо оба заполнены, либо оба пусты.
-    Args:
-        license_id: Optional[int]: номер лицензии.
-        start_license_time Optional[datetime]: время начала лицензии.
-    Raises:
-        ValueError: одно поле заполнено, а второе нет,
-        вызывается ошибка.
-    """
-    if not (
-        all((license_id, start_license_time)) or all((not license_id, not start_license_time))
-    ):
-        raise ValueError(TEST_ERROR_LICENSE_FIELDS)
-import re
-from typing import Optional, Self
-
-from pydantic import HttpUrl
-
-from src.companies.constants import TEST_ERROR_LICENSE_FIELDS
-from src.tabit_management.constants import ERROR_FIELD_START_OR_END_SPACE
 
 
 def validate_slug(slug: Optional[str]) -> Optional[str]:

@@ -5,7 +5,6 @@
 from datetime import datetime
 from typing import Literal, Optional, Self
 
-from fastapi_users.schemas import BaseUserUpdate
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -19,9 +18,6 @@ from pydantic_extra_types.phone_numbers import PhoneNumber
 from src.companies.constants import (
     FILTER_NAME_DESCRIPTION,
     SORTING_DESCRIPTION,
-    TEST_ERROR_INVALID_CHARACTERS_NAME,
-    TEST_ERROR_INVALID_CHARACTERS_SURNAME,
-    TEST_ERROR_UNIQUE_NAME_SURNAME,
     TITLE_LICENSE_ID_COMPANY,
     TITLE_LOGO_COMPANY,
     TITLE_NAME_COMPANY,
@@ -33,13 +29,10 @@ from src.companies.constants import (
 from src.companies.validators.company_validators import (
     check_license_fields_none,
     validate_logo,
-    validate_slug,
-    validate_string,
-)
-from src.companies.validators.company_validators import (
-    validate_license_fields,
     validate_name_characters,
     validate_name_surname_unique,
+    validate_slug,
+    validate_string,
     validate_surname_characters,
 )
 from src.constants import (
@@ -87,6 +80,7 @@ class CompanyUpdateForUserSchema(BaseModel):
     @field_validator('description', mode='after', check_fields=False)
     @classmethod
     def validate_description(cls, value: str):
+        """Проверяет поле description на наличие пробелов в начале или конце."""
         return validate_string(value)
 
 
@@ -118,10 +112,12 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
     @field_validator('name', mode='after', check_fields=False)
     @classmethod
     def validate_name(cls, value: str):
+        """Проверяет поле name на наличие пробелов в начале или конце."""
         return validate_string(value)
 
     @model_validator(mode='after')
     def validate_license_fields(self) -> Self:
+        """Проверяет корректность заполнения полей лицензии."""
         return check_license_fields_none(self)
 
 
