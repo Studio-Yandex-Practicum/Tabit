@@ -24,6 +24,7 @@ class URL:
     COMMENTS_PATCH_DELETE_URL: str = '/api/v1/Zorg/problems/1/1/comments/1'
     COMMENTS_PATCH_DELETE_404_URL: str = '/api/v1/Zorg/problems/1/1/comments/99'
     LIKE_URL: str = '/api/v1/Zorg/problems/1/1/comments/1/like'
+    LIKE_BAD_URL: str = '/api/v1/Zorg/problems/1/2/comments/1/like'
     UNLIKE_URL: str = '/api/v1/Zorg/problems/1/1/comments/1/unlike'
 
 

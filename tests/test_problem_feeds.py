@@ -227,6 +227,18 @@ class TestGetProblemFeed:
 
     # написать тесты для проверки лайка/анлайка комментария при несовпадании
     # message_id комментария и message_feed_id в запросе
+    # @pytest.mark.asyncio
+    # @pytest.mark.usefixtures('message_feed_1', 'message_feed_3')
+    # async def test_comment_like_with_wrong_message_feed_id(
+    #     self,
+    #     async_session: AsyncSession,
+    #     client: AsyncClient,
+    #     employee_2_company_1_token,
+    #     comment_1
+    # ):
+    #     old_rating = comment_1.rating
+    #     response = await client.get(URL.LIKE_BAD_URL, headers=employee_2_company_1_token)
+    #     assert response.status_code ==
 
     @pytest.mark.asyncio
     @pytest.mark.usefixtures('comment_1')

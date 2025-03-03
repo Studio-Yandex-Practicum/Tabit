@@ -488,6 +488,20 @@ async def message_feed_2(async_session, problem_2, employee_3_company_2):
 
 
 @pytest_asyncio.fixture
+async def message_feed_3(async_session, problem_1, employee_1_company_1):
+    """
+    Фикстура для создания треда 3 для проблемы 1.
+    """
+    message_feed_data = {
+        'problem_id': problem_1.id,
+        'owner_id': employee_1_company_1.id,
+        'text': 'текст треда 3',
+        'important': True,
+    }
+    return await make_entry_in_table(async_session, message_feed_data, MessageFeed)
+
+
+@pytest_asyncio.fixture
 async def ten_message_feeds(async_session: AsyncSession, problem_1, employee_1_company_1):
     """Фикстура для создания списка тредов."""
     message_feed_data = [
