@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.v1.auth.dependencies import current_admin_tabit
 from src.api.v1.constants import Description, Summary
 from src.api.v1.validator import validator_check_object_exists
+from src.api.v1.validators.company_validators import check_slug_duplicate
 from src.companies.crud import company_crud
 from src.companies.schemas import (
     CompanyCreateSchema,
@@ -72,7 +73,14 @@ async def create_company(
         company: схема для создания компании.
         session: асинхронная сессия через зависимость.
     """
-    return await company_crud.create(session, company)
+    db_obj = await company_crud.create(session, company, auto_commit=False)
+    session.expunge(db_obj)
+    slug = await check_slug_duplicate(db_obj=db_obj, session=session)
+    db_obj.slug = slug
+    session.add(db_obj)
+    await session.commit()
+    await session.refresh(db_obj)
+    return db_obj
 
 
 @router.patch(
@@ -102,7 +110,14 @@ async def update_company(
         session: асинхронная сессия через зависимость.
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    return await company_crud.update(session, company, object_in)
+    update_obj = await company_crud.update(session, company, object_in, auto_commit=False)
+    session.expunge(update_obj)
+    slug = await check_slug_duplicate(db_obj=update_obj, session=session)
+    update_obj.slug = slug
+    session.add(update_obj)
+    await session.commit()
+    await session.refresh(update_obj)
+    return update_obj
 
 
 @router.delete(
