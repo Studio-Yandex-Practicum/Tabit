@@ -1,10 +1,12 @@
 import uuid
 
 import pytest
+from fastapi import status
 from httpx import AsyncClient
 
 from src.constants import LENGTH_NAME_USER
 from src.tabit_management.constants import DEFAULT_PAGE_SIZE
+from tests.constants import URL
 
 
 def generate_license_data():
@@ -23,12 +25,12 @@ class TestCreateLicense:
         """Тест успешного создания лицензии.
 
         Проверяет, что API корректно создаёт лицензию при передаче валидных данных.
-        Убедимся, что ответ содержит правильные значения и API возвращает статус-код 201.
+        Убедимся, что ответ содержит правильные значения и API возвращает статус-код 201
         """
         license_data = generate_license_data()
-        response = await client.post('/api/v1/admin/licenses/', json=license_data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=license_data)
 
-        assert response.status_code == 201
+        assert response.status_code == status.HTTP_201_CREATED
         result = response.json()
 
         assert result['name'] == license_data['name']
@@ -47,7 +49,7 @@ class TestCreateLicense:
         duplicate_data = generate_license_data()
         duplicate_data['name'] = new_license.name
 
-        response = await client.post('/api/v1/admin/licenses/', json=duplicate_data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=duplicate_data)
 
         assert response.status_code == 400
         result = response.json()
@@ -64,9 +66,9 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['name']
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'name']
@@ -82,9 +84,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = 11
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'name']
@@ -100,9 +102,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = ''
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'name']
@@ -118,9 +120,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = 'A' * (LENGTH_NAME_USER + 1)
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'name']
@@ -136,9 +138,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = ' пробелы '
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'name']
@@ -156,9 +158,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = '1Y1S'
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'license_term']
@@ -177,9 +179,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = 360
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 201
+        assert response.status_code == status.HTTP_201_CREATED
         result = response.json()
 
         assert 'license_term' in result
@@ -195,9 +197,9 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['license_term']
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'license_term']
@@ -213,9 +215,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = -11
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'license_term']
@@ -230,9 +232,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = 0
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'license_term']
@@ -248,9 +250,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_admins_count'] = 0
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'max_admins_count']
@@ -266,9 +268,9 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['max_admins_count']
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'max_admins_count']
@@ -284,9 +286,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_admins_count'] = 'true'
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'max_admins_count']
@@ -304,9 +306,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_employees_count'] = 0
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'max_employees_count']
@@ -322,9 +324,9 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['max_employees_count']
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'max_employees_count']
@@ -340,9 +342,9 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_employees_count'] = 'true'
 
-        response = await client.post('/api/v1/admin/licenses/', json=data)
+        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
 
         assert result['detail'][0]['loc'] == ['body', 'max_employees_count']
@@ -360,9 +362,9 @@ class TestGetLicense:
         """
         licenses = [await license_for_test() for _ in range(30)]
 
-        response = await client.get('/api/v1/admin/licenses/')
+        response = await client.get(URL.LICENSES_ENDPOINT)
 
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         result = response.json()
 
         assert isinstance(result, dict)
@@ -386,7 +388,7 @@ class TestGetLicense:
 
         response = await client.get('/api/v1/admin/licenses/?page=2&page_size=5')
 
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         result = response.json()
 
         assert result['page'] == 2
@@ -401,10 +403,10 @@ class TestGetLicense:
         Проверяет, что API отклоняет запрос с `page_size=0` или `page_size > 100`.
         """
         response = await client.get('/api/v1/admin/licenses/?page=1&page_size=0')
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         response = await client.get('/api/v1/admin/licenses/?page=1&page_size=101')
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     @pytest.mark.asyncio
     async def test_get_licenses_sorting(self, client: AsyncClient, license_for_test):
@@ -418,42 +420,42 @@ class TestGetLicense:
 
         # Проверяем сортировку по имени (по возрастанию)
         response = await client.get('/api/v1/admin/licenses/?ordering=name')
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         result = response.json()
         sorted_names = [license['name'] for license in result['items']]
         assert sorted_names == sorted(sorted_names)
 
         # Проверяем сортировку по имени (по убыванию)
         response = await client.get('/api/v1/admin/licenses/?ordering=-name')
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         result = response.json()
         sorted_names_desc = [license['name'] for license in result['items']]
         assert sorted_names_desc == sorted(sorted_names, reverse=True)
 
         # Проверяем сортировку по дате создания
         response = await client.get('/api/v1/admin/licenses/?ordering=created_at')
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         result = response.json()
         created_dates = [license['created_at'] for license in result['items']]
         assert created_dates == sorted(created_dates)
 
         # Проверяем сортировку по убыванию
         response = await client.get('/api/v1/admin/licenses/?ordering=-created_at')
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         result = response.json()
         created_dates_desc = [license['created_at'] for license in result['items']]
         assert created_dates_desc == sorted(created_dates, reverse=True)
 
         # Проверяем сортировку по дате обновления
         response = await client.get('/api/v1/admin/licenses/?ordering=updated_at')
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         result = response.json()
         updated_dates = [license['updated_at'] for license in result['items']]
         assert updated_dates == sorted(updated_dates)
 
         # Проверяем сортировку по убыванию
         response = await client.get('/api/v1/admin/licenses/?ordering=-updated_at')
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         result = response.json()
         updated_dates_desc = [license['updated_at'] for license in result['items']]
         assert updated_dates_desc == sorted(updated_dates, reverse=True)
@@ -465,16 +467,19 @@ class TestGetLicense:
         Перед тестом вручную создаём запись в БД, чтобы гарантировать её существование.
         Затем делаем GET-запрос и проверяем корректность данных.
         """
-        new_license = await license_for_test()
+        license_term = 'P360D'
+        new_license = await license_for_test(
+            {'license_term': license_term},
+        )
 
         response = await client.get(f'/api/v1/admin/licenses/{new_license.id}')
 
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         result = response.json()
 
         assert result['id'] == new_license.id
         assert result['name'] == new_license.name
-        assert result['license_term'] == 'P1D'
+        assert result['license_term'] == license_term
         assert result['max_admins_count'] == new_license.max_admins_count
         assert result['max_employees_count'] == new_license.max_employees_count
 
@@ -487,7 +492,7 @@ class TestGetLicense:
         """
         response = await client.get('/api/v1/admin/licenses/99999')
 
-        assert response.status_code == 404
+        assert response.status_code == status.HTTP_404_NOT_FOUND
         result = response.json()
 
         assert result == {'detail': 'Объект не найден'}
@@ -511,7 +516,7 @@ class TestPatchLicense:
 
         response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
 
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         result = response.json()
 
         assert result['id'] == new_license.id
@@ -549,7 +554,7 @@ class TestPatchLicense:
         patch_data = {'license_term': 'P1D'}
 
         response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
 
         result = response.json()
         assert result['name'] == new_license.name
@@ -566,7 +571,7 @@ class TestPatchLicense:
         patch_data = {'name': 123}
 
         response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
         assert result['detail'][0]['loc'] == ['body', 'name']
@@ -583,7 +588,7 @@ class TestPatchLicense:
         patch_data = {'name': 'A' * (LENGTH_NAME_USER + 1)}
 
         response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
         assert result['detail'][0]['loc'] == ['body', 'name']
@@ -600,7 +605,7 @@ class TestPatchLicense:
         patch_data = {'license_term': '1Y1S'}
 
         response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
         assert result['detail'][0]['loc'] == ['body', 'license_term']
@@ -620,7 +625,7 @@ class TestPatchLicense:
         patch_data = {'max_admins_count': -5}
 
         response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
         assert result['detail'][0]['loc'] == ['body', 'max_admins_count']
@@ -639,7 +644,7 @@ class TestPatchLicense:
         patch_data = {'max_employees_count': 'true'}
 
         response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
         assert result['detail'][0]['loc'] == ['body', 'max_employees_count']
@@ -656,7 +661,7 @@ class TestPatchLicense:
         patch_data = {'name': 'Updated License'}
 
         response = await client.patch('/api/v1/admin/licenses/99999', json=patch_data)
-        assert response.status_code == 404
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
         result = response.json()
         assert result == {'detail': 'Объект не найден'}
@@ -673,10 +678,10 @@ class TestDeleteLicense:
 
         response = await client.delete(f'/api/v1/admin/licenses/{new_license.id}')
 
-        assert response.status_code == 204
+        assert response.status_code == status.HTTP_204_NO_CONTENT
 
         response_check = await client.get(f'/api/v1/admin/licenses/{new_license.id}')
-        assert response_check.status_code == 404
+        assert response_check.status_code == status.HTTP_404_NOT_FOUND
 
     @pytest.mark.asyncio
     async def test_delete_license_not_found(self, client: AsyncClient):
@@ -688,7 +693,7 @@ class TestDeleteLicense:
 
         response = await client.delete(f'/api/v1/admin/licenses/{non_existent_id}')
 
-        assert response.status_code == 404
+        assert response.status_code == status.HTTP_404_NOT_FOUND
         result = response.json()
 
         assert result == {'detail': 'Объект не найден'}

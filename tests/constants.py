@@ -13,6 +13,8 @@ class URL:
     USER_LOGIN: str = '/api/v1/auth/login'
     USER_LOGOUT: str = '/api/v1/auth/logout'
     USER_REFRESH: str = '/api/v1/auth/refresh-token'
+    COMPANIES_ENDPOINT: str = '/api/v1/admin/companies/'
+    LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
 
 
 GOOD_PASSWORD: str = 'string123STRING'
@@ -98,3 +100,4 @@ PAYLOAD_FOR_PATCH_ADMIN: tuple[dict, ...] = (
         'patronymic': 'Императрица',
     },
 )
+

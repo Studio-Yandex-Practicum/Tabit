@@ -1,6 +1,5 @@
-from http import HTTPStatus
-
 import pytest
+from fastapi import status
 from httpx import AsyncClient
 
 from tests.constants import (
@@ -26,9 +25,9 @@ class TestLoginUser:
         for user, text in variants:
             login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
             response = await client.post(URL.USER_LOGIN, data=login_payload)
-            assert (
-                response.status_code == HTTPStatus.OK
-            ), f'При авторизации {text} у ответа должен быть статус 200:\n{response.text}'
+            assert response.status_code == status.HTTP_200_OK, (
+                f'При авторизации {text} у ответа должен быть статус 200:\n{response.text}'
+            )
             result = response.json()
             for key in ('access_token', 'refresh_token', 'token_type'):
                 assert key in result, f'В теле ответа нет ключа {key}'
@@ -47,9 +46,9 @@ class TestLoginUser:
         for user, text in variants:
             login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
             response = await client.post(URL.USER_LOGIN, data=login_payload)
-            assert (
-                response.status_code == HTTPStatus.BAD_REQUEST
-            ), f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
+            assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+                f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
+            )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -69,9 +68,9 @@ class TestLoginUser:
         )
         for bad_login_payload in bad_login_payloads:
             response = await client.post(URL.ADMIN_LOGIN, data=bad_login_payload)
-            assert (
-                response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-            ), f'Не корректный ответ с данными\n{bad_login_payload}\n{response.text}'
+            assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
+                f'Не корректный ответ с данными\n{bad_login_payload}\n{response.text}'
+            )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -80,9 +79,9 @@ class TestLoginUser:
         """Тест на вход в систему пользователей сервиса под неверным паролем."""
         login_payload = {'username': employee.email, 'password': f'NOT {GOOD_PASSWORD}'}
         response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
-        assert (
-            response.status_code == HTTPStatus.BAD_REQUEST
-        ), f'Не корректный ответ с данными\n{login_payload}\n{response.text}'
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'Не корректный ответ с данными\n{login_payload}\n{response.text}'
+        )
         result = response.json()
         assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -103,9 +102,9 @@ class TestLogoutUser:
         )
         for token, text in variants:
             response = await client.post(URL.USER_LOGOUT, headers=token)
-            assert (
-                response.status_code == HTTPStatus.NO_CONTENT
-            ), f'При выходе из системы {text} должен быть статус ответа 204:\n{response.text}'
+            assert response.status_code == status.HTTP_204_NO_CONTENT, (
+                f'При выходе из системы {text} должен быть статус ответа 204:\n{response.text}'
+            )
 
     @pytest.mark.asyncio
     async def test_logout_user_not_access(self, client: AsyncClient, superuser_token, admin_token):
@@ -117,9 +116,9 @@ class TestLogoutUser:
         )
         for token, text in variants:
             response = await client.post(URL.USER_LOGOUT, headers=token)
-            assert (
-                response.status_code == HTTPStatus.UNAUTHORIZED
-            ), f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
+            assert response.status_code == status.HTTP_401_UNAUTHORIZED, (
+                f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
+            )
 
 
 class TestRefreshTokenUser:
@@ -143,9 +142,9 @@ class TestRefreshTokenUser:
         )
         for token, text in variants:
             response = await client.post(URL.USER_REFRESH, headers=token)
-            assert (
-                response.status_code == HTTPStatus.OK
-            ), f'При получение токена {text} у ответа должен быть статус 200:\n{response.text}'
+            assert response.status_code == status.HTTP_200_OK, (
+                f'При получение токена {text} у ответа должен быть статус 200:\n{response.text}'
+            )
             result = response.json()
             for key in ('access_token', 'refresh_token', 'token_type'):
                 assert key in result, f'В теле ответа нет ключа {key}'
@@ -169,7 +168,7 @@ class TestRefreshTokenUser:
         )
         for token, text in variants:
             response = await client.post(URL.USER_REFRESH, headers=token)
-            assert response.status_code == HTTPStatus.UNAUTHORIZED, (
+            assert response.status_code == status.HTTP_401_UNAUTHORIZED, (
                 f'При попытке получения токена {text} у ответа должен быть статус 401:\n'
                 f'{response.text}'
             )

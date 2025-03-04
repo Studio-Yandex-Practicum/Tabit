@@ -1,6 +1,5 @@
-from http import HTTPStatus
-
 import pytest
+from fastapi import status
 from httpx import AsyncClient
 
 from tests.constants import (
@@ -35,9 +34,9 @@ class TestLoginAdminTabit:
                 'password': GOOD_PASSWORD,
             }
             response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
-            assert (
-                response.status_code == HTTPStatus.OK
-            ), f'При авторизации {text} у ответа должен быть статус 200:\n{response.text}'
+            assert response.status_code == status.HTTP_200_OK, (
+                f'При авторизации {text} у ответа должен быть статус 200:\n{response.text}'
+            )
             result = response.json()
             for key in ('access_token', 'refresh_token', 'token_type'):
                 assert key in result, f'В теле ответа нет ключа {key}'
@@ -61,9 +60,9 @@ class TestLoginAdminTabit:
                 'password': GOOD_PASSWORD,
             }
             response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
-            assert (
-                response.status_code == HTTPStatus.BAD_REQUEST
-            ), f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
+            assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+                f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
+            )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -83,9 +82,9 @@ class TestLoginAdminTabit:
         )
         for bad_login_payload in bad_login_payloads:
             response = await client.post(URL.ADMIN_LOGIN, data=bad_login_payload)
-            assert (
-                response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-            ), f'Не корректный ответ с данными\n{bad_login_payload}\n{response.text}'
+            assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
+                f'Не корректный ответ с данными\n{bad_login_payload}\n{response.text}'
+            )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -97,9 +96,9 @@ class TestLoginAdminTabit:
             'password': f'NOT {GOOD_PASSWORD}',
         }
         response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
-        assert (
-            response.status_code == HTTPStatus.BAD_REQUEST
-        ), f'Не корректный ответ с данными\n{login_payload}\n{response.text}'
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'Не корректный ответ с данными\n{login_payload}\n{response.text}'
+        )
         result = response.json()
         assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -120,9 +119,9 @@ class TestLogoutAdminTabit:
         )
         for token, text in variants:
             response = await client.post(URL.ADMIN_LOGOUT, headers=token)
-            assert (
-                response.status_code == HTTPStatus.NO_CONTENT
-            ), f'При выходе из системы {text} должен быть статус ответа 204:\n{response.text}'
+            assert response.status_code == status.HTTP_204_NO_CONTENT, (
+                f'При выходе из системы {text} должен быть статус ответа 204:\n{response.text}'
+            )
 
     @pytest.mark.asyncio
     async def test_logout_admin_not_access(
@@ -139,9 +138,9 @@ class TestLogoutAdminTabit:
         )
         for token, text in variants:
             response = await client.post(URL.ADMIN_LOGOUT, headers=token)
-            assert (
-                response.status_code == HTTPStatus.UNAUTHORIZED
-            ), f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
+            assert response.status_code == status.HTTP_401_UNAUTHORIZED, (
+                f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
+            )
 
 
 class TestCreateAdminTabit:
@@ -174,7 +173,7 @@ class TestCreateAdminTabit:
             json=payload,
             headers=superuser_token,
         )
-        assert response.status_code == HTTPStatus.CREATED, response.text
+        assert response.status_code == status.HTTP_201_CREATED, response.text
         data = response.json()
         for key in (
             'id',
@@ -190,13 +189,13 @@ class TestCreateAdminTabit:
         assert is_valid_uuid(data['id']), 'Поле id не является uuid.'
         for key in data:
             if key in payload:
-                assert (
-                    data[key] == payload[key]
-                ), f'Значение ключа {key} не соответствует переданному.'
+                assert data[key] == payload[key], (
+                    f'Значение ключа {key} не соответствует переданному.'
+                )
             elif key in ('id', 'created_at', 'updated_at'):
-                assert (
-                    data[key] is not None
-                ), f'Значение ключа {key} не должно быть пустым или null.'
+                assert data[key] is not None, (
+                    f'Значение ключа {key} не должно быть пустым или null.'
+                )
             else:
                 assert data[key] is None, f'Значение ключа {key} должно быть пустым или null.'
 
@@ -219,7 +218,7 @@ class TestCreateAdminTabit:
             json=bad_payload,
             headers=superuser_token,
         )
-        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
 
         result = response.json()
         assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
@@ -248,7 +247,7 @@ class TestCreateAdminTabit:
                 json=bad_payload,
                 headers=superuser_token,
             )
-            assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
+            assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
 
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
@@ -277,7 +276,7 @@ class TestCreateAdminTabit:
                 json=bad_payload,
                 headers=superuser_token,
             )
-            assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY, response.text
+            assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
 
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
@@ -300,7 +299,7 @@ class TestCreateAdminTabit:
                 json=payload,
                 headers=superuser_token,
             )
-        assert response.status_code == HTTPStatus.BAD_REQUEST, response.text
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
 
         result = response.json()
         assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
@@ -324,20 +323,20 @@ class TestCreateAdminTabit:
             'surname': 'string',
         }
         variants: tuple = (
-            ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
-            (admin_token, HTTPStatus.FORBIDDEN, 'администратором сервиса'),
-            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
+            (admin_token, status.HTTP_403_FORBIDDEN, 'администратором сервиса'),
+            (moderator_token, status.HTTP_401_UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, status.HTTP_401_UNAUTHORIZED, 'пользователем от компании'),
         )
-        for token, status, text in variants:
+        for token, status_code, text in variants:
             response = await client.post(
                 URL.ADMIN_AUTH,
                 json=payload,
                 headers=token,
             )
-            assert response.status_code == status, (
+            assert response.status_code == status_code, (
                 f'При попытке создать администратора сервиса {text} '
-                f'не было ответа cо статусом {status}:\n{response.text}'
+                f'не было ответа cо статусом {status_code}:\n{response.text}'
             )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
@@ -354,7 +353,7 @@ class TestGetAdminTabit:
     async def test_get_admins(self, client: AsyncClient, superuser_token):
         """Тесты на получение списка администраторов сервиса Tabit."""
         response = await client.get(URL.ADMIN_AUTH, headers=superuser_token)
-        assert response.status_code == HTTPStatus.OK, response.text
+        assert response.status_code == status.HTTP_200_OK, response.text
 
         data = response.json()
         assert isinstance(data, list), 'Ответ должен возвращаться в виде списка'
@@ -372,13 +371,13 @@ class TestGetAdminTabit:
             'updated_at',
         ):
             assert key in data_row, f'Ключа {key} нет в теле ответа:\n{data_row}'
-            assert (
-                data_row[key] if key not in ('patronymic', 'phone_number') else True
-            ), f'Значение ключа {key} не должно быть пустым или быть null:\n{data_row}'
+            assert data_row[key] if key not in ('patronymic', 'phone_number') else True, (
+                f'Значение ключа {key} не должно быть пустым или быть null:\n{data_row}'
+            )
         for key in ('password', 'hashed_password', 'is_active', 'is_superuser', 'is_verified'):
-            assert (
-                key not in data_row
-            ), f'Значение ключа {key} не должно быть в теле ответа:\n{data_row}'
+            assert key not in data_row, (
+                f'Значение ключа {key} не должно быть в теле ответа:\n{data_row}'
+            )
 
     @pytest.mark.asyncio
     async def test_get_admin_not_access(
@@ -393,16 +392,16 @@ class TestGetAdminTabit:
         если создавать попытается не суперпользователь сервиса.
         """
         variants: tuple = (
-            ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
-            (admin_token, HTTPStatus.FORBIDDEN, 'администратором сервиса'),
-            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
+            (admin_token, status.HTTP_403_FORBIDDEN, 'администратором сервиса'),
+            (moderator_token, status.HTTP_401_UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, status.HTTP_401_UNAUTHORIZED, 'пользователем от компании'),
         )
-        for token, status, text in variants:
+        for token, status_code, text in variants:
             response = await client.get(URL.ADMIN_AUTH, headers=token)
-            assert response.status_code == status, (
+            assert response.status_code == status_code, (
                 f'При попытке получить список администраторов сервиса {text} '
-                f'не было ответа cо статусом {status}:\n{response.text}'
+                f'не было ответа cо статусом {status_code}:\n{response.text}'
             )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
@@ -424,7 +423,7 @@ class TestGetMeAdminTabit:
         )
         for token, text in variants:
             response = await client.get(URL.ADMIN_ME, headers=token)
-            assert response.status_code == HTTPStatus.OK, (
+            assert response.status_code == status.HTTP_200_OK, (
                 f'При получение личных данных {text} '
                 f'должен быть ответ со статусом 200:\n{response.text}'
             )
@@ -462,15 +461,15 @@ class TestGetMeAdminTabit:
         если создавать попытается не суперпользователь сервиса.
         """
         variants: tuple = (
-            ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
-            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
+            (moderator_token, status.HTTP_401_UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, status.HTTP_401_UNAUTHORIZED, 'пользователем от компании'),
         )
-        for token, status, text in variants:
+        for token, status_code, text in variants:
             response = await client.get(URL.ADMIN_AUTH, headers=token)
-            assert response.status_code == status, (
+            assert response.status_code == status_code, (
                 f'При попытке получить личные данные {text} '
-                f'не было ответа cо статусом {status}:\n{response.text}'
+                f'не было ответа cо статусом {status_code}:\n{response.text}'
             )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
@@ -511,20 +510,20 @@ class TestPatchMeAdminTabit:
                 json=payload,
                 headers=token,
             )
-            assert response_patch.status_code == HTTPStatus.OK, (
+            assert response_patch.status_code == status.HTTP_200_OK, (
                 f'При изменение своих личных данных {text} статус ответа должен быть 200:\n'
                 f'{response_patch.text}'
             )
             data_after = response_patch.json()
             for key in data_before:
                 if key in payload:
-                    assert (
-                        data_after[key] == payload[key]
-                    ), f'При изменение своих личных данных {text} значение {key} не поменялось.'
+                    assert data_after[key] == payload[key], (
+                        f'При изменение своих личных данных {text} значение {key} не поменялось.'
+                    )
                 elif key == 'updated_at':
-                    assert (
-                        data_after[key] != data_before[key]
-                    ), f'При изменение своих личных данных {text} значение {key} не поменялось.'
+                    assert data_after[key] != data_before[key], (
+                        f'При изменение своих личных данных {text} значение {key} не поменялось.'
+                    )
                 else:
                     assert data_after[key] == data_before[key], (
                         f'При изменение своих личных данных {text} значение {key} поменялось, '
@@ -544,19 +543,19 @@ class TestPatchMeAdminTabit:
         """
         payload: dict[str, str] = {'name': 'Киширика', 'surname': 'Киширису'}
         variants: tuple = (
-            ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
-            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
+            (moderator_token, status.HTTP_401_UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, status.HTTP_401_UNAUTHORIZED, 'пользователем от компании'),
         )
-        for token, status, text in variants:
+        for token, status_code, text in variants:
             response = await client.patch(
                 URL.ADMIN_ME,
                 json=payload,
                 headers=token,
             )
-            assert response.status_code == status, (
+            assert response.status_code == status_code, (
                 f'При попытке получить личные данные {text} '
-                f'не было ответа cо статусом {status}:\n{response.text}'
+                f'не было ответа cо статусом {status_code}:\n{response.text}'
             )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
@@ -578,7 +577,7 @@ class TestGetIdAdminTabit:
         for user, text in variants:
             url = URL.ADMIN_AUTH + str(user.id)
             response = await client.get(url, headers=superuser_token)
-            assert response.status_code == HTTPStatus.OK, (
+            assert response.status_code == status.HTTP_200_OK, (
                 f'При получение личных данных {text} по его id'
                 f'должен быть ответ со статусом 200:\n{response.text}'
             )
@@ -618,17 +617,17 @@ class TestGetIdAdminTabit:
         если создавать попытается не суперпользователь сервиса.
         """
         variants: tuple = (
-            ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
-            (admin_token, HTTPStatus.FORBIDDEN, 'администратором сервиса'),
-            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
+            (admin_token, status.HTTP_403_FORBIDDEN, 'администратором сервиса'),
+            (moderator_token, status.HTTP_401_UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, status.HTTP_401_UNAUTHORIZED, 'пользователем от компании'),
         )
         url = URL.ADMIN_AUTH + str(admin.id)
-        for token, status, text in variants:
+        for token, status_code, text in variants:
             response = await client.get(url, headers=token)
-            assert response.status_code == status, (
+            assert response.status_code == status_code, (
                 f'При попытке {text} получить данные администратора сервиса по его id '
-                f'не было ответа cо статусом {status}:\n{response.text}'
+                f'не было ответа cо статусом {status_code}:\n{response.text}'
             )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
@@ -671,20 +670,20 @@ class TestPatchIdAdminTabit:
                 json=payload,
                 headers=superuser_token,
             )
-            assert response_patch.status_code == HTTPStatus.OK, (
+            assert response_patch.status_code == status.HTTP_200_OK, (
                 f'При изменение данных {text} по его id статус ответа должен быть 200:\n'
                 f'{response_patch.text}'
             )
             data_after = response_patch.json()
             for key in data_before:
                 if key in payload:
-                    assert (
-                        data_after[key] == payload[key]
-                    ), f'При изменение данных {text} по его id значение {key} не поменялось.'
+                    assert data_after[key] == payload[key], (
+                        f'При изменение данных {text} по его id значение {key} не поменялось.'
+                    )
                 elif key == 'updated_at':
-                    assert (
-                        data_after[key] != data_before[key]
-                    ), f'При изменение данных {text} по его id значение {key} не поменялось.'
+                    assert data_after[key] != data_before[key], (
+                        f'При изменение данных {text} по его id значение {key} не поменялось.'
+                    )
                 else:
                     assert data_after[key] == data_before[key], (
                         f'При изменение данных {text} по его id значение {key} поменялось, '
@@ -707,20 +706,20 @@ class TestPatchIdAdminTabit:
         payload: dict[str, str] = {'name': 'Киширика', 'surname': 'Киширису'}
         url = URL.ADMIN_AUTH + str(admin.id)
         variants: tuple = (
-            ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
-            (admin_token, HTTPStatus.FORBIDDEN, 'администратором сервиса'),
-            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
+            (admin_token, status.HTTP_403_FORBIDDEN, 'администратором сервиса'),
+            (moderator_token, status.HTTP_401_UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, status.HTTP_401_UNAUTHORIZED, 'пользователем от компании'),
         )
-        for token, status, text in variants:
+        for token, status_code, text in variants:
             response = await client.patch(
                 url,
                 json=payload,
                 headers=token,
             )
-            assert response.status_code == status, (
+            assert response.status_code == status_code, (
                 f'При попытке {text} изменить данные администратора сервиса по его id '
-                f'не было ответа cо статусом {status}:\n{response.text}'
+                f'не было ответа cо статусом {status_code}:\n{response.text}'
             )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
@@ -746,7 +745,7 @@ class TestDeleteIdAdminTabit:
             url,
             headers=superuser_token,
         )
-        assert response_delete.status_code == HTTPStatus.NO_CONTENT, (
+        assert response_delete.status_code == status.HTTP_204_NO_CONTENT, (
             f'При удачном удалении администратора сервиса по его id '
             'статус ответа должен быть 204:\n'
             f'{response_delete.text}'
@@ -755,9 +754,8 @@ class TestDeleteIdAdminTabit:
             url,
             headers=superuser_token,
         )
-        assert response_get.status_code == HTTPStatus.NOT_FOUND, (
-            f'Возможно, администратор сервиса не был удален из базы данных:\n'
-            f'{response_get.text}'
+        assert response_get.status_code == status.HTTP_404_NOT_FOUND, (
+            f'Возможно, администратор сервиса не был удален из базы данных:\n{response_get.text}'
         )
 
     @pytest.mark.asyncio
@@ -773,7 +771,7 @@ class TestDeleteIdAdminTabit:
             url,
             headers=superuser_token,
         )
-        assert response_delete.status_code == HTTPStatus.BAD_REQUEST, (
+        assert response_delete.status_code == status.HTTP_400_BAD_REQUEST, (
             f'При попытке удалить суперпользователя по его id статус ответа должен быть 204:\n'
             f'{response_delete.text}'
         )
@@ -781,7 +779,7 @@ class TestDeleteIdAdminTabit:
             url,
             headers=superuser_token,
         )
-        assert response_get.status_code == HTTPStatus.OK, (
+        assert response_get.status_code == status.HTTP_200_OK, (
             f'Возможно, суперпользователь был удален из базы данных '
             '(если так, возможно, вернулся ответ со статусом 401):\n'
             f'{response_get.text}'
@@ -803,28 +801,27 @@ class TestDeleteIdAdminTabit:
         """
         url = URL.ADMIN_AUTH + str(admin.id)
         variants: tuple = (
-            ({}, HTTPStatus.UNAUTHORIZED, 'неавторизованным пользователем'),
-            (admin_token, HTTPStatus.FORBIDDEN, 'администратором сервиса'),
-            (moderator_token, HTTPStatus.UNAUTHORIZED, 'модератором от компании'),
-            (employee_token, HTTPStatus.UNAUTHORIZED, 'пользователем от компании'),
+            ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
+            (admin_token, status.HTTP_403_FORBIDDEN, 'администратором сервиса'),
+            (moderator_token, status.HTTP_401_UNAUTHORIZED, 'модератором от компании'),
+            (employee_token, status.HTTP_401_UNAUTHORIZED, 'пользователем от компании'),
         )
-        for token, status, text in variants:
+        for token, status_code, text in variants:
             response_delete = await client.delete(
                 url,
                 headers=token,
             )
-            assert response_delete.status_code == status, (
+            assert response_delete.status_code == status_code, (
                 f'При попытке {text} удалении администратора сервиса по его id статус ответа '
-                f'должен быть {status}:\n'
+                f'должен быть {status_code}:\n'
                 f'{response_delete.text}'
             )
             response_get = await client.get(
                 url,
                 headers=superuser_token,
             )
-            assert response_get.status_code == HTTPStatus.OK, (
-                f'Возможно, администратор сервиса был удален из базы данных:\n'
-                f'{response_get.text}'
+            assert response_get.status_code == status.HTTP_200_OK, (
+                f'Возможно, администратор сервиса был удален из базы данных:\n{response_get.text}'
             )
 
 
@@ -849,9 +846,9 @@ class TestRefreshTokenAdminTabit:
         )
         for token, text in variants:
             response = await client.post(URL.ADMIN_REFRESH, headers=token)
-            assert (
-                response.status_code == HTTPStatus.OK
-            ), f'При получение токена {text} у ответа должен быть статус 200:\n{response.text}'
+            assert response.status_code == status.HTTP_200_OK, (
+                f'При получение токена {text} у ответа должен быть статус 200:\n{response.text}'
+            )
             result = response.json()
             for key in ('access_token', 'refresh_token', 'token_type'):
                 assert key in result, f'В теле ответа нет ключа {key}'
@@ -875,7 +872,7 @@ class TestRefreshTokenAdminTabit:
         )
         for token, text in variants:
             response = await client.post(URL.ADMIN_REFRESH, headers=token)
-            assert response.status_code == HTTPStatus.UNAUTHORIZED, (
+            assert response.status_code == status.HTTP_401_UNAUTHORIZED, (
                 f'При попытке получения токена {text} у ответа должен быть статус 401:\n'
                 f'{response.text}'
             )
