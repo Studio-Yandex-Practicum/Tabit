@@ -435,6 +435,9 @@ pre-commit install
 ### 15. `make fill-company-departments`
 Заполняет базу данных 1 компанией и 5 департаментами связанными с этой компанией.
 
+### 16. `make fill-license-type`
+Заполняет базу данных 5 лицензиями для компанийю.
+
 <details>
 
 <summary>Инструкция по установке Make на Windows</summary>

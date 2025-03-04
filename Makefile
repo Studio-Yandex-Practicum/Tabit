@@ -73,3 +73,6 @@ fill-tabit-admin-users:
 
 fill-company-departments:
 	poetry run python fake_data_factories/department_factories.py
+
+fill-license-type:
+	poetry run python fake_data_factories/license_type_factories.py
