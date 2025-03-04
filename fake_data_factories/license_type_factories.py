@@ -13,6 +13,7 @@ from fake_data_factories.constants import (
     LICENSE_TYPE_COUNT,
 )
 from src.database.sc_db_session import sc_session
+from src.logger import fake_db_logger
 from src.tabit_management.models import LicenseType
 
 
@@ -21,7 +22,7 @@ class LicenseTypeFactory(AsyncSQLAlchemyFactory):
     Фабрика генерации данных лицензий для компаний.
 
     Поля:
-        1. name: Обязатьльное, уникальное поле. Генерируется с помощью uuid через.
+        1. name: Обязатьльное, уникальное поле. Генерируется с помощью uuid.
         2. license_term: Обязательное  поле, указывающее срок действия лицензии.
         3. max_admins_count: Обязательное поле, определяющее максимальное число
         администраторов, доступных по данной лицензии.
@@ -35,6 +36,12 @@ class LicenseTypeFactory(AsyncSQLAlchemyFactory):
     )
     max_admins_count: int = LICENSE_MAX_ADMINS
     max_employees_count: int = LICENSE_MAX_EMPLOYEES
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        instance = super()._create(model_class, *args, **kwargs)
+        fake_db_logger.info(f'Создана лицензия для компаний {kwargs.get("name")}')
+        return instance
 
     class Meta:
         model = LicenseType
