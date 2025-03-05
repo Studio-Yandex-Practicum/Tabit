@@ -29,3 +29,8 @@ ATTEMPTS = 100
 SLUG_NOT_GENERATED = (
     f'Сделано {ATTEMPTS} попыток, но сгенерировать slug не удалось. Попробуйте снова.'
 )
+# Фильтрация и сортировка для лицензии
+FILTER_NAME_DESCRIPTION = 'Фильтр по названию компании'
+SORTING_DESCRIPTION = (
+    "Сортировка по полю (name, created_at, updated_at). '-' означает сортировку в обратном порядке"
+)
