@@ -76,3 +76,17 @@ fill-company-departments:
 
 fill-license-type:
 	poetry run python fake_data_factories/license_type_factories.py
+
+# Команды для полного запуска в Docker
+up-dc:
+	docker-compose -f infra/local/docker-compose.local.yaml up -d --build
+
+down-dc:
+	docker-compose -f infra/local/docker-compose.local.yaml down
+
+logs-dc:
+	docker-compose -f infra/local/docker-compose.local.yaml logs -f
+
+# Команда для выполнения миграций Alembic в контейнере
+migrate-dc:
+	docker-compose -f infra/local/docker-compose.local.yaml exec app poetry run alembic upgrade head
