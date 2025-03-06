@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     postgres_password: str = os.getenv('POSTGRES_PASSWORD')
     postgres_db: str = os.getenv('POSTGRES_DB')
     port_bd_postgres: str = os.getenv('PORT_BD_POSTGRES')
-    log_level: str = 'DEBUG'
+    log_level: str = os.getenv('LOG_LEVEL')
 
     jwt_secret: SecretStr = 'SUPERSECRETKEY'
     jwt_lifetime_seconds: int = 3_600  # 1 час.
@@ -70,14 +70,16 @@ class EmailSettings:
 
     @property
     def config_email(self) -> ConnectionConfig:
-        if not all([
-            settings.mail_username,
-            settings.mail_password,
-            settings.mail_from,
-            settings.mail_port,
-            settings.mail_server,
-            settings.mail_from_name
-        ]):
+        if not all(
+            [
+                settings.mail_username,
+                settings.mail_password,
+                settings.mail_from,
+                settings.mail_port,
+                settings.mail_server,
+                settings.mail_from_name,
+            ]
+        ):
             raise ValueError('Не все необходимые настройки электронной почты предоставлены')
 
         return ConnectionConfig(
