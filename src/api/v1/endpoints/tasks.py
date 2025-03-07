@@ -3,7 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.validators.meeting_validators import check_problem_exists
 from src.api.v1.validators.problems_validators import check_company_exists
-from src.api.v1.validators.tasks_validators import check_task_exists, check_tasks_exists
+from src.api.v1.validators.tasks_validators import (
+    check_task_exists,
+    check_tasks_for_company_problem_exist,
+)
 from src.database.db_depends import get_async_session
 from src.problems.crud.task_crud import task_crud
 from src.problems.models.enums import StatusTask
@@ -40,7 +43,7 @@ async def get_tasks(
     """
     await check_company_exists(company_slug, session)
     await check_problem_exists(problem_id, session)
-    await check_tasks_exists(company_slug, problem_id, session)
+    await check_tasks_for_company_problem_exist(company_slug, problem_id, session)
     return await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
 
 

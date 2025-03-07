@@ -1,7 +1,6 @@
 from datetime import date
 from typing import List
-
-from sqlalchemy import UUID
+from uuid import UUID
 
 from src.problems.constants import (
     ERROR_DATE_SHOULD_BE_FUTURE,
@@ -23,6 +22,8 @@ def validate_date_in_future(value: date) -> date:
     Исключения:
         ValueError: Если дата в прошлом.
     """
+    if value is None:
+        return None
     if value < date.today():
         raise ValueError(f'{ERROR_DATE_SHOULD_BE_FUTURE} {date.today()}')
     return value
@@ -42,6 +43,8 @@ def validate_name(value: str) -> str:
     Исключения:
         ValueError: Если значение пустое или состоит только из пробелов.
     """
+    if value is None:
+        return None
     if not value.strip():
         raise ValueError(ERROR_TASK_NAME_EMPTY)
     return value.strip()
@@ -61,6 +64,8 @@ def validate_executors(value: List[UUID]) -> List[UUID]:
     Исключения:
         ValueError: Если список не пустой и содержит элементы, не являющиеся UUID.
     """
+    if value is None:
+        return None
     if value and not isinstance(value[0], UUID):
         raise ValueError(ERROR_EXECUTORS_MUST_BE_UUID_FORMAT)
     return value

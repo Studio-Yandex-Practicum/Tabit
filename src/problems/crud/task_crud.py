@@ -96,7 +96,7 @@ class CRUDTask(CRUDBase):
             )
         )
         result = await session.execute(query)
-        task = result.scalar_one_or_none()
+        task = result.scalar()
         if as_object:
             return task  # type: ignore
         return TaskResponseSchema.model_validate(task)

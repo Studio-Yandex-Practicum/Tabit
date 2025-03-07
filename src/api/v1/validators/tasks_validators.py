@@ -1,10 +1,8 @@
 from fastapi import HTTPException, status
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.problems.constants import ERROR_TASK_FOR_PROBLEM_NOT_FOUND, ERROR_TASK_NOT_FOUND
 from src.problems.crud import task_crud
-from src.problems.models.task_models import Task
 
 
 async def check_task_exists(task_id: int, session: AsyncSession):
@@ -17,16 +15,12 @@ async def check_task_exists(task_id: int, session: AsyncSession):
     Raises:
         HTTPException: Если задача не найдена.
     """
-    result = await session.execute(select(Task).where(Task.id == task_id))
-    task = result.scalar_one_or_none()
-    if task is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=ERROR_TASK_NOT_FOUND,
-        )
+    return await task_crud.get_or_404(session, task_id, message=ERROR_TASK_NOT_FOUND)
 
 
-async def check_tasks_exists(company_slug: str, problem_id: int, session: AsyncSession):
+async def check_tasks_for_company_problem_exist(
+    company_slug: str, problem_id: int, session: AsyncSession
+):
     """Проверяет, существуют ли задачи в базе данных.
 
     Args:
