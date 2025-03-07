@@ -3,15 +3,23 @@ name = "tabit"
 version = "0.1.0"
 description = "Online service for hr and conpany owners"
 authors = [
-    "Максим Караськин <mac7simka@yandex.ru>",
-    "Татьяна Харченко <mistlenok@yandex.ru>",
-    "Дмитрий Бурмагин <dmitryodinov@yandex.ru>",
-    "Максим Березин <mms2000@mail.ru>",
+    "Александр Келесидис <amida81@yandex.ru>",
     "Александр Колганов <greykol501@yandex.ru>",
-    "Антон Стремоусов <stremousoff@gmail.com>",
     "Александр Хмылов <a.a.hm@yandex.ru>",
+    "Андрей Агеев <ageevandrey112@yandex.ru>",
+    "Андрей Жердецкий <aszherdetskiy@yandex.ru>",
+    "Антон Стремоусов <stremousoff@gmail.com>",
+    "Вадим Волков <bcdy2146@yandex.ru>",
+    "Вячеслав Выскребенец <slavavyskrebenets@yandex.ru>",
+    "Динар Мирсаитов <mdm-f19@yandex.ru>",
+    "Дмитрий Бурмагин <dmitryodinov@yandex.ru>",
+    "Егор Горьковой <egor.gorkij@yandex.ru>",
     "Лев Акчурин <levisserena@yandex.ru>",
-    "Никита Пономаренко <nicros23@yandex.ru>"
+    "Максим Березин <mms2000@mail.ru>",
+    "Максим Караськин <mac7simka@yandex.ru>",
+    "Никита Пономаренко <nicros23@yandex.ru>",
+    "Рулан Касымов <marco.markovich@yandex.ru>",
+    "Татьяна Харченко <mistlenok@yandex.ru>"
 ]
 readme = "README.md"
 packages = [
@@ -33,6 +41,7 @@ pydantic-extra-types = {extras = ["phone-numbers"], version = "^2.10.2"}
 phonenumbers = "^8.13.55"
 fastapi-mail = "1.4.2"
 jinja2 = "^3.1.5"
+python-slugify = "^8.0.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"

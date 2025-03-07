@@ -100,7 +100,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         result = await session.execute(select(self.model).where(self.model.slug == obj_slug))
         obj_model = result.scalars().first()
-        if not result and raise_404:
+        if not obj_model and raise_404:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
         return obj_model
 
