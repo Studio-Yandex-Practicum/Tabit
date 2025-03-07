@@ -7,7 +7,7 @@ import pytest
 import pytest_asyncio
 from fastapi_users.password import PasswordHelper
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import NullPool, select
+from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.companies.models.models import Company
@@ -400,24 +400,19 @@ async def problem_for_test(async_session: AsyncSession):
 
 
 @pytest_asyncio.fixture
-async def problem_1(employee_1_company_1, problem_for_test):
+async def problem(employee_1_company_1, problem_for_test):
     """Фикстура для создания проблемы 1 от пользователя 1 компании 1."""
     return await problem_for_test(employee_1_company_1, {'name': 'проблема 1'})
 
 
 @pytest_asyncio.fixture
-async def problem_2(employee_3_company_2, problem_for_test):
-    """Фикстура для создания проблемы 2 от пользователя 3 компании 2."""
-    return await problem_for_test(employee_3_company_2, {'name': 'проблема 2'})
-
-
-@pytest_asyncio.fixture
 async def message_feed_for_test(async_session: AsyncSession, problem_for_test):
-    async def _create_message_feed(employee, message_feed_data=None, problem=None):
-        if not problem:
+    async def _create_message_feed(employee, message_feed_data=None, problem_id=None):
+        if not problem_id:
             problem = await problem_for_test(employee)
+            problem_id = problem.id
         message_feed_obj = {
-            'problem_id': problem.id,
+            'problem_id': problem_id,
             'owner_id': employee.id,
             'text': 'текст треда',
             'important': True,
@@ -430,34 +425,9 @@ async def message_feed_for_test(async_session: AsyncSession, problem_for_test):
 
 
 @pytest_asyncio.fixture
-async def message_feed_1(employee_1_company_1, message_feed_for_test):
+async def message_feed(employee_1_company_1, message_feed_for_test):
     """Фикстура для создания треда 1 для проблемы 1."""
     return await message_feed_for_test(employee_1_company_1, {'text': 'тред 1'})
-
-
-@pytest_asyncio.fixture
-async def message_feed_2(employee_3_company_2, message_feed_for_test):
-    """Фикстура для создания треда 2 для проблемы 2."""
-    return await message_feed_for_test(employee_3_company_2, {'text': 'тред 2'})
-
-
-@pytest_asyncio.fixture
-async def message_feed_3(employee_1_company_1, message_feed_for_test, problem_1):
-    """Фикстура для создания треда 3 для проблемы 1."""
-    return await message_feed_for_test(employee_1_company_1, {'text': 'тред 3'}, problem_1)
-
-
-@pytest_asyncio.fixture
-async def ten_message_feeds(async_session: AsyncSession, problem_1, employee_1_company_1):
-    """Фикстура для создания списка тредов."""
-    message_feed_data = [
-        MessageFeed(problem_id=problem_1.id, owner_id=employee_1_company_1.id, text=f'тред {i}')
-        for i in range(10)
-    ]
-    async_session.add_all(message_feed_data)
-    await async_session.commit()
-    result = await async_session.execute(select(MessageFeed))
-    return result.all()
 
 
 @pytest_asyncio.fixture
@@ -478,33 +448,18 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
 
 
 @pytest_asyncio.fixture
-async def comment_1(employee_1_company_1, comment_for_test):
-    """Фикстура для создания комментария 1 к треду 1 от пользователя 1"""
+async def comment(employee_1_company_1, comment_for_test):
+    """Фикстура для создания комментария к треду 1 от пользователя 1"""
     return await comment_for_test(employee_1_company_1, {'text': 'комментарий 1'})
 
 
 @pytest_asyncio.fixture
-async def liked_comment_1(async_session, employee_2_company_1, comment_1):
-    """Фикстура для лайка комментария comment_1."""
-    like_obj = AssociationUserComment(left_id=employee_2_company_1.id, right_id=comment_1.id)
+async def liked_comment(async_session, employee_2_company_1, comment):
+    """Фикстура для лайка комментария comment."""
+    like_obj = AssociationUserComment(left_id=employee_2_company_1.id, right_id=comment.id)
     async_session.add(like_obj)
-    comment_1.rating += 1
-    async_session.add(comment_1)
+    comment.rating += 1
+    async_session.add(comment)
     await async_session.commit()
-    await async_session.refresh(comment_1)
-    return comment_1
-
-
-@pytest_asyncio.fixture
-async def ten_comments(async_session: AsyncSession, message_feed_1, employee_1_company_1):
-    """Фикстура для создания списка комментариев."""
-    comments_data = [
-        CommentFeed(
-            message_id=message_feed_1.id, owner_id=employee_1_company_1.id, text=f'текст {i}'
-        )
-        for i in range(10)
-    ]
-    async_session.add_all(comments_data)
-    await async_session.commit()
-    result = await async_session.execute(select(CommentFeed))
-    return result.all()
+    await async_session.refresh(comment)
+    return comment
