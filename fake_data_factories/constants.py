@@ -12,3 +12,7 @@ DEFAULT_DEPARTMENT_NAMES = [
 ]  # Имена для отделов компании
 AMOUNT_OF_ADMIN = 1  # количество админов создаваемых для компании за 1 запуск скрипта
 COMPANY_USER_CREATED_TEXT = '{role} компании c id={company_id}: {user_email}, пасс: {password}'
+LICENSE_TYPE_COUNT = 5
+DEFAULT_LICENSE_TERM = 365
+LICENSE_MAX_ADMINS = 100
+LICENSE_MAX_EMPLOYEES = 1000
