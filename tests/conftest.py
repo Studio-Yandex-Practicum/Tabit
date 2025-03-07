@@ -15,6 +15,8 @@ from src.companies.models.models import Company
 from src.database.db_depends import get_async_session
 from src.database.models import BaseTabitModel as Base
 from src.main import app_v1
+from src.problems.models import AssociationUserComment, CommentFeed, MessageFeed, Problem
+from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.tabit_management.models import LicenseType, TabitAdminUser
 from src.users.models import UserTabit
 from src.users.models.enum import RoleUserTabit
@@ -179,9 +181,10 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
     По умолчанию, только обязательные поля.
     """
 
-    async def _create_employee(user_data=None):
+    async def _create_employee(user_data=None, company=None):
         """Функция-обёртка для пользователя тестовой компании с изменяемыми параметрами."""
-        company = await company_for_test()
+        if not company:
+            company = await company_for_test()
         default_data = {
             'name': 'Брюс',
             'surname': 'Ли',
@@ -330,3 +333,145 @@ async def employee_refresh_token(get_token_for_user, employee):
     Фикстура для получения заголовков авторизации пользователя от компании c refresh-token.
     """
     return await get_token_for_user(employee, refresh=True)
+
+
+# Фикстуры для тестов problem_feeds.py
+@pytest_asyncio.fixture
+async def company_1(company_for_test):
+    """Фикстура для создания компании №1 в таблице company."""
+    return await company_for_test({'name': 'Zorg', 'slug': 'Zorg', 'is_active': True})
+
+
+@pytest_asyncio.fixture
+async def company_2(company_for_test):
+    """Фикстура для создания компании №2 в таблице company."""
+    return await company_for_test(
+        {'name': 'Anaheim Electronics', 'slug': 'Anaheim_Electronics', 'is_active': True}
+    )
+
+
+@pytest_asyncio.fixture
+async def employee_1_company_1(company_1, employee_of_company):
+    """Фикстура для создания пользователя 1 от компании 1 в таблице usertabit."""
+    return await employee_of_company({'name': 'Брюс', 'surname': 'Ли'}, company_1)
+
+
+@pytest_asyncio.fixture
+async def employee_2_company_1(company_1, employee_of_company):
+    """Фикстура для создания пользователя 2 от компании 1 в таблице usertabit."""
+    return await employee_of_company({'name': 'Ким', 'surname': 'Кицураги'}, company_1)
+
+
+@pytest_asyncio.fixture
+async def employee_3_company_2(company_2, employee_of_company):
+    """Фикстура для создания пользователя 3 от компании 2 в таблице usertabit."""
+    return await employee_of_company({'name': 'Нейтан', 'surname': 'Дрейк'}, company_2)
+
+
+@pytest_asyncio.fixture
+async def employee_1_company_1_token(get_token_for_user, employee_1_company_1):
+    """
+    Фикстура для получения заголовков авторизации пользователя 2 от компании 1 c access-token.
+    """
+    return await get_token_for_user(employee_1_company_1)
+
+
+@pytest_asyncio.fixture
+async def employee_2_company_1_token(get_token_for_user, employee_2_company_1):
+    """
+    Фикстура для получения заголовков авторизации пользователя 2 от компании 1 c access-token.
+    """
+    return await get_token_for_user(employee_2_company_1)
+
+
+@pytest_asyncio.fixture
+async def employee_3_company_2_token(get_token_for_user, employee_3_company_2):
+    """
+    Фикстура для получения заголовков авторизации пользователя 3 от компании 2 c access-token.
+    """
+    return await get_token_for_user(employee_3_company_2)
+
+
+@pytest_asyncio.fixture
+async def problem_for_test(async_session: AsyncSession):
+    async def _create_problem(employee, problem_data=None):
+        problem_obj = {
+            'name': 'проблема',
+            'description': 'описание проблемы',
+            'color': ColorProblem.RED,
+            'type': TypeProblem.B,
+            'status': StatusProblem.NEW,
+            'owner_id': employee.id,
+            'company_id': employee.company_id,
+        }
+        if problem_data:
+            problem_obj.update(problem_data)
+        return await make_entry_in_table(async_session, problem_obj, Problem)
+
+    return _create_problem
+
+
+@pytest_asyncio.fixture
+async def problem(employee_1_company_1, problem_for_test):
+    """Фикстура для создания проблемы 1 от пользователя 1 компании 1."""
+    return await problem_for_test(employee_1_company_1, {'name': 'проблема 1'})
+
+
+@pytest_asyncio.fixture
+async def message_feed_for_test(async_session: AsyncSession, problem_for_test):
+    async def _create_message_feed(employee, message_feed_data=None, problem_id=None):
+        if not problem_id:
+            problem = await problem_for_test(employee)
+            problem_id = problem.id
+        message_feed_obj = {
+            'problem_id': problem_id,
+            'owner_id': employee.id,
+            'text': 'текст треда',
+            'important': True,
+        }
+        if message_feed_data:
+            message_feed_obj.update(message_feed_data)
+        return await make_entry_in_table(async_session, message_feed_obj, MessageFeed)
+
+    return _create_message_feed
+
+
+@pytest_asyncio.fixture
+async def message_feed(employee_1_company_1, message_feed_for_test):
+    """Фикстура для создания треда 1 для проблемы 1."""
+    return await message_feed_for_test(employee_1_company_1, {'text': 'тред 1'})
+
+
+@pytest_asyncio.fixture
+async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
+    async def _create_comment(employee, comment_data=None, message_feed=None):
+        if not message_feed:
+            message_feed = await message_feed_for_test(employee)
+        comment_obj = {
+            'text': 'текст комментария',
+            'message_id': message_feed.id,
+            'owner_id': employee.id,
+        }
+        if comment_data:
+            comment_obj.update(comment_data)
+        return await make_entry_in_table(async_session, comment_obj, CommentFeed)
+
+    return _create_comment
+
+
+@pytest_asyncio.fixture
+async def comment(employee_1_company_1, comment_for_test):
+    """Фикстура для создания комментария к треду 1 от пользователя 1"""
+    return await comment_for_test(employee_1_company_1, {'text': 'комментарий 1'})
+
+
+@pytest_asyncio.fixture
+async def liked_comment(async_session, employee_2_company_1, comment):
+    """Фикстура для лайка комментария comment."""
+    like_obj = AssociationUserComment(left_id=employee_2_company_1.id, right_id=comment.id)
+    async_session.add(like_obj)
+    comment.rating += 1
+    async_session.add(comment)
+    await async_session.commit()
+    await async_session.refresh(comment)
+    return comment
