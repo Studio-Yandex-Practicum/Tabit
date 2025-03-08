@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi_users.manager import BaseUserManager
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.dependencies import current_admin_tabit
+from src.api.v1.auth.dependencies import current_tabit_admin
 from src.api.v1.auth.managers import get_user_manager
 from src.api.v1.validators import (
     check_telegram_username_for_duplicates,
@@ -26,7 +26,7 @@ router = APIRouter()
 @router.get(
     '/',
     response_model=list[AdminCompanyResponseSchema],
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     summary='Получить общую информацию по компаниям.',
 )
 async def get_all_info(
@@ -49,7 +49,7 @@ async def get_all_info(
 @router.get(
     '/staff',
     response_model=list[CompanyAdminReadSchema],
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     summary='Получить информацию по всем сотрудникам компаний.',
 )
 async def get_all_staff(
@@ -71,7 +71,7 @@ async def get_all_staff(
 
 @router.post(
     '/staff',
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     summary='Создать нового сотрудника компании.',
     response_model=CompanyAdminReadSchema,
 )
@@ -101,7 +101,7 @@ async def create_staff(
 @router.get(
     '/staff/{user_id}',
     summary='Получить информацию об администраторе.',
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     response_model=CompanyAdminReadSchema,
 )
 async def get_staff(
@@ -121,7 +121,7 @@ async def get_staff(
 @router.put(
     '/staff/{user_id}',
     summary='Полностью изменить информацию об администраторе.',
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     response_model=CompanyAdminReadSchema,
 )
 async def full_update_staff(
@@ -148,7 +148,7 @@ async def full_update_staff(
 @router.patch(
     '/staff/{user_id}',
     summary='Частично изменить информацию об администраторе.',
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     response_model=CompanyAdminReadSchema,
 )
 async def update_staff(
@@ -175,7 +175,7 @@ async def update_staff(
 @router.delete(
     '/staff/{user_id}',
     summary='Удалить информацию об администраторе.',
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
@@ -197,7 +197,7 @@ async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(ge
 # По умолчанию пользователь отправляет email, на который ему приходит токен для сброса пароля
 @router.post(
     '/staff/{user_id}/resetpassword',
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     summary='Сброс пароля администратора. Не работает',
 )
 async def reset_password_staff(

@@ -1,7 +1,6 @@
 import re
-from http import HTTPStatus
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Request, status
 from fastapi_users import BaseUserManager, UUIDIDMixin, models, schemas
 
 from src.api.v1.auth.access_to_db import get_admin_db, get_user_db
@@ -20,7 +19,7 @@ class BaseTabitUserManager(UUIDIDMixin, BaseUserManager):
         """Условия валидации пароля."""
         if re.match(PATTERN_PASSWORD, password) is None:
             raise HTTPException(
-                status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=TEXT_ERROR_INVALID_PASSWORD,
             )
 
@@ -31,11 +30,14 @@ class BaseTabitUserManager(UUIDIDMixin, BaseUserManager):
 
 
 class AdminManager(BaseTabitUserManager):
-    """Менеджер управления пользователями-администраторами сервиса."""
+    """
+    Менеджер управления пользователями-администраторами сервиса
+    (Tabit Superuser, Tabit Admin).
+    """
 
 
 class UserManager(BaseTabitUserManager):
-    """Менеджер управления пользователями сервиса от компаний."""
+    """Менеджер управления пользователями сервиса от компаний (Tabit Moderator, Tabit User)."""
 
 
 async def get_admin_manager(admin_db=Depends(get_admin_db)):
