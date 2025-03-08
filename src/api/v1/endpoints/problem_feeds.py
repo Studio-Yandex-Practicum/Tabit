@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.dependencies import current_user_tabit
+from src.api.v1.auth.dependencies import current_company_user
 from src.api.v1.validators import (
     check_comment_and_message_feed,
     check_comment_has_likes_from_user,
@@ -35,7 +35,7 @@ async def get_all_threads(
     problem_id: int,
     query_params: FeedsFilterSchema = Depends(),
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: UserTabit = Depends(current_company_user),
 ) -> list[MessageFeedRead]:
     """
     Получает список всех тредов по проблеме.
@@ -65,7 +65,7 @@ async def create_problem_thread(
     problem_id: int,
     create_data: MessageFeedCreate,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: UserTabit = Depends(current_company_user),
 ) -> MessageFeedRead:
     """
     Создание треда по проблеме.
@@ -95,7 +95,7 @@ async def get_thread_comments(
     thread_id: int,
     query_params: FeedsFilterSchema = Depends(),
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: UserTabit = Depends(current_company_user),
 ) -> list[CommentRead]:
     """
     Получить все комментарии треда.
@@ -127,7 +127,7 @@ async def create_thread_comment(
     thread_id: int,
     create_data: CommentCreate,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: UserTabit = Depends(current_company_user),
 ) -> CommentRead:
     """
     Создание комментария к треду.
@@ -158,7 +158,7 @@ async def update_thread_comment(
     comment_id: int,
     update_data: CommentUpdate,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: UserTabit = Depends(current_company_user),
 ) -> CommentRead:
     """
     Обновление комментария в треде.
@@ -190,7 +190,7 @@ async def delete_thread_comment(
     thread_id: int,
     comment_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: UserTabit = Depends(current_company_user),
 ) -> None:
     """
     Удаление комментария в треде.
@@ -221,7 +221,7 @@ async def like_a_comment(
     thread_id: int,
     comment_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: UserTabit = Depends(current_company_user),
 ) -> None:
     """
     Поставить лайк комментарию в треде.
@@ -253,7 +253,7 @@ async def unlike_a_comment(
     thread_id: int,
     comment_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: UserTabit = Depends(current_company_user),
 ) -> None:
     """
     Убрать лайк с комментария.

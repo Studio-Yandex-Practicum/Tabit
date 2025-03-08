@@ -10,10 +10,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
 from src.api.v1.auth.dependencies import (
-    current_admin_tabit,
-    current_superuser,
-    get_current_admin_refresh_token,
-    get_current_admin_token,
+    current_tabit_admin,
+    current_tabit_superuser,
+    get_current_tabit_admin_refresh_token,
+    get_current_tabit_admin_token,
     tabit_admin,
 )
 from src.api.v1.auth.jwt import jwt_auth_backend_admin
@@ -37,7 +37,7 @@ router = APIRouter()
 @router.get(
     '/',
     response_model=list[AdminReadSchema],
-    dependencies=[Depends(current_superuser)],
+    dependencies=[Depends(current_tabit_superuser)],
     summary=Summary.TABIT_ADMIN_AUTH_LIST,
     description=Description.TABIT_ADMIN_AUTH_LIST,
 )
@@ -67,7 +67,7 @@ async def get_tabit_admin(
 )
 async def get_me_tabit_admin(
     session: AsyncSession = Depends(get_async_session),
-    user: TabitAdminUser = Depends(current_admin_tabit),
+    user: TabitAdminUser = Depends(current_tabit_admin),
 ) -> AdminReadSchema:
     """
     Для доступа к своей учетной записи администраторов сервиса.
@@ -94,7 +94,7 @@ async def get_me_tabit_admin(
 async def update_me_tabit_admin(
     user_in: AdminUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
-    user: TabitAdminUser = Depends(current_admin_tabit),
+    user: TabitAdminUser = Depends(current_tabit_admin),
 ) -> AdminReadSchema:
     """
     Позволит обновить данные о себе администратору сервиса.
@@ -116,7 +116,7 @@ async def update_me_tabit_admin(
 @router.get(
     '/{user_id}',
     response_model=AdminReadSchema,
-    dependencies=[Depends(current_superuser)],
+    dependencies=[Depends(current_tabit_superuser)],
     summary=Summary.TABIT_ADMIN_AUTH_GET_BY_ID,
     description=Description.TABIT_ADMIN_AUTH_GET_BY_ID,
 )
@@ -143,7 +143,7 @@ async def get_tabit_admin_by_id(
 @router.patch(
     '/{user_id}',
     response_model=AdminReadSchema,
-    dependencies=[Depends(current_superuser)],
+    dependencies=[Depends(current_tabit_superuser)],
     summary=Summary.TABIT_ADMIN_AUTH_PATCH_BY_ID,
     description=Description.TABIT_ADMIN_AUTH_PATCH_BY_ID,
 )
@@ -177,7 +177,7 @@ async def update_tabit_admin_by_id(
 
 @router.delete(
     '/{user_id}',
-    dependencies=[Depends(current_superuser)],
+    dependencies=[Depends(current_tabit_superuser)],
     status_code=HTTPStatus.NO_CONTENT,
     summary=Summary.TABIT_ADMIN_AUTH_DELETE_BY_ID,
     description=Description.TABIT_ADMIN_AUTH_DELETE_BY_ID,
@@ -227,7 +227,9 @@ router.include_router(  # форгот и резет пассворд
     description=Description.TABIT_ADMIN_AUTH_REFRESH_TOKEN,
 )
 async def refresh_token_tabit_admin(
-    user_and_refresh_token: tuple[TabitAdminUser, str] = Depends(get_current_admin_refresh_token),
+    user_and_refresh_token: tuple[TabitAdminUser, str] = Depends(
+        get_current_tabit_admin_refresh_token
+    ),
     strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend_admin.get_strategy),
 ) -> JSONResponse:
     """
@@ -260,7 +262,7 @@ async def refresh_token_tabit_admin(
 @router.post(
     '/',
     response_model=AdminReadSchema,
-    dependencies=[Depends(current_superuser)],
+    dependencies=[Depends(current_tabit_superuser)],
     status_code=HTTPStatus.CREATED,
     summary=Summary.TABIT_ADMIN_AUTH_CREATE,
     description=Description.TABIT_ADMIN_AUTH_CREATE,
@@ -337,7 +339,7 @@ async def login(
     description=Description.TABIT_ADMIN_AUTH_LOGOUT,
 )
 async def logout(
-    user_and_access_token: tuple[models.UP, str] = Depends(get_current_admin_token),
+    user_and_access_token: tuple[models.UP, str] = Depends(get_current_tabit_admin_token),
     strategy: Strategy[models.UP, models.ID] = Depends(jwt_auth_backend_admin.get_strategy),
 ) -> Response:
     """

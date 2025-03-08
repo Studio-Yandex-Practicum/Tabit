@@ -9,7 +9,7 @@ from sqlalchemy.sql.schema import UniqueConstraint
 from src.constants import LENGTH_TELEGRAM_USERNAME
 from src.database.annotations import int_pk, url_link_field
 from src.database.models import BaseTabitModel, BaseTag, BaseUser
-from src.users.models.enum import RoleUserTabit
+from src.users.models.enum import CompanyRole
 
 if TYPE_CHECKING:
     from src.companies.models import Company, Department
@@ -139,7 +139,7 @@ class UserTabit(BaseUser):
     telegram_username: Mapped[Optional[str]] = mapped_column(
         String(LENGTH_TELEGRAM_USERNAME), unique=True, nullable=True
     )
-    role: Mapped['RoleUserTabit']
+    role: Mapped[CompanyRole]
     start_date_employment: Mapped[Optional[date]]
     end_date_employment: Mapped[Optional[date]]
     tags: Mapped[List['AssociationUserTags']] = relationship(back_populates='user')

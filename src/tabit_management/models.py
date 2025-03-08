@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database.annotations import int_pk, license_name_field
 from src.database.models import BaseTabitModel, BaseUser
 from src.tabit_management.constants import DEFAULT_NUMBER_DEY_LICENSE
+from src.users.models.enum import TabitRole
 
 if TYPE_CHECKING:
     from src.companies.models import Company
@@ -34,7 +35,7 @@ class TabitAdminUser(BaseUser):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
     """
 
-    pass
+    role: Mapped[TabitRole]
 
 
 class LicenseType(BaseTabitModel):
