@@ -1,6 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.validators.meeting_validators import check_problem_exists
+from src.api.v1.validators.problems_validators import check_company_exists
+from src.api.v1.validators.tasks_validators import (
+    check_task_exists,
+    check_tasks_for_company_problem_exist,
+)
 from src.database.db_depends import get_async_session
 from src.problems.crud.task_crud import task_crud
 from src.problems.models.enums import StatusTask
@@ -35,10 +41,10 @@ async def get_tasks(
     Возвращаемое значение:
         Объект TaskResponseSchema.
     """
-    tasks = await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
-    if not tasks:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Задачи не найдены')
-    return tasks
+    await check_company_exists(company_slug, session)
+    await check_problem_exists(problem_id, session)
+    await check_tasks_for_company_problem_exist(company_slug, problem_id, session)
+    return await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
 
 
 @router.post(
@@ -72,6 +78,8 @@ async def create_task(
            - Убедиться, что пользователь имеет доступ к компании и проблеме.
            - Проверить, что пользователь может создавать задачи в данной компании.
     """
+    await check_company_exists(company_slug, session)
+    await check_problem_exists(problem_id, session)
     task_data = task.model_dump()
     task_data['owner_id'] = (
         '3fa85f64-5717-4562-b3fc-2c963f66af66'  # TODO: Заменить на реального пользователя
@@ -106,10 +114,10 @@ async def get_task(
     Raises:
         HTTPException: Если задача не найдена
     """
-    task = await task_crud.get_task_by_id(session, company_slug, problem_id, task_id)
-    if not task:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Задача не найдена')
-    return task  # type: ignore
+    await check_company_exists(company_slug, session)
+    await check_task_exists(task_id, session)
+    await check_problem_exists(problem_id, session)
+    return await task_crud.get_task_by_id(session, company_slug, problem_id, task_id)  # type: ignore
 
 
 @router.patch(
@@ -143,12 +151,10 @@ async def update_task(
     Raises:
         HTTPException: Если задача не найдена
     """
-    task = await task_crud.get_task_by_id(
-        session, company_slug, problem_id, task_id, as_object=True
-    )
-    if not task:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Задача не найдена')
-    return await task_crud.update(session, task, task_update)  # type: ignore
+    await check_company_exists(company_slug, session)
+    await check_task_exists(task_id, session)
+    await check_problem_exists(problem_id, session)
+    return await task_crud.update(session, task_id, task_update, company_slug, problem_id)
 
 
 @router.delete(
@@ -163,7 +169,7 @@ async def delete_task(
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """Удаляет задачу."""
-    task = await task_crud.get_task_by_id(
-        session, company_slug, problem_id, task_id, as_object=True
-    )
-    await task_crud.remove(session, task)
+    await check_company_exists(company_slug, session)
+    await check_task_exists(task_id, session)
+    await check_problem_exists(problem_id, session)
+    await task_crud.delete_task(session, task_id)
