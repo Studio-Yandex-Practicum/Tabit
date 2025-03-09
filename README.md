@@ -218,7 +218,7 @@ poetry update
    ```bash
    source .venv/bin/activate
    # или
-   poetry env activate
+   poetry shell
    ```
 
 2. Запустите приложение:
