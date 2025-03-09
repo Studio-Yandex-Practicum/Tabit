@@ -103,7 +103,7 @@ class TaskCreateSchema(TaskBaseSchema):
     def validate_executors(cls, value: Optional[List[UUID]]) -> Optional[List[UUID]]:
         """Валидирует список исполнителей."""
         if value is not None:
-            return validate_executors(value)  # type: ignore
+            return validate_executors(value)
         return value
 
     class Config:
@@ -151,5 +151,5 @@ class TaskUpdateSchema(BaseModel):
     def validate_executors(cls, value: Optional[List[UUID]]) -> Optional[List[UUID]]:
         """Валидирует список исполнителей."""
         if value is not None:
-            return validate_executors(value)  # type: ignore
+            return validate_executors(value)
         return value

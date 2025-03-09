@@ -96,9 +96,9 @@ class CRUDTask(CRUDBase):
             )
         )
         result = await session.execute(query)
-        task = result.scalar()
+        task = result.scalar_one_or_none()
         if as_object:
-            return task  # type: ignore
+            return task
         return TaskResponseSchema.model_validate(task)
 
     async def create(
@@ -188,10 +188,8 @@ class CRUDTask(CRUDBase):
             old_date_completion = db_obj.date_completion
             update_data = obj_in.model_dump(exclude_unset=True)
             executors_data = update_data.pop('executors', None)
-            # Обновляем поля задачи
             for field, value in update_data.items():
                 setattr(db_obj, field, value)
-            # Обновляем исполнителей
             if executors_data is not None:
                 await session.execute(
                     delete(AssociationUserTask).where(AssociationUserTask.right_id == db_obj.id)
@@ -199,7 +197,6 @@ class CRUDTask(CRUDBase):
                 for executor_id in executors_data:
                     association = AssociationUserTask(left_id=executor_id, right_id=db_obj.id)
                     session.add(association)
-            # Увеличиваем счётчик передач, если дата завершения изменилась
             if db_obj.date_completion > old_date_completion:
                 db_obj.transfer_counter += 1
             if auto_commit:
