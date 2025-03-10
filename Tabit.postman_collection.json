@@ -8,6 +8,42 @@
 	},
 	"item": [
 		{
+			"name": "Send Email",
+			"item": [
+				{
+					"name": "email",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": [\r\n    \"user@example.com\"\r\n  ],\r\n  \"subject_email\": \"string\",\r\n  \"message\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/email",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"email"
+							]
+						},
+						"description": "Отправит письмо на электронную почту."
+					},
+					"response": []
+				}
+			],
+			"description": "Для отправки электронных писем."
+		},
+		{
 			"name": "Tabit Admin User Auth",
 			"item": [
 				{
@@ -17,7 +53,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
@@ -45,13 +81,13 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"string\",\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\"\r\n}",
+							"raw": "{\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"string\",\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"string123STRING\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -85,7 +121,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
@@ -99,7 +135,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/{{uuid}}",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/{{uuid_superuser}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -109,7 +145,7 @@
 								"v1",
 								"admin",
 								"auth",
-								"{{uuid}}"
+								"{{uuid_superuser}}"
 							]
 						},
 						"description": "Отобразит карточку администратора сервиса по его `id`. Доступно только суперпользователю."
@@ -123,7 +159,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
@@ -137,7 +173,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/{{uuid}}",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/{{uuid_superuser}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -147,7 +183,7 @@
 								"v1",
 								"admin",
 								"auth",
-								"{{uuid}}"
+								"{{uuid_superuser}}"
 							]
 						},
 						"description": "Изменить данные карточки администратора сервиса по его `id`. Доступно только суперпользователю."
@@ -161,7 +197,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
@@ -175,7 +211,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/{{uuid}}",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/{{uuid_superuser}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -185,7 +221,7 @@
 								"v1",
 								"admin",
 								"auth",
-								"{{uuid}}"
+								"{{uuid_superuser}}"
 							]
 						},
 						"description": "Удалить администратора сервиса по его `id`. Доступно только суперпользователю. Удалить суперпользователя нельзя."
@@ -202,7 +238,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
@@ -240,7 +276,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
@@ -278,7 +314,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text",
 								"disabled": true
 							}
@@ -317,7 +353,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text",
 								"disabled": true
 							}
@@ -356,9 +392,8 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{refresh-token}}",
-								"type": "text",
-								"disabled": true
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -445,7 +480,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
@@ -468,7 +503,29 @@
 					"response": []
 				}
 			],
-			"description": "# Конечные точки для Администрации сервиса.\n\nСписок всех администраторов.\n\nЛичная карточка.\n\nСоздание/редактирование/удаление нового администратора.\n\nВход и выход из системы для администраторов.\n\nОбновление токенов.\n\nСмена пароля.\n\nВосстановление пароля."
+			"description": "# Конечные точки для Администрации сервиса.\n\nСписок всех администраторов.\n\nЛичная карточка.\n\nСоздание/редактирование/удаление нового администратора.\n\nВход и выход из системы для администраторов.\n\nОбновление токенов.\n\nСмена пароля.\n\nВосстановление пароля.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
 		},
 		{
 			"name": "Tabit Managment - stuff",
@@ -477,7 +534,13 @@
 					"name": "admin",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/admin/",
 							"protocol": "{{protocol}}",
@@ -491,7 +554,7 @@
 								""
 							]
 						},
-						"description": "на этой ручке общая информация (например сколько всего компаний и сотрудников в системе.)"
+						"description": "Получить общую информацию по компаниям."
 					},
 					"response": []
 				},
@@ -499,7 +562,13 @@
 					"name": "admin staff",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/",
 							"protocol": "{{protocol}}",
@@ -514,7 +583,7 @@
 								""
 							]
 						},
-						"description": "на эту ручку можем вешать POST запрос создания нового сотрудника"
+						"description": "Получить информацию по всем сотрудникам компаний."
 					},
 					"response": []
 				},
@@ -522,7 +591,22 @@
 					"name": "admin staff",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/",
 							"protocol": "{{protocol}}",
@@ -537,17 +621,23 @@
 								""
 							]
 						},
-						"description": "на эту ручку можем вешать POST запрос создания нового сотрудника"
+						"description": "Создать нового сотрудника компании."
 					},
 					"response": []
 				},
 				{
-					"name": "admin staff slug",
+					"name": "admin staff uuid",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{admin_slug}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -557,20 +647,35 @@
 								"v1",
 								"admin",
 								"staff",
-								"{{admin_slug}}",
-								""
+								"{{uuid_user}}"
 							]
-						}
+						},
+						"description": "Получить информацию об администраторе от компании."
 					},
 					"response": []
 				},
 				{
-					"name": "admin staff slug",
+					"name": "admin staff uuid",
 					"request": {
 						"method": "PUT",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"string222A\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{admin_slug}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -580,20 +685,36 @@
 								"v1",
 								"admin",
 								"staff",
-								"{{admin_slug}}",
+								"{{uuid_user}}",
 								""
 							]
-						}
+						},
+						"description": "Полностью изменить информацию об администраторе от компании."
 					},
 					"response": []
 				},
 				{
-					"name": "admin staff slug",
+					"name": "admin staff uuid",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"birthday\": \"2025-03-05\",\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{admin_slug}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -603,20 +724,27 @@
 								"v1",
 								"admin",
 								"staff",
-								"{{admin_slug}}",
+								"{{uuid_user}}",
 								""
 							]
-						}
+						},
+						"description": "Частично изменить информацию об администраторе от компании."
 					},
 					"response": []
 				},
 				{
-					"name": "admin staff slug",
+					"name": "admin staff uuid",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{admin_slug}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -626,20 +754,27 @@
 								"v1",
 								"admin",
 								"staff",
-								"{{admin_slug}}",
+								"{{uuid_user}}",
 								""
 							]
-						}
+						},
+						"description": "Удалить информацию об администраторе от компании."
 					},
 					"response": []
 				},
 				{
-					"name": "admin staff slug resetpassword",
+					"name": "admin staff uuid resetpassword",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{admin_slug}}/resetpassword/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/resetpassword/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -649,17 +784,17 @@
 								"v1",
 								"admin",
 								"staff",
-								"{{admin_slug}}",
+								"{{uuid_user}}",
 								"resetpassword",
 								""
 							]
 						},
-						"description": "Сброс пароля админа компании"
+						"description": "Сброс пароля админа компании\n\n_Упразднить!_"
 					},
 					"response": []
 				}
 			],
-			"description": "Упровление админами ресурса."
+			"description": "Управление пользователями для администраторами сервиса."
 		},
 		{
 			"name": "Tabit Management - companies",
@@ -671,7 +806,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
@@ -700,13 +835,13 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"description\": \"string\",\r\n  \"logo\": \"string\",\r\n  \"name\": \"string\",\r\n  \"license_id\": 0,\r\n  \"start_license_time\": \"2025-02-15T07:57:45.058Z\"\r\n}",
+							"raw": "{\r\n  \"description\": \"string\",\r\n  \"logo\": null,\r\n  \"name\": \"string\",\r\n  \"license_id\": 1,\r\n  \"start_license_time\": \"2026-02-15T07:57:45.058Z\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -744,7 +879,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"description\": \"string\",\r\n  \"logo\": \"string\",\r\n  \"name\": \"string\",\r\n  \"license_id\": 0,\r\n  \"start_license_time\": \"2025-02-15T07:57:59.093Z\"\r\n}",
+							"raw": "{\r\n  \"description\": \"string\",\r\n  \"logo\": null,\r\n  \"name\": \"string\",\r\n  \"license_id\": 1,\r\n  \"start_license_time\": \"2026-02-15T07:57:59.093Z\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -777,7 +912,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_superuser}}",
 								"type": "text"
 							}
 						],
@@ -810,7 +945,14 @@
 					"name": "admin licenses",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/",
 							"protocol": "{{protocol}}",
@@ -833,7 +975,23 @@
 					"name": "admin licenses",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"license_term\": \"P3D\",\r\n  \"max_admins_count\": 1,\r\n  \"max_employees_count\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/",
 							"protocol": "{{protocol}}",
@@ -856,9 +1014,16 @@
 					"name": "admin license slug",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/{{license_slug}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/{{license_id}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -868,7 +1033,7 @@
 								"v1",
 								"admin",
 								"licenses",
-								"{{license_slug}}",
+								"{{license_id}}",
 								""
 							]
 						},
@@ -880,9 +1045,25 @@
 					"name": "admin license slug",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"license_term\": \"P3D\",\r\n  \"max_admins_count\": 1,\r\n  \"max_employees_count\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/{{license_slug}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/{{license_id}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -892,7 +1073,7 @@
 								"v1",
 								"admin",
 								"licenses",
-								"{{license_slug}}",
+								"{{license_id}}",
 								""
 							]
 						},
@@ -904,9 +1085,16 @@
 					"name": "admin license slug",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/{{license_slug}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/licenses/{{license_id}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -916,7 +1104,7 @@
 								"v1",
 								"admin",
 								"licenses",
-								"{{license_slug}}",
+								"{{license_id}}",
 								""
 							]
 						},
@@ -941,24 +1129,24 @@
 								{
 									"key": "username",
 									"value": "{{email_user}}",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "password",
 									"value": "{{password_user}}",
-									"type": "text"
-								},
-								{
-									"key": "usename",
-									"value": "{{email_admin_company}}",
 									"type": "text",
 									"disabled": true
+								},
+								{
+									"key": "username",
+									"value": "{{email_admin_company}}",
+									"type": "text"
 								},
 								{
 									"key": "password",
 									"value": "{{password_admin_company}}",
-									"type": "text",
-									"disabled": true
+									"type": "text"
 								}
 							]
 						},
@@ -986,12 +1174,12 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
+								"value": "{{bearer}} {{access_token_user}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/logout",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/logout",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -999,7 +1187,6 @@
 							"path": [
 								"api",
 								"v1",
-								"admin",
 								"auth",
 								"logout"
 							]
@@ -1015,9 +1202,8 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{refresh-token}}",
-								"type": "text",
-								"disabled": true
+								"value": "{{bearer}} {{refresh_token_user}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1030,7 +1216,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/refresh-token",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/refresh-token",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1038,7 +1224,6 @@
 							"path": [
 								"api",
 								"v1",
-								"admin",
 								"auth",
 								"refresh-token"
 							]
@@ -1054,9 +1239,8 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
-								"type": "text",
-								"disabled": true
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1069,7 +1253,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/reset-password",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/reset-password",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1077,7 +1261,6 @@
 							"path": [
 								"api",
 								"v1",
-								"admin",
 								"auth",
 								"reset-password"
 							]
@@ -1093,9 +1276,8 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access-token}}",
-								"type": "text",
-								"disabled": true
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1137,7 +1319,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/{{uuid}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/{{uuid_user}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1146,7 +1328,7 @@
 								"api",
 								"v1",
 								"{{company_slug}}",
-								"{{uuid}}",
+								"{{uuid_user}}",
 								""
 							]
 						},
@@ -1160,7 +1342,7 @@
 						"method": "PATCH",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/{{uuid}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/{{uuid_user}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1169,38 +1351,16 @@
 								"api",
 								"v1",
 								"{{company_slug}}",
-								"{{uuid}}",
+								"{{uuid_user}}",
 								""
 							]
 						},
 						"description": "Редактирование профиля"
 					},
 					"response": []
-				},
-				{
-					"name": "feedback",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/feedback/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"{{company_slug}}",
-								"feedback",
-								""
-							]
-						},
-						"description": "Задать вопрос в разделе “Помощь”"
-					},
-					"response": []
 				}
-			]
+			],
+			"description": "Планирую эти эндпоинты перенести, а группу упразднить"
 		},
 		{
 			"name": "Companies",
@@ -1209,7 +1369,13 @@
 					"name": "сompany",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/",
 							"protocol": "{{protocol}}",
@@ -1231,7 +1397,13 @@
 					"name": "departments",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/",
 							"protocol": "{{protocol}}",
@@ -1254,7 +1426,22 @@
 					"name": "departments",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/",
 							"protocol": "{{protocol}}",
@@ -1277,7 +1464,13 @@
 					"name": "departments import",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/import/",
 							"protocol": "{{protocol}}",
@@ -1301,9 +1494,15 @@
 					"name": "department",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/{{department_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/{{department_slug}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1313,7 +1512,7 @@
 								"v1",
 								"{{company_slug}}",
 								"departments",
-								"{{department_id}}",
+								"{{department_slug}}",
 								""
 							]
 						},
@@ -1325,9 +1524,24 @@
 					"name": "department",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"str4ing\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/{{department_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/{{department_slug}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1337,7 +1551,7 @@
 								"v1",
 								"{{company_slug}}",
 								"departments",
-								"{{department_id}}",
+								"{{department_slug}}",
 								""
 							]
 						},
@@ -1349,9 +1563,15 @@
 					"name": "department",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/{{department_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/departments/{{department_slug}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1361,7 +1581,7 @@
 								"v1",
 								"{{company_slug}}",
 								"departments",
-								"{{department_id}}",
+								"{{department_slug}}",
 								""
 							]
 						},
@@ -1373,7 +1593,13 @@
 					"name": "employees",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/",
 							"protocol": "{{protocol}}",
@@ -1396,7 +1622,22 @@
 					"name": "employees",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string34\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/",
 							"protocol": "{{protocol}}",
@@ -1411,7 +1652,7 @@
 								""
 							]
 						},
-						"description": "Добавить сотрудника в отдел"
+						"description": "Добавить сотрудника в компанию"
 					},
 					"response": []
 				},
@@ -1419,7 +1660,13 @@
 					"name": "employees import",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/import/",
 							"protocol": "{{protocol}}",
@@ -1443,9 +1690,15 @@
 					"name": "employee",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/{{uuid}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/{{uuid_user}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1455,7 +1708,7 @@
 								"v1",
 								"{{company_slug}}",
 								"employees",
-								"{{uuid}}",
+								"{{uuid_user}}",
 								""
 							]
 						},
@@ -1467,9 +1720,24 @@
 					"name": "employee",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"birthday\": \"2025-03-05\",\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"role\": \"Админ\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/{{uuid}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/{{uuid_user}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1479,11 +1747,11 @@
 								"v1",
 								"{{company_slug}}",
 								"employees",
-								"{{uuid}}",
+								"{{uuid_user}}",
 								""
 							]
 						},
-						"description": "Изменить отдел сотрудника"
+						"description": "Изменить данные о сотруднике"
 					},
 					"response": []
 				},
@@ -1491,9 +1759,15 @@
 					"name": "employee",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/{{uuid}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/employees/{{uuid_user}}/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1503,16 +1777,60 @@
 								"v1",
 								"{{company_slug}}",
 								"employees",
-								"{{uuid}}",
+								"{{uuid_user}}",
 								""
 							]
 						},
 						"description": "Удалить сотрудника из отдела"
 					},
 					"response": []
+				},
+				{
+					"name": "feedback",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": [\r\n    \"user@example.com\"\r\n  ],\r\n  \"subject_email\": \"string\",\r\n  \"message\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/feedback/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"feedback",
+								""
+							]
+						},
+						"description": "Задать вопрос в разделе “Помощь”"
+					},
+					"response": []
 				}
 			],
-			"description": "Компании."
+			"description": "Управление компаниями администраторами от компании."
 		},
 		{
 			"name": "Problems",
@@ -1536,7 +1854,7 @@
 								""
 							]
 						},
-						"description": "Главная страница со всеми проблемами"
+						"description": "Главная страница со всеми проблемами для компании."
 					},
 					"response": []
 				},
@@ -1545,6 +1863,15 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"color\": 1,\r\n  \"type\": \"Взаимодействие в коллективе\",\r\n  \"status\": \"Новая\",\r\n  \"company_id\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/",
 							"protocol": "{{protocol}}",
@@ -1583,7 +1910,7 @@
 								""
 							]
 						},
-						"description": "Информация о проблеме (должна ещё выходить инфа с лентой сообщений у этой проблемы)"
+						"description": "Информация о проблеме"
 					},
 					"response": []
 				},
@@ -1592,6 +1919,15 @@
 					"request": {
 						"method": "PATCH",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"color\": 1,\r\n  \"type\": \"Взаимодействие в коллективе\",\r\n  \"status\": \"Новая\",\r\n   \"owner_id\": \"e285f5f7-cc0e-4580-8246-f02cb9cd9374\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/",
 							"protocol": "{{protocol}}",
@@ -1635,7 +1971,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"description": "Управление \"Проблемами\""
 		},
 		{
 			"name": "Meetings",
@@ -1661,7 +1998,7 @@
 								""
 							]
 						},
-						"description": "Общая страница с встречами"
+						"description": "Получить список всех встреч по id проблемы"
 					},
 					"response": []
 				},
@@ -1670,6 +2007,15 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"string\",\r\n  \"description\": \"string\",\r\n  \"date_meeting\": \"2025-03-07\",\r\n  \"status\": \"Новая\",\r\n  \"place\": \"string\",\r\n  \"problem_id\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/",
 							"protocol": "{{protocol}}",
@@ -1768,7 +2114,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"description": "Управление \"Встречами\""
 		},
 		{
 			"name": "Tasks",
@@ -1803,6 +2150,15 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"date_completion\": \"2025-03-07\",\r\n  \"problem_id\": 0,\r\n  \"owner_id\": \"20cc96fd-9d9f-4664-b3a2-5ab9e482726d\",\r\n  \"status\": \"Новая\",\r\n  \"transfer_counter\": 0,\r\n  \"file\": [\r\n    \"string\"\r\n  ],\r\n  \"executors\": [\r\n    \"20cc96fd-9d9f-4664-b3a2-5ab9e482726d\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/tasks/",
 							"protocol": "{{protocol}}",
@@ -1910,7 +2266,13 @@
 					"name": "thread",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/thread/",
 							"protocol": "{{protocol}}",
@@ -1927,7 +2289,7 @@
 								""
 							]
 						},
-						"description": "Получить всю ленту. С коментариями."
+						"description": "Получить всю ленту."
 					},
 					"response": []
 				},
@@ -1935,7 +2297,22 @@
 					"name": "thread",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"text\": \"string\",\r\n  \"important\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/thread/",
 							"protocol": "{{protocol}}",
@@ -1957,12 +2334,18 @@
 					"response": []
 				},
 				{
-					"name": "comment",
+					"name": "comments",
 					"request": {
-						"method": "POST",
-						"header": [],
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comment/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comments",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1974,7 +2357,47 @@
 								"problems",
 								"{{problem_id}}",
 								"{{thread_id}}",
-								"comment",
+								"comments"
+							]
+						},
+						"description": "Оставить коментарий на треде"
+					},
+					"response": []
+				},
+				{
+					"name": "comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"text\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comments/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"{{thread_id}}",
+								"comments",
 								""
 							]
 						},
@@ -1986,9 +2409,24 @@
 					"name": "comment",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"text\": \"2string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comment/{{comment_id}}",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comments/{{comment_id}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -2000,7 +2438,7 @@
 								"problems",
 								"{{problem_id}}",
 								"{{thread_id}}",
-								"comment",
+								"comments",
 								"{{comment_id}}"
 							]
 						},
@@ -2012,9 +2450,15 @@
 					"name": "comment",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comment/{{comment_id}}",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comments/{{comment_id}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -2026,7 +2470,7 @@
 								"problems",
 								"{{problem_id}}",
 								"{{thread_id}}",
-								"comment",
+								"comments",
 								"{{comment_id}}"
 							]
 						},
@@ -2037,10 +2481,16 @@
 				{
 					"name": "like",
 					"request": {
-						"method": "POST",
-						"header": [],
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/{{comment_id}}/like/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comments/{{comment_id}}/like",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -2052,16 +2502,50 @@
 								"problems",
 								"{{problem_id}}",
 								"{{thread_id}}",
+								"comments",
 								"{{comment_id}}",
-								"like",
-								""
+								"like"
+							]
+						},
+						"description": "Поставить лайк на тред"
+					},
+					"response": []
+				},
+				{
+					"name": "unlike",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/{{thread_id}}/comments/{{comment_id}}/unlike",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"{{thread_id}}",
+								"comments",
+								"{{comment_id}}",
+								"unlike"
 							]
 						},
 						"description": "Поставить лайк на тред"
 					},
 					"response": []
 				}
-			]
+			],
+			"description": "Довска сообщений на странице проблемы."
 		},
 		{
 			"name": "Surveys",
@@ -2320,7 +2804,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/auth/info/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/landing/auth/info/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -2328,6 +2812,7 @@
 							"path": [
 								"api",
 								"v1",
+								"landing",
 								"auth",
 								"info",
 								""
@@ -2343,7 +2828,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/auth/demo/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/landing/auth/demo/",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -2351,6 +2836,7 @@
 							"path": [
 								"api",
 								"v1",
+								"landing",
 								"auth",
 								"demo",
 								""
@@ -2394,31 +2880,8 @@
 			"value": "127.0.0.1:8000"
 		},
 		{
-			"key": "http",
-			"value": "http"
-		},
-		{
 			"key": "protocol",
 			"value": "http"
-		},
-		{
-			"key": "survey_id",
-			"value": "1"
-		},
-		{
-			"key": "department_id",
-			"value": "1",
-			"type": "string"
-		},
-		{
-			"key": "message_id",
-			"value": "1",
-			"type": "string"
-		},
-		{
-			"key": "admin_slug",
-			"value": "admin_slug",
-			"type": "string"
 		},
 		{
 			"key": "company_slug",
@@ -2426,88 +2889,137 @@
 			"type": "string"
 		},
 		{
-			"key": "license_slug",
-			"value": "license_slug",
+			"key": "department_slug",
+			"value": "department_slug",
 			"type": "string"
 		},
 		{
-			"key": "uuid",
-			"value": "uuid",
-			"type": "string"
-		},
-		{
-			"key": "problem_id",
-			"value": "1",
+			"key": "license_id",
+			"value": "license_id",
 			"type": "string"
 		},
 		{
 			"key": "meeting_id",
-			"value": "1",
+			"value": "meeting_id",
+			"type": "string"
+		},
+		{
+			"key": "problem_id",
+			"value": "problem_id",
 			"type": "string"
 		},
 		{
 			"key": "task_id",
-			"value": "1",
-			"type": "string"
-		},
-		{
-			"key": "thread_id",
-			"value": "1",
+			"value": "task_id",
 			"type": "string"
 		},
 		{
 			"key": "comment_id",
-			"value": "1",
+			"value": "comment_id",
 			"type": "default"
 		},
 		{
+			"key": "message_id",
+			"value": "message_id",
+			"type": "string"
+		},
+		{
+			"key": "thread_id",
+			"value": "thread_id",
+			"type": "string"
+		},
+		{
+			"key": "survey_id",
+			"value": "survey_id"
+		},
+		{
+			"key": "uuid_superuser",
+			"value": "uuid",
+			"type": "string"
+		},
+		{
+			"key": "uuid_user",
+			"value": "uuid",
+			"type": "string"
+		},
+		{
 			"key": "password_superuser",
-			"value": "string",
+			"value": "password",
 			"type": "string"
 		},
 		{
 			"key": "password_admin_service",
-			"value": "string",
+			"value": "password",
 			"type": "string"
 		},
 		{
 			"key": "password_admin_company",
-			"value": "string",
+			"value": "password",
 			"type": "string"
 		},
 		{
 			"key": "password_user",
-			"value": "string",
+			"value": "password",
 			"type": "string"
 		},
 		{
 			"key": "email_superuser",
-			"value": "string",
+			"value": "superuser@yandex.ru",
 			"type": "string"
 		},
 		{
 			"key": "email_admin_service",
-			"value": "string",
+			"value": "admin@yandex.ru",
 			"type": "string"
 		},
 		{
 			"key": "email_admin_company",
-			"value": "string",
+			"value": "moderator@example.com",
 			"type": "string"
 		},
 		{
 			"key": "email_user",
-			"value": "string",
+			"value": "user@example.com",
 			"type": "string"
 		},
 		{
-			"key": "access-token",
-			"value": "string",
+			"key": "access_token_superuser",
+			"value": "access_token",
 			"type": "string"
 		},
 		{
-			"key": "refresh-token",
-			"value": "string",
+			"key": "refresh_token_superuser",
+			"value": "access_token",
+			"type": "string"
+		},
+		{
+			"key": "access_token_admin_service",
+			"value": "access_token",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token_admin_service",
+			"value": "refresh_token",
+			"type": "string"
+		},
+		{
+			"key": "access_token_admin_company",
+			"value": "access_token",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token_admin_company",
+			"value": "refresh_token",
+			"type": "string"
+		},
+		{
+			"key": "access_token_user",
+			"value": "access_token",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token_user",
+			"value": "access_token",
 			"type": "string"
 		},
 		{
