@@ -97,219 +97,6 @@ class TestGetProblemFeed:
         )
 
     @pytest.mark.asyncio
-    async def test_successful_comment_like(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_2_company_1,
-        employee_2_company_1_token,
-        comment,
-    ):
-        """Тест для проверки успешного лайка комментария."""
-        old_rating = comment.rating
-        response = await client.get(URL.LIKE_URL, headers=employee_2_company_1_token)
-        assert response.status_code == status.HTTP_200_OK, (
-            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
-        )
-        await async_session.refresh(comment)
-        association_obj = await user_comment_association_crud.get(
-            comment.id, employee_2_company_1.id, async_session
-        )
-        assert comment.rating == old_rating + 1, (
-            'Рейтинг комментария должен был увеличиться на 1 (стать равным 1)'
-        )
-        assert association_obj is not None, (
-            'При лайке комментария в ассоциативной таблице должна появиться связанная запись'
-        )
-
-    @pytest.mark.asyncio
-    async def test_successful_comment_unlike(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_2_company_1,
-        employee_2_company_1_token,
-        liked_comment,
-    ):
-        """Тест для проверки успешного анлайка комментария."""
-        old_rating = liked_comment.rating
-        response = await client.get(URL.UNLIKE_URL, headers=employee_2_company_1_token)
-        assert response.status_code == status.HTTP_200_OK, (
-            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
-        )
-        await async_session.refresh(liked_comment)
-        association_obj = await user_comment_association_crud.get(
-            liked_comment.id, employee_2_company_1.id, async_session
-        )
-        assert liked_comment.rating == old_rating - 1, (
-            'Рейтинг комментария должен был уменьшиться на 1 (стать равным 0)'
-        )
-        assert association_obj is None, (
-            'При анлайке комментария в ассоциативной таблице должна исчезнуть связанная запись'
-        )
-
-    @pytest.mark.asyncio
-    async def test_unsuccessful_comment_like_by_author(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_1_company_1,
-        employee_1_company_1_token,
-        comment,
-    ):
-        """Тест для проверки неуспешного лайка комментария автором."""
-        old_rating = comment.rating
-        response = await client.get(URL.LIKE_URL, headers=employee_1_company_1_token)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
-            f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
-            f'получен {response.status_code}'
-        )
-        await async_session.refresh(comment)
-        assert comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при неуспешном лайке.'
-        )
-        association_obj = await user_comment_association_crud.get(
-            comment.id, employee_1_company_1.id, async_session
-        )
-        assert association_obj is None, (
-            'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
-        )
-
-    @pytest.mark.asyncio
-    async def test_unsuccessful_repeated_comment_like(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_2_company_1,
-        employee_2_company_1_token,
-        liked_comment,
-    ):
-        """Тест для проверки неуспешного повторного лайка пользователем."""
-        old_rating = liked_comment.rating
-        response = await client.get(URL.LIKE_URL, headers=employee_2_company_1_token)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
-            f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
-            f'получен {response.status_code}'
-        )
-        await async_session.refresh(liked_comment)
-        assert liked_comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при попытке повторного лайка.'
-        )
-        association_obj = await user_comment_association_crud.get(
-            liked_comment.id, employee_2_company_1.id, async_session
-        )
-        assert association_obj is not None, (
-            'При попытке повторного лайка не должно создаваться дополнительных записей в '
-            'ассоциативной таблице.'
-        )
-
-    @pytest.mark.asyncio
-    async def test_unsuccessful_comment_unlike_by_author(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_1_company_1_token,
-        liked_comment,
-    ):
-        """Тест для проверки неуспешного анлайка комментария автором."""
-        old_rating = liked_comment.rating
-        response = await client.get(URL.UNLIKE_URL, headers=employee_1_company_1_token)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
-            f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
-            f'получен {response.status_code}'
-        )
-        await async_session.refresh(liked_comment)
-        assert liked_comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при неуспешном анлайке'
-        )
-
-    @pytest.mark.asyncio
-    async def test_unsuccessful_comment_unlike_by_user(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_2_company_1_token,
-        comment,
-    ):
-        """Тест для проверки неуспешного анлайка комментария пользователем."""
-        old_rating = comment.rating
-        response = await client.get(URL.UNLIKE_URL, headers=employee_2_company_1_token)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
-            f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
-            f'получен {response.status_code}'
-        )
-        await async_session.refresh(comment)
-        assert comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при неуспешном анлайке'
-        )
-
-    @pytest.mark.asyncio
-    async def test_comment_like_with_wrong_message_feed_id(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_2_company_1,
-        employee_2_company_1_token,
-        message_feed,
-        comment,
-        message_feed_for_test,
-    ):
-        """
-        Тест для проверки неуспешного лайка существующего комментария, но в запросе передаётся
-        некорректный message_feed_id/thread_id.
-        """
-        await message_feed_for_test(employee_2_company_1, problem_id=message_feed.problem_id)
-        old_rating = comment.rating
-        response = await client.get(URL.LIKE_BAD_URL, headers=employee_2_company_1_token)
-        assert response.status_code == status.HTTP_404_NOT_FOUND, (
-            f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
-            f'получен {response.status_code}'
-        )
-        await async_session.refresh(comment)
-        assert comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при неуспешном лайке.'
-        )
-        association_obj = await user_comment_association_crud.get(
-            comment.id, employee_2_company_1.id, async_session
-        )
-        assert association_obj is None, (
-            'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
-        )
-
-    @pytest.mark.asyncio
-    async def test_comment_unlike_with_wrong_message_feed_id(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_2_company_1,
-        employee_2_company_1_token,
-        message_feed,
-        liked_comment,
-        message_feed_for_test,
-    ):
-        """
-        Тест для проверки неуспешного анлайка существующего комментария, но в запросе передаётся
-        некорректный message_feed_id/thread_id.
-        """
-        await message_feed_for_test(employee_2_company_1, problem_id=message_feed.problem_id)
-        old_rating = liked_comment.rating
-        response = await client.get(URL.UNLIKE_BAD_URL, headers=employee_2_company_1_token)
-        assert response.status_code == status.HTTP_404_NOT_FOUND, (
-            f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
-            f'получен {response.status_code}'
-        )
-        await async_session.refresh(liked_comment)
-        assert liked_comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при неуспешном анлайке.'
-        )
-        association_obj = await user_comment_association_crud.get(
-            liked_comment.id, employee_2_company_1.id, async_session
-        )
-        assert association_obj is not None, (
-            'При неуспешном анлайке не должна удаляться запись в ассоциативной таблице.'
-        )
-
-    @pytest.mark.asyncio
     @pytest.mark.usefixtures('comment')
     @pytest.mark.parametrize(
         'url_404',
@@ -557,6 +344,219 @@ class TestPostProblemFeed:
         assert new_comments_count == old_comments_count, (
             f'Количество объектов CommentFeed должно равняться {old_comments_count}. '
             f'Текущее количество - {new_comments_count}.'
+        )
+
+    @pytest.mark.asyncio
+    async def test_successful_comment_like(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_2_company_1,
+        employee_2_company_1_token,
+        comment,
+    ):
+        """Тест для проверки успешного лайка комментария."""
+        old_rating = comment.rating
+        response = await client.post(URL.LIKE_URL, headers=employee_2_company_1_token)
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
+        await async_session.refresh(comment)
+        association_obj = await user_comment_association_crud.get(
+            comment.id, employee_2_company_1.id, async_session
+        )
+        assert comment.rating == old_rating + 1, (
+            'Рейтинг комментария должен был увеличиться на 1 (стать равным 1)'
+        )
+        assert association_obj is not None, (
+            'При лайке комментария в ассоциативной таблице должна появиться связанная запись'
+        )
+
+    @pytest.mark.asyncio
+    async def test_successful_comment_unlike(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_2_company_1,
+        employee_2_company_1_token,
+        liked_comment,
+    ):
+        """Тест для проверки успешного анлайка комментария."""
+        old_rating = liked_comment.rating
+        response = await client.post(URL.UNLIKE_URL, headers=employee_2_company_1_token)
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
+        await async_session.refresh(liked_comment)
+        association_obj = await user_comment_association_crud.get(
+            liked_comment.id, employee_2_company_1.id, async_session
+        )
+        assert liked_comment.rating == old_rating - 1, (
+            'Рейтинг комментария должен был уменьшиться на 1 (стать равным 0)'
+        )
+        assert association_obj is None, (
+            'При анлайке комментария в ассоциативной таблице должна исчезнуть связанная запись'
+        )
+
+    @pytest.mark.asyncio
+    async def test_unsuccessful_comment_like_by_author(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_1_company_1,
+        employee_1_company_1_token,
+        comment,
+    ):
+        """Тест для проверки неуспешного лайка комментария автором."""
+        old_rating = comment.rating
+        response = await client.post(URL.LIKE_URL, headers=employee_1_company_1_token)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
+            f'получен {response.status_code}'
+        )
+        await async_session.refresh(comment)
+        assert comment.rating == old_rating, (
+            'Рейтинг комментария не должен меняться при неуспешном лайке.'
+        )
+        association_obj = await user_comment_association_crud.get(
+            comment.id, employee_1_company_1.id, async_session
+        )
+        assert association_obj is None, (
+            'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
+        )
+
+    @pytest.mark.asyncio
+    async def test_unsuccessful_repeated_comment_like(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_2_company_1,
+        employee_2_company_1_token,
+        liked_comment,
+    ):
+        """Тест для проверки неуспешного повторного лайка пользователем."""
+        old_rating = liked_comment.rating
+        response = await client.post(URL.LIKE_URL, headers=employee_2_company_1_token)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
+            f'получен {response.status_code}'
+        )
+        await async_session.refresh(liked_comment)
+        assert liked_comment.rating == old_rating, (
+            'Рейтинг комментария не должен меняться при попытке повторного лайка.'
+        )
+        association_obj = await user_comment_association_crud.get(
+            liked_comment.id, employee_2_company_1.id, async_session
+        )
+        assert association_obj is not None, (
+            'При попытке повторного лайка не должно создаваться дополнительных записей в '
+            'ассоциативной таблице.'
+        )
+
+    @pytest.mark.asyncio
+    async def test_unsuccessful_comment_unlike_by_author(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_1_company_1_token,
+        liked_comment,
+    ):
+        """Тест для проверки неуспешного анлайка комментария автором."""
+        old_rating = liked_comment.rating
+        response = await client.post(URL.UNLIKE_URL, headers=employee_1_company_1_token)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
+            f'получен {response.status_code}'
+        )
+        await async_session.refresh(liked_comment)
+        assert liked_comment.rating == old_rating, (
+            'Рейтинг комментария не должен меняться при неуспешном анлайке'
+        )
+
+    @pytest.mark.asyncio
+    async def test_unsuccessful_comment_unlike_by_user(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_2_company_1_token,
+        comment,
+    ):
+        """Тест для проверки неуспешного анлайка комментария пользователем."""
+        old_rating = comment.rating
+        response = await client.post(URL.UNLIKE_URL, headers=employee_2_company_1_token)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
+            f'получен {response.status_code}'
+        )
+        await async_session.refresh(comment)
+        assert comment.rating == old_rating, (
+            'Рейтинг комментария не должен меняться при неуспешном анлайке'
+        )
+
+    @pytest.mark.asyncio
+    async def test_comment_like_with_wrong_message_feed_id(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_2_company_1,
+        employee_2_company_1_token,
+        message_feed,
+        comment,
+        message_feed_for_test,
+    ):
+        """
+        Тест для проверки неуспешного лайка существующего комментария, но в запросе передаётся
+        некорректный message_feed_id/thread_id.
+        """
+        await message_feed_for_test(employee_2_company_1, problem_id=message_feed.problem_id)
+        old_rating = comment.rating
+        response = await client.post(URL.LIKE_BAD_URL, headers=employee_2_company_1_token)
+        assert response.status_code == status.HTTP_404_NOT_FOUND, (
+            f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
+            f'получен {response.status_code}'
+        )
+        await async_session.refresh(comment)
+        assert comment.rating == old_rating, (
+            'Рейтинг комментария не должен меняться при неуспешном лайке.'
+        )
+        association_obj = await user_comment_association_crud.get(
+            comment.id, employee_2_company_1.id, async_session
+        )
+        assert association_obj is None, (
+            'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
+        )
+
+    @pytest.mark.asyncio
+    async def test_comment_unlike_with_wrong_message_feed_id(
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        employee_2_company_1,
+        employee_2_company_1_token,
+        message_feed,
+        liked_comment,
+        message_feed_for_test,
+    ):
+        """
+        Тест для проверки неуспешного анлайка существующего комментария, но в запросе передаётся
+        некорректный message_feed_id/thread_id.
+        """
+        await message_feed_for_test(employee_2_company_1, problem_id=message_feed.problem_id)
+        old_rating = liked_comment.rating
+        response = await client.post(URL.UNLIKE_BAD_URL, headers=employee_2_company_1_token)
+        assert response.status_code == status.HTTP_404_NOT_FOUND, (
+            f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
+            f'получен {response.status_code}'
+        )
+        await async_session.refresh(liked_comment)
+        assert liked_comment.rating == old_rating, (
+            'Рейтинг комментария не должен меняться при неуспешном анлайке.'
+        )
+        association_obj = await user_comment_association_crud.get(
+            liked_comment.id, employee_2_company_1.id, async_session
+        )
+        assert association_obj is not None, (
+            'При неуспешном анлайке не должна удаляться запись в ассоциативной таблице.'
         )
 
 

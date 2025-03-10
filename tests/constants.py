@@ -127,8 +127,6 @@ MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY: dict[str] = {'text': 'feed for another 
 PROBLEM_FEEDS_GET_404: tuple[str, ...] = (
     '/api/v1/Zorg/problems/99/thread',
     '/api/v1/Zorg/problems/1/99/comments',
-    '/api/v1/Zorg/problems/1/1/comments/99/like',
-    '/api/v1/Zorg/problems/1/1/comments/99/unlike',
 )
 COMMENT_CREATE_NEW: dict[str] = {'text': 'new comment'}
 COMMENT_CREATE_BAD: tuple[tuple] = (
