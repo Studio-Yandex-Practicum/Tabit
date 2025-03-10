@@ -41,10 +41,10 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
         Данные полей могут быть переопределены при вызове `create_batch()` или `.create()`.
     """
 
-    name: str = factory.Faker('first_name_male', locale='ru_RU')
-    surname: str = factory.Faker('last_name_male', locale='ru_RU')
-    patronymic: str = factory.LazyFunction(lambda: random.choice(PATRONYMIC))
-    phone_number: str = factory.Faker('msisdn', locale='ru_RU')
+    name: factory.Faker = factory.Faker('first_name_male', locale='ru_RU')
+    surname: factory.Faker = factory.Faker('last_name_male', locale='ru_RU')
+    patronymic: factory.LazyFunction = factory.LazyFunction(lambda: random.choice(PATRONYMIC))
+    phone_number: factory.Faker = factory.Faker('msisdn', locale='ru_RU')
     email = factory.LazyFunction(
         lambda: f'{uuid.uuid4().hex[:3]}'
         f'{factory.Faker("email").evaluate(None, None, {"locale": "en_US"})}'

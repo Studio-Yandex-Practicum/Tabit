@@ -95,8 +95,12 @@ class AssociationUserTask(BaseTabitModel):
     """
 
     id: Mapped[int_pk]
-    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
-    right_id: Mapped[int] = mapped_column(ForeignKey('task.id'), primary_key=True)
+    left_id: Mapped[UUID] = mapped_column(
+        ForeignKey('usertabit.id', ondelete='CASCADE'), nullable=False
+    )
+    right_id: Mapped[int] = mapped_column(
+        ForeignKey('task.id', ondelete='CASCADE'), nullable=False
+    )
     user: Mapped['UserTabit'] = relationship(back_populates='tasks')
     task: Mapped['Task'] = relationship(back_populates='executors')
 

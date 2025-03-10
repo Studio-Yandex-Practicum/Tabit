@@ -1,5 +1,6 @@
 """Модуль CRUD для компании."""
 
+from datetime import datetime
 from typing import Any, List
 
 from fastapi.responses import FileResponse
@@ -8,6 +9,7 @@ from sqlalchemy.future import select
 
 from src.companies.models import Company
 from src.crud import CRUDBase
+from src.tabit_management.models import LicenseType
 
 
 class CRUDCompany(CRUDBase):
@@ -63,6 +65,40 @@ class CRUDCompany(CRUDBase):
         """
         company = await session.execute(select(Company).where(Company.slug == company_slug))
         return company.scalar_one_or_none()
+
+    async def is_company_slug_exists(self, session: AsyncSession, slug: str) -> None:
+        """
+        Проверяет, существует ли компания с указанным slug.
+
+        Args:
+            session (AsyncSession): Асинхронная сессия SQLAlchemy.
+            slug (str): Уникальный slug компании.
+
+        Returns:
+            bool: True, если компания с таким slug уже существует, иначе False.
+        """
+        result = await session.execute(select(Company).where(Company.slug == slug))
+        return result.scalar_one_or_none() is not None
+
+    async def save_end_license_time(
+        self, session: AsyncSession, company_start_license_time: datetime, license_id: int
+    ) -> datetime:
+        """
+        Вычисляет дату окончания лицензии.
+
+        Args:
+            session (AsyncSession): Асинхронная сессия SQLAlchemy.
+            company_start_license_time (datetime): Дата начала лицензии.
+            license_id (int): ID лицензии.
+
+        Returns:
+            datetime: Дата окончания лицензии.
+        """
+        license_term = await session.scalar(
+            select(LicenseType.license_term).where(LicenseType.id == license_id)
+        )
+
+        return company_start_license_time + license_term
 
 
 company_crud = CRUDCompany(Company)

@@ -15,6 +15,8 @@ class URL:
     USER_LOGIN: str = '/api/v1/auth/login'
     USER_LOGOUT: str = '/api/v1/auth/logout'
     USER_REFRESH: str = '/api/v1/auth/refresh-token'
+    COMPANIES_ENDPOINT: str = '/api/v1/admin/companies/'
+    LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
 
     # URLs для problem_feeds.py
     MESSAGE_FEED_URL: str = '/api/v1/Zorg/problems/1/thread'

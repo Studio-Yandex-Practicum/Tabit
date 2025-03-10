@@ -31,13 +31,13 @@ class DeparmentFactory(AsyncSQLAlchemyFactory):
     `Отдел-uuid.uuid4().hex[:4]`
     """
 
-    name: str = factory.LazyFunction(
+    name: factory.LazyFunction = factory.LazyFunction(
         lambda: available_departments_names.pop(0)
         if available_departments_names
         else f'Отдел-{uuid.uuid4().hex[:4]}'
     )
     company_id: int
-    slug: str = factory.LazyFunction(lambda: uuid.uuid4().hex[:6])
+    slug: factory.LazyFunction = factory.LazyFunction(lambda: uuid.uuid4().hex[:6])
 
     class Meta:
         model = Department

@@ -1,15 +1,15 @@
-"""Structure initiation after refactoring
+"""initial migration
 
 Revision ID: 01
 Revises:
-Create Date: 2025-02-04 18:57:48.487899
+Create Date: 2025-03-06 13:12:00.748127
 
 """
 from typing import Sequence, Union
 
+from alembic import op
 import fastapi_users_db_sqlalchemy
 import sqlalchemy as sa
-from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
@@ -47,7 +47,8 @@ def upgrade() -> None:
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id')
+    sa.UniqueConstraint('id'),
+    sa.UniqueConstraint('name')
     )
     op.create_table('tabitadminuser',
     sa.Column('name', sa.String(length=100), nullable=False),
@@ -156,18 +157,20 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('company_id', sa.Integer(), nullable=False),
     sa.Column('color', sa.Enum('RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'DARK_BLUE', 'VIOLET', 'BROWN', 'GRAY', 'BLACK', 'WHITE', 'PINK', 'BEIGE', 'VINOUS', 'PURPLE', name='colorproblem'), nullable=False),
     sa.Column('type', sa.Enum('A', 'B', 'C', 'D', 'E', 'F', 'G', name='typeproblem'), nullable=False),
     sa.Column('status', sa.Enum('NEW', 'IN_PROGRESS', 'SUSPENDED', 'COMPLETED', name='statusproblem'), nullable=False),
     sa.Column('owner_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['company_id'], ['company.id'], ),
     sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )
     op.create_table('associationuserproblem',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('status', sa.Boolean(), nullable=False),
@@ -197,7 +200,7 @@ def upgrade() -> None:
     sa.Column('date_meeting', sa.Date(), nullable=False),
     sa.Column('status', sa.Enum('NEW', 'NOT_HELD', 'HELD', 'SUSPENDED', name='statusmeeting'), nullable=False),
     sa.Column('place', sa.String(length=255), nullable=False),
-    sa.Column('transger_counter', sa.Integer(), nullable=False),
+    sa.Column('transfer_counter', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
@@ -226,15 +229,16 @@ def upgrade() -> None:
     sa.Column('owner_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('problem_id', sa.Integer(), nullable=False),
     sa.Column('status', sa.Enum('NEW', 'IN_PROGRESS', 'NOT_ACCEPTED', 'COMPLETED', name='statustask'), nullable=False),
+    sa.Column('transfer_counter', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
-    sa.ForeignKeyConstraint(['problem_id'], ['problem.id'], ),
-    sa.PrimaryKeyConstraint('id', 'problem_id'),
+    sa.ForeignKeyConstraint(['problem_id'], ['problem.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )
     op.create_table('associationusermeeting',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -250,9 +254,9 @@ def upgrade() -> None:
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ),
-    sa.ForeignKeyConstraint(['right_id'], ['task.id'], ),
-    sa.PrimaryKeyConstraint('id', 'left_id', 'right_id'),
+    sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['right_id'], ['task.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )
     op.create_table('commentfeed',
@@ -260,6 +264,7 @@ def upgrade() -> None:
     sa.Column('message_id', sa.Integer(), nullable=False),
     sa.Column('owner_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('text', sa.String(), nullable=False),
+    sa.Column('rating', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['message_id'], ['messagefeed.id'], ),
@@ -323,6 +328,17 @@ def upgrade() -> None:
     sa.UniqueConstraint('id'),
     sa.UniqueConstraint('name')
     )
+    op.create_table('associationusercomment',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
+    sa.Column('right_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ),
+    sa.ForeignKeyConstraint(['right_id'], ['commentfeed.id'], ),
+    sa.PrimaryKeyConstraint('id', 'left_id', 'right_id'),
+    sa.UniqueConstraint('id')
+    )
     op.create_table('votingbyuser',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
@@ -340,6 +356,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('votingbyuser')
+    op.drop_table('associationusercomment')
     op.drop_table('votingfeed')
     op.drop_table('resultmeeting')
     op.drop_table('filetask')

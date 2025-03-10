@@ -1,12 +1,13 @@
 import uuid
 from collections.abc import AsyncGenerator
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import pytest
 import pytest_asyncio
 from fastapi_users.password import PasswordHelper
 from httpx import ASGITransport, AsyncClient
+from slugify import slugify
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -93,7 +94,7 @@ async def license_for_test(async_session):
         """Функция-обёртка для создания лицензии с изменяемыми параметрами."""
         default_data = {
             'name': f'Test License {uuid.uuid4().hex[:8]}',
-            'license_term': timedelta(days=1),
+            'license_term': timedelta(days=360),
             'max_admins_count': 5,
             'max_employees_count': 50,
         }
@@ -107,19 +108,30 @@ async def license_for_test(async_session):
 
 
 @pytest_asyncio.fixture
-async def company_for_test(async_session):
+async def company_for_test(async_session, license_for_test):
     """
     Фикстура, создающая тестовую компанию с возможностью изменения полей.
     По умолчанию, только обязательные поля.
     """
 
-    async def _create_company(company_data=None):
+    async def _create_company(company_data=None, all_fields=False):
         """Функция-обёртка для создания компании с изменяемыми параметрами."""
+        license_instance = await license_for_test()
+
         default_data = {
             'name': f'Test Company {uuid.uuid4().hex[:8]}',
-            'slug': f'Test_Company_{uuid.uuid4().hex[:8]}',
+            'slug': slugify(f'Test Company {uuid.uuid4().hex[:8]}'),
             'is_active': True,
         }
+        if all_fields:
+            default_data.update(
+                {
+                    'description': 'Тестовое описание компании',
+                    'logo': 'https://example.com/logo.png',
+                    'license_id': license_instance.id,
+                    'start_license_time': datetime.now(timezone.utc).isoformat(),
+                }
+            )
         if company_data:
             default_data.update(company_data)
         return await make_entry_in_table(async_session, default_data, Company)
