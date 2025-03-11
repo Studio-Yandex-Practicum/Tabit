@@ -3,10 +3,9 @@ import asyncio
 import uvicorn
 from click import command, option
 
+from scripts.constants import TextScripts
 from src.core.config.logging import logger
 from src.core.database.init_db import create_first_superuser
-
-from .constants import TextScripts
 
 
 @command(help=TextScripts.DESCRIPTION)
