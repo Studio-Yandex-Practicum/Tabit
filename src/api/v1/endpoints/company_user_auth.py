@@ -20,7 +20,7 @@ from src.api.v1.validator import check_user_is_active
 from src.database.db_depends import get_async_session
 from src.tabit_management.models import TabitAdminUser
 from src.users.crud.user import user_crud
-from src.users.schemas.user import UserReadSchema, UserForUserUpdateSchema
+from src.users.schemas.user import UserForUserUpdateSchema, UserReadSchema
 
 router = APIRouter()
 
