@@ -2,8 +2,12 @@ from datetime import date
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.core.constants.common import LENGTH_NAME_USER, MIN_LENGTH_NAME
-from src.core.constants.user import TITLE_COMPANY_ID_TAG, TITLE_NAME_TAG
+from src.schemas.constants import (
+    LENGTH_NAME_USER,
+    MIN_LENGTH_NAME,
+    TITLE_COMPANY_ID_TAG,
+    TITLE_NAME_TAG,
+)
 
 
 class TagUserUpdateSchema(BaseModel):

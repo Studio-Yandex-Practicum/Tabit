@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.problems.constants import TITLE_MESSAGE_FEED_IMPORTANT, TITLE_MESSAGE_FEED_TEXT
+from src.schemas.constants import TITLE_MESSAGE_FEED_IMPORTANT, TITLE_MESSAGE_FEED_TEXT
 
 
 class MessageFeedBase(BaseModel):

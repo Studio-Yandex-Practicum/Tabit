@@ -1,17 +1,19 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.dependencies import current_user_tabit
-from src.api.v1.validators import (
+from src.core.auth.dependencies import current_user_tabit
+from src.core.database.db_depends import get_async_session
+from src.features_v1.company_problem_discussion.crud_comment import comment_crud
+from src.features_v1.company_problem_discussion.crud_message_feed import message_feed_crud
+from src.features_v1.company_problem_discussion.validators import (
     check_comment_and_message_feed,
     check_comment_has_likes_from_user,
     check_comment_owner,
     get_access_to_comments,
     get_access_to_feeds,
 )
-from src.database.db_depends import get_async_session
-from src.problems.crud import comment_crud, message_feed_crud
-from src.problems.schemas import (
+from src.models import UserTabit
+from src.schemas import (
     CommentCreate,
     CommentRead,
     CommentUpdate,
@@ -19,7 +21,6 @@ from src.problems.schemas import (
     MessageFeedCreate,
     MessageFeedRead,
 )
-from src.users.models import UserTabit
 
 router = APIRouter()
 

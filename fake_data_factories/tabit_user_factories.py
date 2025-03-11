@@ -1,8 +1,8 @@
 import asyncio
 
+from constants import FAKER_USER_COUNT
 from termcolor import cprint
 
-from constants import FAKER_USER_COUNT
 from fake_data_factories.base_user_factory import BaseUserFactory
 from src.database.alembic_models import TabitAdminUser
 from src.database.sc_db_session import sc_session

@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, List
 
 from sqlalchemy.orm import Mapped, relationship
 
-from src.core.annotations import description, int_pk, name_problem, owner
 from src.models import BaseTabitModel, ColorProblem, StatusProblem, TypeProblem
+from src.models.annotations import description, int_pk, name_problem, owner
 
 if TYPE_CHECKING:
     from src.models import (

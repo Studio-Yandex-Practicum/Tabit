@@ -3,19 +3,20 @@
 """
 
 from datetime import datetime
-from typing import Optional, Self
+from typing import Literal, Optional, Self
 
 from fastapi_users.schemas import BaseUserUpdate
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
-from src.core.constants.common import (
+from src.schemas import GetterSlugMixin, UserSchemaMixin
+from src.schemas.constants import (
+    FILTER_NAME_DESCRIPTION,
     LENGTH_NAME_COMPANY,
     LENGTH_NAME_USER,
     LENGTH_TELEGRAM_USERNAME,
     MIN_LENGTH_NAME,
-)
-from src.core.constants.company import (
+    SORTING_DESCRIPTION,
     TEST_ERROR_INVALID_CHARACTERS_NAME,
     TEST_ERROR_INVALID_CHARACTERS_SURNAME,
     TEST_ERROR_LICENSE_FIELDS,
@@ -24,17 +25,14 @@ from src.core.constants.company import (
     TITLE_LOGO_COMPANY,
     TITLE_NAME_COMPANY,
     TITLE_NAME_DEPARTMENT,
+    TITLE_NAME_USER,
+    TITLE_PHONE_NUMBER_USER,
     TITLE_SLUG_COMPANY,
     TITLE_SLUG_DEPARTMENT,
     TITLE_START_LICENSE_TIME_COMPANY,
-)
-from src.core.constants.user import (
-    TITLE_NAME_USER,
-    TITLE_PHONE_NUMBER_USER,
     TITLE_SURNAME_USER,
     TITLE_TELEGRAM_USERNAME_USER,
 )
-from src.schemas import GetterSlugMixin, UserSchemaMixin
 
 
 class CompanyUpdateForUserSchema(BaseModel):
@@ -112,6 +110,22 @@ class CompanyResponseSchema(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CompanyTypeFilterSchema(BaseModel):
+    """
+    Схема фильтрации списка компании с возможностью сортировки.
+
+    Attributes:
+        name (Optional[str]): Фильтр по названию компании.
+        ordering (Optional[Literal]): Сортировка (по полям name, created_at, updated_at).
+    """
+
+    name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
+
+    ordering: Optional[
+        Literal['name', '-name', 'created_at', '-created_at', 'updated_at', '-updated_at']
+    ] = Field(None, description=SORTING_DESCRIPTION)
 
 
 class CompanyDepartmentUpdateSchema(BaseModel, GetterSlugMixin):

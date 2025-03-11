@@ -5,8 +5,9 @@ from uuid import UUID
 from fastapi_users.schemas import CreateUpdateDictModel
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from src.core.constants.common import LENGTH_NAME_USER, MIN_LENGTH_NAME
-from src.core.constants.tabit_management import (
+from src.schemas.constants import (
+    LENGTH_NAME_USER,
+    MIN_LENGTH_NAME,
     TITLE_EMAIL,
     TITLE_IS_SUPERUSER_ADMIN,
     TITLE_NAME_ADMIN,

@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.annotations import int_pk, owner
 from src.models import BaseTabitModel, BaseTag
+from src.models.annotations import int_pk, owner
 
 if TYPE_CHECKING:
     from src.models import CommentFeed, FileMessage, Problem, UserTabit, VotingFeed

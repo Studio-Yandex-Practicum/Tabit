@@ -3,8 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, field_validator
 
-PHONE_REGEX = r'^\+7\d{10}$'
-EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+from src.schemas.constants import EMAIL_REGEX, PHONE_REGEX
 
 
 class LandingPageBaseSchema(BaseModel):

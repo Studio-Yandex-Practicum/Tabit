@@ -6,7 +6,7 @@ from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTableUUID
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr
 
-from src.core.annotations import (
+from src.models.annotations import (
     created_at,
     int_pk,
     name_field,

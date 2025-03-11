@@ -4,8 +4,9 @@ import uvicorn
 from click import command, option
 
 from src.core.config.logging import logger
-from src.core.constants.common import TextScripts
 from src.core.database.init_db import create_first_superuser
+
+from .constants import TextScripts
 
 
 @command(help=TextScripts.DESCRIPTION)

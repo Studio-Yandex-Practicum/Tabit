@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import Interval
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.annotations import int_pk, license_name_field
-from src.core.constants.tabit_management import DEFAULT_NUMBER_DEY_LICENSE
 from src.models import BaseTabitModel
+from src.models.annotations import int_pk, license_name_field
+from src.models.constants import DEFAULT_NUMBER_DEY_LICENSE
 
 if TYPE_CHECKING:
     from src.models import Company

@@ -1,6 +1,7 @@
 # Важно для избежания ошибок при импорте:
 # 1. Импортируем миксины
 # 2. Импортируем все схемы из других файлов
+
 from .mixins import GetterSlugMixin, UserSchemaMixin
 from .admin_company import (
     AdminCompanyResponseSchema,
@@ -16,6 +17,7 @@ from .admin_user import (
     AdminUpdateSchema,
     BaseAdminSchema,
 )
+from .comment import CommentCreate, CommentRead, CommentUpdate
 from .company import (
     CompanyCreateSchema,
     CompanyDepartmentCreateSchema,
@@ -24,6 +26,7 @@ from .company import (
     CompanyEmployeeUpdateSchema,
     CompanyFeedbackCreateShema,
     CompanyResponseSchema,
+    CompanyTypeFilterSchema,
     CompanyUpdateForUserSchema,
     CompanyUpdateSchema,
     UserCompanyUpdateSchema,
@@ -49,6 +52,11 @@ from .license_type import (
     LicenseTypeResponseSchema,
     LicenseTypeUpdateSchema,
 )
+from .message_feed import (
+    MessageFeedBase,
+    MessageFeedCreate,
+    MessageFeedRead,
+)
 from .problem import (
     ProblemBaseSchema,
     ProblemCreateSchema,
@@ -64,20 +72,12 @@ from .problem_meeting import (
     ResultMeetingCreateSchema,
     ResultMeetingInDB,
 )
-from .problem_message import (
-    CommentBase,
-    CommentCreate,
-    CommentInDB,
-    MessageBase,
-    MessageCreate,
-    MessageInDB,
-    VotingBase,
-    VotingByUserCreate,
-    VotingByUserInDB,
-    VotingCreate,
-    VotingInDB,
+from .query_params import (
+    BaseFilterSchema,
+    CompanyFilterSchema,
+    FeedsFilterSchema,
+    UserFilterSchema
 )
-from .query_params import BaseFilterSchema, CompanyFilterSchema, UserFilterSchema
 from .tag import TagUserCreateSchema, TagUserResponseSchema, TagUserUpdateSchema
 from .task import (
     TaskBaseSchema,
@@ -91,6 +91,13 @@ from .user import (
     UserCreateSchema,
     UserReadSchema,
     UserUpdateSchema,
+)
+from .voting import (
+    VotingBase,
+    VotingByUserCreate,
+    VotingByUserInDB,
+    VotingCreate,
+    VotingInDB
 )
 
 __all__ = [
@@ -106,6 +113,9 @@ __all__ = [
     'AdminReadSchema',
     'AdminUpdateSchema',
     'BaseAdminSchema',
+    'CommentCreate',
+    'CommentRead',
+    'CommentUpdate',
     'CompanyCreateSchema',
     'CompanyDepartmentCreateSchema',
     'CompanyDepartmentResponseSchema',
@@ -113,6 +123,7 @@ __all__ = [
     'CompanyEmployeeUpdateSchema',
     'CompanyFeedbackCreateShema',
     'CompanyResponseSchema',
+    'CompanyTypeFilterSchema',
     'CompanyUpdateForUserSchema',
     'CompanyUpdateSchema',
     'UserCompanyUpdateSchema',
@@ -134,6 +145,9 @@ __all__ = [
     'LicenseTypeListResponseSchema',
     'LicenseTypeResponseSchema',
     'LicenseTypeUpdateSchema',
+    'MessageFeedBase',
+    'MessageFeedCreate',
+    'MessageFeedRead',
     'ProblemBaseSchema',
     'ProblemCreateSchema',
     'ProblemResponseSchema',
@@ -145,19 +159,9 @@ __all__ = [
     'ResultMeetingBaseSchema',
     'ResultMeetingCreateSchema',
     'ResultMeetingInDB',
-    'CommentBase',
-    'CommentCreate',
-    'CommentInDB',
-    'MessageBase',
-    'MessageCreate',
-    'MessageInDB',
-    'VotingBase',
-    'VotingByUserCreate',
-    'VotingByUserInDB',
-    'VotingCreate',
-    'VotingInDB',
     'BaseFilterSchema',
     'CompanyFilterSchema',
+    'FeedsFilterSchema',
     'UserFilterSchema',
     'TagUserCreateSchema',
     'TagUserResponseSchema',
@@ -171,4 +175,9 @@ __all__ = [
     'UserCreateSchema',
     'UserReadSchema',
     'UserUpdateSchema',
+    'VotingBase',
+    'VotingByUserCreate',
+    'VotingByUserInDB',
+    'VotingCreate',
+    'VotingInDB',
 ]

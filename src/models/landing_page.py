@@ -4,8 +4,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Mapped
 
-from src.core.annotations import int_pk
 from src.models import BaseTabitModel
+from src.models.annotations import int_pk
 
 
 class LandingPage(BaseTabitModel):

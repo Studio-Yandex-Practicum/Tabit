@@ -6,7 +6,7 @@ from fastapi_mail import ConnectionConfig
 from pydantic import ConfigDict, EmailStr, SecretStr
 from pydantic_settings import BaseSettings
 
-from src.constants import BASE_DIR
+from src.core.constants import BASE_DIR
 
 load_dotenv()
 

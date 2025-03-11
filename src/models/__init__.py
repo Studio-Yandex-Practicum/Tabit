@@ -2,6 +2,7 @@
 # 1. Импортируем базовые модели
 # 2. Импортируем все модели из других файлов
 # 3. Импортируем связные модели в последнюю очередь
+
 from .base import BaseFileLink, BaseTabitModel, BaseTag, BaseUser
 from .company import Company, Department
 from .enum import (
@@ -13,7 +14,7 @@ from .enum import (
     StatusTask,
     TypeProblem,
 )
-from .file_path import FileMeeting, FileMessage, FileProblem, FileTask
+from .file import FileMeeting, FileMessage, FileProblem, FileTask
 from .landing_page import LandingPage
 from .license_type import LicenseType
 from .problem import Problem
@@ -23,6 +24,7 @@ from .tag import TagUser
 from .task import Task
 from .user import TabitAdminUser, UserTabit
 from .association_models import (
+    AssociationUserComment,
     AssociationUserMeeting,
     AssociationUserProblem,
     AssociationUserTags,
@@ -60,6 +62,7 @@ __all__ = [
     'Task',
     'TabitAdminUser',
     'UserTabit',
+    'AssociationUserComment',
     'AssociationUserMeeting',
     'AssociationUserProblem',
     'AssociationUserTags',

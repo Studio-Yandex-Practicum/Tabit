@@ -1,4 +1,5 @@
 # Здесь собраны модели для alembic.
+
 from src.models import (
     AssociationUserMeeting,
     AssociationUserProblem,

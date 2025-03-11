@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, List, Optional
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.annotations import (
+from src.models import BaseTabitModel
+from src.models.annotations import (
     description,
     int_pk,
     int_zero,
@@ -13,8 +14,7 @@ from src.core.annotations import (
     timestamp_nullable,
     url_link_field,
 )
-from src.core.constants.common import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
-from src.models import BaseTabitModel
+from src.models.constants import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
 
 if TYPE_CHECKING:
     from src.models import Department, LicenseType, TagUser, UserTabit

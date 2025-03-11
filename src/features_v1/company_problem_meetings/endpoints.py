@@ -1,19 +1,14 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-<<<<<<< HEAD:src/api/v1/endpoints/company_problem_meetings.py
-from src.api.v1.validators.meeting_validators import (
+from src.core.database.db_depends import get_async_session
+from src.features_v1.company_problem_meetings.crud_meeting import meeting_crud
+from src.features_v1.company_problem_meetings.validators import (
+    check_company_exists,
     check_meeting_date_available,
     check_meeting_title_unique,
     check_problem_exists,
 )
-from src.api.v1.validators.problems_validators import check_company_exists
-from src.database.db_depends import get_async_session
-from src.problems.crud.meeting import meeting_crud
-=======
-from src.core.database.db_depends import get_async_session
-from src.features_v1.company_problem_meetings.crud import meeting_crud
->>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/company_problem_meetings/endpoints.py
 from src.schemas import (
     MeetingCreateSchema,
     MeetingResponseSchema,

@@ -5,13 +5,11 @@ from uuid import UUID
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.core.constants.common import (
-    LENGTH_FILE_LINK,
+from src.models import RoleUserTabit
+from src.schemas import UserSchemaMixin
+from src.schemas.constants import (
     LENGTH_NAME_USER,
-    LENGTH_TELEGRAM_USERNAME,
     MIN_LENGTH_NAME,
-)
-from src.core.constants.user import (
     TITLE_AVATAR_LINK_USER,
     TITLE_BIRTHDAY_USER,
     TITLE_COMPANY_ID_USER,
@@ -31,8 +29,6 @@ from src.core.constants.user import (
     TITLE_TELEGRAM_USERNAME_USER,
     TITLE_UPDATED_AT_USER,
 )
-from src.models import RoleUserTabit
-from src.schemas import UserSchemaMixin
 
 
 class UserReadSchema(BaseUser[UUID]):

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from src.core.constants.common import DEFAULT_LIMIT, DEFAULT_SKIP
+from src.schemas.constants import DEFAULT_LIMIT, DEFAULT_SKIP
 
 
 class BaseFilterSchema(BaseModel):
@@ -26,3 +26,16 @@ class UserFilterSchema(BaseFilterSchema):
     """Фильтр списка пользователей под query-параметры."""
 
     # TODO добавить валидацию query-параметров сортировки и фильтрации
+
+
+class FeedsFilterSchema(BaseModel):
+    """
+    Базовая схема фильтраций.
+
+    Используется для обработки query-параметров:
+    пагинация, сортировка и фильтрация списка объектов.
+    """
+
+    skip: int = Field(DEFAULT_SKIP, ge=0, title='Пропустить n объектов')
+    limit: int = Field(DEFAULT_LIMIT, ge=1, title='Лимитировать список объектов')
+    # TODO добавить поля для сортировки и фильтрации

@@ -10,4 +10,4 @@ class CRUDDepartments(CRUDBase):
     pass
 
 
-departments_crud = CRUDDepartments(Department)
+department_crud = CRUDDepartments(Department)

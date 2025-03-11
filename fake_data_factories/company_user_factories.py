@@ -4,9 +4,9 @@ from enum import Enum
 from typing import Optional
 
 import factory
+from constants import AMOUNT_OF_ADMIN, FAKER_USER_COUNT
 from termcolor import cprint
 
-from constants import AMOUNT_OF_ADMIN, FAKER_USER_COUNT
 from fake_data_factories.base_user_factory import BaseUserFactory
 from fake_data_factories.company_factories import CompanyFactory
 from src.database.alembic_models import UserTabit

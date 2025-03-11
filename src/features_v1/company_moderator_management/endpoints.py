@@ -9,17 +9,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.dependencies import current_company_admin, current_user_tabit
 from src.core.auth.managers import get_user_manager
-from src.core.constants.company import (
-    ERROR_INVALID_PASSWORD,
-    ERROR_USER_ALREADY_EXISTS,
-    ERROR_USER_NOT_EXISTS,
-)
-from src.core.constants.endpoints import Summary, TextError
 from src.core.database.db_depends import get_async_session
-from src.features_v1.company_moderator_management import (
-    company_crud,
-    departments_crud,
-    moderator_crud,
+from src.features_v1.company_moderator_management.constants import Summary
+from src.features_v1.company_moderator_management.crud_company import company_crud
+from src.features_v1.company_moderator_management.crud_department import department_crud
+from src.features_v1.company_moderator_management.crud_moderator import moderator_crud
+from src.features_v1.company_moderator_management.validators import (
+    check_department_name_duplicate,
+    check_slug_duplicate,
+    validate_password,
+    validate_user_not_exists,
+    validator_check_object_exists,
 )
 from src.schemas import (
     CompanyDepartmentCreateSchema,
@@ -30,7 +30,7 @@ from src.schemas import (
     UserCreateSchema,
     UserReadSchema,
 )
-from src.validators.endpoints.common import validator_check_object_exists
+from src.services.email_service.email_schema import EmailCreateSchema
 
 router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_company_admin)])
 
@@ -111,9 +111,7 @@ async def get_all_departments(
     Если отделов нет вернет пустой список.
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    return await departments_crud.get_multi(
-        session=session, filters={'company_id': company.id}
-    )
+    return await department_crud.get_multi(session=session, filters={'company_id': company.id})
 
 
 @router.post(
@@ -152,24 +150,10 @@ async def create_department(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     object_name = object_in.model_dump()['name']
-<<<<<<< HEAD:src/api/v1/endpoints/company_moderator_management.py
     await check_department_name_duplicate(
         company_id=company.id, department_name=object_name, session=session
     )
-    db_obj = await company_departments_crud.create(
-=======
-    departments = await departments_crud.get_multi(
-        session=session, filters={'company_id': company.id, 'name': object_name}
-    )
-    if departments:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
-        )
-    db_obj = await departments_crud.create(
->>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/company_moderator_management/endpoints.py
-        session=session, obj_in=object_in, auto_commit=False
-    )
+    db_obj = await department_crud.create(session=session, obj_in=object_in, auto_commit=False)
     session.expunge(db_obj)
     db_obj.company_id = company.id
     slug = await check_slug_duplicate(db_obj=db_obj, session=session)
@@ -204,7 +188,7 @@ async def import_departments(
     Вернет файл .txt с данными отделов.
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    departments_list = await departments_crud.get_multi(
+    departments_list = await department_crud.get_multi(
         session=session, filters={'company_id': company.id}
     )
     return await company_crud.get_import(objects_in=departments_list, file_name='departments_list')
@@ -245,7 +229,7 @@ async def get_department(
     Если отдела нет вернет ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    return await departments_crud.get_or_404(session=session, obj_id=department_id)
+    return await department_crud.get_or_404(session=session, obj_id=department_id)
 
 
 @router.patch(
@@ -289,12 +273,11 @@ async def update_department(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     object_name = object_in.model_dump()['name']
-<<<<<<< HEAD:src/api/v1/endpoints/company_moderator_management.py
     await check_department_name_duplicate(
         company_id=company.id, department_name=object_name, session=session
     )
-    db_object = await company_departments_crud.get_or_404(session, obj_id=department_id)
-    update_obj = await company_departments_crud.update(
+    db_object = await department_crud.get_or_404(session, obj_id=department_id)
+    update_obj = await department_crud.update(
         session, db_obj=db_object, obj_in=object_in, auto_commit=False
     )
     session.expunge(update_obj)
@@ -304,18 +287,6 @@ async def update_department(
     await session.commit()
     await session.refresh(update_obj)
     return update_obj
-=======
-    departments = await departments_crud.get_multi(
-        session=session, filters={'company_id': company.id, 'name': object_name}
-    )
-    if departments:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
-        )
-    db_object = await departments_crud.get_or_404(session, obj_id=department_id)
-    return await departments_crud.update(session, db_obj=db_object, obj_in=object_in)
->>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/company_moderator_management/endpoints.py
 
 
 @router.delete(
@@ -347,9 +318,9 @@ async def delete_department(
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     department = await validator_check_object_exists(
-        session, departments_crud, object_id=department_id
+        session, department_crud, object_id=department_id
     )
-    await departments_crud.remove(session, db_object=department)
+    await department_crud.remove(session, db_object=department)
 
     return status.HTTP_204_NO_CONTENT
 
@@ -609,18 +580,13 @@ async def update_company_employee(
     Если сотрудник не найден ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-<<<<<<< HEAD:src/api/v1/endpoints/company_moderator_management.py
-    await validator_check_object_exists(session, user_crud, object_id=uuid)
+    await validator_check_object_exists(session, moderator_crud, object_id=uuid)
     await validate_user_not_exists(user_data=object_in, user_manager=user_manager)
     await validate_password(user_data=object_in, user_manager=user_manager)
     user = await user_manager.get(uuid)
     user_manager.parse_id
     user = await user_manager.update(object_in, user)
     return user
-=======
-    db_object = await moderator_crud.get_or_404(session=session, obj_id=uuid)
-    return await moderator_crud.update(session=session, db_obj=db_object, obj_in=object_in)
->>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/company_moderator_management/endpoints.py
 
 
 @router.delete(
@@ -653,14 +619,14 @@ async def delete_company_employee(
     Если компания или отдел не найдены ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    await validator_check_object_exists(session, user_crud, object_id=uuid)
+    await validator_check_object_exists(session, moderator_crud, object_id=uuid)
     user = await user_manager.get(uuid)
     await user_manager.delete(user)
     return status.HTTP_204_NO_CONTENT
 
 
 @router.post(
-    '/{company_slug}/feedback/',
+    '/feedback/',
     summary='Задать вопрос для обратной связи',
     response_model=dict[str, str],
 )
@@ -673,4 +639,4 @@ async def post_feedback(
     Задать вопрос в разделе 'Помощь'.
     """
     # TODO: Подключить почту.
-    return {'message': f'Обратная связь отправлена для компании {company_slug}'}
+    return {'message': 'Обратная связь отправлена для компании'}

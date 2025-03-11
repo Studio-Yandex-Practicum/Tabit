@@ -4,9 +4,9 @@ from random import randint
 
 import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
+from constants import FAKER_COMPANY_COUNT
 from termcolor import cprint
 
-from constants import FAKER_COMPANY_COUNT
 from src.database.alembic_models import Company
 from src.database.sc_db_session import sc_session
 from src.logger import fake_db_logger

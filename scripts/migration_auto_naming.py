@@ -13,14 +13,10 @@
         03_тестовая_миграция.py.
 """
 
-from pathlib import Path
-from re import match
+from .constants import MIGRATION_RE_ID, MIGRATIONS_DIR
 
-MIGRATIONS_DIR = Path(__file__).parent.parent / 'alembic' / 'versions'
 if not MIGRATIONS_DIR.exists():
     MIGRATIONS_DIR.mkdir(parents=True, exist_ok=True)
-
-MIGRATION_RE_ID = r'^(\d+)_'
 
 
 def get_next_migration_id() -> str:
@@ -34,7 +30,7 @@ def get_next_migration_id() -> str:
     migrations_id = [
         int(matched.group(1))
         for file_object in MIGRATIONS_DIR.iterdir()
-        if file_object.is_file() and (matched := match(MIGRATION_RE_ID, file_object.name))
+        if file_object.is_file() and (matched := MIGRATION_RE_ID.match(file_object.name))
     ]
     next_migration_id = max(migrations_id, default=0) + 1
     return str(next_migration_id).zfill(2)

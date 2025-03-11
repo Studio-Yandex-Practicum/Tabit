@@ -19,30 +19,16 @@ from src.core.auth.dependencies import (
 from src.core.auth.jwt import jwt_auth_backend_admin
 from src.core.auth.managers import get_admin_manager
 from src.core.auth.protocol import StrategyT
-from src.core.constants.endpoints import Description, Summary
 from src.core.database.db_depends import get_async_session
-from src.features_v1.tabit_admin_auth.crud import admin_user_crud
-from src.models import TabitAdminUser
-from src.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema, TokenReadSchemas
-from src.validators.endpoints.common import (
+from src.features_v1.tabit_admin_auth.constants import Description, Summary
+from src.features_v1.tabit_admin_auth.crud_admin_user import admin_user_crud
+from src.features_v1.tabit_admin_auth.validators import (
     check_user_is_active,
     validator_check_not_is_superuser,
     validator_check_object_exists,
 )
-<<<<<<< HEAD
-<<<<<<< HEAD:src/api/v1/endpoints/tabit_admin_auth.py
-from src.database.db_depends import get_async_session
-from src.tabit_management.crud import admin_crud
-from src.tabit_management.models import TabitAdminUser
-from src.tabit_management.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
-=======
-from src.core.database.db_depends import get_async_session
 from src.models import TabitAdminUser
-from src.features_v1.tabit_admin_auth.crud import admin_user_crud
-from src.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema
->>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/tabit_admin_auth/endpoints.py
-=======
->>>>>>> 7896363 (Pass ruff check)
+from src.schemas import AdminCreateSchema, AdminReadSchema, AdminUpdateSchema, TokenReadSchemas
 
 router = APIRouter()
 
@@ -69,7 +55,7 @@ async def get_tabit_admin(
     Параметры функции:
         session: асинхронная сессия через зависимость.
     """
-    return await admin_crud.get_multi(session)
+    return await admin_user_crud.get_multi(session)
 
 
 @router.get(
@@ -95,7 +81,7 @@ async def get_me_tabit_admin(
         session: асинхронная сессия через зависимость.
         user: получение администратора через зависимости.
     """
-    return await admin_crud.get_or_404(session, user.id)
+    return await admin_user_crud.get_or_404(session, user.id)
 
 
 @router.patch(
@@ -123,7 +109,7 @@ async def update_me_tabit_admin(
         session: асинхронная сессия через зависимость.
         user: получение администратора через зависимости.
     """
-    return await admin_crud.update(session, user, user_in)
+    return await admin_user_crud.update(session, user, user_in)
 
 
 @router.get(
@@ -150,7 +136,7 @@ async def get_tabit_admin_by_id(
         user_id: идентификационный номер администратора сервиса, указанный в path.
         session: асинхронная сессия через зависимость.
     """
-    return await admin_crud.get_or_404(session, user_id)
+    return await admin_user_crud.get_or_404(session, user_id)
 
 
 @router.patch(
@@ -182,10 +168,10 @@ async def update_tabit_admin_by_id(
     # TODO: разрешить менять email и password.
     user = await validator_check_object_exists(
         session,
-        admin_crud,
+        admin_user_crud,
         object_id=user_id,
     )
-    return await admin_crud.update(session, user, user_in)
+    return await admin_user_crud.update(session, user, user_in)
 
 
 @router.delete(
@@ -215,11 +201,11 @@ async def delete_tabit_admin_by_id(
     """
     user = await validator_check_object_exists(
         session,
-        admin_crud,
+        admin_user_crud,
         object_id=user_id,
     )
     validator_check_not_is_superuser(user)
-    await admin_crud.remove(session, user)
+    await admin_user_crud.remove(session, user)
     return
 
 
@@ -298,7 +284,7 @@ async def create_tabit_admin(
         user_create: схема для создания администратора сервиса.
         user_manager: менеджер управления администраторов сервиса, вызывается через зависимости.
     """
-    created_user = await admin_crud.create_user(
+    created_user = await admin_user_crud.create_user(
         request,
         user_create,
         user_manager,

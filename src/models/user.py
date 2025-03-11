@@ -7,12 +7,13 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
 
-from src.core.annotations import url_link_field
-from src.core.constants.common import LENGTH_TELEGRAM_USERNAME
 from src.models import BaseUser, RoleUserTabit
+from src.models.annotations import url_link_field
+from src.models.constants import LENGTH_TELEGRAM_USERNAME
 
 if TYPE_CHECKING:
     from src.models import (
+        AssociationUserComment,
         AssociationUserMeeting,
         AssociationUserProblem,
         AssociationUserTags,
@@ -83,7 +84,7 @@ class UserTabit(BaseUser):
     telegram_username: Mapped[Optional[str]] = mapped_column(
         String(LENGTH_TELEGRAM_USERNAME), unique=True, nullable=True
     )
-    role: Mapped['RoleUserTabit'] = mapped_column(ForeignKey('roleusertabit.id'))
+    role: Mapped['RoleUserTabit']
     start_date_employment: Mapped[Optional[date]]
     end_date_employment: Mapped[Optional[date]]
     tags: Mapped[List['AssociationUserTags']] = relationship(back_populates='user')
@@ -114,9 +115,12 @@ class UserTabit(BaseUser):
     meetings: Mapped[List['AssociationUserMeeting']] = relationship(back_populates='user')
     meeting_result: Mapped['ResultMeeting'] = relationship(back_populates='owner')
     task_owner: Mapped['Task'] = relationship(back_populates='owner')
-    tasks: Mapped[List['AssociationUserTask']] = relationship(back_populates='user')
+    tasks: Mapped[List['AssociationUserTask']] = relationship(
+        back_populates='user', cascade='all, delete-orphan'
+    )
     messages: Mapped[List['MessageFeed']] = relationship(back_populates='owner')
     comments: Mapped[List['CommentFeed']] = relationship(back_populates='owner')
+    comments_likes: Mapped[List['AssociationUserComment']] = relationship(back_populates='user')
     voting_by: Mapped[List['VotingByUser']] = relationship(back_populates='user')
 
     department_transition_date: Mapped[Optional[date]]

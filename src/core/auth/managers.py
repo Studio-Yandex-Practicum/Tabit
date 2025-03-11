@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, Request
 from fastapi_users import BaseUserManager, UUIDIDMixin, models, schemas
 
 from src.core.auth.access_to_db import get_admin_db, get_user_db
-from src.core.constants.common import ERROR_INVALID_PASSWORD_LENGTH, MIN_LENGTH_PASSWORD
+from src.core.constants import PATTERN_PASSWORD, TEXT_ERROR_INVALID_PASSWORD
 from src.models import TabitAdminUser
 
 

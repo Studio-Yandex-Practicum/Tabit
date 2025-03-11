@@ -24,7 +24,7 @@ from sqlalchemy.sql import Select
 from starlette.requests import Request
 
 from src.core.config.logging import logger
-from src.core.constants.common import (
+from src.core.constants import (
     DEFAULT_AUTO_COMMIT,
     DEFAULT_LIMIT,
     DEFAULT_SKIP,

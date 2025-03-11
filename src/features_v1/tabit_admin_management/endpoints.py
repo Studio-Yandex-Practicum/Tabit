@@ -6,16 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.auth.managers import get_user_manager
-from src.core.config.logging import logger
-from src.core.constants.tabit_management import (
-    ERROR_INTERNAL_SERVER,
-    ERROR_INVALID_PASSWORD,
-    ERROR_USER_ALREADY_EXISTS,
-    ERROR_USER_NOT_EXISTS,
-)
 from src.core.database.db_depends import get_async_session
-from src.features_v1.tabit_admin_management.crud import admin_company_crud
-from src.models import UserTabit
+from src.features_v1.tabit_admin_management.crud_admin_company import admin_company_crud
+from src.features_v1.tabit_admin_management.crud_admin_user import admin_user_crud
+from src.features_v1.tabit_admin_management.validators import (
+    check_telegram_username_for_duplicates,
+)
 from src.schemas import (
     AdminCompanyResponseSchema,
     CompanyAdminCreateSchema,
@@ -71,26 +67,7 @@ async def get_all_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
-<<<<<<< HEAD:src/api/v1/endpoints/tabit_admin_management.py
     return await admin_user_crud.get_multi(session, query_params.skip, query_params.limit)
-=======
-    try:
-        return await admin_company_crud.get_multi(
-            session=session,
-            skip=query_params.skip,
-            limit=query_params.limit,
-        )
-    except SQLAlchemyError as error:
-        logger.error(f'Эндпоинт get_all_staff, ошибка бд: {error}')
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=ERROR_INTERNAL_SERVER
-        )
-    except Exception as error:
-        logger.error(f'Эндпоинт get_all_staff, ошибка: {error}')
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=ERROR_INTERNAL_SERVER
-        )
->>>>>>> cfd6c10 (Move endpoints and crud to features, fix naming, routers and imports):src/features_v1/tabit_admin_management/endpoints.py
 
 
 @router.post(

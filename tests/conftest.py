@@ -11,13 +11,16 @@ from slugify import slugify
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from src.companies.models.models import Company
-from src.database.db_depends import get_async_session
-from src.database.models import BaseTabitModel as Base
+from src.core.database.db_depends import get_async_session
 from src.main import app_v1
-from src.tabit_management.models import LicenseType, TabitAdminUser
-from src.users.models import UserTabit
-from src.users.models.enum import RoleUserTabit
+from src.models import (
+    BaseTabitModel,
+    Company,
+    LicenseType,
+    RoleUserTabit,
+    TabitAdminUser,
+    UserTabit,
+)
 from tests.constants import GOOD_PASSWORD, URL
 
 

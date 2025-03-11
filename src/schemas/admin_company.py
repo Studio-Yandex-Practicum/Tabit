@@ -5,13 +5,12 @@ from uuid import UUID
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
-from src.core.constants.common import (
+from src.models import RoleUserTabit
+from src.schemas.constants import (
     LENGTH_FILE_LINK,
     LENGTH_NAME_USER,
     LENGTH_TELEGRAM_USERNAME,
     MIN_LENGTH_NAME,
-)
-from src.core.constants.user import (
     TITLE_AVATAR_LINK_USER,
     TITLE_BIRTHDAY_USER,
     TITLE_COMPANY_ID_USER,
@@ -27,7 +26,6 @@ from src.core.constants.user import (
     TITLE_SURNAME_USER,
     TITLE_TELEGRAM_USERNAME_USER,
 )
-from src.models import RoleUserTabit
 
 
 class AdminCompanyResponseSchema(BaseModel):

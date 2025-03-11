@@ -3,13 +3,14 @@ from typing import List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.core.constants.common import LENGTH_NAME_LICENSE, MIN_LENGTH_NAME, ZERO
-from src.core.constants.tabit_management import (
+from src.schemas.constants import (
     DEFAULT_LICENSE_TERM,
     DEFAULT_PAGE,
     DEFAULT_PAGE_SIZE,
     FILTER_NAME_DESCRIPTION,
+    LENGTH_NAME_LICENSE,
     MAX_PAGE_SIZE,
+    MIN_LENGTH_NAME,
     MIN_PAGE_SIZE,
     PAGE_DESCRIPTION,
     PAGE_SIZE_DESCRIPTION,
@@ -18,8 +19,9 @@ from src.core.constants.tabit_management import (
     TITLE_MAX_ADMINS_COUNT,
     TITLE_MAX_EMPLOYEES_COUNT,
     TITLE_NAME_LICENSE,
+    ZERO,
 )
-from src.tabit_management.validators.license_type_validators import (
+from src.schemas.validators.license_type import (
     validate_license_term,
     validate_string,
 )
