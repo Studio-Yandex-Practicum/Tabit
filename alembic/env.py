@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from src.core.database import BaseTabitModel
+from src.models import BaseTabitModel
 from src.core.config.app import settings
 
 from scripts.migration_auto_naming import generate_migration_name  # noqa
