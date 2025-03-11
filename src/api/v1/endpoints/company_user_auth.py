@@ -20,7 +20,7 @@ from src.api.v1.validator import check_user_is_active
 from src.database.db_depends import get_async_session
 from src.tabit_management.models import TabitAdminUser
 from src.users.crud.user import user_crud
-from src.users.schemas import UserReadSchema, UserUpdateSchema
+from src.users.schemas.user import UserReadSchema, UserForUserUpdateSchema
 
 router = APIRouter()
 
@@ -168,7 +168,7 @@ async def get_me_tabit_admin(
     description=Description.USER_AUTH_PATCH_ME,
 )
 async def update_me_tabit_admin(
-    user_in: UserUpdateSchema,
+    user_in: UserForUserUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
     user: TabitAdminUser = Depends(current_user_tabit),
 ) -> UserReadSchema:

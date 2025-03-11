@@ -1359,7 +1359,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"password\": \"string\",\r\n  \"email\": \"user@example.com\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": true,\r\n  \"is_verified\": true,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"string\",\r\n  \"birthday\": \"2025-03-11\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-11\",\r\n  \"end_date_employment\": \"2025-03-11\",\r\n  \"avatar_link\": \"string\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"department_transition_date\": \"2025-03-11\",\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"string\",\r\n  \"birthday\": \"2025-03-11\",\r\n  \"telegram_username\": \"string\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

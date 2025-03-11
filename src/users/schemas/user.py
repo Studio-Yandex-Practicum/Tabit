@@ -177,3 +177,46 @@ class ResetPasswordByAdmin(BaseModel):
 
     password: str
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+
+
+class UserForUserUpdateSchema(BaseModel):
+    """Схема пользователя сервиса для ответов."""
+
+    name: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_USER,
+        title=title_name_user,
+    )
+    surname: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_USER,
+        title=title_surname_user,
+    )
+    patronymic: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_USER,
+        title=title_patronymic_user,
+    )
+    phone_number: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_NAME,
+        max_length=LENGTH_NAME_USER,
+        title=title_phone_number_user,
+    )
+    birthday: Optional[date] = Field(
+        None,
+        # TODO: проверка на корректность даты рождения.
+        title=title_birthday_user,
+    )
+    telegram_username: Optional[str] = Field(
+        None,
+        min_length=MIN_LENGTH_TELEGRAM_USERNAME,
+        max_length=LENGTH_TELEGRAM_USERNAME,
+        title=title_telegram_username_user,
+    )
+    # TODO: добавить avatar_link
+
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
