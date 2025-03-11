@@ -1,9 +1,17 @@
 from datetime import date, datetime
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional, Self
 from uuid import UUID
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    Field,
+    HttpUrl,
+    field_validator,
+    model_validator,
+)
 
 from src.models import RoleUserTabit
 from src.schemas.constants import (
@@ -11,11 +19,11 @@ from src.schemas.constants import (
     LENGTH_NAME_USER,
     LENGTH_TELEGRAM_USERNAME,
     MIN_LENGTH_NAME,
+    MIN_LENGTH_TELEGRAM_USERNAME,
     TITLE_AVATAR_LINK_USER,
     TITLE_BIRTHDAY_USER,
     TITLE_COMPANY_ID_USER,
     TITLE_CURRENT_DEPARTMENT_ID_USER,
-    TITLE_DEPARTMENT_TRANSITION_DATE_USER,
     TITLE_EMPLOYEE_POSITION_USER,
     TITLE_END_DATE_EMPLOYMENT_USER,
     TITLE_LAST_DEPARTMENT_ID_USER,
@@ -26,6 +34,16 @@ from src.schemas.constants import (
     TITLE_SURNAME_USER,
     TITLE_TELEGRAM_USERNAME_USER,
 )
+from src.schemas.validators.admin_company import (
+    check_date_earlier_than_today,
+    check_password_is_ascii,
+    check_phone_number,
+    check_start_date_earlier_than_end_date,
+    check_telegram_username,
+)
+
+date_and_validation = Annotated[date, AfterValidator(check_date_earlier_than_today)]
+url_to_string = Annotated[HttpUrl, AfterValidator(str)]
 
 
 class AdminCompanyResponseSchema(BaseModel):
@@ -52,10 +70,7 @@ class CompanyAdminSchemaMixin:
     """Схема-миксин для админов от компаний."""
 
     patronymic: Optional[str] = Field(
-        None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_PATRONYMIC_USER,
+        None, min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER, title=TITLE_PATRONYMIC_USER
     )
     phone_number: Optional[str] = Field(
         None,
@@ -63,31 +78,18 @@ class CompanyAdminSchemaMixin:
         max_length=LENGTH_NAME_USER,
         title=TITLE_PHONE_NUMBER_USER,
     )
-    birthday: Optional[date] = Field(
-        None,
-        # TODO: проверка на корректность даты рождения.
-        title=TITLE_BIRTHDAY_USER,
-    )
+    birthday: Annotated[Optional[date_and_validation], Field(None, title=TITLE_BIRTHDAY_USER)]
     telegram_username: Optional[str] = Field(
         None,
+        min_length=MIN_LENGTH_TELEGRAM_USERNAME,
         max_length=LENGTH_TELEGRAM_USERNAME,
         title=TITLE_TELEGRAM_USERNAME_USER,
     )
-    start_date_employment: Optional[date] = Field(
-        None,
-        # TODO: проверка на корректность даты рождения.
-        title=TITLE_START_DATE_EMPLOYMENT_USER,
-    )
-    end_date_employment: Optional[date] = Field(
-        None,
-        # TODO: проверка на корректность даты рождения.
-        title=TITLE_END_DATE_EMPLOYMENT_USER,
-    )
-    avatar_link: Optional[str] = Field(
-        None,
-        max_length=LENGTH_FILE_LINK,
-        title=TITLE_AVATAR_LINK_USER,
-    )
+    start_date_employment: Optional[date] = Field(None, title=TITLE_START_DATE_EMPLOYMENT_USER)
+    end_date_employment: Optional[date] = Field(None, title=TITLE_END_DATE_EMPLOYMENT_USER)
+    avatar_link: Annotated[
+        url_to_string, Field(None, max_length=LENGTH_FILE_LINK, title=TITLE_AVATAR_LINK_USER)
+    ]
     current_department_id: Optional[int] = Field(
         None,
         title=TITLE_CURRENT_DEPARTMENT_ID_USER,
@@ -96,16 +98,33 @@ class CompanyAdminSchemaMixin:
         None,
         title=TITLE_LAST_DEPARTMENT_ID_USER,
     )
-    department_transition_date: Optional[date] = Field(
-        None,
-        # TODO: проверка на корректность даты рождения.
-        title=TITLE_DEPARTMENT_TRANSITION_DATE_USER,
-    )
     employee_position: Optional[str] = Field(
         None,
         title=TITLE_EMPLOYEE_POSITION_USER,
     )
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+
+    @field_validator('phone_number')
+    @classmethod
+    def validate_phone_number(cls, value: str) -> str:
+        return check_phone_number(value)
+
+    @field_validator('telegram_username')
+    @classmethod
+    def validate_telegram_username(cls, value: str) -> str:
+        return check_telegram_username(value)
+
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        return check_password_is_ascii(value)
+
+    @model_validator(mode='after')
+    def validate_start_date_end_date(self) -> Self:
+        check_start_date_earlier_than_end_date(
+            self.start_date_employment, self.end_date_employment
+        )
+        return self
 
 
 class CompanyAdminReadSchema(BaseUser[UUID]):
@@ -155,7 +174,7 @@ class CompanyAdminCreateSchema(CompanyAdminSchemaMixin, BaseUserCreate):
 
 
 class CompanyAdminUpdateSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
-    """Схема для изменение данных админов от компаний."""
+    """Схема для изменения данных админов от компаний."""
 
     name: Optional[str] = Field(
         None,
@@ -169,7 +188,7 @@ class CompanyAdminUpdateSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
         max_length=LENGTH_NAME_USER,
         title=TITLE_SURNAME_USER,
     )
-    role: Literal[RoleUserTabit.ADMIN]
+    role: Optional[RoleUserTabit] = None
     company_id: Optional[int] = Field(
         None,
         title=TITLE_COMPANY_ID_USER,

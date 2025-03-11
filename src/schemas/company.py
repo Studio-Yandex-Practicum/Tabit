@@ -5,22 +5,25 @@
 from datetime import datetime
 from typing import Literal, Optional, Self
 
-from fastapi_users.schemas import BaseUserUpdate
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    field_validator,
+    model_validator,
+)
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
-from src.schemas import GetterSlugMixin, UserSchemaMixin
 from src.schemas.constants import (
     FILTER_NAME_DESCRIPTION,
+    LENGTH_DESCRIPTION_COMPANY,
     LENGTH_NAME_COMPANY,
     LENGTH_NAME_USER,
     LENGTH_TELEGRAM_USERNAME,
+    MIN_DESCRIPTION_NAME,
     MIN_LENGTH_NAME,
     SORTING_DESCRIPTION,
-    TEST_ERROR_INVALID_CHARACTERS_NAME,
-    TEST_ERROR_INVALID_CHARACTERS_SURNAME,
-    TEST_ERROR_LICENSE_FIELDS,
-    TEST_ERROR_UNIQUE_NAME_SURNAME,
     TITLE_LICENSE_ID_COMPANY,
     TITLE_LOGO_COMPANY,
     TITLE_NAME_COMPANY,
@@ -33,13 +36,30 @@ from src.schemas.constants import (
     TITLE_SURNAME_USER,
     TITLE_TELEGRAM_USERNAME_USER,
 )
+from src.schemas.user import UserUpdateSchema
+from src.schemas.validators.company import (
+    check_license_fields_none,
+    validate_logo,
+    validate_name_characters,
+    validate_name_surname_unique,
+    validate_slug,
+    validate_string,
+    validate_surname_characters,
+)
 
 
 class CompanyUpdateForUserSchema(BaseModel):
-    """Схема для частичного изменения компании пользователем-админом."""
+    """
+    Схема для частичного изменения компании пользователем-админом.
+    Параметры:
+        description: новое описание компании (опционально).
+        logo: логотип (опционально).
+    """
 
     description: Optional[str] = Field(
         None,
+        min_length=MIN_DESCRIPTION_NAME,
+        max_length=LENGTH_DESCRIPTION_COMPANY,
         title=TITLE_NAME_COMPANY,
     )
     logo: Optional[str] = Field(
@@ -47,9 +67,27 @@ class CompanyUpdateForUserSchema(BaseModel):
         title=TITLE_LOGO_COMPANY,
     )
 
+    @field_validator('logo')
+    @classmethod
+    def validate_logo_field(cls, logo: Optional[str]) -> Optional[str]:
+        """Проверяет, что logo является корректным URL-адресом."""
+        return validate_logo(logo)
+
+    @field_validator('description', mode='after', check_fields=False)
+    @classmethod
+    def validate_description(cls, value: str):
+        """Проверяет поле description на наличие пробелов в начале или конце."""
+        return validate_string(value)
+
 
 class CompanyUpdateSchema(CompanyUpdateForUserSchema):
-    """Схема для частичного изменения компании админом сервиса."""
+    """
+    Схема для частичного изменения компании админом сервиса.
+    Параметры:
+        name: новое название компании (опционально).
+        license_id: номер лицензии (опционально).
+        start_license_time: дата начала лицензии (опционально).
+    """
 
     name: Optional[str] = Field(
         None,
@@ -65,22 +103,21 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         None,
         title=TITLE_START_LICENSE_TIME_COMPANY,
     )
+    end_license_time: datetime | None = None
+
+    @field_validator('name', mode='after', check_fields=False)
+    @classmethod
+    def validate_name(cls, value: str):
+        """Проверяет поле name на наличие пробелов в начале или конце."""
+        return validate_string(value)
 
     @model_validator(mode='after')
-    def check_license_fields_none(self) -> Self:
-        """
-        При присвоении лицензии необходимо указать и её начало.
-        Нельзя, что бы одно поле было не заполнено.
-        """
-        if not (
-            all((self.license_id, self.start_license_time))
-            or (all((not self.license_id, not self.start_license_time)))
-        ):
-            raise ValueError(TEST_ERROR_LICENSE_FIELDS)
-        return self
+    def validate_license_fields(self) -> Self:
+        """Проверяет корректность заполнения полей лицензии."""
+        return check_license_fields_none(self)
 
 
-class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
+class CompanyCreateSchema(CompanyUpdateSchema):
     """Схема для создания компании."""
 
     name: str = Field(
@@ -89,11 +126,33 @@ class CompanyCreateSchema(GetterSlugMixin, CompanyUpdateSchema):
         max_length=LENGTH_NAME_COMPANY,
         title=TITLE_NAME_COMPANY,
     )
-    slug: str = Field(..., title=TITLE_SLUG_COMPANY)
+    slug: Optional[str] = Field(None, title=TITLE_SLUG_COMPANY)
+
+    @field_validator('slug')
+    @classmethod
+    def check_slug(cls, slug: Optional[str]) -> Optional[str]:
+        """Вызывает валидатор slug из модуля validators."""
+        return validate_slug(slug)
 
 
 class CompanyResponseSchema(BaseModel):
-    """Схема компании для ответов админам сервиса."""
+    """
+    Схема компании для ответов админам сервиса.
+    Параметры:
+        id: идентификатор компании (обязательно).
+        name: название компании (обязательно).
+        description: Описание компании (опционально).
+        logo: логотип (опционально).
+        license_id: номер лицензии (опционально).
+        max_admins_count: максимальное кол-во администраторов (обязательно).
+        max_employees_count: максимальное кол-во сотрудников (обязательно)
+        start_license_time: дата начала лицензии (опционально).
+        end_license_time: дата окончания действия лицензии (опционально).
+        is_active: bool - активна ли лицензия (обязательно).
+        slug: короткая строка для пути к эндпоинту компании (автозаполнение).
+        created_at: дата создания записи в таблице (автозаполнение).
+        updated_at: дата изменения записи в таблице (автозаполнение).
+    """
 
     id: int
     name: str
@@ -128,7 +187,7 @@ class CompanyTypeFilterSchema(BaseModel):
     ] = Field(None, description=SORTING_DESCRIPTION)
 
 
-class CompanyDepartmentUpdateSchema(BaseModel, GetterSlugMixin):
+class CompanyDepartmentUpdateSchema(BaseModel):
     """Схема для обновления данных об отделе."""
 
     name: Optional[str] = Field(
@@ -143,7 +202,11 @@ class CompanyDepartmentUpdateSchema(BaseModel, GetterSlugMixin):
 
 
 class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
-    """Схема для создания отдела."""
+    """
+    Схема для создания отдела.
+     Параметры:
+        name: название отдела (обязательно).
+    """
 
     name: str = Field(
         ...,
@@ -156,7 +219,14 @@ class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
 
 
 class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
-    """Схема для получения данных отдела."""
+    """
+    Схема для получения данных отдела.
+    Параметры:
+        id: идентификатор отдела (обязательно).
+        name: название отдела (обязательно).
+        slug: короткая строка для пути к эндпоинту отдела (автозаполнение).
+        company_id: идентификатор компании (автозаполнение).
+    """
 
     id: int
     name: str
@@ -164,12 +234,28 @@ class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
     company_id: int
 
 
-class CompanyEmployeeUpdateSchema(UserSchemaMixin, BaseUserUpdate):
-    """Схема для изменения данных сотрудника компании."""
+class CompanyEmployeeUpdateSchema(UserUpdateSchema):
+    """Схема для изменения данных сотрудника компании админом компании."""
+
+    @model_validator(mode='after')
+    def validate_fields(self) -> Self:
+        """Валидатор полей схемы."""
+        validate_name_surname_unique(self.name, self.surname)
+        validate_name_characters(self.name)
+        validate_surname_characters(self.surname)
+        return self
 
 
 class UserCompanyUpdateSchema(BaseModel):
-    """Схема для редактирования пользователем компании своего профиля."""
+    """
+    Схема для редактирования пользователем компании своего профиля.
+     Параметры:
+        name: новое имя сотрудника (опционально).
+        surname: новая фамилия сотрудника (опционально).
+        phone_number: новый номер телефона сотрудника (опционально).
+        email: новый email сотрудника (опционально).
+        telegram_username: новое имя в Телеграме сотрудника (опционально).
+    """
 
     name: Optional[str] = Field(
         None,
@@ -197,13 +283,11 @@ class UserCompanyUpdateSchema(BaseModel):
     )
 
     @model_validator(mode='after')
-    def validate_unique_name_surname(self) -> Self:
-        if self.name and self.surname and self.name == self.surname:
-            raise ValueError(TEST_ERROR_UNIQUE_NAME_SURNAME)
-        if self.name and not self.name.isalpha():
-            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_NAME)
-        if self.surname and not self.surname.isalpha():
-            raise ValueError(TEST_ERROR_INVALID_CHARACTERS_SURNAME)
+    def validate_fields(self) -> Self:
+        """Валидатор полей схемы."""
+        validate_name_surname_unique(self.name, self.surname)
+        validate_name_characters(self.name)
+        validate_surname_characters(self.surname)
         return self
 
 
