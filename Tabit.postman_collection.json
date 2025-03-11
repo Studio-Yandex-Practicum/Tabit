@@ -1129,24 +1129,24 @@
 								{
 									"key": "username",
 									"value": "{{email_user}}",
-									"type": "text",
-									"disabled": true
+									"type": "text"
 								},
 								{
 									"key": "password",
 									"value": "{{password_user}}",
-									"type": "text",
-									"disabled": true
+									"type": "text"
 								},
 								{
 									"key": "username",
 									"value": "{{email_admin_company}}",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "password",
 									"value": "{{password_admin_company}}",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								}
 							]
 						},
@@ -1290,7 +1290,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/auth/forgot-password",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/forgot-password",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1298,7 +1298,6 @@
 							"path": [
 								"api",
 								"v1",
-								"admin",
 								"auth",
 								"forgot-password"
 							]
@@ -1306,20 +1305,32 @@
 						"description": "Конечная точка для восстановления пароля пользователя, в случае когда он его забыл.  \n_Не готова._"
 					},
 					"response": []
-				}
-			],
-			"description": "Управление авторизацией пользователей от компании.\n\nВход, выход из системы.\n\nОбновление токена.\n\nИзменение, восстановление пароля."
-		},
-		{
-			"name": "Company User",
-			"item": [
+				},
 				{
-					"name": "company user",
+					"name": "auth me",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/{{uuid_user}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/me",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1327,22 +1338,36 @@
 							"path": [
 								"api",
 								"v1",
-								"{{company_slug}}",
-								"{{uuid_user}}",
-								""
+								"auth",
+								"me"
 							]
 						},
-						"description": "Личный кабинет пользователя"
+						"description": "Конечная точка для получения личной информации пльзователя"
 					},
 					"response": []
 				},
 				{
-					"name": "company user",
+					"name": "auth me",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"password\": \"string\",\r\n  \"email\": \"user@example.com\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": true,\r\n  \"is_verified\": true,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"string\",\r\n  \"birthday\": \"2025-03-11\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-11\",\r\n  \"end_date_employment\": \"2025-03-11\",\r\n  \"avatar_link\": \"string\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"department_transition_date\": \"2025-03-11\",\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/{{uuid_user}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/auth/me",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -1350,17 +1375,16 @@
 							"path": [
 								"api",
 								"v1",
-								"{{company_slug}}",
-								"{{uuid_user}}",
-								""
+								"auth",
+								"me"
 							]
 						},
-						"description": "Редактирование профиля"
+						"description": "Конечная точка для изменения личной информации пльзователя"
 					},
 					"response": []
 				}
 			],
-			"description": "Планирую эти эндпоинты перенести, а группу упразднить"
+			"description": "Управление авторизацией пользователей от компании.\n\nВход, выход из системы.\n\nОбновление токена.\n\nИзменение, восстановление пароля."
 		},
 		{
 			"name": "Companies",
