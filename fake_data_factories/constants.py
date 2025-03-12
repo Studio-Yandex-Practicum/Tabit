@@ -3,6 +3,7 @@
 FAKER_USER_COUNT = 5  # Число пользователей для генерации
 FAKER_COMPANY_COUNT = 5  # Число компаний для генерации
 FAKER_DEPARTMENT_COUNT = 5  # Число отделов для генерации
+FAKER_MEETING_COUNT = 3  # Число встреч для генерации
 DEFAULT_DEPARTMENT_NAMES = [
     'Отдел кадров',
     'Отдел менеджмента',
