@@ -110,7 +110,6 @@ PAYLOAD_FOR_PATCH_USER: tuple[dict, ...] = (
         'patronymic': 'Илларионович',
         'phone_number': '8 495 694-83-90',
         'birthday': '1999-05-14',
-        'telegram_username': 'avadakedavra'
     },
     {
         'phone_number': '8 495 694-83-90',
@@ -129,7 +128,7 @@ PAYLOAD_FOR_PATCH_USER_EXTRA: dict = {
     'role': RoleUserTabit.ADMIN,
     'start_date_employment': '1776-05-01',
     'end_date_employment': '1776-05-01',
-    'company_id': 1776,
+    'company_id': 1776, 
     'current_department_id': 1776,
     'last_department_id': 1776,
     'department_transition_date': '1776-05-01',
