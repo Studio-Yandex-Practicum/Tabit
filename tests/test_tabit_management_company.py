@@ -411,9 +411,9 @@ class TestCreateCompany:
         second_company_slug = response_2.json()['slug']
 
         assert first_company_slug != second_company_slug, 'Слаг должен быть уникальным'
-        assert second_company_slug.startswith(first_company_slug.split('-')[0]), (
-            'Слаг должен базироваться на названии'
-        )
+        assert second_company_slug.startswith(
+            first_company_slug.split('-')[0]
+        ), 'Слаг должен базироваться на названии'
 
     @pytest.mark.asyncio
     async def test_create_company_invalid_logo_url(
@@ -617,9 +617,9 @@ class TestGetCompany:
         }
 
         for company in companies:
-            assert expected_fields.issubset(company.keys()), (
-                f'Компания должна содержать поля: {expected_fields}'
-            )
+            assert expected_fields.issubset(
+                company.keys()
+            ), f'Компания должна содержать поля: {expected_fields}'
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -781,13 +781,13 @@ class TestGetCompany:
         for key, value in update_data.items():
             if 'time' in key and value:
                 actual_time = datetime.fromisoformat(data[key]).replace(tzinfo=None).isoformat()
-                assert actual_time == value, (
-                    f'Ожидалось значение {value} в поле {key}, но получено {actual_time}'
-                )
+                assert (
+                    actual_time == value
+                ), f'Ожидалось значение {value} в поле {key}, но получено {actual_time}'
             else:
-                assert data[key] == value, (
-                    f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
-                )
+                assert (
+                    data[key] == value
+                ), f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
 
     @pytest.mark.asyncio
     async def test_patch_company_name_too_short(
@@ -1097,9 +1097,9 @@ class TestPatchCompanyValidation:
         assert response.status_code == status.HTTP_200_OK, response.text
         data = response.json()
 
-        assert data['end_license_time'] is None, (
-            f'Ожидалось null в поле end_license_time, но получено {data["end_license_time"]}'
-        )
+        assert (
+            data['end_license_time'] is None
+        ), f'Ожидалось null в поле end_license_time, но получено {data["end_license_time"]}'
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize('license_term_days', [30, 60, 365])
