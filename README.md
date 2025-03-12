@@ -577,7 +577,7 @@ python src/main.py -r -h 127.0.0.1 -p 1234
 1. Заполните `.env` параметрами (примеры из .env.example):
 ```ini
 FIRST_SUPERUSER_EMAIL=yandex@yandex.ru    # Почта
-FIRST_SUPERUSER_PASSWORD=password123      # Пароль (мин. 8 символов)
+FIRST_SUPERUSER_PASSWORD=Password123      # Пароль (мин. 8 символов)
 FIRST_SUPERUSER_NAME=Ип                   # Имя
 FIRST_SUPERUSER_SURNAME=Ман               # Фамилия
 ```
