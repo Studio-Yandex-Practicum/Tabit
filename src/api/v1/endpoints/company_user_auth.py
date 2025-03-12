@@ -94,7 +94,7 @@ async def logout(
     summary=Summary.COMPANY_USER_AUTH_REFRESH_TOKEN,
     description=Description.COMPANY_USER_AUTH_LOGOUT,
 )
-async def refresh_token_tabit_admin(
+async def refresh_token_user(
     user_and_refresh_token: tuple[UserTabit, str] = Depends(get_current_user_refresh_token),
     strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend_user.get_strategy),
 ) -> JSONResponse:
@@ -141,7 +141,7 @@ router.include_router(  # форгот и резет пассворд
     summary=Summary.USER_AUTH_GET_ME,
     description=Description.USER_AUTH_GET_ME,
 )
-async def get_me_tabit_admin(
+async def get_me_user(
     session: AsyncSession = Depends(get_async_session),
     user: UserTabit = Depends(current_user_tabit),
 ) -> UserReadSchema:
@@ -167,7 +167,7 @@ async def get_me_tabit_admin(
     summary=Summary.USER_AUTH_PATCH_ME,
     description=Description.USER_AUTH_PATCH_ME,
 )
-async def update_me_tabit_admin(
+async def update_me_user(
     user_in: UserForUserUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
     user: UserTabit = Depends(current_user_tabit),
