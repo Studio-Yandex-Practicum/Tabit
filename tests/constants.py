@@ -100,4 +100,3 @@ PAYLOAD_FOR_PATCH_ADMIN: tuple[dict, ...] = (
         'patronymic': 'Императрица',
     },
 )
-
