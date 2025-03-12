@@ -18,8 +18,8 @@ from src.api.v1.auth.schema_token import TokenReadSchemas
 from src.api.v1.constants import Description, Summary
 from src.api.v1.validator import check_user_is_active
 from src.database.db_depends import get_async_session
-from src.users.models import UserTabit
 from src.users.crud.user import user_crud
+from src.users.models import UserTabit
 from src.users.schemas.user import UserForUserUpdateSchema, UserReadSchema
 
 router = APIRouter()
