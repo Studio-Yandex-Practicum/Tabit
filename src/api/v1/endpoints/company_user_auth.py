@@ -18,7 +18,7 @@ from src.api.v1.auth.schema_token import TokenReadSchemas
 from src.api.v1.constants import Description, Summary
 from src.api.v1.validator import check_user_is_active
 from src.database.db_depends import get_async_session
-from src.tabit_management.models import TabitAdminUser
+from src.users.models import UserTabit
 from src.users.crud.user import user_crud
 from src.users.schemas.user import UserForUserUpdateSchema, UserReadSchema
 
@@ -95,7 +95,7 @@ async def logout(
     description=Description.COMPANY_USER_AUTH_LOGOUT,
 )
 async def refresh_token_tabit_admin(
-    user_and_refresh_token: tuple[TabitAdminUser, str] = Depends(get_current_user_refresh_token),
+    user_and_refresh_token: tuple[UserTabit, str] = Depends(get_current_user_refresh_token),
     strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend_user.get_strategy),
 ) -> JSONResponse:
     """
@@ -143,7 +143,7 @@ router.include_router(  # форгот и резет пассворд
 )
 async def get_me_tabit_admin(
     session: AsyncSession = Depends(get_async_session),
-    user: TabitAdminUser = Depends(current_user_tabit),
+    user: UserTabit = Depends(current_user_tabit),
 ) -> UserReadSchema:
     """
     Для доступа к своей учетной записи пользователей сервиса.
@@ -170,7 +170,7 @@ async def get_me_tabit_admin(
 async def update_me_tabit_admin(
     user_in: UserForUserUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
-    user: TabitAdminUser = Depends(current_user_tabit),
+    user: UserTabit = Depends(current_user_tabit),
 ) -> UserReadSchema:
     """
     Позволит обновить данные о себе пользователю сервиса.
