@@ -1,6 +1,6 @@
 import random
 import string
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from fastapi import status
@@ -766,7 +766,7 @@ class TestGetCompany:
             'logo': 'https://example.com/updated_logo.png',
             'name': 'Обновленное имя',
             'license_id': new_license.id,
-            'start_license_time': datetime.now().isoformat(),
+            'start_license_time': datetime.now(timezone.utc).isoformat(),
         }
 
         response = await client.patch(
@@ -1120,12 +1120,10 @@ class TestPatchCompanyValidation:
         new_license = await license_for_test({'license_term': timedelta(days=license_term_days)})
         company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
 
-        start_time = datetime.now().isoformat()
+        start_time = datetime.now(timezone.utc).isoformat()
         expected_end_time = (
-            (datetime.fromisoformat(start_time) + timedelta(days=license_term_days))
-            .replace(tzinfo=None)
-            .isoformat()
-        )
+            datetime.fromisoformat(start_time) + timedelta(days=license_term_days)
+        ).isoformat()
 
         update_data = {'license_id': new_license.id, 'start_license_time': start_time}
 
@@ -1138,9 +1136,7 @@ class TestPatchCompanyValidation:
         assert response.status_code == status.HTTP_200_OK, response.text
         data = response.json()
 
-        actual_end_time = (
-            datetime.fromisoformat(data['end_license_time']).replace(tzinfo=None).isoformat()
-        )
+        actual_end_time = datetime.fromisoformat(data['end_license_time']).isoformat()
 
         assert actual_end_time == expected_end_time, (
             f'Ожидалось значение {expected_end_time} в поле end_license_time, '
