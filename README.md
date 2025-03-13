@@ -200,6 +200,30 @@ poetry update
    curl -sSL https://install.python-poetry.org | python3 - --version 1.7.1
    ```
 
+   **Альтернативные способы установки Poetry:**
+
+   **Через pip:**
+   ```bash
+   pip install poetry==1.7.1
+   ```
+
+   **Через apt (если pip недоступен):**
+   ```bash
+   sudo apt update
+   sudo apt install python3-pip
+   pip install poetry==1.7.1
+   ```
+
+   **Проверка установки:**
+   ```bash
+   poetry --version
+   ```
+
+   **Настройка Poetry:**
+   ```bash
+   poetry config virtualenvs.in-project true
+   ```
+
 #### 3. Клонирование и настройка проекта
 1. Клонируйте репозиторий:
    ```bash
@@ -265,21 +289,33 @@ poetry update
    https://www.python.org/downloads/
    ```
 
-#### 2. Клонирование и настройка проекта
+#### 2. Установка Poetry
+Выберите один из способов:
+
+**Через pip:**
+```powershell
+pip install poetry==1.7.1
+```
+
+**Через PowerShell:**
+```powershell
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python - --version 1.7.1
+```
+
+#### 3. Клонирование и настройка проекта
 1. Клонируйте репозиторий:
    ```powershell
    git clone git@github.com:Studio-Yandex-Practicum/Tabit.git
    cd Tabit
    ```
 
-2. Установите и настройте Poetry:
+2. Настройте Poetry:
    ```powershell
-   pip install poetry==1.7.1
    poetry config virtualenvs.in-project true
    poetry install
    ```
 
-#### 3. Запуск проекта
+#### 4. Запуск проекта
 1. Активируйте виртуальное окружение:
    ```powershell
    .venv\Scripts\activate.bat   # для cmd
@@ -791,3 +827,51 @@ docker-compose -f infra/docker-compose.test-db.yaml down -v
 
 📌 **Важно**: тестовая БД создаётся в отдельном контейнере и не влияет на основную базу данных.  
 Теперь тесты полностью автоматизированы и изолированы! 🚀
+
+
+## Часто встречающиеся ошибки
+
+### Конфликт портов PostgreSQL в WSL и Docker
+
+При использовании PostgreSQL одновременно в WSL и Docker-контейнерах может возникнуть конфликт портов, если оба сервиса пытаются использовать порт 5432 (по умолчанию для PostgreSQL).
+
+#### Симптомы:
+- Ошибка при запуске контейнера: `Bind for 0.0.0.0:5432 failed: port is already allocated`
+- Невозможно подключиться к базе данных
+- Невозможно применить миграции в контейнере с БД
+- Сервис PostgreSQL в WSL или Docker не запускается
+
+#### Решение:
+
+1. **Проверка занятых портов:**
+   ```bash
+   sudo netstat -tuln | grep 5432
+   ```
+
+2. **Вариант 1: Остановить PostgreSQL в WSL**
+   Если PostgreSQL в WSL не нужен, остановите его:
+   ```bash
+   sudo service postgresql stop
+   ```
+
+3. **Вариант 2: Изменить порт в Docker**
+   Если нужно использовать оба сервиса, измените порт для Docker-контейнера:
+   - В файле `.env` измените значение `PORT_BD_POSTGRES` на свободный порт (например, 5433)
+   - Перезапустите контейнеры
+
+4. **Вариант 3: Изменить порт в WSL**
+   Если нужно использовать PostgreSQL в WSL, измените его порт:
+   - Откройте конфигурационный файл PostgreSQL:
+     ```bash
+     sudo nano /etc/postgresql/<версия>/main/postgresql.conf
+     ```
+   - Найдите строку `port = 5432` и измените на свободный порт
+   - Перезапустите PostgreSQL:
+     ```bash
+     sudo service postgresql restart
+     ```
+
+#### Профилактика:
+- Всегда проверяйте занятые порты перед запуском контейнеров
+- Используйте разные порты для WSL и Docker, если оба сервиса нужны одновременно
+- Убедитесь, что в `.env` указан правильный порт для подключения к базе данных
