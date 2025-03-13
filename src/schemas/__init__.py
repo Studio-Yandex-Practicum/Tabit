@@ -89,6 +89,7 @@ from .token import TokenReadSchemas
 from .user import (
     ResetPasswordByAdmin,
     UserCreateSchema,
+    UserForUserUpdateSchema,
     UserReadSchema,
     UserUpdateSchema,
 )
@@ -173,6 +174,7 @@ __all__ = [
     'TokenReadSchemas',
     'ResetPasswordByAdmin',
     'UserCreateSchema',
+    'UserForUserUpdateSchema',
     'UserReadSchema',
     'UserUpdateSchema',
     'VotingBase',

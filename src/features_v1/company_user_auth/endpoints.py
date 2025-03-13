@@ -3,8 +3,10 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users import BaseUserManager, models
 from fastapi_users.authentication import Strategy
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.dependencies import (
+    current_user_tabit,
     get_current_user_refresh_token,
     get_current_user_token,
     tabit_user,
@@ -12,10 +14,12 @@ from src.core.auth.dependencies import (
 from src.core.auth.jwt import jwt_auth_backend_user
 from src.core.auth.managers import get_user_manager
 from src.core.auth.protocol import StrategyT
+from src.core.database.db_depends import get_async_session
 from src.features_v1.company_user_auth.constants import Description, Summary
+from src.features_v1.company_user_auth.crud_user import user_crud
 from src.features_v1.company_user_auth.validators import check_user_is_active
-from src.models import TabitAdminUser
-from src.schemas import TokenReadSchemas
+from src.models import UserTabit
+from src.schemas import TokenReadSchemas, UserForUserUpdateSchema, UserReadSchema
 
 router = APIRouter()
 
@@ -89,8 +93,8 @@ async def logout(
     summary=Summary.COMPANY_USER_AUTH_REFRESH_TOKEN,
     description=Description.COMPANY_USER_AUTH_LOGOUT,
 )
-async def refresh_token_tabit_admin(
-    user_and_refresh_token: tuple[TabitAdminUser, str] = Depends(get_current_user_refresh_token),
+async def refresh_token_user(
+    user_and_refresh_token: tuple[UserTabit, str] = Depends(get_current_user_refresh_token),
     strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend_user.get_strategy),
 ) -> JSONResponse:
     """
@@ -128,3 +132,57 @@ router.include_router(  # форгот и резет пассворд
     prefix='',
 )
 # =====================================================================┘
+
+
+@router.get(
+    '/me',
+    response_model=UserReadSchema,
+    summary=Summary.USER_AUTH_GET_ME,
+    description=Description.USER_AUTH_GET_ME,
+)
+async def get_me_user(
+    session: AsyncSession = Depends(get_async_session),
+    user: UserTabit = Depends(current_user_tabit),
+) -> UserReadSchema:
+    """
+    Для доступа к своей учетной записи пользователей сервиса.
+    Доступно только хозяину учетной записи.
+
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        summary: краткое описание.
+        description: подробное описание.
+    Параметры функции:
+        session: асинхронная сессия через зависимость.
+        user: получение пользователя через зависимости.
+    """
+    return await user_crud.get_or_404(session, user.id)
+
+
+@router.patch(
+    '/me',
+    response_model=UserReadSchema,
+    summary=Summary.USER_AUTH_PATCH_ME,
+    description=Description.USER_AUTH_PATCH_ME,
+)
+async def update_me_user(
+    user_in: UserForUserUpdateSchema,
+    session: AsyncSession = Depends(get_async_session),
+    user: UserTabit = Depends(current_user_tabit),
+) -> UserReadSchema:
+    """
+    Позволит обновить данные о себе пользователю сервиса.
+    Доступно только хозяину учетной записи.
+
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        summary: краткое описание.
+        description: подробное описание.
+    Параметры функции:
+        user_in: данные переданные в запросе, предварительно подготовленные согласно схеме.
+        session: асинхронная сессия через зависимость.
+        user: получение пользователя через зависимости.
+    """
+    return await user_crud.update(session, user, user_in)

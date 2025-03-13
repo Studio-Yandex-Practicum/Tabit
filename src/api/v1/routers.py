@@ -8,7 +8,6 @@ from src.features_v1 import (
     company_problem_tasks_router,
     company_survey_management_router,
     company_user_auth_router,
-    company_user_profile_router,
     landing_page_router,
     tabit_admin_auth_router,
     tabit_admin_management_router,
@@ -35,7 +34,6 @@ main_router.include_router(
 
 # Company Endpoints
 main_router.include_router(company_user_auth_router, prefix='/auth', tags=['Company User Auth'])
-main_router.include_router(company_user_profile_router, tags=['Company User Profile'])
 main_router.include_router(
     company_moderator_management_router,
     prefix='/{company_slug}',
