@@ -1,4 +1,5 @@
 import uuid
+from datetime import timedelta
 
 import pytest
 from fastapi import status
@@ -461,13 +462,13 @@ class TestGetLicense:
         assert updated_dates_desc == sorted(updated_dates, reverse=True)
 
     @pytest.mark.asyncio
-    async def test_get_license_by_id(self, client: AsyncClient, async_session, license_for_test):
+    async def test_get_license_by_id(self, client: AsyncClient, license_for_test):
         """Тест получения лицензии по ID.
 
         Перед тестом вручную создаём запись в БД, чтобы гарантировать её существование.
         Затем делаем GET-запрос и проверяем корректность данных.
         """
-        license_term = 'P360D'
+        license_term = timedelta(days=360)
         new_license = await license_for_test(
             {'license_term': license_term},
         )
@@ -479,7 +480,7 @@ class TestGetLicense:
 
         assert result['id'] == new_license.id
         assert result['name'] == new_license.name
-        assert result['license_term'] == license_term
+        assert result['license_term'] == 'P360D'
         assert result['max_admins_count'] == new_license.max_admins_count
         assert result['max_employees_count'] == new_license.max_employees_count
 
