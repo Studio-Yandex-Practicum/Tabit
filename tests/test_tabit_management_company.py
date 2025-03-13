@@ -1,6 +1,6 @@
 import random
 import string
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from fastapi import status
@@ -411,9 +411,9 @@ class TestCreateCompany:
         second_company_slug = response_2.json()['slug']
 
         assert first_company_slug != second_company_slug, 'Слаг должен быть уникальным'
-        assert second_company_slug.startswith(
-            first_company_slug.split('-')[0]
-        ), 'Слаг должен базироваться на названии'
+        assert second_company_slug.startswith(first_company_slug.split('-')[0]), (
+            'Слаг должен базироваться на названии'
+        )
 
     @pytest.mark.asyncio
     async def test_create_company_invalid_logo_url(
@@ -617,9 +617,9 @@ class TestGetCompany:
         }
 
         for company in companies:
-            assert expected_fields.issubset(
-                company.keys()
-            ), f'Компания должна содержать поля: {expected_fields}'
+            assert expected_fields.issubset(company.keys()), (
+                f'Компания должна содержать поля: {expected_fields}'
+            )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -766,7 +766,7 @@ class TestGetCompany:
             'logo': 'https://example.com/updated_logo.png',
             'name': 'Обновленное имя',
             'license_id': new_license.id,
-            'start_license_time': datetime.now().isoformat(),
+            'start_license_time': datetime.now(timezone.utc).isoformat(),
         }
 
         response = await client.patch(
@@ -780,14 +780,14 @@ class TestGetCompany:
 
         for key, value in update_data.items():
             if 'time' in key and value:
-                actual_time = datetime.fromisoformat(data[key]).replace(tzinfo=None).isoformat()
-                assert (
-                    actual_time == value
-                ), f'Ожидалось значение {value} в поле {key}, но получено {actual_time}'
+                actual_time = datetime.fromisoformat(data[key]).isoformat()
+                assert actual_time == value, (
+                    f'Ожидалось значение {value} в поле {key}, но получено {actual_time}'
+                )
             else:
-                assert (
-                    data[key] == value
-                ), f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                assert data[key] == value, (
+                    f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                )
 
     @pytest.mark.asyncio
     async def test_patch_company_name_too_short(
@@ -1097,9 +1097,9 @@ class TestPatchCompanyValidation:
         assert response.status_code == status.HTTP_200_OK, response.text
         data = response.json()
 
-        assert (
-            data['end_license_time'] is None
-        ), f'Ожидалось null в поле end_license_time, но получено {data["end_license_time"]}'
+        assert data['end_license_time'] is None, (
+            f'Ожидалось null в поле end_license_time, но получено {data["end_license_time"]}'
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize('license_term_days', [30, 60, 365])
@@ -1120,12 +1120,10 @@ class TestPatchCompanyValidation:
         new_license = await license_for_test({'license_term': timedelta(days=license_term_days)})
         company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
 
-        start_time = datetime.now().isoformat()
+        start_time = datetime.now(timezone.utc).isoformat()
         expected_end_time = (
-            (datetime.fromisoformat(start_time) + timedelta(days=license_term_days))
-            .replace(tzinfo=None)
-            .isoformat()
-        )
+            datetime.fromisoformat(start_time) + timedelta(days=license_term_days)
+        ).isoformat()
 
         update_data = {'license_id': new_license.id, 'start_license_time': start_time}
 
@@ -1138,9 +1136,7 @@ class TestPatchCompanyValidation:
         assert response.status_code == status.HTTP_200_OK, response.text
         data = response.json()
 
-        actual_end_time = (
-            datetime.fromisoformat(data['end_license_time']).replace(tzinfo=None).isoformat()
-        )
+        actual_end_time = datetime.fromisoformat(data['end_license_time']).isoformat()
 
         assert actual_end_time == expected_end_time, (
             f'Ожидалось значение {expected_end_time} в поле end_license_time, '
