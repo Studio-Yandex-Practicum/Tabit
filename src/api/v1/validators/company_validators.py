@@ -14,7 +14,7 @@ from src.companies.constants import (
 )
 from src.companies.crud import company_crud, company_departments_crud
 from src.companies.models import Company, Department
-from src.constants import TEXT_ERROR_EXISTS_EMAIL, TEXT_ERROR_INVALID_PASSWORD
+from src.constants import TextError
 from src.database.db_depends import get_async_session
 from src.users.schemas import UserCreateSchema
 
@@ -58,6 +58,7 @@ async def check_slug_duplicate(
         `slug` не удается сгенерировать вызывается ошибка.
     """
     db_obj.slug = db_obj.name
+    # TODO: Избавится от этого.
     for _ in range(ATTEMPTS):
         crud = company_departments_crud if isinstance(db_obj, Department) else company_crud
         db_objects = await crud.get_multi(session=session, filters={'slug': db_obj.slug})
@@ -87,7 +88,7 @@ async def validate_user_not_exists(
         user = await user_manager.user_db.get_by_email(user_data.email)
         if user:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TEXT_ERROR_EXISTS_EMAIL
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.EXISTS_EMAIL
             )
 
 
@@ -109,5 +110,5 @@ async def validate_password(
             await user_manager.validate_password(user_data.password, user_data)
         except InvalidPasswordException:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TEXT_ERROR_INVALID_PASSWORD
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.INVALID_PASSWORD
             )

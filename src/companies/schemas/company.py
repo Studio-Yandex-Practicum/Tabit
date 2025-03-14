@@ -71,12 +71,6 @@ class CompanyUpdateForUserSchema(BaseModel):
         title=TITLE_LOGO_COMPANY,
     )
 
-    @field_validator('logo')
-    @classmethod
-    def validate_logo_field(cls, logo: Optional[str]) -> Optional[str]:
-        """Проверяет, что logo является корректным URL-адресом."""
-        return validate_logo(logo)
-
     @field_validator('description', mode='after', check_fields=False)
     @classmethod
     def validate_description(cls, value: str):
