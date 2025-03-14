@@ -14,7 +14,7 @@ from src.companies.constants import (
 )
 from src.companies.crud import company_crud, company_departments_crud
 from src.companies.models import Company, Department
-from src.constants import TextError
+from src.constants import TextError as ErrorText
 from src.database.db_depends import get_async_session
 from src.users.schemas import UserCreateSchema
 
@@ -88,7 +88,7 @@ async def validate_user_not_exists(
         user = await user_manager.user_db.get_by_email(user_data.email)
         if user:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.EXISTS_EMAIL
+                status_code=status.HTTP_400_BAD_REQUEST, detail=ErrorText.EXISTS_EMAIL
             )
 
 
@@ -110,5 +110,5 @@ async def validate_password(
             await user_manager.validate_password(user_data.password, user_data)
         except InvalidPasswordException:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.INVALID_PASSWORD
+                status_code=status.HTTP_400_BAD_REQUEST, detail=ErrorText.INVALID_PASSWORD
             )

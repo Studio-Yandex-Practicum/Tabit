@@ -18,7 +18,6 @@ from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_users import BaseUserManager, exceptions, models, schemas
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 from starlette.requests import Request

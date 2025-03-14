@@ -1,4 +1,21 @@
+import os
 from dataclasses import dataclass
+from typing import Any
+
+from dotenv import load_dotenv
+
+from src.constants import TextError
+
+load_dotenv()
+
+
+@dataclass
+class TEST_DATABASE_URL:
+    TEST_USER: str = os.getenv('TEST_POSTGRES_USER', 'test_user')
+    TEST_PASSWORD: str = os.getenv('TEST_POSTGRES_PASSWORD', 'test_password')
+    TEST_HOST: str = os.getenv('TEST_POSTGRES_HOST', 'localhost')
+    TEST_PORT: int = int(os.getenv('TEST_POSTGRES_PORT', 5433))
+    TEST_DBNAME: str = os.getenv('TEST_POSTGRES_DB', 'test_db')
 
 
 @dataclass
@@ -99,4 +116,42 @@ PAYLOAD_FOR_PATCH_ADMIN: tuple[dict, ...] = (
     {
         'patronymic': 'Императрица',
     },
+)
+
+IMAGE_BASE64_PNG: str = (
+    'data:image/png;base64,'
+    'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAA'
+    'AJcEhZcwAADsQAAA7EAZUrDhsAAAAWSURBVBhXY/jPAEIM/5ns7eyA1H8GADMUBbmnKLI7AAAAAElFTkSuQmCC'
+)
+
+IMAGE_BASE64_JPG: str = (
+    'data:image/jpg;base64,'
+    'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAA'
+    'JcEhZcwAADsQAAA7EAZUrDhsAAAAZSURBVBhXY2T4DwQMDAxMBw8dYmBgZGQAAEnjBkemLjB6AAAAAElFTkSuQmCC'
+)
+
+INVALID_IMAGE: tuple[tuple[Any, Any], ...] = (
+    (
+        1,
+        [
+            {
+                'type': 'string_type',
+                'loc': ['body', 'logo'],
+                'msg': 'Input should be a valid string',
+                'input': 1,
+            }
+        ],
+    ),
+    ('string', TextError.BASE64_TYPE),
+    (
+        f'{IMAGE_BASE64_PNG}b',
+        TextError.BASE64_FATAL.format(
+            image='logo',
+            error_class='Error',
+            error_text=(
+                'Invalid base64-encoded string: number of data characters (173) '
+                'cannot be 1 more than a multiple of 4'
+            ),
+        ),
+    ),
 )

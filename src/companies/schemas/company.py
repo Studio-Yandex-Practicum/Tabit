@@ -28,7 +28,6 @@ from src.companies.constants import (
 )
 from src.companies.validators.company_validators import (
     check_license_fields_none,
-    validate_logo,
     validate_name_characters,
     validate_name_surname_unique,
     validate_slug,

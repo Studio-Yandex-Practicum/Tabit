@@ -9,10 +9,9 @@ from sqlalchemy.future import select
 
 from src.companies.models import Company
 from src.companies.schemas import CompanyCreateSchema, CompanyUpdateSchema
+from src.constants import DEFAULT_AUTO_COMMIT, Directory
 from src.crud import CRUDBase
 from src.tabit_management.models import LicenseType
-from src.constants import DEFAULT_AUTO_COMMIT
-from src.constants import Directory
 from src.utils.base64_image import base64image
 
 

@@ -1,10 +1,9 @@
-import aiofiles
 import base64
 
-
+import aiofiles
 from fastapi import HTTPException, status
 
-from src.constants import Directory, BASE64_STARTSWITH, TextError
+from src.constants import BASE64_STARTSWITH, Directory, TextError
 from src.utils.directory import create_folder
 
 
@@ -18,7 +17,10 @@ async def base64image(str_base64: str, name: str, directory: str = Directory.WAI
         - directory: строка, содержащая название директории для хранения файла.
     """
     if not (isinstance(str_base64, str) and str_base64.startswith(BASE64_STARTSWITH)):
-        raise ValueError(TextError.BASE64_TYPE)
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=TextError.BASE64_TYPE,
+        )
     try:
         format_image, image_str = str_base64.split(';base64,')
         extension = format_image.split('/')[-1]
