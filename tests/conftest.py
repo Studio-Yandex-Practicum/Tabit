@@ -181,10 +181,9 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
     По умолчанию, только обязательные поля.
     """
 
-    async def _create_employee(user_data=None, company=None):
+    async def _create_employee(user_data=None):
         """Функция-обёртка для пользователя тестовой компании с изменяемыми параметрами."""
-        if not company:
-            company = await company_for_test()
+        company = await company_for_test()
         default_data = {
             'name': 'Брюс',
             'surname': 'Ли',
@@ -353,19 +352,23 @@ async def company_2(company_for_test):
 @pytest_asyncio.fixture
 async def employee_1_company_1(company_1, employee_of_company):
     """Фикстура для создания пользователя 1 от компании 1 в таблице usertabit."""
-    return await employee_of_company({'name': 'Брюс', 'surname': 'Ли'}, company_1)
+    return await employee_of_company({'name': 'Брюс', 'surname': 'Ли', 'company_id': company_1.id})
 
 
 @pytest_asyncio.fixture
 async def employee_2_company_1(company_1, employee_of_company):
     """Фикстура для создания пользователя 2 от компании 1 в таблице usertabit."""
-    return await employee_of_company({'name': 'Ким', 'surname': 'Кицураги'}, company_1)
+    return await employee_of_company(
+        {'name': 'Ким', 'surname': 'Кицураги', 'company_id': company_1.id}
+    )
 
 
 @pytest_asyncio.fixture
 async def employee_3_company_2(company_2, employee_of_company):
     """Фикстура для создания пользователя 3 от компании 2 в таблице usertabit."""
-    return await employee_of_company({'name': 'Нейтан', 'surname': 'Дрейк'}, company_2)
+    return await employee_of_company(
+        {'name': 'Нейтан', 'surname': 'Дрейк', 'company_id': company_2.id}
+    )
 
 
 @pytest_asyncio.fixture
@@ -460,9 +463,9 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
 
 
 @pytest_asyncio.fixture
-async def comment(employee_1_company_1, comment_for_test):
+async def comment(employee_1_company_1, comment_for_test, message_feed):
     """Фикстура для создания комментария к треду 1 от пользователя 1"""
-    return await comment_for_test(employee_1_company_1, {'text': 'комментарий 1'})
+    return await comment_for_test(employee_1_company_1, {'text': 'комментарий 1'}, message_feed)
 
 
 @pytest_asyncio.fixture

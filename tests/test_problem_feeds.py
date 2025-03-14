@@ -1,7 +1,7 @@
 import pytest
 from fastapi import status
+from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.problems.crud import user_comment_association_crud
@@ -17,6 +17,7 @@ from tests.constants import (
     PROBLEM_FEEDS_GET_404,
     URL,
 )
+from tests.utils import get_count, update_object
 
 
 class TestGetProblemFeed:
@@ -36,7 +37,9 @@ class TestGetProblemFeed:
             await message_feed_for_test(employee_1_company_1, problem_id=problem.id)
             for _ in range(10)
         ]
-        response = await client.get(URL.MESSAGE_FEED_URL, headers=employee_1_company_1_token)
+        response = await client.get(
+            URL.MESSAGE_FEED_URL.format(problem_id=problem.id), headers=employee_1_company_1_token
+        )
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         )
@@ -47,12 +50,14 @@ class TestGetProblemFeed:
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('message_feed')
     async def test_get_message_feeds_of_another_company(
-        self, client: AsyncClient, employee_3_company_2_token
+        self, client: AsyncClient, employee_3_company_2_token, message_feed
     ):
         """Тест для проверки доступа к тредам сотрудников других компаний"""
-        response = await client.get(URL.MESSAGE_FEED_URL, headers=employee_3_company_2_token)
+        response = await client.get(
+            URL.MESSAGE_FEED_URL.format(problem_id=message_feed.problem_id),
+            headers=employee_3_company_2_token,
+        )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
             f'Ожидается status_code {status.HTTP_403_FORBIDDEN}, получен {response.status_code}. '
             'Сотрудники компаний должны иметь доступ только к проблемам, связанными с их компанией'
@@ -72,7 +77,12 @@ class TestGetProblemFeed:
             await comment_for_test(employee_1_company_1, message_feed=message_feed)
             for _ in range(10)
         ]
-        response = await client.get(URL.COMMENTS_URL, headers=employee_1_company_1_token)
+        response = await client.get(
+            URL.COMMENTS_URL.format(
+                problem_id=message_feed.problem_id, message_feed_id=message_feed.id
+            ),
+            headers=employee_1_company_1_token,
+        )
         result = response.json()
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
@@ -86,10 +96,18 @@ class TestGetProblemFeed:
     @pytest.mark.asyncio
     @pytest.mark.usefixtures('comment')
     async def test_get_feed_comments_of_another_company(
-        self, client: AsyncClient, employee_3_company_2_token
+        self,
+        client: AsyncClient,
+        employee_3_company_2_token,
+        message_feed,
     ):
         """Тест для проверки доступа к комментариям сотрудников других компаний"""
-        response = await client.get(URL.COMMENTS_URL, headers=employee_3_company_2_token)
+        response = await client.get(
+            URL.COMMENTS_URL.format(
+                problem_id=message_feed.problem_id, message_feed_id=message_feed.id
+            ),
+            headers=employee_3_company_2_token,
+        )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
             f'Ожидается status_code {status.HTTP_403_FORBIDDEN}, получен {response.status_code}. '
             'Сотрудники компаний могут просматривать комментарии только тех тредов, которые '
@@ -97,7 +115,6 @@ class TestGetProblemFeed:
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('comment')
     @pytest.mark.parametrize(
         'url_404',
         PROBLEM_FEEDS_GET_404,
@@ -127,17 +144,17 @@ class TestPostProblemFeed:
         expected_result,
     ):
         """Тест для проверки успешного создания треда к проблеме."""
-        old_message_feeds_count = await async_session.execute(select(MessageFeed))
-        old_message_feeds_count = len(old_message_feeds_count.all())
+        old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
-            URL.MESSAGE_FEED_URL, headers=employee_1_company_1_token, json=payload
+            URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
+            headers=employee_1_company_1_token,
+            json=payload,
         )
         assert response.status_code == status.HTTP_201_CREATED, (
             f'В ответе ожидается status_code {status.HTTP_201_CREATED}, '
             f'получен {response.status_code}'
         )
-        new_message_feeds_count = await async_session.execute(select(MessageFeed))
-        new_message_feeds_count = len(new_message_feeds_count.all())
+        new_message_feeds_count = await get_count(async_session, MessageFeed)
         assert new_message_feeds_count == old_message_feeds_count + 1, (
             f'Количество объектов MessageFeed должно равняться {old_message_feeds_count + 1}. '
             f'Текущее количество - {new_message_feeds_count}.'
@@ -157,49 +174,44 @@ class TestPostProblemFeed:
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('problem')
     @pytest.mark.parametrize('payload, expected_result', MESSAGE_FEED_CREATE_BAD)
     async def test_unsuccessful_create_message_feed(
         self,
         async_session: AsyncSession,
         client: AsyncClient,
         employee_1_company_1_token,
+        problem,
         payload,
         expected_result,
     ):
         """Тест для проверки неуспешного создания треда к проблеме."""
-        old_message_feeds_count = await async_session.execute(select(MessageFeed))
-        old_message_feeds_count = len(old_message_feeds_count.all())
+        old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
-            URL.MESSAGE_FEED_URL, headers=employee_1_company_1_token, json=payload
+            URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
+            headers=employee_1_company_1_token,
+            json=payload,
         )
         assert response.status_code == expected_result, (
             f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
         )
-        new_message_feeds_count = await async_session.execute(select(MessageFeed))
-        new_message_feeds_count = len(new_message_feeds_count.all())
+        new_message_feeds_count = await get_count(async_session, MessageFeed)
         assert new_message_feeds_count == old_message_feeds_count, (
             f'Количество объектов MessageFeed должно равняться {old_message_feeds_count}. '
             f'Текущее количество - {new_message_feeds_count}.'
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('problem')
     async def test_1_create_message_feed_for_another_company(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_3_company_2_token,
+        self, async_session: AsyncSession, client: AsyncClient, employee_3_company_2_token, problem
     ):
         """
         Тест для проверки попытки создания треда к проблеме другой компании.
         Передаваемый path-параметр company_slug не соответствует компании пользователя,
         сделавшего запрос.
         """
-        old_message_feeds_count = await async_session.execute(select(MessageFeed))
-        old_message_feeds_count = len(old_message_feeds_count.all())
+        old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
-            URL.MESSAGE_FEED_URL,
+            URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
             headers=employee_3_company_2_token,
             json=MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY,
         )
@@ -207,15 +219,13 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_403_FORBIDDEN}, '
             f'получен {response.status_code}'
         )
-        new_message_feeds_count = await async_session.execute(select(MessageFeed))
-        new_message_feeds_count = len(new_message_feeds_count.all())
+        new_message_feeds_count = await get_count(async_session, MessageFeed)
         assert new_message_feeds_count == old_message_feeds_count, (
             f'Количество объектов MessageFeed должно равняться {old_message_feeds_count}. '
             f'Текущее количество - {new_message_feeds_count}.'
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('problem')
     async def test_2_create_message_feed_for_another_company(
         self,
         async_session: AsyncSession,
@@ -229,11 +239,10 @@ class TestPostProblemFeed:
         В данном тесте переданный company_slug соответствует компании пользователя,
         сделавшего запрос, но переданный problem_id относится к проблеме другой компании.
         """
-        await problem_for_test(employee_3_company_2, {'name': 'проблема 2'})
-        old_message_feeds_count = await async_session.execute(select(MessageFeed))
-        old_message_feeds_count = len(old_message_feeds_count.all())
+        problem = await problem_for_test(employee_3_company_2, {'name': 'проблема 2'})
+        old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
-            URL.MESSAGE_FEED_BAD_URL,
+            URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
             headers=employee_1_company_1_token,
             json=MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY,
         )
@@ -241,8 +250,7 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_403_FORBIDDEN}, '
             f'получен {response.status_code}'
         )
-        new_message_feeds_count = await async_session.execute(select(MessageFeed))
-        new_message_feeds_count = len(new_message_feeds_count.all())
+        new_message_feeds_count = await get_count(async_session, MessageFeed)
         assert new_message_feeds_count == old_message_feeds_count, (
             f'Количество объектов MessageFeed должно равняться {old_message_feeds_count}. '
             f'Текущее количество - {new_message_feeds_count}.'
@@ -258,17 +266,19 @@ class TestPostProblemFeed:
         message_feed,
     ):
         """Тест для проверки успешного создания комментария к треду."""
-        old_comments_count = await async_session.execute(select(CommentFeed))
-        old_comments_count = len(old_comments_count.all())
+        old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.post(
-            URL.COMMENTS_URL, headers=employee_1_company_1_token, json=COMMENT_CREATE_NEW
+            URL.COMMENTS_URL.format(
+                problem_id=message_feed.problem_id, message_feed_id=message_feed.id
+            ),
+            headers=employee_1_company_1_token,
+            json=COMMENT_CREATE_NEW,
         )
         assert response.status_code == status.HTTP_201_CREATED, (
             f'В ответе ожидается status_code {status.HTTP_201_CREATED}, '
             f'получен {response.status_code}'
         )
-        new_comments_count = await async_session.execute(select(CommentFeed))
-        new_comments_count = len(new_comments_count.all())
+        new_comments_count = await get_count(async_session, CommentFeed)
         assert new_comments_count == old_comments_count + 1, (
             f'Количество объектов CommentFeed должно равняться {old_comments_count + 1}. '
             f'Текущее количество - {new_comments_count}.'
@@ -286,40 +296,42 @@ class TestPostProblemFeed:
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('message_feed')
     @pytest.mark.parametrize('payload, expected_result', COMMENT_CREATE_BAD)
     async def test_unsuccessful_create_comment(
         self,
         async_session: AsyncSession,
         client: AsyncClient,
         employee_1_company_1_token,
+        message_feed,
         payload,
         expected_result,
     ):
         """Тест для проверки неуспешного создания комментария к треду."""
-        old_comments_count = await async_session.execute(select(CommentFeed))
-        old_comments_count = len(old_comments_count.all())
+        old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.post(
-            URL.COMMENTS_URL, headers=employee_1_company_1_token, json=payload
+            URL.COMMENTS_URL.format(
+                problem_id=message_feed.problem_id, message_feed_id=message_feed.id
+            ),
+            headers=employee_1_company_1_token,
+            json=payload,
         )
         assert response.status_code == expected_result, (
             f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
         )
-        new_comments_count = await async_session.execute(select(CommentFeed))
-        new_comments_count = len(new_comments_count.all())
+        new_comments_count = await get_count(async_session, CommentFeed)
         assert new_comments_count == old_comments_count, (
             f'Количество объектов CommentFeed должно равняться {old_comments_count}. '
             f'Текущее количество - {new_comments_count}.'
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('message_feed')
     async def test_create_comment_for_wrong_message_feed(
         self,
         async_session: AsyncSession,
         client: AsyncClient,
         employee_1_company_1_token,
         employee_3_company_2,
+        message_feed,
         message_feed_for_test,
     ):
         """
@@ -327,11 +339,12 @@ class TestPostProblemFeed:
         проблемой. Т.е. когда тред, соотвествующий переданному thread_id, не связан с проблемой,
         соответствующей переданному problem_id.
         """
-        await message_feed_for_test(employee_3_company_2, {'text': 'тред 2'})
-        old_comments_count = await async_session.execute(select(CommentFeed))
-        old_comments_count = len(old_comments_count.all())
+        wrong_message_feed = await message_feed_for_test(employee_3_company_2, {'text': 'тред 2'})
+        old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.post(
-            URL.COMMENTS_WRONG_MESSAGE_FEED_URL,
+            URL.COMMENTS_URL.format(
+                problem_id=message_feed.problem_id, message_feed_id=wrong_message_feed.id
+            ),
             headers=employee_1_company_1_token,
             json=COMMENT_CREATE_NEW,
         )
@@ -339,8 +352,7 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
         )
-        new_comments_count = await async_session.execute(select(CommentFeed))
-        new_comments_count = len(new_comments_count.all())
+        new_comments_count = await get_count(async_session, CommentFeed)
         assert new_comments_count == old_comments_count, (
             f'Количество объектов CommentFeed должно равняться {old_comments_count}. '
             f'Текущее количество - {new_comments_count}.'
@@ -357,7 +369,10 @@ class TestPostProblemFeed:
     ):
         """Тест для проверки успешного лайка комментария."""
         old_rating = comment.rating
-        response = await client.post(URL.LIKE_URL, headers=employee_2_company_1_token)
+        response = await client.post(
+            URL.LIKE_URL.format(message_feed_id=comment.message_id),
+            headers=employee_2_company_1_token,
+        )
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         )
@@ -383,7 +398,10 @@ class TestPostProblemFeed:
     ):
         """Тест для проверки успешного анлайка комментария."""
         old_rating = liked_comment.rating
-        response = await client.post(URL.UNLIKE_URL, headers=employee_2_company_1_token)
+        response = await client.post(
+            URL.UNLIKE_URL.format(message_feed_id=liked_comment.message_id),
+            headers=employee_2_company_1_token,
+        )
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         )
@@ -409,7 +427,10 @@ class TestPostProblemFeed:
     ):
         """Тест для проверки неуспешного лайка комментария автором."""
         old_rating = comment.rating
-        response = await client.post(URL.LIKE_URL, headers=employee_1_company_1_token)
+        response = await client.post(
+            URL.LIKE_URL.format(message_feed_id=comment.message_id),
+            headers=employee_1_company_1_token,
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
             f'получен {response.status_code}'
@@ -436,7 +457,10 @@ class TestPostProblemFeed:
     ):
         """Тест для проверки неуспешного повторного лайка пользователем."""
         old_rating = liked_comment.rating
-        response = await client.post(URL.LIKE_URL, headers=employee_2_company_1_token)
+        response = await client.post(
+            URL.LIKE_URL.format(message_feed_id=liked_comment.message_id),
+            headers=employee_2_company_1_token,
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
             f'получен {response.status_code}'
@@ -463,7 +487,10 @@ class TestPostProblemFeed:
     ):
         """Тест для проверки неуспешного анлайка комментария автором."""
         old_rating = liked_comment.rating
-        response = await client.post(URL.UNLIKE_URL, headers=employee_1_company_1_token)
+        response = await client.post(
+            URL.UNLIKE_URL.format(message_feed_id=liked_comment.message_id),
+            headers=employee_1_company_1_token,
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
             f'получен {response.status_code}'
@@ -483,7 +510,10 @@ class TestPostProblemFeed:
     ):
         """Тест для проверки неуспешного анлайка комментария пользователем."""
         old_rating = comment.rating
-        response = await client.post(URL.UNLIKE_URL, headers=employee_2_company_1_token)
+        response = await client.post(
+            URL.UNLIKE_URL.format(message_feed_id=comment.message_id),
+            headers=employee_2_company_1_token,
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
             f'получен {response.status_code}'
@@ -508,9 +538,14 @@ class TestPostProblemFeed:
         Тест для проверки неуспешного лайка существующего комментария, но в запросе передаётся
         некорректный message_feed_id/thread_id.
         """
-        await message_feed_for_test(employee_2_company_1, problem_id=message_feed.problem_id)
+        wrong_message_feed = await message_feed_for_test(
+            employee_2_company_1, problem_id=message_feed.problem_id
+        )
         old_rating = comment.rating
-        response = await client.post(URL.LIKE_BAD_URL, headers=employee_2_company_1_token)
+        response = await client.post(
+            URL.LIKE_URL.format(message_feed_id=wrong_message_feed.id),
+            headers=employee_2_company_1_token,
+        )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
@@ -541,9 +576,14 @@ class TestPostProblemFeed:
         Тест для проверки неуспешного анлайка существующего комментария, но в запросе передаётся
         некорректный message_feed_id/thread_id.
         """
-        await message_feed_for_test(employee_2_company_1, problem_id=message_feed.problem_id)
+        wrong_message_feed = await message_feed_for_test(
+            employee_2_company_1, problem_id=message_feed.problem_id
+        )
         old_rating = liked_comment.rating
-        response = await client.post(URL.UNLIKE_BAD_URL, headers=employee_2_company_1_token)
+        response = await client.post(
+            URL.UNLIKE_URL.format(message_feed_id=wrong_message_feed.id),
+            headers=employee_2_company_1_token,
+        )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
@@ -570,7 +610,11 @@ class TestPatchProblemFeed:
         """Тест для проверки успешного обновления комментария."""
         old_rating = comment.rating
         response = await client.patch(
-            URL.COMMENTS_PATCH_DELETE_URL, headers=employee_1_company_1_token, json=COMMENT_UPDATE
+            URL.COMMENTS_PATCH_DELETE_URL.format(
+                message_feed_id=comment.message_id, comment_id=comment.id
+            ),
+            headers=employee_1_company_1_token,
+            json=COMMENT_UPDATE,
         )
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
@@ -599,14 +643,18 @@ class TestPatchProblemFeed:
         expected_result,
     ):
         """Тест для проверки неуспешного обновления комментария."""
-        old_comment = comment
+        old_comment = jsonable_encoder(comment)
         response = await client.patch(
-            URL.COMMENTS_PATCH_DELETE_URL, headers=employee_1_company_1_token, json=payload
+            URL.COMMENTS_PATCH_DELETE_URL.format(
+                message_feed_id=comment.message_id, comment_id=comment.id
+            ),
+            headers=employee_1_company_1_token,
+            json=payload,
         )
         assert response.status_code == expected_result, (
             f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
         )
-        await async_session.refresh(comment)
+        comment = await update_object(async_session, comment)
         assert comment == old_comment, 'Данные обновляемого комментария изменились'
 
     @pytest.mark.asyncio
@@ -618,15 +666,19 @@ class TestPatchProblemFeed:
         comment,
     ):
         """Тест для проверки неуспешного обновления комментария другим пользователем."""
-        old_comment = comment
+        old_comment = jsonable_encoder(comment)
         response = await client.patch(
-            URL.COMMENTS_PATCH_DELETE_URL, headers=employee_2_company_1_token, json=COMMENT_UPDATE
+            URL.COMMENTS_PATCH_DELETE_URL.format(
+                message_feed_id=comment.message_id, comment_id=comment.id
+            ),
+            headers=employee_2_company_1_token,
+            json=COMMENT_UPDATE,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
             f'В ответе ожидается status_code {status.HTTP_403_FORBIDDEN}, '
             f'получен {response.status_code}'
         )
-        await async_session.refresh(comment)
+        comment = await update_object(async_session, comment)
         assert comment == old_comment, 'Данные обновляемого комментария изменились'
 
     @pytest.mark.asyncio
@@ -644,10 +696,14 @@ class TestPatchProblemFeed:
         Тест для проверки неуспешного редактирования комментария, но в запросе передаётся
         некорректный message_feed_id/thread_id.
         """
-        await message_feed_for_test(employee_1_company_1, problem_id=message_feed.problem_id)
-        old_comment = comment
+        wrong_message_feed = await message_feed_for_test(
+            employee_1_company_1, problem_id=message_feed.problem_id
+        )
+        old_comment = jsonable_encoder(comment)
         response = await client.patch(
-            URL.COMMENTS_PATCH_DELETE_BAD_URL,
+            URL.COMMENTS_PATCH_DELETE_URL.format(
+                message_feed_id=wrong_message_feed.id, comment_id=comment.id
+            ),
             headers=employee_1_company_1_token,
             json=COMMENT_UPDATE,
         )
@@ -655,7 +711,7 @@ class TestPatchProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
         )
-        await async_session.refresh(comment)
+        comment = await update_object(async_session, comment)
         assert comment == old_comment, 'Данные обновляемого комментария изменились'
 
     @pytest.mark.asyncio
@@ -676,57 +732,58 @@ class TestDeleteProblemFeeds:
     """Класс для тестов DELETE-эндпоинтов problem_feeds.py"""
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('comment')
     async def test_successful_delete_comment(
         self,
         async_session: AsyncSession,
         client: AsyncClient,
         employee_1_company_1_token,
+        comment,
     ):
         """Тест проверки успешного удаления комментария."""
-        old_comments_count = await async_session.execute(select(CommentFeed))
-        old_comments_count = len(old_comments_count.all())
+        old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.delete(
-            URL.COMMENTS_PATCH_DELETE_URL, headers=employee_1_company_1_token
+            URL.COMMENTS_PATCH_DELETE_URL.format(
+                message_feed_id=comment.message_id, comment_id=comment.id
+            ),
+            headers=employee_1_company_1_token,
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, (
             f'В ответе ожидается status_code {status.HTTP_204_NO_CONTENT}, '
             f'получен {response.status_code}'
         )
-        new_comments_count = await async_session.execute(select(CommentFeed))
-        new_comments_count = len(new_comments_count.all())
+        new_comments_count = await get_count(async_session, CommentFeed)
         assert new_comments_count == old_comments_count - 1, (
             f'Количество объектов CommentFeed должно равняться {old_comments_count - 1}. '
             f'Текущее количество - {new_comments_count}.'
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('comment')
     async def test_delete_comment_wrong_owner(
         self,
         async_session: AsyncSession,
         client: AsyncClient,
         employee_2_company_1_token,
+        comment,
     ):
         """Тест проверки неуспешного удаления комментария не автором."""
-        old_comments_count = await async_session.execute(select(CommentFeed))
-        old_comments_count = len(old_comments_count.all())
+        old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.delete(
-            URL.COMMENTS_PATCH_DELETE_URL, headers=employee_2_company_1_token
+            URL.COMMENTS_PATCH_DELETE_URL.format(
+                message_feed_id=comment.message_id, comment_id=comment.id
+            ),
+            headers=employee_2_company_1_token,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
             f'В ответе ожидается status_code {status.HTTP_403_FORBIDDEN}, '
             f'получен {response.status_code}'
         )
-        new_comments_count = await async_session.execute(select(CommentFeed))
-        new_comments_count = len(new_comments_count.all())
+        new_comments_count = await get_count(async_session, CommentFeed)
         assert new_comments_count == old_comments_count, (
             f'Количество объектов CommentFeed должно равняться {old_comments_count}. '
             f'Текущее количество - {new_comments_count}.'
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('comment')
     async def test_delete_comment_with_wrong_message_feed_id(
         self,
         async_session: AsyncSession,
@@ -734,25 +791,28 @@ class TestDeleteProblemFeeds:
         employee_1_company_1,
         employee_1_company_1_token,
         message_feed,
+        comment,
         message_feed_for_test,
     ):
         """
         Тест для проверки неуспешного удаления комментария, но в запросе передаётся
         некорректный message_feed_id/thread_id.
         """
-        await message_feed_for_test(employee_1_company_1, problem_id=message_feed.problem_id)
-        old_comments_count = await async_session.execute(select(CommentFeed))
-        old_comments_count = len(old_comments_count.all())
+        wrong_message_feed = await message_feed_for_test(
+            employee_1_company_1, problem_id=message_feed.problem_id
+        )
+        old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.delete(
-            URL.COMMENTS_PATCH_DELETE_BAD_URL,
+            URL.COMMENTS_PATCH_DELETE_URL.format(
+                message_feed_id=wrong_message_feed.id, comment_id=comment.id
+            ),
             headers=employee_1_company_1_token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
         )
-        new_comments_count = await async_session.execute(select(CommentFeed))
-        new_comments_count = len(new_comments_count.all())
+        new_comments_count = await get_count(async_session, CommentFeed)
         assert new_comments_count == old_comments_count, (
             f'Количество объектов CommentFeed должно равняться {old_comments_count}. '
             f'Текущее количество - {new_comments_count}.'
