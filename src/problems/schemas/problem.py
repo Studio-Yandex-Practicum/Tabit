@@ -2,8 +2,9 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, field_validator
 
+from src.database.annotations import slug
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.problems.validators.problem_validators import validate_not_empty
 
@@ -49,7 +50,7 @@ class ProblemResponseSchema(ProblemBaseSchema):
     """
 
     id: int
-    company_id: int
+    company_slug: slug
     created_at: datetime
     updated_at: datetime
 
@@ -61,8 +62,8 @@ class ProblemCreateSchema(ProblemBaseSchema):
         Определяет структуру данных для создания новой проблемы.
     """
 
-    company_id: int
-    members: Optional[List[UUID]] = Field(exclude=True)
+    company_slug: slug
+    members: Optional[List[UUID]] = []
 
 
 class ProblemUpdateSchema(ProblemBaseSchema):

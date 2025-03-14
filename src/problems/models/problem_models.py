@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import description, int_pk, name_problem, owner
+from src.database.annotations import description, int_pk, name_problem, owner, slug
 from src.database.models import BaseTabitModel
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 
@@ -44,7 +44,7 @@ class Problem(BaseTabitModel):
     id: Mapped[int_pk]
     name: Mapped[name_problem]
     description: Mapped[description]
-    company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
+    company_slug: Mapped[slug] = mapped_column(ForeignKey('company.slug'))
     company: Mapped['Company'] = relationship(back_populates='problems')
     color: Mapped['ColorProblem']
     type: Mapped['TypeProblem']
