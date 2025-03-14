@@ -18,6 +18,7 @@ from src.companies.models.models import Company
 from src.database.db_depends import get_async_session
 from src.database.models import BaseTabitModel as Base
 from src.main import app_v1
+from src.problems.models.problem_models import Problem
 from src.tabit_management.models import LicenseType, TabitAdminUser
 from src.users.models import UserTabit
 from src.users.models.enum import RoleUserTabit
@@ -57,7 +58,7 @@ def setup_test_db():
         )
 
 
-def wait_for_postgres(host: str, port: int, user: str, password: str, dbname, timeout=30):
+def wait_for_postgres(host: str, port: int, user: str, password: str, dbname, timeout=60):
     """
     Ожидает готовности PostgreSQL перед началом тестов.
 
@@ -444,3 +445,27 @@ async def employee_refresh_token(get_token_for_user, employee):
     Фикстура для получения заголовков авторизации пользователя от компании c refresh-token.
     """
     return await get_token_for_user(employee, refresh=True)
+
+
+@pytest_asyncio.fixture
+async def problem_for_test(async_session, company_for_test, employee_of_company):
+    """Фикструра для создания объекта модели Problem."""
+
+    async def _create_problem():
+        """Функция-обёртка, создающая объект модели Problem."""
+        company = await company_for_test()
+        owner = await employee_of_company()
+        member = await employee_of_company()
+        data = {
+            'name': 'Тестовая проблема',
+            'description': 'В чём смысл бытия?',
+            'color': 1,
+            'type': 'Взаимодействие в коллективе',
+            'status': 'Новая',
+            'owner_id': f'{owner.id}',
+            'company_id': company.id,
+            'members': [f'{member.id}'],
+        }
+        return await make_entry_in_table(async_session, data, Problem)
+
+    return _create_problem

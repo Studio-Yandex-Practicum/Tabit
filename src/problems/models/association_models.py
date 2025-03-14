@@ -33,8 +33,8 @@ class AssociationUserProblem(BaseTabitModel):
     """
 
     id: Mapped[int_pk]
-    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
-    right_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
+    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'))
+    right_id: Mapped[int] = mapped_column(ForeignKey('problem.id'))
     user: Mapped['UserTabit'] = relationship(back_populates='problems')
     problem: Mapped['Problem'] = relationship(back_populates='members')
     status: Mapped[bool] = mapped_column(default=False)

@@ -29,6 +29,7 @@ class URL:
     USER_REFRESH: str = '/api/v1/auth/refresh-token'
     COMPANIES_ENDPOINT: str = '/api/v1/admin/companies/'
     LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
+    PROBLEMS_ENDPOINT: str = '/api/v1/{company_slug}/problems'
 
 
 GOOD_PASSWORD: str = 'string123STRING'

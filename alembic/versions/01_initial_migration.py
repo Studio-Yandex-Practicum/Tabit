@@ -178,7 +178,7 @@ def upgrade() -> None:
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ),
     sa.ForeignKeyConstraint(['right_id'], ['problem.id'], ),
-    sa.PrimaryKeyConstraint('id', 'left_id', 'right_id'),
+    sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )
     op.create_table('fileproblem',

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.validators.problems_validators import check_company_exists
+from src.companies.crud.company import company_crud
 from src.database.db_depends import get_async_session
 from src.problems.crud.problems import problem_crud
 from src.problems.schemas.problem import (
@@ -34,7 +35,10 @@ async def get_all_problems(company_slug: str, session: AsyncSession = Depends(ge
         Список объектов ProblemResponseSchema.
     """
     await check_company_exists(company_slug, session)
-    filters = {'company_slug': company_slug}
+    company = await company_crud.get_by_slug(
+        session, company_slug
+    )  # Костыль, необходимо обсудить, можем ли поменять модель Problem,
+    filters = {'company_id': company.id}  # чтобы FK был на company.slug, а не на company.id.
     return await problem_crud.get_multi(session, filters=filters)
 
 
