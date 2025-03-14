@@ -181,7 +181,6 @@ class TestRefreshTokenUser:
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
 
-
 class TestGetMeUser:
     """
     Тест получение своих личных данных для пользователя сервиса Tabit.
@@ -228,25 +227,30 @@ class TestGetMeUser:
                 'updated_at',
             ):
                 assert key in data, f'Ключа {key} нет в теле ответа при запросе {text}:\n{data}'
-                assert data[key] not in ('', None) if key not in (
-                    'patronymic',
-                    'phone_number',
-                    'birthday',
-                    'telegram_username',
-                    'start_date_employment',
-                    'end_date_employment',
-                    'avatar_link',
-                    'current_department_id',
-                    'last_department_id',
-                    'department_transition_date',
-                    'employee_position',
-                ) else True, (
+                assert (
+                    data[key] not in ('', None)
+                    if key
+                    not in (
+                        'patronymic',
+                        'phone_number',
+                        'birthday',
+                        'telegram_username',
+                        'start_date_employment',
+                        'end_date_employment',
+                        'avatar_link',
+                        'current_department_id',
+                        'last_department_id',
+                        'department_transition_date',
+                        'employee_position',
+                    )
+                    else True
+                ), (
                     f'Значение ключа {key} не должно быть пустым или быть null при запросе {text}:'
                     f'\n{data}'
                 )
-            assert data['role'] == role, (
-                f'Роль пользователя {role} не соответствует роли в ответе: {data['role']}'
-            )
+            assert (
+                data['role'] == role
+            ), f'Роль пользователя {role} не соответствует роли в ответе: {data['role']}'
             for key in ('password', 'hashed_password'):
                 assert key not in data, (
                     f'Значение ключа {key} не должно быть в теле ответа при запросе {text}:\n'
@@ -359,7 +363,6 @@ class TestPatchMeUser:
             f'не было ответа cо статусом {status.HTTP_400_BAD_REQUEST}:\n{response.text}'
         )
 
-
     @pytest.mark.asyncio
     async def test_patch_me_user_extra_fields(
         self,
@@ -388,7 +391,6 @@ class TestPatchMeUser:
                     f'Некорректный ответ на звпрос с дополнительным полями\n'
                     f'{payload}:\n{response.text}'
                 )
-
 
     @pytest.mark.asyncio
     async def test_patch_me_user_not_access(

@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 
 from src.users.models.enum import RoleUserTabit
 
-
 load_dotenv()
 
 
@@ -143,7 +142,7 @@ PAYLOAD_FOR_PATCH_USER_EXTRA: dict = {
     'role': RoleUserTabit.ADMIN,
     'start_date_employment': '1776-05-01',
     'end_date_employment': '1776-05-01',
-    'company_id': 1776, 
+    'company_id': 1776,
     'current_department_id': 1776,
     'last_department_id': 1776,
     'department_transition_date': '1776-05-01',
