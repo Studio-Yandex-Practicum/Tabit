@@ -235,17 +235,17 @@ class TestGetMeUser:
                     'telegram_username',
                     'start_date_employment',
                     'end_date_employment',
-                    'avatar_link',  
+                    'avatar_link',
                     'current_department_id',
                     'last_department_id',
                     'department_transition_date',
-                    'employee_position',    
+                    'employee_position',
                 ) else True, (
                     f'Значение ключа {key} не должно быть пустым или быть null при запросе {text}:'
                     f'\n{data}'
                 )
             assert data['role'] == role, (
-                f'Роль пользователя {role} не соответствукт роли в ответе: {data['role']}'
+                f'Роль пользователя {role} не соответствует роли в ответе: {data['role']}'
             )
             for key in ('password', 'hashed_password'):
                 assert key not in data, (
@@ -257,6 +257,7 @@ class TestGetMeUser:
     async def test_get_me_admin_not_access(
         self,
         client: AsyncClient,
+        admin_token,
         superuser_token,
     ):
         """
@@ -265,6 +266,7 @@ class TestGetMeUser:
         """
         variants: tuple = (
             ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
+            (admin_token, status.HTTP_401_UNAUTHORIZED, 'администратором сервиса'),
             (superuser_token, status.HTTP_401_UNAUTHORIZED, 'суперпользователем'),
         )
         for token, status_code, text in variants:
@@ -332,7 +334,7 @@ class TestPatchMeUser:
                         f'При изменение своих личных данных {text} значение {key} поменялось, '
                         'а не должно.'
                     )
-    
+
     @pytest.mark.asyncio
     async def test_patch_me_user_same_telegram(
         self,
@@ -366,7 +368,7 @@ class TestPatchMeUser:
         employee_token,
     ):
         """
-            Тесты на попытку вставить дополнительные поля 
+            Тесты на попытку вставить дополнительные поля
         при изменении личных данных для пользователей сервиса Tabit.
         """
         variants = (
@@ -392,6 +394,7 @@ class TestPatchMeUser:
     async def test_patch_me_user_not_access(
         self,
         client: AsyncClient,
+        admin_token,
         superuser_token,
     ):
         """
@@ -401,7 +404,8 @@ class TestPatchMeUser:
         payload: dict[str, str] = {'name': 'Киширика', 'surname': 'Киширису'}
         variants: tuple = (
             ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
-            (superuser_token, status.HTTP_401_UNAUTHORIZED, 'суперпользователя'),
+            (admin_token, status.HTTP_401_UNAUTHORIZED, 'администратором сервиса'),
+            (superuser_token, status.HTTP_401_UNAUTHORIZED, 'суперпользователем'),
         )
         for token, status_code, text in variants:
             response = await client.patch(
