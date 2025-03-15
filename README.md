@@ -318,7 +318,7 @@ poetry update
 POSTGRES_USER=warlock                     # Имя пользователя БД
 POSTGRES_PASSWORD=zTudS8LBSquBMwvS3ky5    # Пароль к БД
 POSTGRES_DB=tabit                         # Название БД
-PORT_BD_POSTGRES=5432                     # Порт для подключения к БД
+DB_PORT=5432                              # Порт для подключения к БД
 DB_TYPE=postgresql                        # Тип базы данных
 DB_API=asyncpg                            # API для работы с БД
 DB_HOST=localhost                         # Хост для подключения к БД
@@ -700,7 +700,7 @@ make up-pgadmin
 ```
 2) Для всех остальных:
 ```
-docker compose -f infra/docker-compose.local-with-pgadmin.yaml up -d
+docker compose -f infra/local/docker-compose.local.yaml --profile pgadmin up -d
 ```
 - Полная инициализация pgAdmin может занимать много времени. На ноутбуке с HDD процесс занимал 8 минут. С SSD должно быть быстрее.
 - В процессе инициализации для первого админа создаётся автоматическое подключение к БД, данные для подключения описаны в файле `servers.json`. Благодаря файлу `.pgpass` пропадает необходимость вводить пароль для подключения.
@@ -715,7 +715,7 @@ make down-pgadmin
 ```
 2) Для всех остальных:
 ```
-docker compose -f infra/docker-compose.local-with-pgadmin.yaml down
+docker compose -f infra/local/docker-compose.local.yaml --profile "*" down
 ```
 
 ### 4. Удаление volumes
@@ -728,7 +728,7 @@ make down-pgadmin-volumes
 ```
 2) Для всех остальных:
 ```
-docker compose -f infra/docker-compose.local-with-pgadmin.yaml down -v
+docker compose -f infra/local/docker-compose.local.yaml --profile "*" down -v
 ```
 
 

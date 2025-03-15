@@ -1,24 +1,29 @@
 .PHONY: up down up-pgadmin down-pgadmin logs init-migrations apply-migrations reset-db init-db run clean-volumes
 
+include .env
+ifndef APP_PORT
+	APP_PORT = 8000
+endif
+
 # Docker Compose команды
 up:
-	docker compose -f infra/docker-compose.local-db.yaml up -d
+	docker compose -f infra/local/docker-compose.local.yaml --env-file .env up -d
 
 down:
-	docker compose -f infra/docker-compose.local-db.yaml down
+	docker compose -f infra/local/docker-compose.local.yaml --profile "*" down
 
 up-pgadmin:
-	docker compose -f infra/docker-compose.local-with-pgadmin.yaml up -d
+	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile pgadmin up -d
 
 down-pgadmin:
-	docker compose -f infra/docker-compose.local-with-pgadmin.yaml down
+	docker compose -f infra/local/docker-compose.local.yaml --profile "*" down
 
 logs:
-	docker compose -f infra/docker-compose.local-db.yaml logs -f
+	docker compose -f infra/local/docker-compose.local.yaml logs -f
 
 # Команда для остановки контейнеров и удаления volumes, связанных с конфигурацией
 down-pgadmin-volumes:
-	docker compose -f infra/docker-compose.local-with-pgadmin.yaml down -v
+	docker compose -f infra/local/docker-compose.local.yaml --profile "*" down -v
 
 # Команда для создания миграции
 init-migrations:
@@ -44,7 +49,7 @@ reset-db: clean-volumes up apply-migrations
 
 # Удаление Docker volumes (очистка данных базы)
 clean-volumes:
-	docker compose -f infra/docker-compose.local-db.yaml down -v
+	docker compose -f infra/local/docker-compose.local.yaml --profile "*" down -v
 	@echo "Docker volumes removed. Database data reset."
 
 # Полный процесс инициализации базы данных
@@ -53,7 +58,7 @@ init-db: up init-migrations apply-migrations
 
 # Запуск приложения с uvicorn
 run:
-	poetry run uvicorn src.main:app_v1 --port 8000 --reload
+	poetry run uvicorn src.main:app_v1 --port $(APP_PORT) --reload
 
 # Создаст в базе данных суперпользователя.
 create-superuser:
@@ -79,14 +84,14 @@ fill-license-type:
 
 # Команды для полного запуска в Docker
 up-dc:
-	docker-compose -f infra/local/docker-compose.local.yaml up -d --build
+	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile app_dc --profile pgadmin up -d --build
 
 down-dc:
-	docker-compose -f infra/local/docker-compose.local.yaml down
+	docker compose -f infra/local/docker-compose.local.yaml --profile "*" down
 
 logs-dc:
-	docker-compose -f infra/local/docker-compose.local.yaml logs -f
+	docker compose -f infra/local/docker-compose.local.yaml logs -f
 
 # Команда для выполнения миграций Alembic в контейнере
 migrate-dc:
-	docker-compose -f infra/local/docker-compose.local.yaml exec app poetry run alembic upgrade head
+	docker compose -f infra/local/docker-compose.local.yaml exec app poetry run alembic upgrade head

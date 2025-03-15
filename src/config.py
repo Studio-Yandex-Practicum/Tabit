@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -17,12 +16,13 @@ class Settings(BaseSettings):
     version: str = '1.0.0'
     db_type: str = 'postgres'
     db_api: str = 'asyncpg'
-    db_host: str = os.getenv('DB_HOST')
-    postgres_user: str = os.getenv('POSTGRES_USER')
-    postgres_password: str = os.getenv('POSTGRES_PASSWORD')
-    postgres_db: str = os.getenv('POSTGRES_DB')
-    port_bd_postgres: str = os.getenv('PORT_BD_POSTGRES')
-    log_level: str = os.getenv('LOG_LEVEL')
+    db_host: str = 'localhost'
+    db_port: str = '5432'
+    postgres_user: str = 'postgres_admin_user'
+    postgres_password: str = 'Postgres_P@ssw0rd'
+    postgres_db: str = 'tabit'
+    log_level: str = 'DEBUG'
+    app_serve_static: bool = False
 
     jwt_secret: SecretStr = 'SUPERSECRETKEY'
     jwt_lifetime_seconds: int = 3_600  # 1 час.
@@ -49,13 +49,15 @@ class Settings(BaseSettings):
     use_credentials: bool = True  # По умолчанию True. Подключаться к SMTP-серверу или нет.
     validate_certs: bool = True  # Cледует ли проверять сертификат почтового сервера.
     template_folder: Path = BASE_DIR / 'templates'
+    media_folder: Path = BASE_DIR / 'media'
+    media_url: str = '/media'
 
     @property
     def database_url(self):
         return (
             f'{self.db_type}+{self.db_api}://'
             f'{self.postgres_user}:{self.postgres_password}@'
-            f'{self.db_host}:{self.port_bd_postgres}'
+            f'{self.db_host}:{self.db_port}'
             f'/{self.postgres_db}'
         )
 

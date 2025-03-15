@@ -1,41 +1,48 @@
 services:
   db:
-    container_name: postgres_local
-    image: postgres:17.2-alpine
+    container_name: ${DB_CONTAINER_NAME:-postgres_local}
+    image: postgres:${POSTGRES_VERSION:-17.2-alpine}
     restart: always
     env_file:
-      - ./../../.env
+      - ${PWD}/.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - ${DB_PORT:-5432}:5432
 
   app:
-    container_name: tabit
+    container_name: ${APP_CONTAINER_NAME:-tabit}
     build:
-      context: ../..
+      context: ${PWD}/
       dockerfile: infra/stage/stage.Dockerfile
     restart: always
     ports:
-      - "8000:8000"
+      - ${APP_PORT:-8000}:8000
     depends_on:
       - db
     env_file:
-      - ./../../.env
+      - ${PWD}/.env
+    volumes:
+      - app_media:/app/media
+    profiles:
+      - app_dc
     environment:
       - POETRY_VIRTUALENVS_IN_PROJECT=true
       - PATH="/app/.venv/bin:$PATH"
 
   pgadmin:
-    container_name: pgadmin_local
-    image: dpage/pgadmin4:8.14
+    container_name: ${PGADMIN_CONTAINER_NAME:-pgadmin_local}
+    image: dpage/pgadmin4:${PGADMIN_VERSION:-8.14}
     restart: always
     env_file:
-      - ./../../.env
+      - ${PWD}/.env
     ports:
-      - "5600:80"
+      - ${PGADMIN_PORT:-5600}:80
     depends_on:
       - db
+    profiles:
+      - app_dc
+      - pgadmin
     volumes:
       - pgadmin_data:/var/lib/pgadmin
       - ${PWD}/pgadmin/servers.json:/pgadmin4/servers.json
@@ -47,3 +54,4 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
+  app_media:
