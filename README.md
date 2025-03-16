@@ -366,7 +366,7 @@ pgAdmin — веб-интерфейс для управления PostgreSQL. В
    ```
    или
    ```bash
-   docker compose -f infra/docker-compose.local-with-pgadmin.yaml up -d
+   docker compose -f infra/local/docker-compose.local.yaml --profile pgadmin up -d
    ```
 
 3. Откройте в браузере http://localhost:5600/

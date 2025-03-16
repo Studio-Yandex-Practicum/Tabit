@@ -23,7 +23,7 @@ services:
     env_file:
       - ${PWD}/.env
     volumes:
-      - ${PWD}/${MEDIA_FOLDER}:/app/media
+      - ${PWD}/${MEDIA_FOLDER:-media}:/app/media
     profiles:
       - app_dc
     environment:
@@ -65,18 +65,18 @@ configs:
           "1": {
             "Name": "Tabit Database",
             "Group": "Tabit Server Group",
-            "Port": 5432,
             "Host": "${DB_CONTAINER_NAME:-postgres_local}",
+            "Port": 5432,
             "SSLMode": "prefer",
             "MaintenanceDB": "${POSTGRES_DB:-tabit}",
             "Username": "${POSTGRES_USER:-warlock}",
+            "PassFile": "/.pgpass"
           }
         }
       }
   pgpass:
     content: |
-      postgres_local:5432:*:${POSTGRES_USER}:${POSTGRES_PASSWORD}
-
+        ${DB_CONTAINER_NAME:-postgres_local}:5432:*:${POSTGRES_USER:-warlock}:${POSTGRES_PASSWORD}
 volumes:
   postgres_data:
   pgadmin_data:

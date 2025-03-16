@@ -5,25 +5,30 @@ ifndef APP_PORT
 	APP_PORT = 8000
 endif
 
+# Костыль для Windows, в которой не определена переменная PWD. Расчитываем путь до корня проекта от infra/local
+ifndef PWD
+	export PWD=../..
+endif
+
 # Docker Compose команды
 up:
 	docker compose -f infra/local/docker-compose.local.yaml --env-file .env up -d
 
 down:
-	docker compose -f infra/local/docker-compose.local.yaml --profile "*" down
+	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile "*" down
 
 up-pgadmin:
 	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile pgadmin up -d
 
 down-pgadmin:
-	docker compose -f infra/local/docker-compose.local.yaml --profile "*" down
+	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile "*" down
 
 logs:
 	docker compose -f infra/local/docker-compose.local.yaml logs -f
 
 # Команда для остановки контейнеров и удаления volumes, связанных с конфигурацией
 down-pgadmin-volumes:
-	docker compose -f infra/local/docker-compose.local.yaml --profile "*" down -v
+	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile "*" down -v
 
 # Команда для создания миграции
 init-migrations:
@@ -49,7 +54,7 @@ reset-db: clean-volumes up apply-migrations
 
 # Удаление Docker volumes (очистка данных базы)
 clean-volumes:
-	docker compose -f infra/local/docker-compose.local.yaml --profile "*" down -v
+	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile "*" down -v
 	@echo "Docker volumes removed. Database data reset."
 
 # Полный процесс инициализации базы данных
@@ -87,7 +92,7 @@ up-dc:
 	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile app_dc --profile pgadmin up -d --build
 
 down-dc:
-	docker compose -f infra/local/docker-compose.local.yaml --profile "*" down
+	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile "*" down
 
 logs-dc:
 	docker compose -f infra/local/docker-compose.local.yaml logs -f
