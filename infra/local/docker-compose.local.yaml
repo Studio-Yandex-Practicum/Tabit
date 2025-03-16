@@ -79,4 +79,8 @@ configs:
         ${DB_CONTAINER_NAME:-postgres_local}:5432:*:${POSTGRES_USER:-warlock}:${POSTGRES_PASSWORD}
 volumes:
   postgres_data:
+    driver: local
+    name: ${DB_VOLUME_NAME:-postgres_data}
   pgadmin_data:
+    driver: local
+    name: ${PGADMIN_VOLUME_NAME:-pgadmin_data}
