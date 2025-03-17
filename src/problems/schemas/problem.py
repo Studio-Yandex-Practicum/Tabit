@@ -21,6 +21,7 @@ class ProblemBaseSchema(BaseModel):
         type: Тип проблемы из перечисления TypeProblem.
         status: Статус проблемы из перечисления StatusProblem.
         owner_id: UUID владельца проблемы.
+        company_slug: Слаг компании, с которой связана проблема.
     """
 
     name: str
@@ -29,6 +30,7 @@ class ProblemBaseSchema(BaseModel):
     type: TypeProblem
     status: StatusProblem
     owner_id: UUID
+    company_slug: slug
     # TODO Надо реализовать добавление файлов в проблему
 
     @field_validator('name')
@@ -50,7 +52,6 @@ class ProblemResponseSchema(ProblemBaseSchema):
     """
 
     id: int
-    company_slug: slug
     created_at: datetime
     updated_at: datetime
 
@@ -62,7 +63,6 @@ class ProblemCreateSchema(ProblemBaseSchema):
         Определяет структуру данных для создания новой проблемы.
     """
 
-    company_slug: slug
     members: Optional[List[UUID]] = []
 
 

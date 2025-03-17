@@ -63,7 +63,7 @@ async def create_problem(
     """
     await check_company_exists(company_slug, session)
     problem_data = problem.model_dump()
-    if problem_data.get('members') is None or len(problem_data.get('members')) == 0:
+    if not problem_data.get('members'):
         members = [problem_data['owner_id']]
     else:
         members = problem_data.pop('members')
