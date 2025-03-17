@@ -1,10 +1,43 @@
+import random
+import string
 from datetime import datetime, timedelta
 
 import pytest
+from fastapi import status
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.problems.models import Meeting, Problem
+from tests.constants import URL
+
+
+def generate_meeting_data(
+    problem_id, owner_id, all_fields=False, members=None, meeting_title=None, meeting_date=None
+):
+    """Генерирует реалистичные данные для создания встреч."""
+
+    def random_string(length=10):
+        """Генерирует случайную строку указанной длины."""
+        return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+    data = {
+        'title': f'Встреча {random_string(5)}',
+        'date_meeting': (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d'),
+        'status': 'Новая',
+        'problem_id': problem_id,
+        'owner_id': str(owner_id),
+    }
+    if all_fields:
+        data.update(
+            {
+                'description': f'Описание встречи {random_string(15)}',
+                'place': f'Место встречи {random_string(6)}',
+                'members': members,
+            }
+        )
+    if meeting_title:
+        data['title'] = meeting_title
+    if meeting_date:
+        data['date_meeting'] = meeting_date
+    return data
 
 
 class TestMeetingsPost:
@@ -12,200 +45,145 @@ class TestMeetingsPost:
     Тесты post запросов к эндпоинту meetings.
     """
 
-    async def create_problem(self, async_session, company, owner, name='Test Problem'):
-        """
-        Зосдание записи Problem в бд.
-        """
-        problem = Problem(
-            name=name,
-            description='Some description',
-            company_id=company.id,
-            color=1,
-            type='A',
-            status='Новая',
-            owner_id=owner.id,
-        )
-        async_session.add(problem)
-        await async_session.commit()
-        await async_session.refresh(problem)
-        return problem.id
-
-    def build_meeting_data(
-        self,
-        problem_id,
-        owner_id,
-        date_meeting,
-        title='Test Meeting',
-        only_required=True,
-        members=[],
-    ):
-        """
-        Генерация данных для встречи.
-        """
-        data = {
-            'title': title,
-            'date_meeting': date_meeting,
-            'status': 'Новая',
-            'problem_id': problem_id,
-            'owner_id': str(owner_id),
-        }
-        if not only_required:
-            data['description'] = 'Discuss problem'
-            data['place'] = 'Conference Room'
-            data['members'] = members
-        return data
-
     @pytest.mark.asyncio
     async def test_create_meeting_whth_all_fields(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_of_company,
-        company_for_test,
+        self, client: AsyncClient, employee_of_company, problem_for_meeting, company_for_test
     ):
         """
-        Тест пост запроса на создание встречи со вмеми полями.
+        Тест пост запроса на создание встречи со всеми полями.
         """
         owner = await employee_of_company()
-        members = [str((await employee_of_company()).id) for _ in range(3)]
         company = await company_for_test()
-        date_meeting = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
-        problem_id = await self.create_problem(async_session, company, owner)
-        meeting_data = self.build_meeting_data(
-            problem_id=problem_id,
-            owner_id=owner.id,
-            date_meeting=date_meeting,
-            only_required=False,
-            members=members,
+        members = [str((await employee_of_company()).id) for _ in range(3)]
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        meeting_data = generate_meeting_data(
+            all_fields=True, problem_id=problem_id, owner_id=owner.id, members=members
         )
         response_meeting = await client.post(
-            f'/api/v1/{company.slug}/problems/{problem_id}/meetings', json=meeting_data
+            URL.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem_id),
+            json=meeting_data,
         )
-        assert response_meeting.status_code == 201
+        assert response_meeting.status_code == status.HTTP_201_CREATED
+        response_data = response_meeting.json()
+        assert response_data['title'] == meeting_data['title']
+        assert response_data['date_meeting'] == meeting_data['date_meeting']
+        assert response_data['status'] == meeting_data['status']
 
     @pytest.mark.asyncio
     async def test_create_meeting_with_required_fields(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_of_company,
-        company_for_test,
+        self, client: AsyncClient, employee_of_company, problem_for_meeting, company_for_test
     ):
         """
         Тест пост запроса на создание встречи только с обязательными полями.
         """
         owner = await employee_of_company()
         company = await company_for_test()
-        date_meeting = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
-        problem_id = await self.create_problem(async_session, company, owner)
-        meeting_data = self.build_meeting_data(
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        meeting_data = generate_meeting_data(
             problem_id=problem_id,
             owner_id=owner.id,
-            date_meeting=date_meeting,
         )
         response_meeting = await client.post(
-            f'/api/v1/{company.slug}/problems/{problem_id}/meetings', json=meeting_data
+            URL.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem_id),
+            json=meeting_data,
         )
-        assert response_meeting.status_code == 201
+        assert response_meeting.status_code == status.HTTP_201_CREATED
 
     @pytest.mark.asyncio
     async def test_create_meeting_with_unique_name(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_of_company,
-        company_for_test,
+        self, client: AsyncClient, employee_of_company, problem_for_meeting, company_for_test
     ):
         """
         Тест пост запроса на проверку уникальности имени.
         """
         owner = await employee_of_company()
         company = await company_for_test()
-        date_meeting = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
-        second_date_meeting = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
-        problem_id = await self.create_problem(async_session, company, owner)
-        second_problem = await self.create_problem(
-            async_session, company, owner, name='Test Second Problem'
-        )
+        fisrt_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+        second_date = (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        meeting_title = 'Some Meeting'
         variants = (
-            (problem_id, date_meeting, 201),
-            (second_problem, second_date_meeting, 400),
+            fisrt_date,
+            second_date,
         )
-        for problem_id, date, status in variants:
-            meeting_data = self.build_meeting_data(
+        for date in variants:
+            meeting_data = generate_meeting_data(
                 problem_id=problem_id,
                 owner_id=owner.id,
-                date_meeting=date,
+                meeting_date=date,
+                meeting_title=meeting_title,
             )
             response_meeting = await client.post(
-                f'/api/v1/{company.slug}/problems/{problem_id}/meetings', json=meeting_data
+                URL.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem_id),
+                json=meeting_data,
             )
-            assert response_meeting.status_code == status
+        assert response_meeting.status_code == status.HTTP_400_BAD_REQUEST
+        assert response_meeting.json() == {'detail': 'Такое название встречи уже используется'}
 
     @pytest.mark.asyncio
-    async def test_create_meeting_with_current_date(
+    async def test_create_meeting_with_uncurrent_date(
         self,
-        async_session: AsyncSession,
         client: AsyncClient,
         employee_of_company,
+        problem_for_meeting,
         company_for_test,
+        create_meeting,
     ):
         """
-        Тест пост запроса на создание встречи со вмеми полями.
+        Тест пост запроса на создание встречи c не коректной датой.
         """
         owner = await employee_of_company()
         company = await company_for_test()
-        date_meeting = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
-        past_date_meeting = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-        problem_id = await self.create_problem(async_session, company, owner)
-        second_problem_id = await self.create_problem(
-            async_session, company, owner, name='Test Second Problem'
+        date_meeting = datetime.now() + timedelta(days=7)
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        await create_meeting(problem_id=problem_id, owner_id=owner.id, date=date_meeting)
+        meeting_data = generate_meeting_data(
+            problem_id=problem_id,
+            owner_id=owner.id,
+            meeting_date=date_meeting.strftime('%Y-%m-%d'),
         )
-        variants = (
-            (problem_id, date_meeting, 201),
-            (second_problem_id, date_meeting, 400),
-            (second_problem_id, past_date_meeting, 422),
+        response_meeting = await client.post(
+            URL.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem_id),
+            json=meeting_data,
         )
-        for problem_id, date, status in variants:
-            meeting_data = self.build_meeting_data(
-                problem_id=problem_id,
-                owner_id=owner.id,
-                date_meeting=date,
-            )
-            response_meeting = await client.post(
-                f'/api/v1/{company.slug}/problems/{problem_id}/meetings', json=meeting_data
-            )
-            assert response_meeting.status_code == status
+        assert response_meeting.status_code == status.HTTP_400_BAD_REQUEST
+        assert response_meeting.json() == {'detail': 'Дата встречи уже занята'}
 
     @pytest.mark.asyncio
     async def test_create_no_company_no_problems(
-        self,
-        async_session: AsyncSession,
-        client: AsyncClient,
-        employee_of_company,
-        company_for_test,
+        self, client: AsyncClient, employee_of_company, problem_for_meeting, company_for_test
     ):
         """
         Тест пост запроса на создание встречи c несуществующей компанией или проблемой.
         """
         owner = await employee_of_company()
         company = await company_for_test()
-        problem_id = await self.create_problem(async_session, company, owner)
-        date_meeting = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
         variants = (
-            (problem_id, 'No-way-company', 404),
-            (problem_id + 1, company.slug, 404),
+            (
+                problem_id,
+                'No-way-company',
+                status.HTTP_404_NOT_FOUND,
+                {'detail': 'Такая компания не найдена'},
+            ),
+            (
+                problem_id + 1,
+                company.slug,
+                status.HTTP_404_NOT_FOUND,
+                {'detail': 'Такая проблема не найдена'},
+            ),
         )
-        for problem_id, company_slug, status in variants:
-            meeting_data = self.build_meeting_data(
+        for problem_id, company_slug, status_code, detail in variants:
+            meeting_data = generate_meeting_data(
                 problem_id=problem_id,
                 owner_id=owner.id,
-                date_meeting=date_meeting,
             )
             response_meeting = await client.post(
-                f'/api/v1/{company_slug}/problems/{problem_id}/meetings', json=meeting_data
+                URL.MEETINGS_ENDPOINT.format(company_slug=company_slug, problem_id=problem_id),
+                json=meeting_data,
             )
-            assert response_meeting.status_code == status
+            assert response_meeting.status_code == status_code, response_meeting.json()
+            assert response_meeting.json() == detail
 
 
 class TestMeetingsGet:
@@ -213,116 +191,88 @@ class TestMeetingsGet:
     Тесты get запросов к эндпоинту meetings.
     """
 
-    async def create_problem(self, async_session, company, owner, name='Test Problem'):
-        problem = Problem(
-            name=name,
-            description='Some description',
-            company_id=company.id,
-            color=1,
-            type='A',
-            status='Новая',
-            owner_id=owner.id,
-        )
-        async_session.add(problem)
-        await async_session.commit()
-        await async_session.refresh(problem)
-        return problem.id
-
-    async def create_meeting(self, async_session, problem_id, owner, title='Test Meeting'):
-        date_meeting = (datetime.now() + timedelta(days=7)).date()
-        meeting = Meeting(
-            title=title,
-            date_meeting=date_meeting,
-            description='Discuss problem',
-            status='Новая',
-            place='Conference Room',
-            problem_id=problem_id,
-            owner_id=owner.id,
-        )
-        async_session.add(meeting)
-        await async_session.commit()
-        await async_session.refresh(meeting)
-        return meeting.id
-
     @pytest.mark.asyncio
     async def test_get_all_meetings_by_problem(
         self,
-        async_session: AsyncSession,
         client: AsyncClient,
         employee_of_company,
+        problem_for_meeting,
         company_for_test,
+        create_meeting,
     ):
         """
         Проверка получения списка встреч по проблеме.
         """
         owner = await employee_of_company()
         company = await company_for_test()
-        problem_id = await self.create_problem(async_session, company, owner)
-        for i in range(3):
-            await self.create_meeting(async_session, problem_id, owner, title=f'Meeting {i + 1}')
-        response = await client.get(f'/api/v1/{company.slug}/problems/{problem_id}/meetings')
-        assert response.status_code == 200
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        meetings_data = await create_meeting(
+            problem_id=problem_id, owner_id=owner.id, count=3, data=True
+        )
+        meeting_data = meetings_data[0]
+        response = await client.get(
+            URL.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem_id)
+        )
+        assert response.status_code == status.HTTP_200_OK
         response_data = response.json()
         assert isinstance(response_data, list)
         assert len(response_data) == 3
+        for meting in response_data:
+            assert meting['title'] == meeting_data['title']
+            assert meting['date_meeting'] == meeting_data['date_meeting'].isoformat()
+            assert meting['status'] == meeting_data['status']
 
     @pytest.mark.asyncio
     async def test_get_single_meeting_info(
         self,
-        async_session: AsyncSession,
         client: AsyncClient,
         employee_of_company,
+        problem_for_meeting,
         company_for_test,
+        create_meeting,
     ):
         """
         Проверка получения информации о конкретной встрече.
         """
         owner = await employee_of_company()
         company = await company_for_test()
-        problem_id = await self.create_problem(async_session, company, owner)
-        meeting_id = await self.create_meeting(async_session, problem_id, owner)
-
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        meetings_data = await create_meeting(problem_id=problem_id, owner_id=owner.id, data=True)
+        meeting_data = meetings_data[0]
+        meeting_id = meeting_data['id']
         response = await client.get(
-            f'/api/v1/{company.slug}/problems/{problem_id}/meetings/{meeting_id}'
+            URL.MEETINGS_SINGLE.format(
+                company_slug=company.slug, problem_id=problem_id, meeting_id=meeting_id
+            )
         )
-
-        assert response.status_code == 200
-        # response_data = response.json()
-        # meeting = await async_session.get(Meeting, meeting_id)
-        # assert response_data['id'] == meeting_id
-        # assert response_data['title'] == meeting.title
-        # assert response_data['description'] == meeting.description
-        # assert response_data['date_meeting'] == meeting.date_meeting.strftime('%Y-%m-%d')
-        # assert response_data['status'] == meeting.status
-        # # assert response_data['place'] == meeting.place
-        # # assert response_data['created_at'] == meeting.created_at.isoformat()
-        # # assert response_data['updated_at'] == meeting.updated_at.isoformat()
+        response_data = response.json()
+        assert response_data['id'] == meeting_id
+        assert response_data['title'] == meeting_data['title']
+        assert response_data['date_meeting'] == meeting_data['date_meeting'].isoformat()
+        assert response_data['status'] == meeting_data['status']
 
     @pytest.mark.asyncio
     async def test_get_meetings_standard_response(
         self,
-        async_session: AsyncSession,
         client: AsyncClient,
         employee_of_company,
+        problem_for_meeting,
         company_for_test,
+        create_meeting,
     ):
         """
         Проверка корректного ответа на стандартный запрос если нет встреч.
         """
         owner = await employee_of_company()
         company = await company_for_test()
-        problem_id = await self.create_problem(async_session, company, owner)
-        response = await client.get(f'/api/v1/{company.slug}/problems/{problem_id}/meetings')
-        assert response.status_code == 200
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        response = await client.get(
+            URL.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem_id)
+        )
+        assert response.status_code == status.HTTP_200_OK
         response_data = response.json()
         assert isinstance(response_data, list)
         assert len(response_data) == 0
-        await self.create_meeting(async_session, problem_id, owner)
-        response = await client.get(f'/api/v1/{company.slug}/problems/{problem_id}/meetings')
-        assert response.status_code == 200
-        response_data = response.json()
-        assert isinstance(response_data, list)
-        assert len(response_data) == 1
 
 
 class TestMeetingsUpdate:
@@ -330,50 +280,23 @@ class TestMeetingsUpdate:
     Тесты PATCH запросов к эндпоинту meetings.
     """
 
-    async def create_meeting(self, async_session, owner, company):
-        date_meeting = (datetime.now() + timedelta(days=7)).date()
-        problem = Problem(
-            name='Test Problem',
-            description='Some description',
-            company_id=company.id,
-            color=1,
-            type='A',
-            status='Новая',
-            owner_id=owner.id,
-        )
-        async_session.add(problem)
-        await async_session.commit()
-        await async_session.refresh(problem)
-
-        meeting = Meeting(
-            title='Test Meeting',
-            date_meeting=date_meeting,
-            description='Discuss problem',
-            status='Новая',
-            place='Conference Room',
-            problem_id=problem.id,
-            owner_id=owner.id,
-        )
-        async_session.add(meeting)
-        await async_session.commit()
-        await async_session.refresh(meeting)
-        return meeting.id, problem.id
-
     @pytest.mark.asyncio
     async def test_patch_meeting_full_update(
         self,
-        async_session: AsyncSession,
         client: AsyncClient,
         employee_of_company,
+        problem_for_meeting,
         company_for_test,
+        create_meeting,
     ):
         """
         Полное обновление всех полей встречи.
         """
         owner = await employee_of_company()
         company = await company_for_test()
-        meeting_id, problem_id = await self.create_meeting(async_session, owner, company)
-
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        meetings_ids = await create_meeting(problem_id=problem_id, owner_id=owner.id)
+        meeting_id = meetings_ids[0]
         updated_data = {
             'title': 'Updated Title',
             'date_meeting': (datetime.now() + timedelta(days=10)).date().isoformat(),
@@ -381,13 +304,13 @@ class TestMeetingsUpdate:
             'status': 'Приостановлена',
             'place': 'Updated Place',
         }
-
         response = await client.patch(
-            f'/api/v1/{company.slug}/problems/{problem_id}/meetings/{meeting_id}',
+            URL.MEETINGS_SINGLE.format(
+                company_slug=company.slug, problem_id=problem_id, meeting_id=meeting_id
+            ),
             json=updated_data,
         )
-        assert response.status_code == 200
-
+        assert response.status_code == status.HTTP_200_OK
         data = response.json()
         for key, value in updated_data.items():
             assert data[key] == value
@@ -395,17 +318,20 @@ class TestMeetingsUpdate:
     @pytest.mark.asyncio
     async def test_patch_meeting_partial_update(
         self,
-        async_session: AsyncSession,
         client: AsyncClient,
         employee_of_company,
+        problem_for_meeting,
         company_for_test,
+        create_meeting,
     ):
         """
         Обновление каждого поля встречи отдельно.
         """
         owner = await employee_of_company()
         company = await company_for_test()
-        meeting_id, problem_id = await self.create_meeting(async_session, owner, company)
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        meetings_ids = await create_meeting(problem_id=problem_id, owner_id=owner.id)
+        meeting_id = meetings_ids[0]
         variants = (
             ('title', 'Updated Title'),
             ('description', 'Updated Description'),
@@ -415,10 +341,12 @@ class TestMeetingsUpdate:
         )
         for field, value in variants:
             response = await client.patch(
-                f'/api/v1/{company.slug}/problems/{problem_id}/meetings/{meeting_id}',
+                URL.MEETINGS_SINGLE.format(
+                    company_slug=company.slug, problem_id=problem_id, meeting_id=meeting_id
+                ),
                 json={field: value},
             )
-            assert response.status_code == 200
+            assert response.status_code == status.HTTP_200_OK
             data = response.json()
             assert data[field] == value
 
@@ -428,10 +356,15 @@ class TestMeetingsUpdate:
         Попытка обновить несуществующую встречу.
         """
         company = await company_for_test()
+        problem_id = random.randint(0, 100)
+        meeting_id = random.randint(0, 100)
         response_patch = await client.patch(
-            f'/api/v1/{company.slug}/problems/1/meetings/1', json={'title': 'No Matter'}
+            URL.MEETINGS_SINGLE.format(
+                company_slug=company.slug, problem_id=problem_id, meeting_id=meeting_id
+            ),
+            json={'title': 'No Matter'},
         )
-        assert response_patch.status_code == 404
+        assert response_patch.status_code == status.HTTP_404_NOT_FOUND
 
 
 class TestMeetingsDelete:
@@ -439,55 +372,51 @@ class TestMeetingsDelete:
     Тесты delete запросов к эндпоинту meetings.
     """
 
-    async def create_meeting(self, async_session, owner, company):
-        date_meeting = (datetime.now() + timedelta(days=7)).date()
-        problem = Problem(
-            name='Test Problem',
-            description='Some description',
-            company_id=company.id,
-            color=1,
-            type='A',
-            status='Новая',
-            owner_id=owner.id,
-        )
-        async_session.add(problem)
-        await async_session.commit()
-        await async_session.refresh(problem)
-
-        meeting = Meeting(
-            title='Test Meeting',
-            date_meeting=date_meeting,
-            description='Discuss problem',
-            status='Новая',
-            place='Conference Room',
-            problem_id=problem.id,
-            owner_id=owner.id,
-        )
-        async_session.add(meeting)
-        await async_session.commit()
-        await async_session.refresh(meeting)
-        return meeting
-
     @pytest.mark.asyncio
     async def test_delet_meeting(
         self,
-        async_session: AsyncSession,
         client: AsyncClient,
         employee_of_company,
+        problem_for_meeting,
         company_for_test,
+        create_meeting,
     ):
         """
-        Тест успешного удаление встречи.
+        Тест успешного удаления встречи.
         """
         owner = await employee_of_company()
         company = await company_for_test()
-        meeting = await self.create_meeting(async_session, owner, company)
-        variants = (
-            204,
-            404,
-        )
-        for status in variants:
-            response = await client.delete(
-                f'/api/v1/{company.slug}/problems/{meeting.problem_id}/meetings/{meeting.id}'
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        meetings_ids = await create_meeting(problem_id=problem_id, owner_id=owner.id)
+        meeting_id = meetings_ids[0]
+        response = await client.delete(
+            URL.MEETINGS_SINGLE.format(
+                company_slug=company.slug, problem_id=problem_id, meeting_id=meeting_id
             )
-            assert response.status_code == status
+        )
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    @pytest.mark.asyncio
+    async def test_delet_no_meeting(
+        self,
+        client: AsyncClient,
+        employee_of_company,
+        problem_for_meeting,
+        company_for_test,
+        create_meeting,
+    ):
+        """
+        Тест попытки удалить несуществующую встречу.
+        """
+        owner = await employee_of_company()
+        company = await company_for_test()
+        problem_id = await problem_for_meeting(company_id=company.id, owner_id=owner.id)
+        meeting_id = 0
+
+        response = await client.delete(
+            URL.MEETINGS_SINGLE.format(
+                company_slug=company.slug, problem_id=problem_id, meeting_id=meeting_id
+            )
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json() == {'detail': 'Объект не найден'}

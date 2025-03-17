@@ -18,6 +18,7 @@ from src.companies.models.models import Company
 from src.database.db_depends import get_async_session
 from src.database.models import BaseTabitModel as Base
 from src.main import app_v1
+from src.problems.models import Meeting, Problem
 from src.tabit_management.models import LicenseType, TabitAdminUser
 from src.users.models import UserTabit
 from src.users.models.enum import RoleUserTabit
@@ -444,3 +445,47 @@ async def employee_refresh_token(get_token_for_user, employee):
     Фикстура для получения заголовков авторизации пользователя от компании c refresh-token.
     """
     return await get_token_for_user(employee, refresh=True)
+
+
+@pytest_asyncio.fixture
+async def problem_for_meeting(async_session: AsyncSession):
+    async def func(company_id, owner_id):
+        default_data = {
+            'name': 'Test Problem',
+            'description': 'Some description',
+            'company_id': company_id,
+            'color': 1,
+            'type': 'A',
+            'status': 'Новая',
+            'owner_id': owner_id,
+        }
+        problem = await make_entry_in_table(async_session, default_data, Problem)
+        return problem.id
+
+    return func
+
+
+@pytest_asyncio.fixture
+async def create_meeting(async_session: AsyncSession):
+    async def func(problem_id, owner_id, count=1, date=None, data=False):
+        meetings_ids = []
+        meetings_data = []
+        for i in range(count):
+            meeting_data = {
+                'title': f'Test Meeting {count}',
+                'date_meeting': (datetime.now() + timedelta(days=count)).date(),
+                'status': 'Новая',
+                'problem_id': problem_id,
+                'owner_id': str(owner_id),
+            }
+            if date:
+                meeting_data['date_meeting'] = date.date()
+            meeting = await make_entry_in_table(async_session, meeting_data, Meeting)
+            meetings_ids.append(meeting.id)
+            meeting_data['id'] = meeting.id
+            meetings_data.append(meeting_data)
+        if data:
+            return meetings_data
+        return meetings_ids
+
+    return func
