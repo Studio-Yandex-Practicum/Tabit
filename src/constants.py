@@ -28,29 +28,35 @@ PATTERN_PASSWORD: str = rf'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{{{MIN_LENGT
 
 ZERO: int = 0
 
-TEXT_ERROR_INVALID_PASSWORD: str = (
-    'Пароль должен содержать символы латинского алфавита в обоих регистрах, числа и иметь '
-    f'минимальную длину в {MIN_LENGTH_PASSWORD} символов.'
-)
-
 # crud
 DEFAULT_SKIP: int = 0  # Значение по умолчанию для пропуска записей
 DEFAULT_LIMIT: int = 100  # Ограничение количества записей
 DEFAULT_AUTO_COMMIT: bool = True  # для crud
 
-TEXT_ERROR_NOT_FOUND: str = 'Объект не найден'
-TEXT_ERROR_UNIQUE: str = 'Ошибка уникальности. Такой объект уже существует.'
-TEXT_ERROR_UNIQUE_CREATE_LOG: str = 'Ошибка уникальности при создании'
-TEXT_ERROR_UNIQUE_UPDATE_LOG: str = 'Ошибка уникальности при обновлении'
-TEXT_ERROR_SERVER_CREATE: str = 'Ошибка сервера при создании объекта.'
-TEXT_ERROR_SERVER_CREATE_LOG: str = 'Ошибка при создании'
-TEXT_ERROR_SERVER_UPDATE: str = 'Ошибка сервера при обновлении объекта.'
-TEXT_ERROR_SERVER_UPDATE_LOG: str = 'Ошибка при обновлении'
-TEXT_ERROR_SERVER_DELETE: str = 'Ошибка сервера при удалении объекта.'
-TEXT_ERROR_SERVER_DELETE_LOG: str = 'Ошибка при удалении'
+BASE64_STARTSWITH: str = 'data:image'
 
-TEXT_ERROR_EXISTS_EMAIL: str = 'Пользователь с такой электронной почтой уже существует.'
-TEXT_ERROR_INVALID_PASSWORD: str = 'Не корректный пароль'
+
+@dataclass
+class TextError:
+    """Содержит текст сообщений об ошибке."""
+
+    BASE64_TYPE: str = f'Переданный файл не является строкой начинающийся на с {BASE64_STARTSWITH}'
+    BASE64_FATAL: str = 'Ошибка при сохранение картинки {image}: {error_class}: {error_text}'
+    INVALID_PASSWORD: str = (
+        'Пароль должен содержать символы латинского алфавита в обоих регистрах, числа и иметь '
+        f'минимальную длину в {MIN_LENGTH_PASSWORD} символов.'
+    )
+    NOT_FOUND: str = 'Объект не найден'
+    UNIQUE: str = 'Ошибка уникальности. Такой объект уже существует.'
+    UNIQUE_CREATE_LOG: str = 'Ошибка уникальности при создании'
+    UNIQUE_UPDATE_LOG: str = 'Ошибка уникальности при обновлении'
+    SERVER_CREATE: str = 'Ошибка сервера при создании объекта.'
+    SERVER_CREATE_LOG: str = 'Ошибка при создании'
+    SERVER_UPDATE: str = 'Ошибка сервера при обновлении объекта.'
+    SERVER_UPDATE_LOG: str = 'Ошибка при обновлении'
+    SERVER_DELETE: str = 'Ошибка сервера при удалении объекта.'
+    SERVER_DELETE_LOG: str = 'Ошибка при удалении'
+    EXISTS_EMAIL: str = 'Пользователь с такой электронной почтой уже существует.'
 
 
 @dataclass
@@ -69,3 +75,13 @@ class TextScripts:
     HOST: str = 'Указать хост при запуске.'
     PORT: str = 'Указать порт при запуске.'
     CREATE: str = 'Создать суперпользователя'
+
+
+@dataclass
+class Directory:
+    """Названия директорий проекта, используемые в коде."""
+
+    MEDIA: str = 'media'
+    LOGO: str = 'logo'
+    AVATAR: str = 'avatar'
+    WAIF: str = 'waif'
