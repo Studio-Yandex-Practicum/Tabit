@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get(
-    '{company_slug}/surveys',
+    '/{company_slug}/surveys',
     summary='Получить список всех опросов компании',
     dependencies=[Depends(get_async_session)],
 )
@@ -20,7 +20,7 @@ async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_asy
 
 
 @router.post(
-    '{company_slug}/surveys',
+    '/{company_slug}/surveys',
     summary='Создать новый опрос для компании',
     dependencies=[Depends(get_async_session)],
 )
@@ -31,7 +31,7 @@ async def create_survey(company_slug: str, session: AsyncSession = Depends(get_a
 
 
 @router.get(
-    '{company_slug}/surveys/{uuid}',
+    '/{company_slug}/surveys/{uuid}',
     summary='Получить историю опросов сотрудника компании',
     dependencies=[Depends(get_async_session)],
 )
@@ -45,7 +45,7 @@ async def get_employee_survey_history(
 
 
 @router.get(
-    '{company_slug}/surveys/{uuid}/{survey_id}',
+    '/{company_slug}/surveys/{uuid}/{survey_id}',
     summary='Получить информацию об опросе сотрудника компании',
     dependencies=[Depends(get_async_session)],
 )
@@ -63,7 +63,7 @@ async def get_employee_survey_info(
 
 
 @router.get(
-    '{company_slug}/surveys/results/general',
+    '/{company_slug}/surveys/results/general',
     summary='Получить общий результат опросов компании',
     dependencies=[Depends(get_async_session)],
 )
@@ -76,7 +76,7 @@ async def get_general_survey_results(
 
 
 @router.get(
-    '{company_slug}/surveys/results/personalized',
+    '/{company_slug}/surveys/results/personalized',
     summary='Получить персонализированный результат опросов компании',
     dependencies=[Depends(get_async_session)],
 )
@@ -89,7 +89,7 @@ async def get_personalized_survey_results(
 
 
 @router.get(
-    '{company_slug}/surveys/results/dynamics',
+    '/{company_slug}/surveys/results/dynamics',
     summary='Получить динамику результатов опросов компании',
     dependencies=[Depends(get_async_session)],
 )
@@ -102,7 +102,7 @@ async def get_dynamics_survey_results_company(
 
 
 @router.post(
-    '{company_slug}/surveys/manage',
+    '/{company_slug}/surveys/manage',
     summary='Управление опросами компании',
     dependencies=[Depends(get_async_session)],
 )
@@ -115,7 +115,7 @@ async def manage_surveys_company(
 
 
 @router.delete(
-    '{company_slug}/surveys/manage/',
+    '/{company_slug}/surveys/manage/',
     summary='Удалить опросы компании',
     dependencies=[Depends(get_async_session)],
 )

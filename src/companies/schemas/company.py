@@ -28,7 +28,6 @@ from src.companies.constants import (
 )
 from src.companies.validators.company_validators import (
     check_license_fields_none,
-    validate_logo,
     validate_name_characters,
     validate_name_surname_unique,
     validate_slug,
@@ -70,12 +69,6 @@ class CompanyUpdateForUserSchema(BaseModel):
         None,
         title=TITLE_LOGO_COMPANY,
     )
-
-    @field_validator('logo')
-    @classmethod
-    def validate_logo_field(cls, logo: Optional[str]) -> Optional[str]:
-        """Проверяет, что logo является корректным URL-адресом."""
-        return validate_logo(logo)
 
     @field_validator('description', mode='after', check_fields=False)
     @classmethod

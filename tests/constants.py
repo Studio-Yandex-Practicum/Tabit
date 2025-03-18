@@ -1,8 +1,10 @@
 import os
 from dataclasses import dataclass
+from typing import Any
 
 from dotenv import load_dotenv
 
+from src.constants import TextError
 from src.users.models.enum import RoleUserTabit
 
 load_dotenv()
@@ -152,3 +154,41 @@ PAYLOAD_FOR_PATCH_USER_EXTRA: dict = {
 }
 MODERATOR_TELEGRAM: str = 'avadakedavra'
 USER_TELEGRAM: str = 'expectopatronum'
+
+IMAGE_BASE64_PNG: str = (
+    'data:image/png;base64,'
+    'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAA'
+    'AJcEhZcwAADsQAAA7EAZUrDhsAAAAWSURBVBhXY/jPAEIM/5ns7eyA1H8GADMUBbmnKLI7AAAAAElFTkSuQmCC'
+)
+
+IMAGE_BASE64_JPG: str = (
+    'data:image/jpg;base64,'
+    'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAA'
+    'JcEhZcwAADsQAAA7EAZUrDhsAAAAZSURBVBhXY2T4DwQMDAxMBw8dYmBgZGQAAEnjBkemLjB6AAAAAElFTkSuQmCC'
+)
+
+INVALID_IMAGE: tuple[tuple[Any, Any], ...] = (
+    (
+        1,
+        [
+            {
+                'type': 'string_type',
+                'loc': ['body', 'logo'],
+                'msg': 'Input should be a valid string',
+                'input': 1,
+            }
+        ],
+    ),
+    ('string', TextError.BASE64_TYPE),
+    (
+        f'{IMAGE_BASE64_PNG}b',
+        TextError.BASE64_FATAL.format(
+            image='logo',
+            error_class='Error',
+            error_text=(
+                'Invalid base64-encoded string: number of data characters (173) '
+                'cannot be 1 more than a multiple of 4'
+            ),
+        ),
+    ),
+)

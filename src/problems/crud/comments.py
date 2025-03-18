@@ -4,13 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.constants import (
-    DEFAULT_AUTO_COMMIT,
-    TEXT_ERROR_SERVER_CREATE,
-    TEXT_ERROR_SERVER_CREATE_LOG,
-    TEXT_ERROR_UNIQUE,
-    TEXT_ERROR_UNIQUE_CREATE_LOG,
-)
+from src.constants import DEFAULT_AUTO_COMMIT, TextError
 from src.crud import CRUDBase
 from src.logger import logger
 from src.problems.crud import user_comment_association_crud
@@ -61,17 +55,17 @@ class CRUDComment(CRUDBase):
                 await session.refresh(db_obj)
         except IntegrityError as e:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_UNIQUE_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.UNIQUE_CREATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=TEXT_ERROR_UNIQUE,
+                detail=TextError.UNIQUE,
             )
         except Exception as e:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_SERVER_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TEXT_ERROR_SERVER_CREATE,
+                detail=TextError.SERVER_CREATE,
             )
         return db_obj
 
@@ -92,10 +86,10 @@ class CRUDComment(CRUDBase):
             await session.commit()
         except Exception as e:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_SERVER_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TEXT_ERROR_SERVER_CREATE,
+                detail=TextError.SERVER_CREATE,
             )
 
     async def unlike(
@@ -117,10 +111,10 @@ class CRUDComment(CRUDBase):
             await session.commit()
         except Exception as e:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_SERVER_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TEXT_ERROR_SERVER_CREATE,
+                detail=TextError.SERVER_CREATE,
             )
 
 

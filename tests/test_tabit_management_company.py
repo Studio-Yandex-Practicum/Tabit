@@ -6,7 +6,8 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from tests.constants import URL
+from src.constants import Directory
+from tests.constants import IMAGE_BASE64_JPG, IMAGE_BASE64_PNG, INVALID_IMAGE, URL
 
 
 def generate_company_data(all_fields=False, license_id=None):
@@ -22,7 +23,7 @@ def generate_company_data(all_fields=False, license_id=None):
         data.update(
             {
                 'description': f'Описание компании {random_string(15)}',
-                'logo': f'https://example.com/logo_{random_string(6)}.png',
+                'logo': IMAGE_BASE64_PNG,
                 'license_id': license_id,
                 'start_license_time': '2025-02-15T07:57:45.058Z',
                 'slug': f'company-{random_string(8).lower()}',
@@ -30,6 +31,11 @@ def generate_company_data(all_fields=False, license_id=None):
         )
 
     return data
+
+
+def get_path_logo(slug: str, expansion: str = 'png') -> str:
+    """Генерирует путь логотипа по переданному слагу."""
+    return f'{Directory.MEDIA}/{Directory.LOGO}/{slug}.{expansion}'
 
 
 class TestCreateCompany:
@@ -82,7 +88,7 @@ class TestCreateCompany:
         assert data['name'] == payload['name']
         assert data['slug'] == payload['slug']
         assert data['description'] == payload['description']
-        assert data['logo'] == payload['logo']
+        assert data['logo'] == get_path_logo(payload['slug'])
 
     @pytest.mark.asyncio
     async def test_create_company_duplicate_slug(
@@ -416,18 +422,27 @@ class TestCreateCompany:
         ), 'Слаг должен базироваться на названии'
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        'invalid_value, message',
+        INVALID_IMAGE,
+    )
     async def test_create_company_invalid_logo_url(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self,
+        client: AsyncClient,
+        superuser_token: str,
+        license_for_test,
+        invalid_value,
+        message,
     ):
         """
-        Тест ошибки 422 при передаче некорректного URL в поле 'logo'.
+        Тест ошибки при передаче некорректной строки в 'logo'.
 
         Проверяет, что API не позволяет создать компанию,
-        если поле 'logo' передано не в формате корректного URL.
+        если поле 'logo' передано не в формате строки Base64.
         """
         new_license = await license_for_test()
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
-        payload['logo'] = 'string'
+        payload['logo'] = invalid_value
 
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
@@ -436,12 +451,12 @@ class TestCreateCompany:
         )
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
-        error_detail = response.json()['detail']
-        assert any(
-            error['loc'] == ['body', 'logo']
-            and error['msg'] == 'Value error, Логотип должен быть валидным URL-адресом.'
-            for error in error_detail
-        ), response.text
+        error_detail = response.json()
+        assert 'detail' in error_detail, response.text
+        assert message == error_detail['detail']
+        assert message == (
+            detail := error_detail['detail']
+        ), f'Ожидалось:\n{message}\nПолучили\n{detail}'
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -706,11 +721,7 @@ class TestGetCompany:
         'update_data, expected_field, expected_value',
         [
             ({'description': 'Новое описание'}, 'description', 'Новое описание'),
-            (
-                {'logo': 'https://example.com/new_logo.png'},
-                'logo',
-                'https://example.com/new_logo.png',
-            ),
+            ({'logo': IMAGE_BASE64_JPG}, 'logo', ''),
             ({'name': 'Новое имя'}, 'name', 'Новое имя'),
             ({'license_id': 1, 'start_license_time': datetime.now().isoformat()}, 'license_id', 1),
         ],
@@ -740,6 +751,8 @@ class TestGetCompany:
 
         assert response.status_code == status.HTTP_200_OK, response.text
         data = response.json()
+        if expected_field == 'logo':
+            expected_value = get_path_logo(company.slug, 'jpg')
         assert data[expected_field] == expected_value, (
             f'Ожидалось значение {expected_value} в поле {expected_field}, '
             f'но получено {data[expected_field]}'
@@ -763,7 +776,7 @@ class TestGetCompany:
 
         update_data = {
             'description': 'Обновленное описание',
-            'logo': 'https://example.com/updated_logo.png',
+            'logo': IMAGE_BASE64_JPG,
             'name': 'Обновленное имя',
             'license_id': new_license.id,
             'start_license_time': datetime.now(timezone.utc).isoformat(),
@@ -784,6 +797,10 @@ class TestGetCompany:
                 assert (
                     actual_time == value
                 ), f'Ожидалось значение {value} в поле {key}, но получено {actual_time}'
+            elif 'logo' == key:
+                assert data[key] == get_path_logo(
+                    company.slug, 'jpg'
+                ), f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
             else:
                 assert (
                     data[key] == value
@@ -993,12 +1010,26 @@ class TestPatchCompanyValidation:
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        'invalid_value, message',
+        INVALID_IMAGE,
+    )
     async def test_patch_company_invalid_logo_url(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self,
+        client: AsyncClient,
+        superuser_token: str,
+        company_for_test,
+        invalid_value,
+        message,
     ):
-        """Тест ошибки 422 при некорректном URL в поле 'logo'."""
+        """
+        Тест ошибки при передаче некорректной строки в 'logo'.
+
+        Проверяет, что API не позволяет создать компанию,
+        если поле 'logo' передано не в формате строки Base64.
+        """
         company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
-        update_data = {'logo': 'invalid_url'}
+        update_data = {'logo': invalid_value}
 
         response = await client.patch(
             f'{URL.COMPANIES_ENDPOINT}{company.slug}',
@@ -1007,6 +1038,11 @@ class TestPatchCompanyValidation:
         )
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
+        error_detail = response.json()
+        assert 'detail' in error_detail, response.text
+        assert message == (
+            detail := error_detail['detail']
+        ), f'Ожидалось:\n{message}\nПолучили\n{detail}'
 
     @pytest.mark.asyncio
     async def test_patch_company_field_with_leading_or_trailing_spaces(
