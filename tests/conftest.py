@@ -454,7 +454,7 @@ async def employee_refresh_token(get_token_for_user, employee):
 # Фикстуры для тестов problem_feeds.py
 @pytest_asyncio.fixture
 async def problem_for_test(async_session: AsyncSession):
-    async def _create_problem(employee, problem_data=None):
+    async def _create_problem(employee, company_slug, problem_data=None):
         problem_obj = {
             'name': 'проблема',
             'description': 'описание проблемы',
@@ -462,7 +462,7 @@ async def problem_for_test(async_session: AsyncSession):
             'type': TypeProblem.B,
             'status': StatusProblem.NEW,
             'owner_id': employee.id,
-            'company_id': employee.company_id,
+            'company_slug': company_slug,
         }
         if problem_data:
             problem_obj.update(problem_data)
@@ -473,9 +473,11 @@ async def problem_for_test(async_session: AsyncSession):
 
 @pytest_asyncio.fixture
 async def message_feed_for_test(async_session: AsyncSession, problem_for_test):
-    async def _create_message_feed(employee, message_feed_data=None, problem_id=None):
+    async def _create_message_feed(
+        employee, company_slug, message_feed_data=None, problem_id=None
+    ):
         if not problem_id:
-            problem = await problem_for_test(employee)
+            problem = await problem_for_test(employee, company_slug)
             problem_id = problem.id
         message_feed_obj = {
             'problem_id': problem_id,
@@ -492,12 +494,13 @@ async def message_feed_for_test(async_session: AsyncSession, problem_for_test):
 
 @pytest_asyncio.fixture
 async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
-    async def _create_comment(employee, comment_data=None, message_feed=None):
-        if not message_feed:
-            message_feed = await message_feed_for_test(employee)
+    async def _create_comment(employee, company_slug, comment_data=None, message_feed_id=None):
+        if not message_feed_id:
+            message_feed = await message_feed_for_test(employee, company_slug)
+            message_feed_id = message_feed.id
         comment_obj = {
             'text': 'текст комментария',
-            'message_id': message_feed.id,
+            'message_id': message_feed_id,
             'owner_id': employee.id,
         }
         if comment_data:

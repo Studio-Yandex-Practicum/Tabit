@@ -36,9 +36,10 @@ class TestGetProblemFeed:
         """Тест для проверки получения списка тредов."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        problem = await problem_for_test(user)
+        problem = await problem_for_test(user, company.slug)
         ten_message_feeds = [
-            await message_feed_for_test(user, problem_id=problem.id) for _ in range(10)
+            await message_feed_for_test(user, company.slug, problem_id=problem.id)
+            for _ in range(10)
         ]
         token = await get_token_for_user(user)
         response = await client.get(
@@ -65,7 +66,7 @@ class TestGetProblemFeed:
         """Тест для проверки доступа к тредам сотрудников других компаний"""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        message_feed = await message_feed_for_test(user)
+        message_feed = await message_feed_for_test(user, company.slug)
         another_user_token = await get_token_for_user(await employee_of_company())
         response = await client.get(
             URL.MESSAGE_FEED_URL.format(problem_id=message_feed.problem_id),
@@ -89,9 +90,12 @@ class TestGetProblemFeed:
         """Тест для проверки получения списка комментариев треда."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        message_feed = await message_feed_for_test(user)
+        message_feed = await message_feed_for_test(user, company.slug)
         token = await get_token_for_user(user)
-        ten_comments = [await comment_for_test(user, message_feed=message_feed) for _ in range(10)]
+        ten_comments = [
+            await comment_for_test(user, company.slug, message_feed_id=message_feed.id)
+            for _ in range(10)
+        ]
         response = await client.get(
             URL.COMMENTS_URL.format(
                 problem_id=message_feed.problem_id, message_feed_id=message_feed.id
@@ -121,9 +125,9 @@ class TestGetProblemFeed:
         """Тест для проверки доступа к комментариям сотрудников других компаний"""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        message_feed = await message_feed_for_test(user)
+        message_feed = await message_feed_for_test(user, company.slug)
         another_user_token = await get_token_for_user(await employee_of_company())
-        await comment_for_test(user, message_feed=message_feed)
+        await comment_for_test(user, company.slug, message_feed_id=message_feed.id)
         response = await client.get(
             URL.COMMENTS_URL.format(
                 problem_id=message_feed.problem_id, message_feed_id=message_feed.id
@@ -179,7 +183,7 @@ class TestPostProblemFeed:
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
         token = await get_token_for_user(user)
-        problem = await problem_for_test(user)
+        problem = await problem_for_test(user, company.slug)
         old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
             URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
@@ -226,7 +230,7 @@ class TestPostProblemFeed:
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
         token = await get_token_for_user(user)
-        problem = await problem_for_test(user)
+        problem = await problem_for_test(user, company.slug)
         old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
             URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
@@ -259,7 +263,7 @@ class TestPostProblemFeed:
         """
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        problem = await problem_for_test(user)
+        problem = await problem_for_test(user, company.slug)
         another_user_token = await get_token_for_user(await employee_of_company())
         old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
@@ -295,8 +299,9 @@ class TestPostProblemFeed:
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
         token = await get_token_for_user(user)
-        another_user = await employee_of_company()
-        problem = await problem_for_test(another_user)
+        another_company = await company_for_test()
+        another_user = await employee_of_company({'company_id': another_company.id})
+        problem = await problem_for_test(another_user, another_company.slug)
         old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
             URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
@@ -327,7 +332,7 @@ class TestPostProblemFeed:
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
         token = await get_token_for_user(user)
-        message_feed = await message_feed_for_test(user)
+        message_feed = await message_feed_for_test(user, company.slug)
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.post(
             URL.COMMENTS_URL.format(
@@ -374,7 +379,7 @@ class TestPostProblemFeed:
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
         token = await get_token_for_user(user)
-        message_feed = await message_feed_for_test(user)
+        message_feed = await message_feed_for_test(user, company.slug)
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.post(
             URL.COMMENTS_URL.format(
@@ -410,9 +415,10 @@ class TestPostProblemFeed:
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
         token = await get_token_for_user(user)
-        message_feed = await message_feed_for_test(user)
-        another_user = await employee_of_company()
-        wrong_message_feed = await message_feed_for_test(another_user)
+        message_feed = await message_feed_for_test(user, company.slug)
+        another_company = await company_for_test()
+        another_user = await employee_of_company({'company_id': another_company.id})
+        wrong_message_feed = await message_feed_for_test(another_user, another_company.slug)
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.post(
             URL.COMMENTS_URL.format(
@@ -444,7 +450,7 @@ class TestPostProblemFeed:
         """Тест для проверки успешного лайка комментария."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         another_user = await employee_of_company({'company_id': company.id})
         another_user_token = await get_token_for_user(another_user)
         old_rating = comment.rating
@@ -455,6 +461,7 @@ class TestPostProblemFeed:
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         association_obj = await get_association_objects_iterator(
             async_session, AssociationUserComment, another_user.id, comment.id
@@ -480,7 +487,7 @@ class TestPostProblemFeed:
         """Тест для проверки успешного анлайка комментария."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         another_user = await employee_of_company({'company_id': company.id})
         await like_a_comment(another_user, comment)
         another_user_token = await get_token_for_user(another_user)
@@ -516,7 +523,7 @@ class TestPostProblemFeed:
         """Тест для проверки неуспешного лайка комментария автором."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         token = await get_token_for_user(user)
         old_rating = comment.rating
         response = await client.post(
@@ -527,6 +534,7 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
             f'получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при неуспешном лайке.'
@@ -552,7 +560,7 @@ class TestPostProblemFeed:
         """Тест для проверки неуспешного повторного лайка пользователем."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         another_user = await employee_of_company({'company_id': company.id})
         await like_a_comment(another_user, comment)
         another_user_token = await get_token_for_user(another_user)
@@ -591,7 +599,7 @@ class TestPostProblemFeed:
         """Тест для проверки неуспешного анлайка комментария автором."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         another_user = await employee_of_company({'company_id': company.id})
         await like_a_comment(another_user, comment)
         token = await get_token_for_user(user)
@@ -622,7 +630,7 @@ class TestPostProblemFeed:
         """Тест для проверки неуспешного анлайка комментария пользователем."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         another_user_token = await get_token_for_user(
             await employee_of_company({'company_id': company.id})
         )
@@ -635,6 +643,7 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
             f'получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при неуспешном анлайке'
@@ -657,12 +666,12 @@ class TestPostProblemFeed:
         """
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        message_feed = await message_feed_for_test(user)
-        comment = await comment_for_test(user)
+        message_feed = await message_feed_for_test(user, company.slug)
+        comment = await comment_for_test(user, company.slug, message_feed_id=message_feed.id)
         another_user = await employee_of_company({'company_id': company.id})
         another_user_token = await get_token_for_user(another_user)
         wrong_message_feed = await message_feed_for_test(
-            another_user, problem_id=message_feed.problem_id
+            another_user, company.slug, problem_id=message_feed.problem_id
         )
         old_rating = comment.rating
         response = await client.post(
@@ -673,6 +682,7 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при неуспешном лайке.'
@@ -702,13 +712,13 @@ class TestPostProblemFeed:
         """
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        message_feed = await message_feed_for_test(user)
-        comment = await comment_for_test(user)
+        message_feed = await message_feed_for_test(user, company.slug)
+        comment = await comment_for_test(user, company.slug, message_feed_id=message_feed.id)
         another_user = await employee_of_company({'company_id': company.id})
         await like_a_comment(another_user, comment)
         another_user_token = await get_token_for_user(another_user)
         wrong_message_feed = await message_feed_for_test(
-            another_user, problem_id=message_feed.problem_id
+            another_user, company.slug, problem_id=message_feed.problem_id
         )
         old_rating = comment.rating
         response = await client.post(
@@ -719,6 +729,7 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при неуспешном анлайке.'
@@ -746,7 +757,7 @@ class TestPatchProblemFeed:
         """Тест для проверки успешного обновления комментария."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         token = await get_token_for_user(user)
         old_rating = comment.rating
         response = await client.patch(
@@ -787,7 +798,7 @@ class TestPatchProblemFeed:
         """Тест для проверки неуспешного обновления комментария."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         token = await get_token_for_user(user)
         old_comment = jsonable_encoder(comment)
         response = await client.patch(
@@ -816,7 +827,7 @@ class TestPatchProblemFeed:
         """Тест для проверки неуспешного обновления комментария другим пользователем."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         another_user_token = await get_token_for_user(
             await employee_of_company({'company_id': company.id})
         )
@@ -852,10 +863,12 @@ class TestPatchProblemFeed:
         """
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        message_feed = await message_feed_for_test(user)
-        comment = await comment_for_test(user, message_feed=message_feed)
+        message_feed = await message_feed_for_test(user, company.slug)
+        comment = await comment_for_test(user, company.slug, message_feed_id=message_feed.id)
         token = await get_token_for_user(user)
-        wrong_message_feed = await message_feed_for_test(user, problem_id=message_feed.problem_id)
+        wrong_message_feed = await message_feed_for_test(
+            user, company.slug, problem_id=message_feed.problem_id
+        )
         old_comment = jsonable_encoder(comment)
         response = await client.patch(
             URL.COMMENTS_PATCH_DELETE_URL.format(
@@ -909,7 +922,7 @@ class TestDeleteProblemFeeds:
         """Тест проверки успешного удаления комментария."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         token = await get_token_for_user(user)
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.delete(
@@ -941,7 +954,7 @@ class TestDeleteProblemFeeds:
         """Тест проверки неуспешного удаления комментария не автором."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        comment = await comment_for_test(user)
+        comment = await comment_for_test(user, company.slug)
         another_user_token = await get_token_for_user(
             await employee_of_company({'company_id': company.id})
         )
@@ -979,10 +992,12 @@ class TestDeleteProblemFeeds:
         """
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
-        message_feed = await message_feed_for_test(user)
-        comment = await comment_for_test(user, message_feed=message_feed)
+        message_feed = await message_feed_for_test(user, company.slug)
+        comment = await comment_for_test(user, company.slug, message_feed_id=message_feed.id)
         token = await get_token_for_user(user)
-        wrong_message_feed = await message_feed_for_test(user, problem_id=message_feed.problem_id)
+        wrong_message_feed = await message_feed_for_test(
+            user, company.slug, problem_id=message_feed.problem_id
+        )
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.delete(
             URL.COMMENTS_PATCH_DELETE_URL.format(

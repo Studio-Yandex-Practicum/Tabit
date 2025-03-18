@@ -21,6 +21,7 @@ async def update_object(session: AsyncSession, db_obj) -> dict:
     Обновляет атрибуты передаваемого объекта модели в рамках одной сессии и возвращает
     его словарное предстваление.
     """
+    db_obj = await session.merge(db_obj)
     session.expire(db_obj)
     await session.refresh(db_obj)
     return jsonable_encoder(db_obj)
