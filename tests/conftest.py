@@ -448,44 +448,44 @@ async def employee_refresh_token(get_token_for_user, employee):
 
 
 @pytest_asyncio.fixture
-async def problem_for_meeting(async_session: AsyncSession):
-    async def func(company_id, owner_id):
+async def problem_for_meeting(async_session: AsyncSession, employee_of_company, company_for_test):
+    """Фикстура для создания проблемы."""
+
+    async def func(company_slug=None, owner_id=None):
+        if company_slug is None:
+            company = await company_for_test()
+            company_slug = company.slug
+        if owner_id is None:
+            owner = await employee_of_company()
+            owner_id = owner.id
         default_data = {
             'name': 'Test Problem',
             'description': 'Some description',
-            'company_id': company_id,
+            'company_slug': company_slug,
             'color': 1,
             'type': 'A',
             'status': 'Новая',
             'owner_id': owner_id,
         }
         problem = await make_entry_in_table(async_session, default_data, Problem)
-        return problem.id
+        return problem
 
     return func
 
 
 @pytest_asyncio.fixture
 async def create_meeting(async_session: AsyncSession):
-    async def func(problem_id, owner_id, count=1, date=None, data=False):
-        meetings_ids = []
-        meetings_data = []
-        for i in range(count):
-            meeting_data = {
-                'title': f'Test Meeting {count}',
-                'date_meeting': (datetime.now() + timedelta(days=count)).date(),
-                'status': 'Новая',
-                'problem_id': problem_id,
-                'owner_id': str(owner_id),
-            }
-            if date:
-                meeting_data['date_meeting'] = date.date()
-            meeting = await make_entry_in_table(async_session, meeting_data, Meeting)
-            meetings_ids.append(meeting.id)
-            meeting_data['id'] = meeting.id
-            meetings_data.append(meeting_data)
-        if data:
-            return meetings_data
-        return meetings_ids
+    """Фикстура для создания встречи."""
+
+    async def func(problem_id, owner_id, count=1):
+        meeting_data = {
+            'title': f'Test Meeting {count}',
+            'date_meeting': (datetime.now() + timedelta(days=count)).date(),
+            'status': 'Новая',
+            'problem_id': problem_id,
+            'owner_id': str(owner_id),
+        }
+        meeting = await make_entry_in_table(async_session, meeting_data, Meeting)
+        return meeting
 
     return func
