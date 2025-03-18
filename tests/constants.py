@@ -3,6 +3,8 @@ from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
+from src.users.models.enum import RoleUserTabit
+
 load_dotenv()
 
 
@@ -26,6 +28,7 @@ class URL:
     ADMIN_REFRESH: str = '/api/v1/admin/auth/refresh-token'
     USER_LOGIN: str = '/api/v1/auth/login'
     USER_LOGOUT: str = '/api/v1/auth/logout'
+    USER_ME: str = '/api/v1/auth/me'
     USER_REFRESH: str = '/api/v1/auth/refresh-token'
     COMPANIES_ENDPOINT: str = '/api/v1/admin/companies/'
     LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
@@ -116,3 +119,38 @@ PAYLOAD_FOR_PATCH_ADMIN: tuple[dict, ...] = (
         'patronymic': 'Императрица',
     },
 )
+PAYLOAD_FOR_PATCH_USER: tuple[dict, ...] = (
+    {
+        'name': 'Модест',
+        'surname': 'Староконь',
+        'patronymic': 'Илларионович',
+        'phone_number': '8 495 694-83-90',
+        'birthday': '1999-05-14',
+    },
+    {
+        'phone_number': '8 495 694-83-90',
+        'surname': 'Староконь',
+    },
+    {
+        'patronymic': 'Илларионович',
+    },
+)
+PAYLOAD_FOR_PATCH_USER_EXTRA: dict = {
+    'id': 1776,
+    'email': 'illuminati@world.gov',
+    'is_active': False,
+    'is_superuser': True,
+    'is_verified': False,
+    'role': RoleUserTabit.ADMIN,
+    'start_date_employment': '1776-05-01',
+    'end_date_employment': '1776-05-01',
+    'company_id': 1776,
+    'current_department_id': 1776,
+    'last_department_id': 1776,
+    'department_transition_date': '1776-05-01',
+    'employee_position': 'Минервал',
+    'created_at': '1776-05-01 00:00:01.000 +0100',
+    'updated_at': '1776-05-01 00:00:01.000 +0100',
+}
+MODERATOR_TELEGRAM: str = 'avadakedavra'
+USER_TELEGRAM: str = 'expectopatronum'
