@@ -35,6 +35,11 @@ jobs:
           echo "${{ secrets.ENV_FILE }}" > .env
         shell: bash
 
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
       - name: Run tests
         run: |
           poetry run pytest

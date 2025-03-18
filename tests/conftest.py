@@ -1,8 +1,11 @@
+import subprocess
+import time
 import uuid
 from collections.abc import AsyncGenerator
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+import psycopg2
 import pytest
 import pytest_asyncio
 from fastapi_users.password import PasswordHelper
@@ -20,15 +23,94 @@ from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.tabit_management.models import LicenseType, TabitAdminUser
 from src.users.models import UserTabit
 from src.users.models.enum import RoleUserTabit
-from tests.constants import GOOD_PASSWORD, URL
+from tests.constants import GOOD_PASSWORD, TEST_DATABASE_URL, URL
+
+
+@pytest.fixture(scope='session', autouse=True)
+def setup_test_db():
+    """
+    Фикстура для автоматического запуска и удаления контейнера с тестовой базой данных.
+
+    - Перед тестами запускает контейнер PostgreSQL с помощью `docker-compose`.
+    - Ожидает готовности базы перед выполнением тестов.
+    - После тестов останавливает и удаляет контейнер с тестовой БД.
+
+    Использует:
+        - `docker-compose -f infra/docker-compose.test-db.yaml up -d`
+        - `docker-compose -f infra/docker-compose.test-db.yaml down -v`
+    """
+    try:
+        subprocess.run(
+            ['docker-compose', '-f', 'infra/docker-compose.test-db.yaml', 'up', '-d'],
+            check=True,
+        )
+        wait_for_postgres(
+            host=TEST_DATABASE_URL.TEST_HOST,
+            port=TEST_DATABASE_URL.TEST_PORT,
+            user=TEST_DATABASE_URL.TEST_USER,
+            password=TEST_DATABASE_URL.TEST_PASSWORD,
+            dbname=TEST_DATABASE_URL.TEST_DBNAME,
+        )
+        yield
+    finally:
+        subprocess.run(
+            ['docker-compose', '-f', 'infra/docker-compose.test-db.yaml', 'down', '-v'],
+            check=True,
+        )
+
+
+def wait_for_postgres(host: str, port: int, user: str, password: str, dbname, timeout=30):
+    """
+    Ожидает готовности PostgreSQL перед началом тестов.
+
+    - Проверяет соединение с БД в течение `timeout` секунд.
+    - Если БД недоступна, делает повторные попытки подключения.
+    - Если таймаут истёк, тесты не запустятся.
+
+    Аргументы:
+        host (str): Хост PostgreSQL.
+        port (int): Порт PostgreSQL.
+        user (str): Имя пользователя БД.
+        password (str): Пароль пользователя БД.
+        dbname (str, optional): Название тестовой БД. По умолчанию `test_db`.
+        timeout (int, optional): Время ожидания, сек. По умолчанию 30 секунд.
+
+    Исключения:
+        TimeoutError: Если PostgreSQL не запустился за отведённое время.
+    """
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            conn = psycopg2.connect(
+                dbname=dbname, user=user, password=password, host=host, port=port
+            )
+            conn.close()
+            print('✅ PostgreSQL готов к работе')
+            return
+        except psycopg2.OperationalError:
+            print('⏳ Ожидание PostgreSQL...')
+            time.sleep(1)
+    raise TimeoutError('❌ PostgreSQL не запустился за отведённое время')
 
 
 @pytest.fixture
-def test_db(postgresql):
-    """Использование pytest-postgresql для тестовой БД."""
+def test_db():
+    """
+    Фикстура для настройки тестовой базы данных.
+
+    - Использует переменные окружения из `.env` для конфигурации.
+    - Создаёт асинхронный движок SQLAlchemy и сессию.
+    - Обеспечивает создание и удаление всех таблиц перед и после тестов.
+    - Гарантирует, что каждая тестовая сессия начинается с чистой базы данных.
+
+    Возвращает:
+        init_db (Callable): Функция для создания всех таблиц.
+        drop_db (Callable): Функция для удаления всех таблиц.
+    """
+
     database_url = (
-        f'postgresql+psycopg://{postgresql.info.user}:{postgresql.info.password}@'
-        f'{postgresql.info.host}:{postgresql.info.port}/{postgresql.info.dbname}'
+        f'postgresql+asyncpg://{TEST_DATABASE_URL.TEST_USER}:{TEST_DATABASE_URL.TEST_PASSWORD}@'
+        f'{TEST_DATABASE_URL.TEST_HOST}:{TEST_DATABASE_URL.TEST_PORT}/{TEST_DATABASE_URL.TEST_DBNAME}'
     )
 
     engine = create_async_engine(database_url, echo=False, poolclass=NullPool)
@@ -40,32 +122,61 @@ def test_db(postgresql):
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
 
+    async def drop_db():
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+        await engine.dispose()
+
     pytest.db_engine = engine
     pytest.db_sessionmaker = TestingSessionLocal
 
-    return init_db
+    return init_db, drop_db
 
 
 @pytest_asyncio.fixture
 async def async_session(test_db) -> AsyncGenerator[AsyncSession, None]:
-    """Фикстура для сессии БД."""
-    init_db = test_db
+    """
+    Фикстура для создания асинхронной сессии БД перед каждым тестом.
+
+    - Перед тестами сбрасывает БД, создавая чистое тестовое окружение.
+    - Открывает новую сессию для тестов.
+    - После теста автоматически выполняет `rollback()` и закрывает сессию.
+
+    Возвращает:
+        AsyncSession: Объект асинхронной сессии SQLAlchemy.
+    """
+    init_db, drop_db = test_db
+    await drop_db()
     await init_db()
 
-    async with pytest.db_sessionmaker() as session:
+    session = pytest.db_sessionmaker()
+    try:
         yield session
+    finally:
         await session.rollback()
         await session.close()
 
 
 @pytest_asyncio.fixture
 async def client(async_session):
-    """Фикстура для тестового клиента API через ASGITransport."""
+    """
+    Фикстура для создания тестового клиента FastAPI.
+
+    - Подменяет зависимость `get_async_session`, чтобы тесты использовали тестовую БД.
+    - Создаёт `AsyncClient` с `ASGITransport`, эмулируя HTTP-запросы.
+    - Автоматически очищает `dependency_overrides` после завершения тестов.
+
+    Возвращает:
+        AsyncClient: Клиент для тестирования API.
+    """
 
     async def override_get_async_session():
-        async with pytest.db_sessionmaker() as session:
-            yield session
-            await session.close()
+        async with async_session as session:
+            try:
+                yield session
+            finally:
+                await session.rollback()
+                await session.close()
 
     app_v1.dependency_overrides[get_async_session] = override_get_async_session
 
@@ -79,11 +190,12 @@ async def client(async_session):
 
 async def make_entry_in_table(async_session: AsyncSession, payload: dict[str, Any], model):
     """Функция создаст запись в указанной таблице согласно переданным данным."""
-    new_entry = model(**payload)
-    async_session.add(new_entry)
-    await async_session.commit()
-    await async_session.refresh(new_entry)
-    return new_entry
+    async with async_session as session:
+        new_entry = model(**payload)
+        session.add(new_entry)
+        await session.commit()
+        await session.refresh(new_entry)
+        return new_entry
 
 
 @pytest_asyncio.fixture
@@ -116,7 +228,8 @@ async def company_for_test(async_session, license_for_test):
 
     async def _create_company(company_data=None, all_fields=False):
         """Функция-обёртка для создания компании с изменяемыми параметрами."""
-        license_instance = await license_for_test()
+        if not company_data or 'license_id' not in company_data:
+            license_instance = await license_for_test()
 
         default_data = {
             'name': f'Test Company {uuid.uuid4().hex[:8]}',
