@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi_users.manager import BaseUserManager
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.dependencies import current_company_admin, current_user_tabit
+from src.api.v1.auth.dependencies import current_company_moderator, current_company_user
 from src.api.v1.auth.managers import get_user_manager
 
 # from src.api.v1.permissions import company_permissions
@@ -32,7 +32,9 @@ from src.users.crud.user import user_crud
 from src.users.schemas import UserCreateSchema, UserReadSchema
 from src.utils.email_service.email_schema import EmailCreateSchema
 
-router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_company_admin)])
+router = APIRouter(
+    dependencies=[Depends(current_company_user), Depends(current_company_moderator)]
+)
 
 
 @router.get(

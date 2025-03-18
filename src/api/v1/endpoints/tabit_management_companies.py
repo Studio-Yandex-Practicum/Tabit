@@ -7,7 +7,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.auth.dependencies import current_admin_tabit
+from src.api.v1.auth.dependencies import current_tabit_admin
 from src.api.v1.constants import Description, Summary
 from src.api.v1.utilities import generate_company_slug
 from src.api.v1.validator import validator_check_object_exists
@@ -30,7 +30,7 @@ router = APIRouter()
 @router.get(
     '/',
     response_model=list[CompanyResponseSchema],
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     summary=Summary.TABIT_MANAGEMENT_COMPANY_LIST,
     description=Description.TABIT_MANAGEMENT_COMPANY_LIST,
 )
@@ -60,7 +60,7 @@ async def get_companies(
 @router.post(
     '/',
     response_model=CompanyResponseSchema,
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     status_code=HTTPStatus.CREATED,
     summary=Summary.TABIT_MANAGEMENT_COMPANY_CREATE,
     description=Description.TABIT_MANAGEMENT_COMPANY_CREATE,
@@ -95,7 +95,7 @@ async def create_company(
 @router.patch(
     '/{company_slug}',
     response_model=CompanyResponseSchema,
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     summary=Summary.TABIT_MANAGEMENT_COMPANY_UPDATE,
     description=Description.TABIT_MANAGEMENT_COMPANY_UPDATE,
 )
@@ -132,7 +132,7 @@ async def update_company(
 
 @router.delete(
     '/{company_slug}',
-    dependencies=[Depends(current_admin_tabit)],
+    dependencies=[Depends(current_tabit_admin)],
     status_code=HTTPStatus.NO_CONTENT,
     summary=Summary.TABIT_MANAGEMENT_COMPANY_DELETE,
     description=Description.TABIT_MANAGEMENT_COMPANY_DELETE,

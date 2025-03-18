@@ -7,10 +7,18 @@ from src.users.models import UserTabit
 
 
 async def get_admin_db(session=Depends(get_async_session)):
-    """Асинхронный генератор. Обеспечивает доступ к БД к админам ресурса."""
+    """
+    Асинхронный генератор.
+
+    Обеспечивает доступ к БД админам ресурса (Tabit Superuser, Tabit Admin).
+    """
     yield SQLAlchemyUserDatabase(session, TabitAdminUser)
 
 
 async def get_user_db(session=Depends(get_async_session)):
-    """Асинхронный генератор. Обеспечивает доступ к БД к пользователям ресурса."""
+    """
+    Асинхронный генератор.
+
+    Обеспечивает доступ к БД пользователям ресурса (Tabit Moderator, Tabit User).
+    """
     yield SQLAlchemyUserDatabase(session, UserTabit)

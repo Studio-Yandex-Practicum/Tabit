@@ -59,10 +59,10 @@ class TransportTabit(BearerTransport):
 
 # TODO: Нужно путь в константы определить, так, чтобы от эндпоинта собиралась.
 transport_admin = TransportTabit(tokenUrl='/api/v1/admin/auth/login')
-"""Транспорт JWT-токенов для администраторов сервиса Tabit."""
+# Транспорт JWT-токенов для администраторов сервиса Tabit (Tabit Superuser, Tabit Admin).
 
 transport_user = TransportTabit(tokenUrl='/api/v1/auth/login')
-"""Транспорт JWT-токенов для пользователей сервиса Tabit."""
+# Транспорт JWT-токенов для пользователей сервиса Tabit (Tabit Moderator, Tabit User).
 
 
 class AuthenticationBackendTabit(AuthenticationBackend):
@@ -75,9 +75,11 @@ class AuthenticationBackendTabit(AuthenticationBackend):
     ) -> JSONResponse:
         """
         Передаст токены из стратегии в транспорт.
+
         :param strategy: стратегия JWT-токенов, по которой будут создаваться токены;
         :param user: экземпляр модели пользователей (запись из БД) для которого будут создаваться
             токены.
+        :return: HTTP-ответ с токенами.
         """
         token_access = await strategy.write_token(user, is_access=True)
         token_refresh = await strategy.write_token(user, is_access=False)
@@ -123,13 +125,16 @@ class JWTStrategyTabit(JWTStrategy):
     ) -> models.UP | None:
         """
         Проверит является ли переданный токен access-token или refresh-token и валиден ли он.
+
         Вернет экземпляр модели пользователя (запись из БД), которому был выдан этот токен.
+
         :param token: переданный токен;
         :param user_manager: менеджер управления пользователями;
         :param distinguishing_feature:
             - None - по умолчанию  - стандартный функционал библиотеки;
             - str - будет проверять в полезной нагрузке токена наличие ключа этой строки, при
-            создании этот ключ разный для access или refresh токенов.
+              создании этот ключ разный для access или refresh токенов.
+        :return: экземпляр модели пользователя или None.
         """
         if token is None:
             return None
@@ -154,12 +159,14 @@ class JWTStrategyTabit(JWTStrategy):
         """
         Подготовит данные для создания access-token или refresh-token и, после его создания,
         вернет его.
+
         :param user: экземпляр модели пользователя (запись из БД);
         :param is_access: параметр-флаг, в зависимости от значения, "подмешает" в полезную
             нагрузку токена дополнительные данные, для идентификации роли токена:
             - None - по умолчанию - стандартный функционал библиотеки;
             - True - создаст access-token;
             - False - создаст refresh-token.
+        :return: строка токена.
         """
         data = {
             'sub': str(user.id),
@@ -191,15 +198,16 @@ jwt_auth_backend_admin = AuthenticationBackendTabit(
     transport=transport_admin,
     get_strategy=get_jwt_strategy,
 )
-"""Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
-
+# Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit
+# для администраторов сервиса (Tabit Superuser, Tabit Admin).
 
 jwt_auth_backend_user = AuthenticationBackendTabit(
     name='jwt_user',
     transport=transport_user,
     get_strategy=get_jwt_strategy,
 )
-"""Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
+# Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit
+# для пользователей сервиса (Tabit Moderator, Tabit User).
 
 
 class AuthenticatorTabit(Authenticator):
@@ -322,13 +330,10 @@ class FastAPIUsersTabit(FastAPIUsers[models.UP, models.ID]):
 
 
 tabit_admin = FastAPIUsersTabit[TabitAdminUser, UUID](get_admin_manager, [jwt_auth_backend_admin])
-"""
-Основной объект, который связывает воедино компонент для аутентификации пользователей для
-администраторов сервиса Tabit.
-"""
+# Основной объект, который связывает воедино компонент для аутентификации
+# администраторов сервиса Tabit (Tabit Superuser, Tabit Admin).
+
 
 tabit_user = FastAPIUsersTabit[UserTabit, UUID](get_user_manager, [jwt_auth_backend_user])
-"""
-Основной объект, который связывает воедино компонент для аутентификации пользователей для
-пользователей сервиса Tabit.
-"""
+# Основной объект, который связывает воедино компонент для аутентификации
+# пользователей сервиса Tabit (Tabit Moderator, Tabit User).
