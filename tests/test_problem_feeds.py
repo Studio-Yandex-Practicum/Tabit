@@ -4,20 +4,20 @@ from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.problems.crud import user_comment_association_crud
-from src.problems.models import CommentFeed, MessageFeed
+from src.problems.models import AssociationUserComment, CommentFeed, MessageFeed
 from tests.constants import (
     COMMENT_CREATE_BAD,
     COMMENT_CREATE_NEW,
     COMMENT_UPDATE,
     COMMENT_UPDATE_BAD,
+    COMPANY_DATA,
     MESSAGE_FEED_CREATE_BAD,
     MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY,
     MESSAGE_FEED_CREATE_NEW,
     PROBLEM_FEEDS_GET_404,
     URL,
 )
-from tests.utils import get_count, update_object
+from tests.utils import get_association_objects_iterator, get_count, update_object
 
 
 class TestGetProblemFeed:
@@ -27,18 +27,22 @@ class TestGetProblemFeed:
     async def test_get_multiple_message_feeds(
         self,
         client: AsyncClient,
-        employee_1_company_1,
-        employee_1_company_1_token,
-        problem,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        problem_for_test,
         message_feed_for_test,
     ):
         """Тест для проверки получения списка тредов."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        problem = await problem_for_test(user)
         ten_message_feeds = [
-            await message_feed_for_test(employee_1_company_1, problem_id=problem.id)
-            for _ in range(10)
+            await message_feed_for_test(user, problem_id=problem.id) for _ in range(10)
         ]
+        token = await get_token_for_user(user)
         response = await client.get(
-            URL.MESSAGE_FEED_URL.format(problem_id=problem.id), headers=employee_1_company_1_token
+            URL.MESSAGE_FEED_URL.format(problem_id=problem.id), headers=token
         )
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
@@ -51,12 +55,21 @@ class TestGetProblemFeed:
 
     @pytest.mark.asyncio
     async def test_get_message_feeds_of_another_company(
-        self, client: AsyncClient, employee_3_company_2_token, message_feed
+        self,
+        client: AsyncClient,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        message_feed_for_test,
     ):
         """Тест для проверки доступа к тредам сотрудников других компаний"""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        message_feed = await message_feed_for_test(user)
+        another_user_token = await get_token_for_user(await employee_of_company())
         response = await client.get(
             URL.MESSAGE_FEED_URL.format(problem_id=message_feed.problem_id),
-            headers=employee_3_company_2_token,
+            headers=another_user_token,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
             f'Ожидается status_code {status.HTTP_403_FORBIDDEN}, получен {response.status_code}. '
@@ -67,21 +80,23 @@ class TestGetProblemFeed:
     async def test_get_multiple_comments(
         self,
         client: AsyncClient,
-        employee_1_company_1,
-        employee_1_company_1_token,
-        message_feed,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        message_feed_for_test,
         comment_for_test,
     ):
         """Тест для проверки получения списка комментариев треда."""
-        ten_comments = [
-            await comment_for_test(employee_1_company_1, message_feed=message_feed)
-            for _ in range(10)
-        ]
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        message_feed = await message_feed_for_test(user)
+        token = await get_token_for_user(user)
+        ten_comments = [await comment_for_test(user, message_feed=message_feed) for _ in range(10)]
         response = await client.get(
             URL.COMMENTS_URL.format(
                 problem_id=message_feed.problem_id, message_feed_id=message_feed.id
             ),
-            headers=employee_1_company_1_token,
+            headers=token,
         )
         result = response.json()
         assert response.status_code == status.HTTP_200_OK, (
@@ -94,19 +109,26 @@ class TestGetProblemFeed:
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures('comment')
     async def test_get_feed_comments_of_another_company(
         self,
         client: AsyncClient,
-        employee_3_company_2_token,
-        message_feed,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        message_feed_for_test,
+        comment_for_test,
     ):
         """Тест для проверки доступа к комментариям сотрудников других компаний"""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        message_feed = await message_feed_for_test(user)
+        another_user_token = await get_token_for_user(await employee_of_company())
+        await comment_for_test(user, message_feed=message_feed)
         response = await client.get(
             URL.COMMENTS_URL.format(
                 problem_id=message_feed.problem_id, message_feed_id=message_feed.id
             ),
-            headers=employee_3_company_2_token,
+            headers=another_user_token,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
             f'Ожидается status_code {status.HTTP_403_FORBIDDEN}, получен {response.status_code}. '
@@ -119,9 +141,18 @@ class TestGetProblemFeed:
         'url_404',
         PROBLEM_FEEDS_GET_404,
     )
-    async def test_404_get_urls(self, client: AsyncClient, employee_1_company_1_token, url_404):
+    async def test_404_get_urls(
+        self,
+        client: AsyncClient,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        url_404,
+    ):
         """Тест для проверки запросов к несуществующим объектам."""
-        response = await client.get(url_404, headers=employee_1_company_1_token)
+        company = await company_for_test(COMPANY_DATA)
+        token = await get_token_for_user(await employee_of_company({'company_id': company.id}))
+        response = await client.get(url_404, headers=token)
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
@@ -137,17 +168,22 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1,
-        employee_1_company_1_token,
-        problem,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        problem_for_test,
         payload,
         expected_result,
     ):
         """Тест для проверки успешного создания треда к проблеме."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        token = await get_token_for_user(user)
+        problem = await problem_for_test(user)
         old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
             URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
-            headers=employee_1_company_1_token,
+            headers=token,
             json=payload,
         )
         assert response.status_code == status.HTTP_201_CREATED, (
@@ -166,7 +202,7 @@ class TestPostProblemFeed:
         assert result['important'] == expected_result, (
             'Значение поля "important" созданного объекта не соответствует ожидаемому значению.'
         )
-        assert result['owner_id'] == str(employee_1_company_1.id), (
+        assert result['owner_id'] == str(user.id), (
             'Значение поля "owner_id" созданного объекта не соответствует ожидаемому значению.'
         )
         assert result['problem_id'] == problem.id, (
@@ -179,16 +215,22 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1_token,
-        problem,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        problem_for_test,
         payload,
         expected_result,
     ):
         """Тест для проверки неуспешного создания треда к проблеме."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        token = await get_token_for_user(user)
+        problem = await problem_for_test(user)
         old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
             URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
-            headers=employee_1_company_1_token,
+            headers=token,
             json=payload,
         )
         assert response.status_code == expected_result, (
@@ -202,17 +244,27 @@ class TestPostProblemFeed:
 
     @pytest.mark.asyncio
     async def test_1_create_message_feed_for_another_company(
-        self, async_session: AsyncSession, client: AsyncClient, employee_3_company_2_token, problem
+        self,
+        async_session: AsyncSession,
+        client: AsyncClient,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        problem_for_test,
     ):
         """
         Тест для проверки попытки создания треда к проблеме другой компании.
         Передаваемый path-параметр company_slug не соответствует компании пользователя,
         сделавшего запрос.
         """
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        problem = await problem_for_test(user)
+        another_user_token = await get_token_for_user(await employee_of_company())
         old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
             URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
-            headers=employee_3_company_2_token,
+            headers=another_user_token,
             json=MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
@@ -230,8 +282,9 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1_token,
-        employee_3_company_2,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
         problem_for_test,
     ):
         """
@@ -239,11 +292,15 @@ class TestPostProblemFeed:
         В данном тесте переданный company_slug соответствует компании пользователя,
         сделавшего запрос, но переданный problem_id относится к проблеме другой компании.
         """
-        problem = await problem_for_test(employee_3_company_2, {'name': 'проблема 2'})
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        token = await get_token_for_user(user)
+        another_user = await employee_of_company()
+        problem = await problem_for_test(another_user)
         old_message_feeds_count = await get_count(async_session, MessageFeed)
         response = await client.post(
             URL.MESSAGE_FEED_URL.format(problem_id=problem.id),
-            headers=employee_1_company_1_token,
+            headers=token,
             json=MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
@@ -261,17 +318,22 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1,
-        employee_1_company_1_token,
-        message_feed,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        message_feed_for_test,
     ):
         """Тест для проверки успешного создания комментария к треду."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        token = await get_token_for_user(user)
+        message_feed = await message_feed_for_test(user)
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.post(
             URL.COMMENTS_URL.format(
                 problem_id=message_feed.problem_id, message_feed_id=message_feed.id
             ),
-            headers=employee_1_company_1_token,
+            headers=token,
             json=COMMENT_CREATE_NEW,
         )
         assert response.status_code == status.HTTP_201_CREATED, (
@@ -288,7 +350,7 @@ class TestPostProblemFeed:
             'Значение поля "text" созданного объекта не соответствует ожидаемому значению.'
         )
         assert result['rating'] == 0, 'Рейтинг нового комментария должен быть равен 0'
-        assert result['owner_id'] == str(employee_1_company_1.id), (
+        assert result['owner_id'] == str(user.id), (
             'Значение поля "owner_id" созданного объекта не соответствует ожидаемому значению.'
         )
         assert result['message_id'] == message_feed.id, (
@@ -301,18 +363,24 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1_token,
-        message_feed,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        message_feed_for_test,
         payload,
         expected_result,
     ):
         """Тест для проверки неуспешного создания комментария к треду."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        token = await get_token_for_user(user)
+        message_feed = await message_feed_for_test(user)
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.post(
             URL.COMMENTS_URL.format(
                 problem_id=message_feed.problem_id, message_feed_id=message_feed.id
             ),
-            headers=employee_1_company_1_token,
+            headers=token,
             json=payload,
         )
         assert response.status_code == expected_result, (
@@ -329,9 +397,9 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1_token,
-        employee_3_company_2,
-        message_feed,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
         message_feed_for_test,
     ):
         """
@@ -339,13 +407,18 @@ class TestPostProblemFeed:
         проблемой. Т.е. когда тред, соотвествующий переданному thread_id, не связан с проблемой,
         соответствующей переданному problem_id.
         """
-        wrong_message_feed = await message_feed_for_test(employee_3_company_2, {'text': 'тред 2'})
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        token = await get_token_for_user(user)
+        message_feed = await message_feed_for_test(user)
+        another_user = await employee_of_company()
+        wrong_message_feed = await message_feed_for_test(another_user)
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.post(
             URL.COMMENTS_URL.format(
                 problem_id=message_feed.problem_id, message_feed_id=wrong_message_feed.id
             ),
-            headers=employee_1_company_1_token,
+            headers=token,
             json=COMMENT_CREATE_NEW,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -363,27 +436,33 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_2_company_1,
-        employee_2_company_1_token,
-        comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
     ):
         """Тест для проверки успешного лайка комментария."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        another_user = await employee_of_company({'company_id': company.id})
+        another_user_token = await get_token_for_user(another_user)
         old_rating = comment.rating
         response = await client.post(
             URL.LIKE_URL.format(message_feed_id=comment.message_id),
-            headers=employee_2_company_1_token,
+            headers=another_user_token,
         )
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         )
         await async_session.refresh(comment)
-        association_obj = await user_comment_association_crud.get(
-            comment.id, employee_2_company_1.id, async_session
+        association_obj = await get_association_objects_iterator(
+            async_session, AssociationUserComment, another_user.id, comment.id
         )
         assert comment.rating == old_rating + 1, (
             'Рейтинг комментария должен был увеличиться на 1 (стать равным 1)'
         )
-        assert association_obj is not None, (
+        assert association_obj.scalar_one_or_none() is not None, (
             'При лайке комментария в ассоциативной таблице должна появиться связанная запись'
         )
 
@@ -392,27 +471,35 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_2_company_1,
-        employee_2_company_1_token,
-        liked_comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
+        like_a_comment,
     ):
         """Тест для проверки успешного анлайка комментария."""
-        old_rating = liked_comment.rating
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        another_user = await employee_of_company({'company_id': company.id})
+        await like_a_comment(another_user, comment)
+        another_user_token = await get_token_for_user(another_user)
+        old_rating = comment.rating
         response = await client.post(
-            URL.UNLIKE_URL.format(message_feed_id=liked_comment.message_id),
-            headers=employee_2_company_1_token,
+            URL.UNLIKE_URL.format(message_feed_id=comment.message_id),
+            headers=another_user_token,
         )
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         )
-        await async_session.refresh(liked_comment)
-        association_obj = await user_comment_association_crud.get(
-            liked_comment.id, employee_2_company_1.id, async_session
+        await async_session.refresh(comment)
+        association_obj = await get_association_objects_iterator(
+            async_session, AssociationUserComment, another_user.id, comment.id
         )
-        assert liked_comment.rating == old_rating - 1, (
+        assert comment.rating == old_rating - 1, (
             'Рейтинг комментария должен был уменьшиться на 1 (стать равным 0)'
         )
-        assert association_obj is None, (
+        assert association_obj.scalar_one_or_none() is None, (
             'При анлайке комментария в ассоциативной таблице должна исчезнуть связанная запись'
         )
 
@@ -421,15 +508,20 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1,
-        employee_1_company_1_token,
-        comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
     ):
         """Тест для проверки неуспешного лайка комментария автором."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        token = await get_token_for_user(user)
         old_rating = comment.rating
         response = await client.post(
             URL.LIKE_URL.format(message_feed_id=comment.message_id),
-            headers=employee_1_company_1_token,
+            headers=token,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
@@ -439,10 +531,10 @@ class TestPostProblemFeed:
         assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при неуспешном лайке.'
         )
-        association_obj = await user_comment_association_crud.get(
-            comment.id, employee_1_company_1.id, async_session
+        association_obj = await get_association_objects_iterator(
+            async_session, AssociationUserComment, user.id, comment.id
         )
-        assert association_obj is None, (
+        assert association_obj.scalar_one_or_none() is None, (
             'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
         )
 
@@ -451,28 +543,36 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_2_company_1,
-        employee_2_company_1_token,
-        liked_comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
+        like_a_comment,
     ):
         """Тест для проверки неуспешного повторного лайка пользователем."""
-        old_rating = liked_comment.rating
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        another_user = await employee_of_company({'company_id': company.id})
+        await like_a_comment(another_user, comment)
+        another_user_token = await get_token_for_user(another_user)
+        old_rating = comment.rating
         response = await client.post(
-            URL.LIKE_URL.format(message_feed_id=liked_comment.message_id),
-            headers=employee_2_company_1_token,
+            URL.LIKE_URL.format(message_feed_id=comment.message_id),
+            headers=another_user_token,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
             f'получен {response.status_code}'
         )
-        await async_session.refresh(liked_comment)
-        assert liked_comment.rating == old_rating, (
+        await async_session.refresh(comment)
+        assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при попытке повторного лайка.'
         )
-        association_obj = await user_comment_association_crud.get(
-            liked_comment.id, employee_2_company_1.id, async_session
+        association_obj = await get_association_objects_iterator(
+            async_session, AssociationUserComment, another_user.id, comment.id
         )
-        assert association_obj is not None, (
+        assert association_obj.scalar_one_or_none() is not None, (
             'При попытке повторного лайка не должно создаваться дополнительных записей в '
             'ассоциативной таблице.'
         )
@@ -482,21 +582,30 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1_token,
-        liked_comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
+        like_a_comment,
     ):
         """Тест для проверки неуспешного анлайка комментария автором."""
-        old_rating = liked_comment.rating
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        another_user = await employee_of_company({'company_id': company.id})
+        await like_a_comment(another_user, comment)
+        token = await get_token_for_user(user)
+        old_rating = comment.rating
         response = await client.post(
-            URL.UNLIKE_URL.format(message_feed_id=liked_comment.message_id),
-            headers=employee_1_company_1_token,
+            URL.UNLIKE_URL.format(message_feed_id=comment.message_id),
+            headers=token,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
             f'получен {response.status_code}'
         )
-        await async_session.refresh(liked_comment)
-        assert liked_comment.rating == old_rating, (
+        await async_session.refresh(comment)
+        assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при неуспешном анлайке'
         )
 
@@ -505,14 +614,22 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_2_company_1_token,
-        comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
     ):
         """Тест для проверки неуспешного анлайка комментария пользователем."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        another_user_token = await get_token_for_user(
+            await employee_of_company({'company_id': company.id})
+        )
         old_rating = comment.rating
         response = await client.post(
             URL.UNLIKE_URL.format(message_feed_id=comment.message_id),
-            headers=employee_2_company_1_token,
+            headers=another_user_token,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
@@ -528,23 +645,29 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_2_company_1,
-        employee_2_company_1_token,
-        message_feed,
-        comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
         message_feed_for_test,
+        comment_for_test,
     ):
         """
         Тест для проверки неуспешного лайка существующего комментария, но в запросе передаётся
         некорректный message_feed_id/thread_id.
         """
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        message_feed = await message_feed_for_test(user)
+        comment = await comment_for_test(user)
+        another_user = await employee_of_company({'company_id': company.id})
+        another_user_token = await get_token_for_user(another_user)
         wrong_message_feed = await message_feed_for_test(
-            employee_2_company_1, problem_id=message_feed.problem_id
+            another_user, problem_id=message_feed.problem_id
         )
         old_rating = comment.rating
         response = await client.post(
             URL.LIKE_URL.format(message_feed_id=wrong_message_feed.id),
-            headers=employee_2_company_1_token,
+            headers=another_user_token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
@@ -554,10 +677,10 @@ class TestPostProblemFeed:
         assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при неуспешном лайке.'
         )
-        association_obj = await user_comment_association_crud.get(
-            comment.id, employee_2_company_1.id, async_session
+        association_obj = await get_association_objects_iterator(
+            async_session, AssociationUserComment, another_user.id, comment.id
         )
-        assert association_obj is None, (
+        assert association_obj.scalar_one_or_none() is None, (
             'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
         )
 
@@ -566,36 +689,44 @@ class TestPostProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_2_company_1,
-        employee_2_company_1_token,
-        message_feed,
-        liked_comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
         message_feed_for_test,
+        comment_for_test,
+        like_a_comment,
     ):
         """
         Тест для проверки неуспешного анлайка существующего комментария, но в запросе передаётся
         некорректный message_feed_id/thread_id.
         """
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        message_feed = await message_feed_for_test(user)
+        comment = await comment_for_test(user)
+        another_user = await employee_of_company({'company_id': company.id})
+        await like_a_comment(another_user, comment)
+        another_user_token = await get_token_for_user(another_user)
         wrong_message_feed = await message_feed_for_test(
-            employee_2_company_1, problem_id=message_feed.problem_id
+            another_user, problem_id=message_feed.problem_id
         )
-        old_rating = liked_comment.rating
+        old_rating = comment.rating
         response = await client.post(
             URL.UNLIKE_URL.format(message_feed_id=wrong_message_feed.id),
-            headers=employee_2_company_1_token,
+            headers=another_user_token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
         )
-        await async_session.refresh(liked_comment)
-        assert liked_comment.rating == old_rating, (
+        await async_session.refresh(comment)
+        assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при неуспешном анлайке.'
         )
-        association_obj = await user_comment_association_crud.get(
-            liked_comment.id, employee_2_company_1.id, async_session
+        association_obj = await get_association_objects_iterator(
+            async_session, AssociationUserComment, another_user.id, comment.id
         )
-        assert association_obj is not None, (
+        assert association_obj.scalar_one_or_none() is not None, (
             'При неуспешном анлайке не должна удаляться запись в ассоциативной таблице.'
         )
 
@@ -605,15 +736,24 @@ class TestPatchProblemFeed:
 
     @pytest.mark.asyncio
     async def test_successful_patch_comment(
-        self, client: AsyncClient, employee_1_company_1_token, comment
+        self,
+        client: AsyncClient,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
     ):
         """Тест для проверки успешного обновления комментария."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        token = await get_token_for_user(user)
         old_rating = comment.rating
         response = await client.patch(
             URL.COMMENTS_PATCH_DELETE_URL.format(
                 message_feed_id=comment.message_id, comment_id=comment.id
             ),
-            headers=employee_1_company_1_token,
+            headers=token,
             json=COMMENT_UPDATE,
         )
         assert response.status_code == status.HTTP_200_OK, (
@@ -637,18 +777,24 @@ class TestPatchProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1_token,
-        comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
         payload,
         expected_result,
     ):
         """Тест для проверки неуспешного обновления комментария."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        token = await get_token_for_user(user)
         old_comment = jsonable_encoder(comment)
         response = await client.patch(
             URL.COMMENTS_PATCH_DELETE_URL.format(
                 message_feed_id=comment.message_id, comment_id=comment.id
             ),
-            headers=employee_1_company_1_token,
+            headers=token,
             json=payload,
         )
         assert response.status_code == expected_result, (
@@ -662,16 +808,24 @@ class TestPatchProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_2_company_1_token,
-        comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
     ):
         """Тест для проверки неуспешного обновления комментария другим пользователем."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        another_user_token = await get_token_for_user(
+            await employee_of_company({'company_id': company.id})
+        )
         old_comment = jsonable_encoder(comment)
         response = await client.patch(
             URL.COMMENTS_PATCH_DELETE_URL.format(
                 message_feed_id=comment.message_id, comment_id=comment.id
             ),
-            headers=employee_2_company_1_token,
+            headers=another_user_token,
             json=COMMENT_UPDATE,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
@@ -686,25 +840,28 @@ class TestPatchProblemFeed:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1,
-        employee_1_company_1_token,
-        message_feed,
-        comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
         message_feed_for_test,
+        comment_for_test,
     ):
         """
         Тест для проверки неуспешного редактирования комментария, но в запросе передаётся
         некорректный message_feed_id/thread_id.
         """
-        wrong_message_feed = await message_feed_for_test(
-            employee_1_company_1, problem_id=message_feed.problem_id
-        )
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        message_feed = await message_feed_for_test(user)
+        comment = await comment_for_test(user, message_feed=message_feed)
+        token = await get_token_for_user(user)
+        wrong_message_feed = await message_feed_for_test(user, problem_id=message_feed.problem_id)
         old_comment = jsonable_encoder(comment)
         response = await client.patch(
             URL.COMMENTS_PATCH_DELETE_URL.format(
                 message_feed_id=wrong_message_feed.id, comment_id=comment.id
             ),
-            headers=employee_1_company_1_token,
+            headers=token,
             json=COMMENT_UPDATE,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -715,11 +872,19 @@ class TestPatchProblemFeed:
         assert comment == old_comment, 'Данные обновляемого комментария изменились'
 
     @pytest.mark.asyncio
-    async def test_404_patch_urls(self, client: AsyncClient, employee_1_company_1_token):
+    async def test_404_patch_urls(
+        self,
+        client: AsyncClient,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+    ):
         """Тест для проверки редактивроания несуществующего комментария."""
+        company = await company_for_test(COMPANY_DATA)
+        token = await get_token_for_user(await employee_of_company({'company_id': company.id}))
         response = await client.patch(
             URL.COMMENTS_PATCH_DELETE_404_URL,
-            headers=employee_1_company_1_token,
+            headers=token,
             json=COMMENT_UPDATE,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -736,16 +901,22 @@ class TestDeleteProblemFeeds:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1_token,
-        comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
     ):
         """Тест проверки успешного удаления комментария."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        token = await get_token_for_user(user)
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.delete(
             URL.COMMENTS_PATCH_DELETE_URL.format(
                 message_feed_id=comment.message_id, comment_id=comment.id
             ),
-            headers=employee_1_company_1_token,
+            headers=token,
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, (
             f'В ответе ожидается status_code {status.HTTP_204_NO_CONTENT}, '
@@ -762,16 +933,24 @@ class TestDeleteProblemFeeds:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_2_company_1_token,
-        comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+        comment_for_test,
     ):
         """Тест проверки неуспешного удаления комментария не автором."""
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        comment = await comment_for_test(user)
+        another_user_token = await get_token_for_user(
+            await employee_of_company({'company_id': company.id})
+        )
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.delete(
             URL.COMMENTS_PATCH_DELETE_URL.format(
                 message_feed_id=comment.message_id, comment_id=comment.id
             ),
-            headers=employee_2_company_1_token,
+            headers=another_user_token,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
             f'В ответе ожидается status_code {status.HTTP_403_FORBIDDEN}, '
@@ -788,25 +967,28 @@ class TestDeleteProblemFeeds:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        employee_1_company_1,
-        employee_1_company_1_token,
-        message_feed,
-        comment,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
         message_feed_for_test,
+        comment_for_test,
     ):
         """
         Тест для проверки неуспешного удаления комментария, но в запросе передаётся
         некорректный message_feed_id/thread_id.
         """
-        wrong_message_feed = await message_feed_for_test(
-            employee_1_company_1, problem_id=message_feed.problem_id
-        )
+        company = await company_for_test(COMPANY_DATA)
+        user = await employee_of_company({'company_id': company.id})
+        message_feed = await message_feed_for_test(user)
+        comment = await comment_for_test(user, message_feed=message_feed)
+        token = await get_token_for_user(user)
+        wrong_message_feed = await message_feed_for_test(user, problem_id=message_feed.problem_id)
         old_comments_count = await get_count(async_session, CommentFeed)
         response = await client.delete(
             URL.COMMENTS_PATCH_DELETE_URL.format(
                 message_feed_id=wrong_message_feed.id, comment_id=comment.id
             ),
-            headers=employee_1_company_1_token,
+            headers=token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
@@ -819,11 +1001,17 @@ class TestDeleteProblemFeeds:
         )
 
     @pytest.mark.asyncio
-    async def test_404_delete_urls(self, client: AsyncClient, employee_1_company_1_token):
+    async def test_404_delete_urls(
+        self,
+        client: AsyncClient,
+        company_for_test,
+        employee_of_company,
+        get_token_for_user,
+    ):
         """Тест для проверки удаления несуществующего комментария."""
-        response = await client.delete(
-            URL.COMMENTS_PATCH_DELETE_404_URL, headers=employee_1_company_1_token
-        )
+        company = await company_for_test(COMPANY_DATA)
+        token = await get_token_for_user(await employee_of_company({'company_id': company.id}))
+        response = await client.delete(URL.COMMENTS_PATCH_DELETE_404_URL, headers=token)
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'

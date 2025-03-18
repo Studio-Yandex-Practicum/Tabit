@@ -336,66 +336,6 @@ async def employee_refresh_token(get_token_for_user, employee):
 
 # Фикстуры для тестов problem_feeds.py
 @pytest_asyncio.fixture
-async def company_1(company_for_test):
-    """Фикстура для создания компании №1 в таблице company."""
-    return await company_for_test({'name': 'Zorg', 'slug': 'Zorg', 'is_active': True})
-
-
-@pytest_asyncio.fixture
-async def company_2(company_for_test):
-    """Фикстура для создания компании №2 в таблице company."""
-    return await company_for_test(
-        {'name': 'Anaheim Electronics', 'slug': 'Anaheim_Electronics', 'is_active': True}
-    )
-
-
-@pytest_asyncio.fixture
-async def employee_1_company_1(company_1, employee_of_company):
-    """Фикстура для создания пользователя 1 от компании 1 в таблице usertabit."""
-    return await employee_of_company({'name': 'Брюс', 'surname': 'Ли', 'company_id': company_1.id})
-
-
-@pytest_asyncio.fixture
-async def employee_2_company_1(company_1, employee_of_company):
-    """Фикстура для создания пользователя 2 от компании 1 в таблице usertabit."""
-    return await employee_of_company(
-        {'name': 'Ким', 'surname': 'Кицураги', 'company_id': company_1.id}
-    )
-
-
-@pytest_asyncio.fixture
-async def employee_3_company_2(company_2, employee_of_company):
-    """Фикстура для создания пользователя 3 от компании 2 в таблице usertabit."""
-    return await employee_of_company(
-        {'name': 'Нейтан', 'surname': 'Дрейк', 'company_id': company_2.id}
-    )
-
-
-@pytest_asyncio.fixture
-async def employee_1_company_1_token(get_token_for_user, employee_1_company_1):
-    """
-    Фикстура для получения заголовков авторизации пользователя 2 от компании 1 c access-token.
-    """
-    return await get_token_for_user(employee_1_company_1)
-
-
-@pytest_asyncio.fixture
-async def employee_2_company_1_token(get_token_for_user, employee_2_company_1):
-    """
-    Фикстура для получения заголовков авторизации пользователя 2 от компании 1 c access-token.
-    """
-    return await get_token_for_user(employee_2_company_1)
-
-
-@pytest_asyncio.fixture
-async def employee_3_company_2_token(get_token_for_user, employee_3_company_2):
-    """
-    Фикстура для получения заголовков авторизации пользователя 3 от компании 2 c access-token.
-    """
-    return await get_token_for_user(employee_3_company_2)
-
-
-@pytest_asyncio.fixture
 async def problem_for_test(async_session: AsyncSession):
     async def _create_problem(employee, problem_data=None):
         problem_obj = {
@@ -412,12 +352,6 @@ async def problem_for_test(async_session: AsyncSession):
         return await make_entry_in_table(async_session, problem_obj, Problem)
 
     return _create_problem
-
-
-@pytest_asyncio.fixture
-async def problem(employee_1_company_1, problem_for_test):
-    """Фикстура для создания проблемы 1 от пользователя 1 компании 1."""
-    return await problem_for_test(employee_1_company_1, {'name': 'проблема 1'})
 
 
 @pytest_asyncio.fixture
@@ -440,12 +374,6 @@ async def message_feed_for_test(async_session: AsyncSession, problem_for_test):
 
 
 @pytest_asyncio.fixture
-async def message_feed(employee_1_company_1, message_feed_for_test):
-    """Фикстура для создания треда 1 для проблемы 1."""
-    return await message_feed_for_test(employee_1_company_1, {'text': 'тред 1'})
-
-
-@pytest_asyncio.fixture
 async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
     async def _create_comment(employee, comment_data=None, message_feed=None):
         if not message_feed:
@@ -463,18 +391,15 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
 
 
 @pytest_asyncio.fixture
-async def comment(employee_1_company_1, comment_for_test, message_feed):
-    """Фикстура для создания комментария к треду 1 от пользователя 1"""
-    return await comment_for_test(employee_1_company_1, {'text': 'комментарий 1'}, message_feed)
-
-
-@pytest_asyncio.fixture
-async def liked_comment(async_session, employee_2_company_1, comment):
+async def like_a_comment(async_session):
     """Фикстура для лайка комментария comment."""
-    like_obj = AssociationUserComment(left_id=employee_2_company_1.id, right_id=comment.id)
-    async_session.add(like_obj)
-    comment.rating += 1
-    async_session.add(comment)
-    await async_session.commit()
-    await async_session.refresh(comment)
-    return comment
+
+    async def _like_a_comment(employee, comment):
+        like_obj = AssociationUserComment(left_id=employee.id, right_id=comment.id)
+        async_session.add(like_obj)
+        comment.rating += 1
+        async_session.add(comment)
+        await async_session.commit()
+        await async_session.refresh(comment)
+
+    return _like_a_comment

@@ -114,6 +114,7 @@ PAYLOAD_FOR_PATCH_ADMIN: tuple[dict, ...] = (
 )
 
 # Константы для тестов problem_feeds.py
+COMPANY_DATA = {'name': 'Zorg', 'slug': 'Zorg', 'is_active': True}
 MESSAGE_FEED_CREATE_NEW: tuple[tuple] = (
     ({'text': 'feed with important field', 'important': True}, True),
     ({'text': 'feed w/o important field'}, False),

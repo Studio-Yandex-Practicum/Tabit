@@ -2,7 +2,8 @@ from typing import Any
 from uuid import UUID
 
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import select
+from sqlalchemy import and_, select
+from sqlalchemy.engine import ChunkedIteratorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -29,3 +30,16 @@ async def get_count(session: AsyncSession, model) -> int:
     """Возвращает текущее количество объектов в БД для переданной модели."""
     count = await session.execute(select(model))
     return len(count.all())
+
+
+async def get_association_objects_iterator(
+    session: AsyncSession, model, left_id, right_id
+) -> ChunkedIteratorResult:
+    """
+    Возвращает ChunkedIteratorResult c объектами ассоциативной модели по заданным left_id/right_id.
+    Возвращается в таком формате, если к итератору нужно будет применять разные методы в зависимоти
+    от задачи.
+    """
+    return await session.execute(
+        select(model).where(and_(model.left_id == left_id, model.right_id == right_id))
+    )
