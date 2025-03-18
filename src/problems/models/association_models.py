@@ -20,9 +20,8 @@ class AssociationUserProblem(BaseTabitModel):
         Обеспечить связь Many to Many между двумя другими таблицами.
 
     Поля:
-        id: Идентификатор.
-        left_id: Внешний ключ первой таблицы.
-        right_id: Внешний ключ второй таблицы.
+        left_id: FK, ссылается на пользователя, часть составного PK.
+        right_id: FK, ссылается на проблему, часть составного PK.
         status: bool - принял ли пользователь приглашение к решению проблемы.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
@@ -32,7 +31,6 @@ class AssociationUserProblem(BaseTabitModel):
         problem - Problem.
     """
 
-    id: Mapped[int_pk]
     left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
     right_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
     user: Mapped['UserTabit'] = relationship(back_populates='problems')
