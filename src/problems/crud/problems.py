@@ -28,10 +28,8 @@ class CRUDProblem(CRUDBase):
             Созданный объект проблемы с обновленными данными.
         """
         try:
-            problem_data['members'] = members
             problem_model = ProblemCreateSchema(**problem_data)
             created_problem = await self.create(session, problem_model)
-
             # Создаем ассоциации участников с встречей
             await create_associations(
                 session=session,
