@@ -109,6 +109,12 @@ class CRUDCompany(CRUDBase):
         company_in: CompanyCreateSchema,
         auto_commit: bool = DEFAULT_AUTO_COMMIT,
     ) -> Company:
+        """
+        Создаёт запись в таблице "Компания".
+
+        Если был передан логотип, то декодирует его из троки Base64 в файл,
+        и в поле logo сохранит путь до него.
+        """
         if company_in.logo:
             company_in.logo = await base64image(company_in.logo, company_in.slug, Directory.LOGO)
         return await super().create(session, company_in, auto_commit)
@@ -120,6 +126,12 @@ class CRUDCompany(CRUDBase):
         company_in: CompanyUpdateSchema,
         auto_commit: bool = DEFAULT_AUTO_COMMIT,
     ) -> Company:
+        """
+        Изменит запись в таблице "Компания".
+
+        Если был передан логотип, то декодирует его из троки Base64 в файл,
+        и в поле logo сохранит путь до него.
+        """
         if company_in.logo:
             company_in.logo = await base64image(company_in.logo, company_db.slug, Directory.LOGO)
         return await super().update(session, company_db, company_in, auto_commit)

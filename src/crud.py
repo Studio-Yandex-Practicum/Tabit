@@ -161,7 +161,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         except Exception as error:
             await session.rollback()
             logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
-            raise error
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f'{error.__class__.__name__}: {error}',
+            )
         return db_obj
 
     async def update(
@@ -191,7 +194,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         except Exception as error:
             await session.rollback()
             logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
-            raise error
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f'{error.__class__.__name__}: {error}',
+            )
         return db_obj
 
     async def remove(
@@ -204,12 +210,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await session.delete(db_object)
             if auto_commit:
                 await session.commit()
-        except Exception as e:
+        except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_DELETE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.SERVER_DELETE_LOG} {self.model.__name__}: {error}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TextError.SERVER_DELETE,
+                detail=f'{error.__class__.__name__}: {error}',
             )
 
     def _apply_filters(self, query: Select, filters: dict[str, Any]) -> Select:
