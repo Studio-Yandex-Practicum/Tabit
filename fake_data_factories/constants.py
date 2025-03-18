@@ -3,6 +3,7 @@
 FAKER_USER_COUNT = 5  # Число пользователей для генерации
 FAKER_COMPANY_COUNT = 5  # Число компаний для генерации
 FAKER_DEPARTMENT_COUNT = 5  # Число отделов для генерации
+FAKER_PROBLEMS_COUNT: int = 5
 DEFAULT_DEPARTMENT_NAMES = [
     'Отдел кадров',
     'Отдел менеджмента',
@@ -16,3 +17,18 @@ LICENSE_TYPE_COUNT = 5
 DEFAULT_LICENSE_TERM = 365
 LICENSE_MAX_ADMINS = 100
 LICENSE_MAX_EMPLOYEES = 1000
+
+DEFAULT_PROBLEM_NAMES: list[str] = [
+    'Нехватка персонала',
+    'Медленный отклик на заявку',
+    'Несоблюдение делового стиля общения',
+    'Переносы сроков проектов',
+    'Неэффективные встречи',
+]
+DEFAULT_PROBLEM_DESCRIPTIONS: list[str | None] = [
+    None,
+    'Проблемы возникают на этапе взаимодействия с менеджерами.',
+    'Из проектов исчезло поле с дедлайном.',
+    'Слишком много времени тратится впустую.',
+    'Общение через почту слишком неэффективно.',
+]
