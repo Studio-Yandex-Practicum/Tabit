@@ -81,8 +81,8 @@ fill-license-type:
 fill-problems:
 	poetry run python fake_data_factories/problem_factory.py
 
-.PHONY: fill-associations-user-problem
-fill-associations-user-problem:
+.PHONY: fill-user-problem-associations
+fill-user-problem-associations:
 	poetry run python fake_data_factories/association_user_problem_factory.py
 
 # Команды для полного запуска в Docker
