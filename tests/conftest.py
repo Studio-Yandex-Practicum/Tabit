@@ -183,7 +183,11 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
 
     async def _create_employee(user_data=None):
         """Функция-обёртка для пользователя тестовой компании с изменяемыми параметрами."""
-        company = await company_for_test()
+        if not user_data or 'company_id' not in user_data:
+            company = await company_for_test()
+            company_id = company.id
+        else:
+            company_id = user_data.pop('company_id')
         default_data = {
             'name': 'Брюс',
             'surname': 'Ли',
@@ -193,7 +197,7 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
             'is_superuser': False,
             'is_verified': False,
             'role': RoleUserTabit.EMPLOYEE,
-            'company_id': company.id,
+            'company_id': company_id,
         }
         if user_data:
             default_data.update(user_data)
