@@ -210,7 +210,7 @@ async def delete_thread_comment(
     await comment_crud.remove(session, comment)
 
 
-@router.get(
+@router.post(
     '/{thread_id}/comments/{comment_id}/like',
     summary='Поставить лайк комментарию в треде.',
     status_code=status.HTTP_200_OK,
@@ -242,7 +242,7 @@ async def like_a_comment(
     await comment_crud.like(comment, user.id, session)
 
 
-@router.get(
+@router.post(
     '/{thread_id}/comments/{comment_id}/unlike',
     summary='Убрать свой лайк комментарию в треде.',
     status_code=status.HTTP_200_OK,
