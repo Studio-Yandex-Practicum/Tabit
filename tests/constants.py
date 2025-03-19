@@ -35,6 +35,8 @@ class URL:
     USER_REFRESH: str = '/api/v1/auth/refresh-token'
     COMPANIES_ENDPOINT: str = '/api/v1/admin/companies/'
     LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
+    MEETINGS_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings'
+    MEETINGS_SINGLE: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/{meeting_id}'
 
     # URLs для problem_feeds.py
     MESSAGE_FEED_URL: str = '/api/v1/Zorg/problems/{problem_id}/thread'

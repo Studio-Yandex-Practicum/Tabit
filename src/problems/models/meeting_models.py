@@ -51,7 +51,7 @@ class Meeting(BaseTabitModel):
     owner: Mapped['UserTabit'] = relationship(back_populates='meeting_owner')
     date_meeting: Mapped[date] = mapped_column(nullable=False)
     status: Mapped['StatusMeeting']
-    place: Mapped[str] = mapped_column(String(LENGTH_NAME_MEETING_PLACE), nullable=False)
+    place: Mapped[str] = mapped_column(String(LENGTH_NAME_MEETING_PLACE), nullable=True)
     members: Mapped[List['AssociationUserMeeting']] = relationship(
         back_populates='meeting', cascade='all, delete-orphan'
     )
