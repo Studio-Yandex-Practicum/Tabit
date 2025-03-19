@@ -35,10 +35,8 @@ async def get_all_problems(company_slug: str, session: AsyncSession = Depends(ge
         Список объектов ProblemResponseSchema.
     """
     await check_company_exists(company_slug, session)
-    company = await company_crud.get_by_slug(
-        session, company_slug
-    )  # Костыль, необходимо обсудить, можем ли поменять модель Problem,
-    filters = {'company_id': company.id}  # чтобы FK был на company.slug, а не на company.id.
+    company = await company_crud.get_by_slug(session, company_slug)
+    filters = {'company_slug': company.slug}
     return await problem_crud.get_multi(session, filters=filters)
 
 

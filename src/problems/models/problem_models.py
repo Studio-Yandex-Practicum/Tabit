@@ -44,7 +44,7 @@ class Problem(BaseTabitModel):
     id: Mapped[int_pk]
     name: Mapped[name_problem]
     description: Mapped[description]
-    company_slug: Mapped[slug] = mapped_column(ForeignKey('company.slug'))
+    company_slug: Mapped[slug] = mapped_column(ForeignKey('company.slug'), unique=False)
     company: Mapped['Company'] = relationship(back_populates='problems')
     color: Mapped['ColorProblem']
     type: Mapped['TypeProblem']

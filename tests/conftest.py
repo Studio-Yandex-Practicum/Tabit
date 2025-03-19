@@ -451,11 +451,10 @@ async def employee_refresh_token(get_token_for_user, employee):
 async def problem_for_test(async_session, company_for_test, employee_of_company):
     """Фикструра для создания объекта модели Problem."""
 
-    async def _create_problem():
+    async def _create_problem(custom_company_slug=None):
         """Функция-обёртка, создающая объект модели Problem."""
         company = await company_for_test()
         owner = await employee_of_company()
-        member = await employee_of_company()
         data = {
             'name': 'Тестовая проблема',
             'description': 'В чём смысл бытия?',
@@ -463,9 +462,11 @@ async def problem_for_test(async_session, company_for_test, employee_of_company)
             'type': 'Взаимодействие в коллективе',
             'status': 'Новая',
             'owner_id': f'{owner.id}',
-            'company_id': company.id,
-            'members': [f'{member.id}'],
         }
+        if custom_company_slug:
+            data['company_slug'] = custom_company_slug
+        else:
+            data['company_slug'] = company.slug
         return await make_entry_in_table(async_session, data, Problem)
 
     return _create_problem
