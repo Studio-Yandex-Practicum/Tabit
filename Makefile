@@ -1,8 +1,8 @@
 # Определение всех целей, которые могут быть вызваны через make
 .PHONY: help \
 	up down logs up-pgadmin up-dc clean-volumes \
-	init-migrations auto-migration empty-migration apply-migrations \
-	reset-db init-db create-superuser fill-db fill-companies fill-company-users \
+	migrations-init migration-auto migration-empty migrations-apply \
+	db-reset db-init create-superuser fill-db fill-companies fill-company-users \
 	fill-tabit-admin-users fill-company-departments  fill-license-type \
 	run up-dc migrate-dc
 
@@ -60,34 +60,34 @@ logs: ## Показать логи всех контейнеров
 #Работа с миграциями
 
 ## Создание первичной миграции (если все миграции были удалены)
-init-migrations:
+migrations-init:
 	@echo "Создание первичной миграции..."
 	poetry run alembic revision --autogenerate -m "initial migration"
 
 ## Команда создания автогенерируемой миграции с возможностью передачи коммита
 ## через флаг m='...' для составления названия миграции
-## Пример: make auto-migration m="сообщение"
-auto-migration:
+## Пример: make migration-auto m="сообщение"
+migration-auto:
 	@echo "Создание автоматической миграции с сообщением $(m)..."
 	poetry run alembic revision --autogenerate -m "$(m)"
 
 ## Команда создания пустой миграции с возможностью передачи коммита
 ## через флаг m='...' для составления названия миграции
 ## Пример: make empty-migration m="сообщение"
-empty-migration:
+migration-empty:
 	@echo "Создание автоматической миграции с сообщением $(m)..."
 	poetry run alembic revision -m "$(m)"
 
 ## Команда для применения миграций
-apply-migrations:
+migrations-apply:
 	@echo "Применяем миграцю..."
 	poetry run alembic upgrade head
 
 ## Полный сброс базы данных и реинициализация
-reset-db: clean-volumes up apply-migrations
+db-reset: clean-volumes up apply-migrations
 
 ## Полный процесс инициализации базы данных
-init-db: up init-migrations apply-migrations
+db-init: up init-migrations apply-migrations
 
 # Заполнение БД данными
 
