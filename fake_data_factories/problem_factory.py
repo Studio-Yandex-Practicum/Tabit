@@ -27,8 +27,8 @@ class ProblemFactory(AsyncSQLAlchemyFactory):
             Генерируется случайным выбором из `DEFAULT_PROBLEM_NAMES`.
         - `description`: Опциональное поле.\
             Генерируется случайным выбором из `DEFAULT_PROBLEM_DESCRIPTIONS`.
-        - `company_id`: Обязательное поле. \
-            Должен быть создан объект Company, чтобы передать полю id.
+        - `company_slug`: Обязательное поле. \
+            Должен быть создан объект Company, чтобы передать полю slug.
         - `color`: Обязательное поле. Генерируется случайным выбором из `ColorProblem`.
         - `type`: Обязательное поле. Генерируется случайным выбором из `TypeProblem`.
         - `status`: Обязательное поле. Генерируется случайным выбором из `StatusProblem`.
@@ -40,7 +40,7 @@ class ProblemFactory(AsyncSQLAlchemyFactory):
     description: factory.LazyFunction = factory.LazyFunction(
         lambda: choice(DEFAULT_PROBLEM_DESCRIPTIONS)
     )
-    company_id: int
+    company_slug: str
     color: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(ColorProblem)))
     type: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(TypeProblem)))
     status: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(StatusProblem)))
@@ -56,24 +56,25 @@ async def create_problems(count: int = FAKER_PROBLEMS_COUNT, **kwargs) -> list[P
     Создать запись(-и) в таблицу объекта `Problem`.
 
     Если функция запускается напрямую из текущего модуля, для этих проблем создаются:
-    - компания (id компании передаётся в фабрику);
+    - компания (slug компании передаётся в фабрику);
     - пользователь Tabit (uuid пользователя передаётся в фабрику).
 
     Если функция запускается через импорт, в неё можно передать именованные аргументы:
-    - `company_id` (если не передать, запустится фабрика `CompanyFactory`);
+    - `company_slug` (если не передать, запустится фабрика `CompanyFactory`);
     - `owner_id` (если не передать, запустится фабрика `CompanyUserFactory`).
+    Примечание: если какой-то из именованных параметров не передался, \
+        работает так, как если не передавать именованные аргументы.
 
     Функция возвращает список проблем.
     """
-    if 'company_id' not in kwargs:
+    if 'owner_id' not in kwargs or 'company_slug' not in kwargs:
         company = await CompanyFactory.create()
-        kwargs['company_id'] = company.id
-    if 'owner_id' not in kwargs:
-        user_tabit = await CompanyUserFactory.create(company_id=kwargs['company_id'])
+        kwargs['company_slug'] = company.slug
+        user_tabit = await CompanyUserFactory.create(company_id=company.id)
         kwargs['owner_id'] = user_tabit.id
     problems = await ProblemFactory.create_batch(count, **kwargs)
     cprint(
-        f'Создано {count} проблем компании c id: {kwargs["company_id"]} '
+        f'Создано {count} проблем компании cо slug: {kwargs["company_slug"]} '
         f'от пользователя с id: {kwargs["owner_id"]}',
         'green',
     )

@@ -2,7 +2,6 @@ import asyncio
 from uuid import UUID
 
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
-from sqlalchemy import func, select
 from termcolor import cprint
 
 from fake_data_factories.company_factories import CompanyFactory
@@ -17,8 +16,6 @@ class AssociationUserProblemFactory(AsyncSQLAlchemyFactory):
     Фабрика генерации данных ассоциативной модели `AssociationUserProblem`.
 
     Поля:
-        - `id`. Обязательное поле. \
-            Должно передаваться максимальное значение id в таблице + 1.
         - `left_id`: Обязательное поле. Ссылка на пользователя Tabit. \
             Должен быть создан объект `UserTabit`, чтобы передать полю id (типа uuid).
         - `right_id`: Обязательное поле. Ссылка на проблему. \
@@ -26,7 +23,6 @@ class AssociationUserProblemFactory(AsyncSQLAlchemyFactory):
         - `status`: Обязательное поле. Значение по умолчанию - True.
     """
 
-    id: int
     left_id: UUID
     right_id: int
     status: bool = True
@@ -39,27 +35,30 @@ class AssociationUserProblemFactory(AsyncSQLAlchemyFactory):
 async def create_user_problem_associations(
     user_id: UUID,
     problem_ids: list[int],
-) -> None:
+) -> list[AssociationUserProblem]:
     """
     Создать запись(-и) в таблицу объекта `AssociationUserProblem`.
 
     Поля:
         - `user_id`: uuid пользователя Tabit;
         - `problem_ids`: список id проблем.
+
+    Функция возвращате список созданных записей.
     """
+    user_problem_associations = []
     for problem_id in problem_ids:
-        result = await sc_session.execute(select(func.max(AssociationUserProblem.id)))
-        new_id = (result.scalar() or 0) + 1
-        await AssociationUserProblemFactory.create(
-            id=new_id,
-            left_id=user_id,
-            right_id=problem_id,
+        user_problem_associations.append(
+            await AssociationUserProblemFactory.create(
+                left_id=user_id,
+                right_id=problem_id,
+            )
         )
     cprint(
         f'Создано {len(problem_ids)} ассоциативных связей проблема-пользователь '
         f'от пользователя с id: {user_id}',
         'green',
     )
+    return user_problem_associations
 
 
 async def main() -> None:
