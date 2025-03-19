@@ -85,6 +85,10 @@ fill-problems:
 fill-user-problem-associations:
 	poetry run python fake_data_factories/association_user_problem_factory.py
 
+.PHONY: fill-message-feeds
+fill-message-feeds:
+	poetry run python fake_data_factories/message_feed_factory.py
+
 # Команды для полного запуска в Docker
 up-dc:
 	docker-compose -f infra/local/docker-compose.local.yaml up -d --build

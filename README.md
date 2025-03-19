@@ -745,6 +745,7 @@ make down-dc
 | `make fill-license-type`              | Создание 5 лицензий для компаний                      |
 | `make fill-problems`                  | Создание 5 проблем для пользователя                   |
 | `make fill-user-problem-associations` | Создание 5 ассоциативных связей пользователь-проблема |  
+| `make fill-message-feeds`             | Создание 5 лент сообщений по проблеме                 |
 
 </details>
 

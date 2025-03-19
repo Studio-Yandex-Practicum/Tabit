@@ -5,6 +5,8 @@ from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from sqlalchemy import func, select
 from termcolor import cprint
 
+from fake_data_factories.company_factories import CompanyFactory
+from fake_data_factories.company_user_factories import CompanyUserFactory
 from fake_data_factories.problem_factory import create_problems
 from src.database.sc_db_session import sc_session
 from src.problems.models.association_models import AssociationUserProblem
@@ -12,16 +14,16 @@ from src.problems.models.association_models import AssociationUserProblem
 
 class AssociationUserProblemFactory(AsyncSQLAlchemyFactory):
     """
-    Фабрика генерации данных ассоциативной модели AssociationUserProblem.
+    Фабрика генерации данных ассоциативной модели `AssociationUserProblem`.
 
     Поля:
-        - id. Обязательное поле. \
+        - `id`. Обязательное поле. \
             Должно передаваться максимальное значение id в таблице + 1.
-        - left_id: Обязательное поле. Ссылка на пользователя Tabit. \
-            Должен быть создан объект UserTabit, чтобы передать полю id (типа uuid).
-        - right_id: Обязательное поле. Ссылка на проблему. \
-            Должен быть создан объект Problem, чтобы передать полю id.
-        - status: Обязательное поле. Значение по умолчанию - True.
+        - `left_id`: Обязательное поле. Ссылка на пользователя Tabit. \
+            Должен быть создан объект `UserTabit`, чтобы передать полю id (типа uuid).
+        - `right_id`: Обязательное поле. Ссылка на проблему. \
+            Должен быть создан объект `Problem`, чтобы передать полю id.
+        - `status`: Обязательное поле. Значение по умолчанию - True.
     """
 
     id: int
@@ -39,11 +41,11 @@ async def create_user_problem_associations(
     problem_ids: list[int],
 ) -> None:
     """
-    Создать запись в таблицу объекта AssociationUserProblem.
+    Создать запись(-и) в таблицу объекта `AssociationUserProblem`.
 
     Поля:
-        - user_id: uuid пользователя Tabit;
-        - problem_ids: список id проблем.
+        - `user_id`: uuid пользователя Tabit;
+        - `problem_ids`: список id проблем.
     """
     for problem_id in problem_ids:
         result = await sc_session.execute(select(func.max(AssociationUserProblem.id)))
@@ -64,10 +66,12 @@ async def main() -> None:
     """
     Запустить создание ассоциативных связей из модуля.
 
-    Примечание: запускается фабрика проблем, которая создаёт пользователя и пакет проблем
-    от его авторства.
+    Примечание: запускается фабрика проблем, которая создаёт компанию, \
+        пользователя этой компании и пакет проблем от его авторства.
     """
-    user_tabit, problems = await create_problems()
+    company = await CompanyFactory()
+    user_tabit = await CompanyUserFactory(company_id=company.id)
+    problems = await create_problems()
     problem_ids = [problem.id for problem in problems]
     await create_user_problem_associations(
         user_id=user_tabit.id,
