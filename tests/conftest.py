@@ -18,6 +18,7 @@ from src.companies.models.models import Company
 from src.database.db_depends import get_async_session
 from src.database.models import BaseTabitModel as Base
 from src.main import app_v1
+from src.problems.models import Meeting, Problem
 from src.tabit_management.models import LicenseType, TabitAdminUser
 from src.users.models import UserTabit
 from src.users.models.enum import RoleUserTabit
@@ -444,3 +445,47 @@ async def employee_refresh_token(get_token_for_user, employee):
     Фикстура для получения заголовков авторизации пользователя от компании c refresh-token.
     """
     return await get_token_for_user(employee, refresh=True)
+
+
+@pytest_asyncio.fixture
+async def problem_for_meeting(async_session: AsyncSession, employee_of_company, company_for_test):
+    """Фикстура для создания проблемы."""
+
+    async def func(company_slug=None, owner_id=None):
+        if company_slug is None:
+            company = await company_for_test()
+            company_slug = company.slug
+        if owner_id is None:
+            owner = await employee_of_company()
+            owner_id = owner.id
+        default_data = {
+            'name': 'Test Problem',
+            'description': 'Some description',
+            'company_slug': company_slug,
+            'color': 1,
+            'type': 'A',
+            'status': 'Новая',
+            'owner_id': owner_id,
+        }
+        problem = await make_entry_in_table(async_session, default_data, Problem)
+        return problem
+
+    return func
+
+
+@pytest_asyncio.fixture
+async def create_meeting(async_session: AsyncSession):
+    """Фикстура для создания встречи."""
+
+    async def func(problem_id, owner_id, count=1):
+        meeting_data = {
+            'title': f'Test Meeting {count}',
+            'date_meeting': (datetime.now() + timedelta(days=count)).date(),
+            'status': 'Новая',
+            'problem_id': problem_id,
+            'owner_id': str(owner_id),
+        }
+        meeting = await make_entry_in_table(async_session, meeting_data, Meeting)
+        return meeting
+
+    return func
