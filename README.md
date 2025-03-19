@@ -253,7 +253,7 @@ poetry update
    make up                 # Запуск контейнера с БД
 
    # Если миграции уже существуют:
-   make migrations-apply   # Применение существующих миграций
+   make migration-apply   # Применение существующих миграций
 
    # Если это первая инициализация:
    make db-init            # Создание и применение начальных миграций
@@ -340,7 +340,7 @@ poetry update
    make up                 # Запуск контейнера с БД
 
    # Если миграции уже существуют:
-   make migrations-apply   # Применение существующих миграций
+   make migration-apply   # Применение существующих миграций
 
    # Если это первая инициализация:
    make db-init            # Создание и применение начальных миграций
@@ -725,10 +725,10 @@ make down
 
 | Команда                          | Описание                                     |
 |----------------------------------|----------------------------------------------|
-| `make migrations-init`           | Создание новой миграции с автогенерацией     |
+| `make migration-init`           | Создание новой миграции с автогенерацией     |
 | `make migration-auto m='commit'` | Создание миграции с указанным именем         |
 | `make migration-empty m='commit'`| Создание пустой миграции                     |
-| `make migrations-apply`          | Применение всех миграций                     |
+| `make migration-apply`          | Применение всех миграций                     |
 | `make migrate-dc`                | Выполнение миграций в контейнере             |
 | `make clean-volumes`             | Удаление Docker volumes                      |
 | `make db-reset`                  | Сброс базы и применение миграций             |
@@ -868,3 +868,43 @@ docker-compose -f infra/docker-compose.test-db.yaml down -v
 - Всегда проверяйте занятые порты перед запуском контейнеров
 - Используйте разные порты для WSL и Docker, если оба сервиса нужны одновременно
 - Убедитесь, что в `.env` указан правильный порт для подключения к базе данных
+
+</details>
+
+<details>
+<summary><strong>🔽 Конфликт имён контейнеров Docker</strong></summary>
+
+При обновлени репозитория или работе с несколькими его копиями может возникнуть пересечение имён контейнеров при запуске
+
+#### Симптомы:
+Сообщение в консоли:
+
+```bash
+Error response from daemon: Conflict. The container name "/postgres_local" is already in use by container...
+```
+
+#### Решение:
+1. **Прорерить запущенные контейнеры**
+
+```bash
+docker ps
+```
+
+2. **Если обнаружены лишние контейнеры - остановить и удалить их вручную**
+Пример:
+```bash
+docker stop postgres_local
+docker remove  postgres_local
+```
+
+3.  **Если обнаруженные контейнеры нужны - изменить название контейнеров в текущем локальном запуске чепез .env**
+Пример:
+```ini
+APP_CONTAINER_NAME=tabit_new
+DB_CONTAINER_NAME=postgres_new
+PGADMIN_CONTAINER_NAME=pgadmin_new
+```
+
+4. **Предпринять новую попытку запуска**
+
+</details>

@@ -1,7 +1,7 @@
 # Определение всех целей, которые могут быть вызваны через make
 .PHONY: help \
 	up down logs up-pgadmin up-dc clean-volumes \
-	migrations-init migration-auto migration-empty migrations-apply \
+	migration-init migration-auto migration-empty migration-apply \
 	db-reset db-init create-superuser fill-db fill-companies fill-company-users \
 	fill-tabit-admin-users fill-company-departments  fill-license-type \
 	run up-dc migrate-dc
@@ -60,7 +60,7 @@ logs: ## Показать логи всех контейнеров
 #Работа с миграциями
 
 ## Создание первичной миграции (если все миграции были удалены)
-migrations-init:
+migration-init:
 	@echo "Создание первичной миграции..."
 	poetry run alembic revision --autogenerate -m "initial migration"
 
@@ -79,15 +79,15 @@ migration-empty:
 	poetry run alembic revision -m "$(m)"
 
 ## Команда для применения миграций
-migrations-apply:
+migration-apply:
 	@echo "Применяем миграцю..."
 	poetry run alembic upgrade head
 
 ## Полный сброс базы данных и реинициализация
-db-reset: clean-volumes up apply-migrations
+db-reset: clean-volumes up apply-migration
 
 ## Полный процесс инициализации базы данных
-db-init: up init-migrations apply-migrations
+db-init: up init-migration apply-migration
 
 # Заполнение БД данными
 
