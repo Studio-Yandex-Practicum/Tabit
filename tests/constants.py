@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from dotenv import load_dotenv
+from fastapi import status
 
 from src.constants import TextError
 from src.users.models.enum import RoleUserTabit
@@ -36,6 +37,16 @@ class URL:
     LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
     MEETINGS_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings'
     MEETINGS_SINGLE: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/{meeting_id}'
+
+    # URLs для problem_feeds.py
+    MESSAGE_FEED_URL: str = '/api/v1/Zorg/problems/{problem_id}/thread'
+    COMMENTS_URL: str = '/api/v1/Zorg/problems/{problem_id}/{message_feed_id}/comments'
+    COMMENTS_PATCH_DELETE_URL: str = (
+        '/api/v1/Zorg/problems/1/{message_feed_id}/comments/{comment_id}'
+    )
+    COMMENTS_PATCH_DELETE_404_URL: str = '/api/v1/Zorg/problems/1/1/comments/99'
+    LIKE_URL: str = '/api/v1/Zorg/problems/1/{message_feed_id}/comments/1/like'
+    UNLIKE_URL: str = '/api/v1/Zorg/problems/1/{message_feed_id}/comments/1/unlike'
 
 
 GOOD_PASSWORD: str = 'string123STRING'
@@ -193,4 +204,30 @@ INVALID_IMAGE: tuple[tuple[Any, Any], ...] = (
             ),
         ),
     ),
+)
+
+# Константы для тестов problem_feeds.py
+COMPANY_DATA = {'name': 'Zorg', 'slug': 'Zorg', 'is_active': True}
+MESSAGE_FEED_CREATE_NEW: tuple[tuple] = (
+    ({'text': 'feed with important field', 'important': True}, True),
+    ({'text': 'feed w/o important field'}, False),
+)
+MESSAGE_FEED_CREATE_BAD: tuple[tuple] = (
+    ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'text': 'feed with extra field', 'problem_id': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+)
+MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY: dict[str] = {'text': 'feed for another company'}
+PROBLEM_FEEDS_GET_404: tuple[str, ...] = (
+    '/api/v1/Zorg/problems/99/thread',
+    '/api/v1/Zorg/problems/1/99/comments',
+)
+COMMENT_CREATE_NEW: dict[str] = {'text': 'new comment'}
+COMMENT_CREATE_BAD: tuple[tuple] = (
+    ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'text': 'comment with extra field', 'message_id': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+)
+COMMENT_UPDATE: dict[str] = {'text': 'updated comment'}
+COMMENT_UPDATE_BAD: tuple[tuple] = (
+    ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'text': 'comment with extra field', 'rating': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
 )
