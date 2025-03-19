@@ -17,7 +17,7 @@ from tests.constants import (
     PROBLEM_FEEDS_GET_404,
     URL,
 )
-from tests.utils import get_association_objects_iterator, get_count, update_object
+from tests.utils import get_association_objects_iterator, get_count, like_a_comment, update_object
 
 
 class TestGetProblemFeed:
@@ -482,15 +482,15 @@ class TestPostProblemFeed:
         employee_of_company,
         get_token_for_user,
         comment_for_test,
-        like_a_comment,
     ):
         """Тест для проверки успешного анлайка комментария."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
         comment = await comment_for_test(user, company.slug)
         another_user = await employee_of_company({'company_id': company.id})
-        await like_a_comment(another_user, comment)
+        await like_a_comment(async_session, another_user, comment)
         another_user_token = await get_token_for_user(another_user)
+        comment = await async_session.merge(comment)
         old_rating = comment.rating
         response = await client.post(
             URL.UNLIKE_URL.format(message_feed_id=comment.message_id),
@@ -499,6 +499,7 @@ class TestPostProblemFeed:
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         association_obj = await get_association_objects_iterator(
             async_session, AssociationUserComment, another_user.id, comment.id
@@ -555,15 +556,15 @@ class TestPostProblemFeed:
         employee_of_company,
         get_token_for_user,
         comment_for_test,
-        like_a_comment,
     ):
         """Тест для проверки неуспешного повторного лайка пользователем."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
         comment = await comment_for_test(user, company.slug)
         another_user = await employee_of_company({'company_id': company.id})
-        await like_a_comment(another_user, comment)
+        await like_a_comment(async_session, another_user, comment)
         another_user_token = await get_token_for_user(another_user)
+        comment = await async_session.merge(comment)
         old_rating = comment.rating
         response = await client.post(
             URL.LIKE_URL.format(message_feed_id=comment.message_id),
@@ -573,6 +574,7 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
             f'получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при попытке повторного лайка.'
@@ -594,15 +596,15 @@ class TestPostProblemFeed:
         employee_of_company,
         get_token_for_user,
         comment_for_test,
-        like_a_comment,
     ):
         """Тест для проверки неуспешного анлайка комментария автором."""
         company = await company_for_test(COMPANY_DATA)
         user = await employee_of_company({'company_id': company.id})
         comment = await comment_for_test(user, company.slug)
         another_user = await employee_of_company({'company_id': company.id})
-        await like_a_comment(another_user, comment)
+        await like_a_comment(async_session, another_user, comment)
         token = await get_token_for_user(user)
+        comment = await async_session.merge(comment)
         old_rating = comment.rating
         response = await client.post(
             URL.UNLIKE_URL.format(message_feed_id=comment.message_id),
@@ -612,6 +614,7 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_400_BAD_REQUEST}, '
             f'получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         assert comment.rating == old_rating, (
             'Рейтинг комментария не должен меняться при неуспешном анлайке'
@@ -634,6 +637,7 @@ class TestPostProblemFeed:
         another_user_token = await get_token_for_user(
             await employee_of_company({'company_id': company.id})
         )
+        comment = await async_session.merge(comment)
         old_rating = comment.rating
         response = await client.post(
             URL.UNLIKE_URL.format(message_feed_id=comment.message_id),
@@ -704,7 +708,6 @@ class TestPostProblemFeed:
         get_token_for_user,
         message_feed_for_test,
         comment_for_test,
-        like_a_comment,
     ):
         """
         Тест для проверки неуспешного анлайка существующего комментария, но в запросе передаётся
@@ -715,11 +718,12 @@ class TestPostProblemFeed:
         message_feed = await message_feed_for_test(user, company.slug)
         comment = await comment_for_test(user, company.slug, message_feed_id=message_feed.id)
         another_user = await employee_of_company({'company_id': company.id})
-        await like_a_comment(another_user, comment)
+        await like_a_comment(async_session, another_user, comment)
         another_user_token = await get_token_for_user(another_user)
         wrong_message_feed = await message_feed_for_test(
             another_user, company.slug, problem_id=message_feed.problem_id
         )
+        comment = await async_session.merge(comment)
         old_rating = comment.rating
         response = await client.post(
             URL.UNLIKE_URL.format(message_feed_id=wrong_message_feed.id),
@@ -811,6 +815,7 @@ class TestPatchProblemFeed:
         assert response.status_code == expected_result, (
             f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         comment = await update_object(async_session, comment)
         assert comment == old_comment, 'Данные обновляемого комментария изменились'
 
@@ -843,6 +848,7 @@ class TestPatchProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_403_FORBIDDEN}, '
             f'получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         comment = await update_object(async_session, comment)
         assert comment == old_comment, 'Данные обновляемого комментария изменились'
 
@@ -881,6 +887,7 @@ class TestPatchProblemFeed:
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
         )
+        comment = await async_session.merge(comment)
         comment = await update_object(async_session, comment)
         assert comment == old_comment, 'Данные обновляемого комментария изменились'
 
