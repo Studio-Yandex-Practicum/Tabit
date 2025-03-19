@@ -67,7 +67,11 @@ async def create_problem(
     """
     await check_company_exists(company_slug, session)
     problem_data = problem.model_dump()
-    members = problem.members or []
+    if not problem_data.get('members'):
+        members = [problem_data['owner_id']]
+    else:
+        members = problem_data.pop('members')
+        members.append(problem_data['owner_id'])
     created_problem = await problem_crud.create_problem_with_members(
         session=session, problem_data=problem_data, members=members
     )
