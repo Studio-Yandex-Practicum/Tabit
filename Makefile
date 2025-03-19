@@ -1,102 +1,132 @@
-.PHONY: up down up-pgadmin down-pgadmin logs init-migrations apply-migrations reset-db init-db run clean-volumes
+# Определение всех целей, которые могут быть вызваны через make
+.PHONY: help \
+	up down logs up-pgadmin up-dc clean-volumes \
+	init-migrations auto-migration empty-migration apply-migrations \
+	reset-db init-db create-superuser fill-db fill-companies fill-company-users \
+	fill-tabit-admin-users fill-company-departments  fill-license-type \
+	run up-dc migrate-dc
 
-include .env
+# Определение переменной с именем файла окружения
+ENV_FILE = .env
+
+# Подключение переменных окружения из указанного файла
+include $(ENV_FILE)
+
+# Установка порта приложения по умолчанию, если он не задан
 ifndef APP_PORT
 	APP_PORT = 8000
 endif
 
-# Костыль для Windows, в которой не определена переменная PWD. Расчитываем путь до корня проекта от infra/local
+# Фикс для Windows окружений, где переменная PWD не определена. Расчитываем путь до корня проекта от infra/local
 ifndef PWD
 	export PWD=../..
 endif
 
-# Docker Compose команды
-up:
-	docker compose -f infra/local/docker-compose.local.yaml --env-file .env up -d
+# Определение базовой команды для работы с Docker Compose
+# Используется локальный конфиг и файл окружения
+DOCKER_COMPOSE = docker compose -f infra/local/docker-compose.local.yaml --env-file $(ENV_FILE)
 
-down:
-	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile "*" down
+# Помощь и общее
 
-up-pgadmin:
-	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile pgadmin up -d
+help: ## Показать меню помощи
+	@echo "Использование: make [цель]"
+	@echo ""
+	@echo "Доступные цели:"
+	@awk 'BEGIN {FS = ":.*?## "}; /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
 
-down-pgadmin:
-	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile "*" down
 
-logs:
-	docker compose -f infra/local/docker-compose.local.yaml logs -f
+# Минимальный набор для работы: БД в Docker-контейнере
 
-# Команда для остановки контейнеров и удаления volumes, связанных с конфигурацией
-down-pgadmin-volumes:
-	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile "*" down -v
+up: ## Запуск контейнероа с локальной БД в фоновом режиме
+	@echo "Запуск локальной БД в Docker..."
+	$(DOCKER_COMPOSE) up -d
 
-# Команда для создания миграции
+up-pgadmin: ## Запуск контейнеров с локальной БД и pgAdmin в фоновом режиме
+	@echo "Запуск pgAdmin..."
+	$(DOCKER_COMPOSE) --profile pgadmin up -d
+
+down: ## Остановка всех контейнеров Docker
+	@echo "Остановка всех контейнеров Docker..."
+	$(DOCKER_COMPOSE) --profile "*" down
+
+clean-volumes: ## Остановка всех контейнеров и удаление томов
+	@echo "Остановка контейнеров и очистка БД и других вольюмов..."
+	$(DOCKER_COMPOSE) --profile "*" down -v
+
+logs: ## Показать логи всех контейнеров
+	@echo "Отображение логов контейнеров (Ctrl+C для выхода)..."
+	$(DOCKER_COMPOSE) logs -f
+
+#Работа с миграциями
+
+## Создание первичной миграции (если все миграции были удалены)
 init-migrations:
+	@echo "Создание первичной миграции..."
 	poetry run alembic revision --autogenerate -m "initial migration"
 
-# Команда создания автогенерируемой миграции с возможностью передачи коммита
-# через флаг m='...' для составления названия миграции
+## Команда создания автогенерируемой миграции с возможностью передачи коммита
+## через флаг m='...' для составления названия миграции
+## Пример: make auto-migration m="сообщение"
 auto-migration:
+	@echo "Создание автоматической миграции с сообщением $(m)..."
 	poetry run alembic revision --autogenerate -m "$(m)"
 
-# Команда создания пустой миграции с возможностью передачи коммита
-# через флаг m='...' для составления названия миграции
+## Команда создания пустой миграции с возможностью передачи коммита
+## через флаг m='...' для составления названия миграции
+## Пример: make empty-migration m="сообщение"
 empty-migration:
+	@echo "Создание автоматической миграции с сообщением $(m)..."
 	poetry run alembic revision -m "$(m)"
 
-# Команда для применения миграций
+## Команда для применения миграций
 apply-migrations:
+	@echo "Применяем миграцю..."
 	poetry run alembic upgrade head
 
-# Полный сброс базы данных
+## Полный сброс базы данных и реинициализация
 reset-db: clean-volumes up apply-migrations
-	@echo "Database reset and migrations applied."
 
-# Удаление Docker volumes (очистка данных базы)
-clean-volumes:
-	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile "*" down -v
-	@echo "Docker volumes removed. Database data reset."
-
-# Полный процесс инициализации базы данных
+## Полный процесс инициализации базы данных
 init-db: up init-migrations apply-migrations
-	@echo "Database initialized and migrations applied."
 
-# Запуск приложения с uvicorn
-run:
-	poetry run uvicorn src.main:app_v1 --port $(APP_PORT) --reload
+# Заполнение БД данными
 
-# Создаст в базе данных суперпользователя.
-create-superuser:
+create-superuser: ## Создаст в базе данных суперпользователя.
+	@echo "Создание суперпользователя..."
 	python src/main.py -c
 
-fill-db:
+fill-db: ## Заполнение базы данных всеми тестовыми данными
 	poetry run python fake_data_factories/fill_db.py
 
-fill-companies:
+fill-companies: ## Заполнение базы данных данными компаний
 	poetry run python fake_data_factories/company_factories.py
 
-fill-company-users:
+fill-company-users: ## Заполнение базы данных пользователями компаний
 	poetry run python fake_data_factories/company_user_factories.py
 
-fill-tabit-admin-users:
+fill-tabit-admin-users: ## Заполнение базы данных администраторами
 	poetry run python fake_data_factories/tabit_user_factories.py
 
-fill-company-departments:
+fill-company-departments: ## Заполнение базы данных данными отделов
 	poetry run python fake_data_factories/department_factories.py
 
-fill-license-type:
+fill-license-type: ## Заполнение базы данных типами лицензий
 	poetry run python fake_data_factories/license_type_factories.py
 
-# Команды для полного запуска в Docker
-up-dc:
-	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile app_dc --profile pgadmin up -d --build
 
-down-dc:
-	docker compose -f infra/local/docker-compose.local.yaml --env-file .env --profile "*" down
+# Запуск приложения с uvicorn вне контейнера
 
-logs-dc:
-	docker compose -f infra/local/docker-compose.local.yaml logs -f
+run: ## Запуск всех контейнеров, включая приложение в Docker
+	@echo "Запускаем приложение локально..."
+	poetry run uvicorn src.main:app_v1 --port $(APP_PORT) --reload
+
+# Docker с запуском приложения в контейнере
+
+up-dc: ## Запуск всех контейнеров, включая приложение в Docker
+	@echo "Запуск всех контейнеров, включая приложение..."
+	$(DOCKER_COMPOSE) --profile app_dc --profile pgadmin up -d --build
 
 # Команда для выполнения миграций Alembic в контейнере
 migrate-dc:
-	docker compose -f infra/local/docker-compose.local.yaml exec app poetry run alembic upgrade head
+	@echo "Применяем миграции через контейнер придожения.."
+	$(DOCKER_COMPOSE) exec app poetry run alembic upgrade head
