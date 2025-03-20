@@ -20,10 +20,10 @@ from tests.constants import (
 from tests.utils import get_association_objects_iterator, get_count, like_a_comment, update_object
 
 
+@pytest.mark.asyncio(loop_scope='session')
 class TestGetProblemFeed:
     """Класс для тестов GET-эндпоинтов problem_feeds.py"""
 
-    @pytest.mark.asyncio
     async def test_get_multiple_message_feeds(
         self,
         client: AsyncClient,
@@ -54,7 +54,6 @@ class TestGetProblemFeed:
             f'Длина полученного списка должна быть равна {len(ten_message_feeds)}'
         )
 
-    @pytest.mark.asyncio
     async def test_get_message_feeds_of_another_company(
         self,
         client: AsyncClient,
@@ -77,7 +76,6 @@ class TestGetProblemFeed:
             'Сотрудники компаний должны иметь доступ только к проблемам, связанными с их компанией'
         )
 
-    @pytest.mark.asyncio
     async def test_get_multiple_comments(
         self,
         client: AsyncClient,
@@ -112,7 +110,6 @@ class TestGetProblemFeed:
             f'Длина полученного списка должна быть равна {len(ten_comments)}'
         )
 
-    @pytest.mark.asyncio
     async def test_get_feed_comments_of_another_company(
         self,
         client: AsyncClient,
@@ -140,7 +137,6 @@ class TestGetProblemFeed:
             'связаны с их компанией'
         )
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'url_404',
         PROBLEM_FEEDS_GET_404,
@@ -163,10 +159,10 @@ class TestGetProblemFeed:
         )
 
 
+@pytest.mark.asyncio(loop_scope='session')
 class TestPostProblemFeed:
     """Класс для тестов POST-эндпоинтов problem_feeds.py"""
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', MESSAGE_FEED_CREATE_NEW)
     async def test_successful_create_message_feed(
         self,
@@ -213,7 +209,6 @@ class TestPostProblemFeed:
             'Значение поля "problem_id" созданного объекта не соответствует ожидаемому значению.'
         )
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', MESSAGE_FEED_CREATE_BAD)
     async def test_unsuccessful_create_message_feed(
         self,
@@ -246,7 +241,6 @@ class TestPostProblemFeed:
             f'Текущее количество - {new_message_feeds_count}.'
         )
 
-    @pytest.mark.asyncio
     async def test_1_create_message_feed_for_another_company(
         self,
         async_session: AsyncSession,
@@ -281,7 +275,6 @@ class TestPostProblemFeed:
             f'Текущее количество - {new_message_feeds_count}.'
         )
 
-    @pytest.mark.asyncio
     async def test_2_create_message_feed_for_another_company(
         self,
         async_session: AsyncSession,
@@ -318,7 +311,6 @@ class TestPostProblemFeed:
             f'Текущее количество - {new_message_feeds_count}.'
         )
 
-    @pytest.mark.asyncio
     async def test_successful_create_comment(
         self,
         async_session: AsyncSession,
@@ -362,7 +354,6 @@ class TestPostProblemFeed:
             'Значение поля "message_id" созданного объекта не соответствует ожидаемому значению.'
         )
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', COMMENT_CREATE_BAD)
     async def test_unsuccessful_create_comment(
         self,
@@ -397,7 +388,6 @@ class TestPostProblemFeed:
             f'Текущее количество - {new_comments_count}.'
         )
 
-    @pytest.mark.asyncio
     async def test_create_comment_for_wrong_message_feed(
         self,
         async_session: AsyncSession,
@@ -437,7 +427,6 @@ class TestPostProblemFeed:
             f'Текущее количество - {new_comments_count}.'
         )
 
-    @pytest.mark.asyncio
     async def test_successful_comment_like(
         self,
         async_session: AsyncSession,
@@ -473,7 +462,6 @@ class TestPostProblemFeed:
             'При лайке комментария в ассоциативной таблице должна появиться связанная запись'
         )
 
-    @pytest.mark.asyncio
     async def test_successful_comment_unlike(
         self,
         async_session: AsyncSession,
@@ -511,7 +499,6 @@ class TestPostProblemFeed:
             'При анлайке комментария в ассоциативной таблице должна исчезнуть связанная запись'
         )
 
-    @pytest.mark.asyncio
     async def test_unsuccessful_comment_like_by_author(
         self,
         async_session: AsyncSession,
@@ -547,7 +534,6 @@ class TestPostProblemFeed:
             'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
         )
 
-    @pytest.mark.asyncio
     async def test_unsuccessful_repeated_comment_like(
         self,
         async_session: AsyncSession,
@@ -587,7 +573,6 @@ class TestPostProblemFeed:
             'ассоциативной таблице.'
         )
 
-    @pytest.mark.asyncio
     async def test_unsuccessful_comment_unlike_by_author(
         self,
         async_session: AsyncSession,
@@ -620,7 +605,6 @@ class TestPostProblemFeed:
             'Рейтинг комментария не должен меняться при неуспешном анлайке'
         )
 
-    @pytest.mark.asyncio
     async def test_unsuccessful_comment_unlike_by_user(
         self,
         async_session: AsyncSession,
@@ -653,7 +637,6 @@ class TestPostProblemFeed:
             'Рейтинг комментария не должен меняться при неуспешном анлайке'
         )
 
-    @pytest.mark.asyncio
     async def test_comment_like_with_wrong_message_feed_id(
         self,
         async_session: AsyncSession,
@@ -698,7 +681,6 @@ class TestPostProblemFeed:
             'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
         )
 
-    @pytest.mark.asyncio
     async def test_comment_unlike_with_wrong_message_feed_id(
         self,
         async_session: AsyncSession,
@@ -746,10 +728,10 @@ class TestPostProblemFeed:
         )
 
 
+@pytest.mark.asyncio(loop_scope='session')
 class TestPatchProblemFeed:
     """Класс для тестов PATCH-эндпоинтов problem_feeds.py"""
 
-    @pytest.mark.asyncio
     async def test_successful_patch_comment(
         self,
         client: AsyncClient,
@@ -786,7 +768,6 @@ class TestPatchProblemFeed:
             'Значение поля "message_id" обновлённого объекта не соответствует ожидаемому значению.'
         )
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', COMMENT_UPDATE_BAD)
     async def test_unsuccessful_patch_comment(
         self,
@@ -819,7 +800,6 @@ class TestPatchProblemFeed:
         comment = await update_object(async_session, comment)
         assert comment == old_comment, 'Данные обновляемого комментария изменились'
 
-    @pytest.mark.asyncio
     async def test_patch_comment_wrong_owner(
         self,
         async_session: AsyncSession,
@@ -852,7 +832,6 @@ class TestPatchProblemFeed:
         comment = await update_object(async_session, comment)
         assert comment == old_comment, 'Данные обновляемого комментария изменились'
 
-    @pytest.mark.asyncio
     async def test_patch_comment_with_wrong_message_feed_id(
         self,
         async_session: AsyncSession,
@@ -891,7 +870,6 @@ class TestPatchProblemFeed:
         comment = await update_object(async_session, comment)
         assert comment == old_comment, 'Данные обновляемого комментария изменились'
 
-    @pytest.mark.asyncio
     async def test_404_patch_urls(
         self,
         client: AsyncClient,
@@ -913,10 +891,10 @@ class TestPatchProblemFeed:
         )
 
 
+@pytest.mark.asyncio(loop_scope='session')
 class TestDeleteProblemFeeds:
     """Класс для тестов DELETE-эндпоинтов problem_feeds.py"""
 
-    @pytest.mark.asyncio
     async def test_successful_delete_comment(
         self,
         async_session: AsyncSession,
@@ -948,7 +926,6 @@ class TestDeleteProblemFeeds:
             f'Текущее количество - {new_comments_count}.'
         )
 
-    @pytest.mark.asyncio
     async def test_delete_comment_wrong_owner(
         self,
         async_session: AsyncSession,
@@ -982,7 +959,6 @@ class TestDeleteProblemFeeds:
             f'Текущее количество - {new_comments_count}.'
         )
 
-    @pytest.mark.asyncio
     async def test_delete_comment_with_wrong_message_feed_id(
         self,
         async_session: AsyncSession,
@@ -1022,7 +998,6 @@ class TestDeleteProblemFeeds:
             f'Текущее количество - {new_comments_count}.'
         )
 
-    @pytest.mark.asyncio
     async def test_404_delete_urls(
         self,
         client: AsyncClient,
