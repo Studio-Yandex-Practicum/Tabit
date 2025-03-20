@@ -17,8 +17,7 @@ def get_test_problem_data(with_members=True):
         'company_slug': None,  # Подставляется в тесте после создания company.
     }
     if with_members:
-        # Подставляется в тесте после создания юзера.
-        test_data['members'] = None
+        test_data['members'] = None  # Подставляется в тесте после создания юзера.
         return test_data
     return test_data
 
@@ -125,7 +124,9 @@ class TestGetProblem:
     """Тесты GET-запросов."""
 
     @pytest.mark.asyncio
-    async def test_get_problems_list(self, client: AsyncClient, problem_for_test):
+    async def test_get_problems_list(
+        self, client: AsyncClient, company_for_test, employee_of_company, problem_for_test
+    ):
         """
         Тест на получение списка проблем компании.
         Перед запросом создаём в базе 3 проблемы, 2 из которых связаны с одной компанией.
@@ -135,9 +136,12 @@ class TestGetProblem:
         Проверяем, что количество объектов в ответе корректно.
 
         """
-        test_problem = await problem_for_test()
-        _ = await problem_for_test(custom_company_slug=test_problem.company_slug)
-        _ = await problem_for_test()
+        test_company_1 = await company_for_test()
+        test_company_2 = await company_for_test()
+        test_employee = await employee_of_company()
+        test_problem = await problem_for_test(test_employee, test_company_1.slug)
+        _ = await problem_for_test(test_employee, test_company_1.slug)
+        _ = await problem_for_test(test_employee, test_company_2.slug)
         response = await client.get(
             URL.PROBLEMS_ENDPOINT.format(company_slug=test_problem.company_slug)
         )
@@ -160,14 +164,18 @@ class TestGetProblem:
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     @pytest.mark.asyncio
-    async def test_get_single_problem(self, client: AsyncClient, problem_for_test):
+    async def test_get_single_problem(
+        self, client: AsyncClient, company_for_test, employee_of_company, problem_for_test
+    ):
         """
         Тест на получение отдельной проблемы.
 
         Проверяем, что API возвращает статус 200.
         Проверяем, что ответ содержит ожидаемые поля.
         """
-        test_problem = await problem_for_test()
+        test_company = await company_for_test()
+        test_employee = await employee_of_company()
+        test_problem = await problem_for_test(test_employee, test_company.slug)
         expected_fields = {
             'id',
             'name',
@@ -190,14 +198,184 @@ class TestGetProblem:
             assert field in expected_fields
 
     @pytest.mark.asyncio
-    async def test_get_non_existing_problem(self, client: AsyncClient, problem_for_test):
+    async def test_get_non_existing_problem(
+        self, client: AsyncClient, company_for_test, employee_of_company, problem_for_test
+    ):
         """
         Тест получения отдельной проблемы по несуществующему id.
 
         Проверяем, что API возвращает статус 404.
         """
-        test_problem = await problem_for_test()
+        test_company = await company_for_test()
+        test_employee = await employee_of_company()
+        test_problem = await problem_for_test(test_employee, test_company.slug)
         response = await client.get(
+            URL.PROBLEMS_ENDPOINT.format(company_slug=test_problem.company_slug) + '/2'
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+class TestPatchProblem:
+    """Тесты PATCH-запросов."""
+
+    @pytest.mark.asyncio
+    async def test_patch_problem_full_update(
+        self, client: AsyncClient, employee_of_company, company_for_test, problem_for_test
+    ):
+        """
+        Тест на полное обновление проблемы.
+        Перед тестом создаём проблему и создаём словарь данных для обновления.
+
+        Проверяем, что API возвращает статус 200.
+        Проверяем, что данные ответа соответствуют данным для обновления.
+        """
+        test_employee = await employee_of_company()
+        test_company = await company_for_test()
+        test_problem = await problem_for_test(test_employee, test_company.slug)
+        data_for_updating = {
+            'name': 'обновлённая проблема',
+            'description': 'описание обновлённой проблемы',
+            'color': 2,
+            'status': 'В работе',
+            'company_slug': test_problem.company_slug,
+        }
+        response = await client.patch(
+            URL.PROBLEMS_ENDPOINT.format(company_slug=test_problem.company_slug)
+            + f'/{test_problem.id}',
+            json=data_for_updating,
+        )
+        assert response.status_code == status.HTTP_200_OK
+        updated_data = response.json()
+        for key, value in data_for_updating.items():
+            assert updated_data[key] == value
+
+    @pytest.mark.asyncio
+    async def test_patch_problem_partial_update(
+        self, client: AsyncClient, employee_of_company, company_for_test, problem_for_test
+    ):
+        """
+        Тест на частичное обновление проблемы.
+        Перед тестом создаём проблему и создаём словарь данных для обновления.
+
+        Проверяем, что API возвращает статус 200.
+        Проверяем, что данные ответа соответствуют данным для обновления."
+        """
+        test_employee = await employee_of_company()
+        test_company = await company_for_test()
+        test_problem = await problem_for_test(test_employee, test_company.slug)
+        data_for_updating = {
+            'name': 'обновлённая проблема',
+            'description': 'описание обновлённой проблемы',
+            'color': 2,
+            'status': 'В работе',
+        }
+        url = (
+            URL.PROBLEMS_ENDPOINT.format(company_slug=test_problem.company_slug)
+            + f'/{test_problem.id}'
+        )
+        for key, value in data_for_updating.items():
+            response = await client.patch(
+                url, json={key: value, 'company_slug': test_problem.company_slug}
+            )
+            assert response.status_code == status.HTTP_200_OK
+            updated_data = response.json()
+            assert updated_data[key] == value
+
+    @pytest.mark.asyncio
+    async def test_patch_problem_company_doesnt_exist(
+        self, client: AsyncClient, employee_of_company, company_for_test, problem_for_test
+    ):
+        """
+        Тест изменения проблемы, если компания не существует.
+
+        Проверяем, что API возвращает 404 статус.
+        """
+        test_company = await company_for_test()
+        test_employee = await employee_of_company()
+        test_problem = await problem_for_test(test_employee, test_company.slug)
+        data_for_updating = {
+            'name': 'обновленная проблема',
+            'company_slug': test_problem.company_slug,
+        }
+        response = await client.patch(
+            URL.PROBLEMS_ENDPOINT.format(company_slug='company_that_doesnt_exist') + '/1',
+            json=data_for_updating,
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.asyncio
+    async def test_patch_problem_doesnt_exist(
+        self, client: AsyncClient, employee_of_company, company_for_test, problem_for_test
+    ):
+        """
+        Тест изменения проблемы, если проблема не существует.
+
+        Проверяем, что API возвращает 404 статус.
+        """
+        test_company = await company_for_test()
+        test_employee = await employee_of_company()
+        test_problem = await problem_for_test(test_employee, test_company.slug)
+        data_for_updating = {
+            'name': 'обновленная проблема',
+            'company_slug': test_problem.company_slug,
+        }
+        response = await client.patch(
+            URL.PROBLEMS_ENDPOINT.format(company_slug=test_problem.company_slug) + '/2',
+            json=data_for_updating,
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+class TestDeleteProblem:
+    """Тесты DELETE-запросов."""
+
+    @pytest.mark.asyncio
+    async def test_delete_problem(
+        self, client: AsyncClient, employee_of_company, company_for_test, problem_for_test
+    ):
+        """
+        Тест успешного удаления проблемы.
+        """
+        test_company = await company_for_test()
+        test_employee = await employee_of_company()
+        test_problem = await problem_for_test(test_employee, test_company.slug)
+        response = await client.delete(
+            URL.PROBLEMS_ENDPOINT.format(company_slug=test_problem.company_slug)
+            + f'/{test_problem.id}'
+        )
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    @pytest.mark.asyncio
+    async def test_delete_problem_doesnt_exist(
+        self, client: AsyncClient, employee_of_company, company_for_test, problem_for_test
+    ):
+        """
+        Тест удаления проблемы, если компания не существует.
+
+        Проверяем, что API возвращает статус 404.
+        """
+        test_company = await company_for_test()
+        test_employee = await employee_of_company()
+        test_problem = await problem_for_test(test_employee, test_company.slug)
+        response = await client.delete(
+            URL.PROBLEMS_ENDPOINT.format(company_slug='company_that_doesnt_exist')
+            + f'/{test_problem.id}'
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.asyncio
+    async def test_delete_problem_company_doesnt_exist(
+        self, client: AsyncClient, employee_of_company, company_for_test, problem_for_test
+    ):
+        """
+        Тест удаления проблемы, если проблемы не существует.
+
+        Проверяем, что API возвращает статус 404.
+        """
+        test_company = await company_for_test()
+        test_employee = await employee_of_company()
+        test_problem = await problem_for_test(test_employee, test_company.slug)
+        response = await client.delete(
             URL.PROBLEMS_ENDPOINT.format(company_slug=test_problem.company_slug) + '/2'
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
