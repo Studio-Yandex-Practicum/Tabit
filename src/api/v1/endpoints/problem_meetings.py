@@ -145,7 +145,7 @@ async def update_meeting(
     await check_problem_exists(problem_id, session)
     await check_meeting_title_unique(meeting.title, session)
     await check_meeting_date_available(meeting.date_meeting, session)
-    return await meeting_crud.update_meeting(session, meeting_id, meeting.model_dump())
+    return await meeting_crud.update_meeting(session, meeting_id, meeting)
 
 
 @router.delete(
