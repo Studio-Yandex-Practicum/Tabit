@@ -149,7 +149,7 @@ async def full_update_staff(
     user = await admin_user_crud.get_or_404(user_id, user_manager)
     await check_company_and_department(user.company_id, update_data.current_department_id, session)
     await check_telegram_username_for_duplicates(update_data.telegram_username, session)
-    return await admin_user_crud.update(user_id, update_data, session, user_manager)
+    return await admin_user_crud.update(user_id, update_data, user_manager)
 
 
 @router.patch(
@@ -178,7 +178,7 @@ async def update_staff(
     user = await admin_user_crud.get_or_404(user_id, user_manager)
     await check_company_and_department(user.company_id, update_data.current_department_id, session)
     await check_telegram_username_for_duplicates(update_data.telegram_username, session)
-    return await admin_user_crud.update(user_id, update_data, session, user_manager)
+    return await admin_user_crud.update(user_id, update_data, user_manager)
 
 
 @router.delete(
