@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.problems.constants import (
     ERROR_DATE_MEETING_ALREADY_IN_USE,
+    ERROR_MEETING_NOT_FOUND,
     ERROR_MEETING_TITLE_ALREADY_IN_USE,
     ERROR_PROBLEM_NOT_FOUND,
 )
@@ -64,3 +65,22 @@ async def check_meeting_date_available(date_meeting: str, session: AsyncSession)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_DATE_MEETING_ALREADY_IN_USE
         )
+
+
+async def check_meeting_exists(meeting_id: int, session: AsyncSession):
+    """Проверяет существование встречи по ID.
+
+    Назначение:
+        Валидирует, что встреча существует в базе данных по заданному ID.
+    Параметры:
+        meeting_id: Целое число, представляющее ID встречи для проверки.
+        session: Асинхронная сессия базы данных.
+    Возвращаемое значение:
+        Проверенная встреча, если она существует.
+    Исключения:
+        HTTPException: Если встреча не найдена.
+    """
+    try:
+        await meeting_crud.get_or_404(session, meeting_id)
+    except HTTPException:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_MEETING_NOT_FOUND)

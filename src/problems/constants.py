@@ -2,6 +2,7 @@
 ERROR_COMPANY_NOT_FOUND = 'Такая компания не найдена'
 ERROR_PROBLEM_NOT_FOUND = 'Такая проблема не найдена'
 ERROR_TASK_NOT_FOUND = 'Такая задача не найдена'
+ERROR_MEETING_NOT_FOUND = 'Такая встреча не найдена'
 
 
 # Константы к валидаторам (Problem)

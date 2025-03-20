@@ -45,14 +45,14 @@ class TestGetProblemFeed:
         response = await client.get(
             URL.MESSAGE_FEED_URL.format(problem_id=problem.id), headers=token
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         result = response.json()
         assert isinstance(result, list)
-        assert len(result) == len(ten_message_feeds), (
-            f'Длина полученного списка должна быть равна {len(ten_message_feeds)}'
-        )
+        assert len(result) == len(
+            ten_message_feeds
+        ), f'Длина полученного списка должна быть равна {len(ten_message_feeds)}'
 
     @pytest.mark.asyncio
     async def test_get_message_feeds_of_another_company(
@@ -103,14 +103,14 @@ class TestGetProblemFeed:
             headers=token,
         )
         result = response.json()
-        assert response.status_code == status.HTTP_200_OK, (
-            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         result = response.json()
         assert isinstance(result, list)
-        assert len(result) == len(ten_comments), (
-            f'Длина полученного списка должна быть равна {len(ten_comments)}'
-        )
+        assert len(result) == len(
+            ten_comments
+        ), f'Длина полученного списка должна быть равна {len(ten_comments)}'
 
     @pytest.mark.asyncio
     async def test_get_feed_comments_of_another_company(
@@ -200,18 +200,18 @@ class TestPostProblemFeed:
             f'Текущее количество - {new_message_feeds_count}.'
         )
         result = response.json()
-        assert result['text'] == payload['text'], (
-            'Значение поля "text" созданного объекта не соответствует ожидаемому значению.'
-        )
-        assert result['important'] == expected_result, (
-            'Значение поля "important" созданного объекта не соответствует ожидаемому значению.'
-        )
-        assert result['owner_id'] == str(user.id), (
-            'Значение поля "owner_id" созданного объекта не соответствует ожидаемому значению.'
-        )
-        assert result['problem_id'] == problem.id, (
-            'Значение поля "problem_id" созданного объекта не соответствует ожидаемому значению.'
-        )
+        assert (
+            result['text'] == payload['text']
+        ), 'Значение поля "text" созданного объекта не соответствует ожидаемому значению.'
+        assert (
+            result['important'] == expected_result
+        ), 'Значение поля "important" созданного объекта не соответствует ожидаемому значению.'
+        assert result['owner_id'] == str(
+            user.id
+        ), 'Значение поля "owner_id" созданного объекта не соответствует ожидаемому значению.'
+        assert (
+            result['problem_id'] == problem.id
+        ), 'Значение поля "problem_id" созданного объекта не соответствует ожидаемому значению.'
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', MESSAGE_FEED_CREATE_BAD)
@@ -237,9 +237,9 @@ class TestPostProblemFeed:
             headers=token,
             json=payload,
         )
-        assert response.status_code == expected_result, (
-            f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
-        )
+        assert (
+            response.status_code == expected_result
+        ), f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
         new_message_feeds_count = await get_count(async_session, MessageFeed)
         assert new_message_feeds_count == old_message_feeds_count, (
             f'Количество объектов MessageFeed должно равняться {old_message_feeds_count}. '
@@ -351,16 +351,16 @@ class TestPostProblemFeed:
             f'Текущее количество - {new_comments_count}.'
         )
         result = response.json()
-        assert result['text'] == COMMENT_CREATE_NEW['text'], (
-            'Значение поля "text" созданного объекта не соответствует ожидаемому значению.'
-        )
+        assert (
+            result['text'] == COMMENT_CREATE_NEW['text']
+        ), 'Значение поля "text" созданного объекта не соответствует ожидаемому значению.'
         assert result['rating'] == 0, 'Рейтинг нового комментария должен быть равен 0'
-        assert result['owner_id'] == str(user.id), (
-            'Значение поля "owner_id" созданного объекта не соответствует ожидаемому значению.'
-        )
-        assert result['message_id'] == message_feed.id, (
-            'Значение поля "message_id" созданного объекта не соответствует ожидаемому значению.'
-        )
+        assert result['owner_id'] == str(
+            user.id
+        ), 'Значение поля "owner_id" созданного объекта не соответствует ожидаемому значению.'
+        assert (
+            result['message_id'] == message_feed.id
+        ), 'Значение поля "message_id" созданного объекта не соответствует ожидаемому значению.'
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', COMMENT_CREATE_BAD)
@@ -388,9 +388,9 @@ class TestPostProblemFeed:
             headers=token,
             json=payload,
         )
-        assert response.status_code == expected_result, (
-            f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
-        )
+        assert (
+            response.status_code == expected_result
+        ), f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
         new_comments_count = await get_count(async_session, CommentFeed)
         assert new_comments_count == old_comments_count, (
             f'Количество объектов CommentFeed должно равняться {old_comments_count}. '
@@ -458,20 +458,20 @@ class TestPostProblemFeed:
             URL.LIKE_URL.format(message_feed_id=comment.message_id),
             headers=another_user_token,
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         association_obj = await get_association_objects_iterator(
             async_session, AssociationUserComment, another_user.id, comment.id
         )
-        assert comment.rating == old_rating + 1, (
-            'Рейтинг комментария должен был увеличиться на 1 (стать равным 1)'
-        )
-        assert association_obj.scalar_one_or_none() is not None, (
-            'При лайке комментария в ассоциативной таблице должна появиться связанная запись'
-        )
+        assert (
+            comment.rating == old_rating + 1
+        ), 'Рейтинг комментария должен был увеличиться на 1 (стать равным 1)'
+        assert (
+            association_obj.scalar_one_or_none() is not None
+        ), 'При лайке комментария в ассоциативной таблице должна появиться связанная запись'
 
     @pytest.mark.asyncio
     async def test_successful_comment_unlike(
@@ -496,20 +496,20 @@ class TestPostProblemFeed:
             URL.UNLIKE_URL.format(message_feed_id=comment.message_id),
             headers=another_user_token,
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         association_obj = await get_association_objects_iterator(
             async_session, AssociationUserComment, another_user.id, comment.id
         )
-        assert comment.rating == old_rating - 1, (
-            'Рейтинг комментария должен был уменьшиться на 1 (стать равным 0)'
-        )
-        assert association_obj.scalar_one_or_none() is None, (
-            'При анлайке комментария в ассоциативной таблице должна исчезнуть связанная запись'
-        )
+        assert (
+            comment.rating == old_rating - 1
+        ), 'Рейтинг комментария должен был уменьшиться на 1 (стать равным 0)'
+        assert (
+            association_obj.scalar_one_or_none() is None
+        ), 'При анлайке комментария в ассоциативной таблице должна исчезнуть связанная запись'
 
     @pytest.mark.asyncio
     async def test_unsuccessful_comment_like_by_author(
@@ -537,15 +537,15 @@ class TestPostProblemFeed:
         )
         comment = await async_session.merge(comment)
         await async_session.refresh(comment)
-        assert comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при неуспешном лайке.'
-        )
+        assert (
+            comment.rating == old_rating
+        ), 'Рейтинг комментария не должен меняться при неуспешном лайке.'
         association_obj = await get_association_objects_iterator(
             async_session, AssociationUserComment, user.id, comment.id
         )
-        assert association_obj.scalar_one_or_none() is None, (
-            'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
-        )
+        assert (
+            association_obj.scalar_one_or_none() is None
+        ), 'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
 
     @pytest.mark.asyncio
     async def test_unsuccessful_repeated_comment_like(
@@ -576,9 +576,9 @@ class TestPostProblemFeed:
         )
         comment = await async_session.merge(comment)
         await async_session.refresh(comment)
-        assert comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при попытке повторного лайка.'
-        )
+        assert (
+            comment.rating == old_rating
+        ), 'Рейтинг комментария не должен меняться при попытке повторного лайка.'
         association_obj = await get_association_objects_iterator(
             async_session, AssociationUserComment, another_user.id, comment.id
         )
@@ -616,9 +616,9 @@ class TestPostProblemFeed:
         )
         comment = await async_session.merge(comment)
         await async_session.refresh(comment)
-        assert comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при неуспешном анлайке'
-        )
+        assert (
+            comment.rating == old_rating
+        ), 'Рейтинг комментария не должен меняться при неуспешном анлайке'
 
     @pytest.mark.asyncio
     async def test_unsuccessful_comment_unlike_by_user(
@@ -649,9 +649,9 @@ class TestPostProblemFeed:
         )
         comment = await async_session.merge(comment)
         await async_session.refresh(comment)
-        assert comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при неуспешном анлайке'
-        )
+        assert (
+            comment.rating == old_rating
+        ), 'Рейтинг комментария не должен меняться при неуспешном анлайке'
 
     @pytest.mark.asyncio
     async def test_comment_like_with_wrong_message_feed_id(
@@ -688,15 +688,15 @@ class TestPostProblemFeed:
         )
         comment = await async_session.merge(comment)
         await async_session.refresh(comment)
-        assert comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при неуспешном лайке.'
-        )
+        assert (
+            comment.rating == old_rating
+        ), 'Рейтинг комментария не должен меняться при неуспешном лайке.'
         association_obj = await get_association_objects_iterator(
             async_session, AssociationUserComment, another_user.id, comment.id
         )
-        assert association_obj.scalar_one_or_none() is None, (
-            'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
-        )
+        assert (
+            association_obj.scalar_one_or_none() is None
+        ), 'При неуспешном лайке не должно создаваться записей в ассоциативной таблице.'
 
     @pytest.mark.asyncio
     async def test_comment_unlike_with_wrong_message_feed_id(
@@ -735,15 +735,15 @@ class TestPostProblemFeed:
         )
         comment = await async_session.merge(comment)
         await async_session.refresh(comment)
-        assert comment.rating == old_rating, (
-            'Рейтинг комментария не должен меняться при неуспешном анлайке.'
-        )
+        assert (
+            comment.rating == old_rating
+        ), 'Рейтинг комментария не должен меняться при неуспешном анлайке.'
         association_obj = await get_association_objects_iterator(
             async_session, AssociationUserComment, another_user.id, comment.id
         )
-        assert association_obj.scalar_one_or_none() is not None, (
-            'При неуспешном анлайке не должна удаляться запись в ассоциативной таблице.'
-        )
+        assert (
+            association_obj.scalar_one_or_none() is not None
+        ), 'При неуспешном анлайке не должна удаляться запись в ассоциативной таблице.'
 
 
 class TestPatchProblemFeed:
@@ -771,20 +771,20 @@ class TestPatchProblemFeed:
             headers=token,
             json=COMMENT_UPDATE,
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         result = response.json()
-        assert result['text'] == COMMENT_UPDATE['text'], (
-            'Значение поля "text" обновлённого объекта не соответствует ожидаемому значению.'
-        )
+        assert (
+            result['text'] == COMMENT_UPDATE['text']
+        ), 'Значение поля "text" обновлённого объекта не соответствует ожидаемому значению.'
         assert result['rating'] == old_rating, 'Рейтинг обновлённого комментария должен меняться'
-        assert result['owner_id'] == str(comment.owner_id), (
-            'Значение поля "owner_id" обновлённого объекта не соответствует ожидаемому значению.'
-        )
-        assert result['message_id'] == comment.message_id, (
-            'Значение поля "message_id" обновлённого объекта не соответствует ожидаемому значению.'
-        )
+        assert result['owner_id'] == str(
+            comment.owner_id
+        ), 'Значение поля "owner_id" обновлённого объекта не соответствует ожидаемому значению.'
+        assert (
+            result['message_id'] == comment.message_id
+        ), 'Значение поля "message_id" обновлённого объекта не соответствует ожидаемому значению.'
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', COMMENT_UPDATE_BAD)
@@ -812,9 +812,9 @@ class TestPatchProblemFeed:
             headers=token,
             json=payload,
         )
-        assert response.status_code == expected_result, (
-            f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
-        )
+        assert (
+            response.status_code == expected_result
+        ), f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
         comment = await async_session.merge(comment)
         comment = await update_object(async_session, comment)
         assert comment == old_comment, 'Данные обновляемого комментария изменились'

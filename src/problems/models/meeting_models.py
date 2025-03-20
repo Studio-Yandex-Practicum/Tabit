@@ -1,13 +1,18 @@
 from datetime import date
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import Enum, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.constants import LENGTH_NAME_MEETING_PLACE
 from src.database.annotations import description, int_pk, int_zero, name_problem, owner
 from src.database.models import BaseTabitModel
-from src.problems.models.enums import ResultMeetingEnum, StatusMeeting
+from src.problems.models.enums import (
+    ResultMeetingEngagementEnum,
+    ResultMeetingEnum,
+    ResultMeetingSolutionEnum,
+    StatusMeeting,
+)
 
 if TYPE_CHECKING:
     from src.problems.models import AssociationUserMeeting, FileMeeting, Problem
@@ -98,12 +103,16 @@ class ResultMeeting(BaseTabitModel):
 
     id: Mapped[int_pk]
     meeting_id: Mapped[int] = mapped_column(ForeignKey('meeting.id'), primary_key=True)
-    meeting: Mapped['Meeting'] = relationship(back_populates='result')
+    meeting: Mapped['Meeting'] = relationship(back_populates='result', lazy='joined')
     owner_id: Mapped[owner]
     owner: Mapped['UserTabit'] = relationship(back_populates='meeting_result')
     meeting_result: Mapped['ResultMeetingEnum']
-    participant_engagement: Mapped[bool] = mapped_column(nullable=False)
-    problem_solution: Mapped[bool] = mapped_column(nullable=False)
+    participant_engagement: Mapped['ResultMeetingEngagementEnum'] = mapped_column(
+        Enum(ResultMeetingEngagementEnum, name='resultmeetingengagementenum'),
+    )
+    problem_solution: Mapped['ResultMeetingSolutionEnum'] = mapped_column(
+        Enum(ResultMeetingSolutionEnum, name='resultmeetingsolutionenum'),
+    )
     meeting_feedback: Mapped[str] = mapped_column(Text, nullable=True)
 
     def __repr__(self):

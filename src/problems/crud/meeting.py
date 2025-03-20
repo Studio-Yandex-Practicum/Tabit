@@ -2,11 +2,13 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import joinedload
 
 from src.crud import CRUDBase
 from src.problems.crud.association_utils import create_associations
-from src.problems.models import AssociationUserMeeting, Meeting
+from src.problems.models import AssociationUserMeeting, Meeting, ResultMeeting
 from src.problems.schemas.meeting import MeetingCreateSchema
+from src.users.models.models import UserTabit
 
 
 # TODO Если участники встречи переносятся сюда автоматом из проблемы, то поправить этот метод
@@ -107,3 +109,85 @@ class CRUDMeeting(CRUDBase):
 
 
 meeting_crud = CRUDMeeting(Meeting)
+
+
+class CRUDResultMeeting(CRUDBase):
+    """CRUD операции для модели результата встречи."""
+
+    def serialize_result(self, result: ResultMeeting) -> dict:
+        """Сериализует данные.
+
+        Назначение:
+            Преобразовывает объект модели ResultMeeting в словарь Python,
+            подходящий для сериализации,
+            который включает как основные атрибуты объекта,
+            так и данные из связанной сущности Meeting.
+        Параметры:
+            session: Асинхронная сессия SQLAlchemy.
+            result: объет модели ResultMeeting
+        Возвращаемое значение:
+            Словарь с объединеными атрибутами модели ResultMeeting и Meeting
+        """
+
+        return {
+            'meeting_result': result.meeting_result,
+            'participant_engagement': result.participant_engagement,
+            'problem_solution': result.problem_solution,
+            'meeting_feedback': result.meeting_feedback,
+            'id': result.id,
+            'owner_id': result.owner_id,
+            'place': result.meeting.place,
+            'date_meeting': result.meeting.date_meeting,
+        }
+
+    async def get(self, session: AsyncSession, obj_id: int) -> ResultMeeting or None:
+        """Возвращает результат встречи по ID.
+
+        Назначение:
+            Извлекает результать встречи из базы данных по ID,
+            используя стратегию жадной загрузки (joinedload)
+            связанных данных через SQL-запрос с JOIN.
+
+        Параметры:
+            session: Асинхронная сессия SQLAlchemy.
+            filters: Ключевые аргументы, представляющие поля модели Meeting
+            и их значения для фильтрации.
+        Возвращаемое значение:
+            Объект результата встречи, если такой объект существует, иначе None.
+        """
+        result = await session.execute(
+            select(self.model)
+            .options(joinedload(self.model.meeting))
+            .where(self.model.id == obj_id)
+        )
+        return result.scalars().first()
+
+    async def result_create(
+        self,
+        session: AsyncSession,
+        obj_in: dict,
+        owner: UserTabit,
+        meeting_id: int,
+    ) -> dict:
+        """Создает результат встречи.
+
+        Назначение:
+            Создает новый результат встречи.
+        Параметры:
+            session: Асинхронная сессия SQLAlchemy.
+            obj_in: Словарь с данными для создания результата встречи.
+            owner: Текущий пользователь.
+            meeting_id: ID встречи.
+        Возвращаемое значение:
+            Созданный объект результата встречи.
+        """
+        result = await self.create(
+            session=session,
+            obj_in=obj_in,
+            owner=owner,
+            meeting_id=meeting_id
+        )
+        return self.serialize_result(result)
+
+
+result_meeting_crud = CRUDResultMeeting(ResultMeeting)

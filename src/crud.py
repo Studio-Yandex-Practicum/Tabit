@@ -11,7 +11,7 @@
 """
 
 from http import HTTPStatus
-from typing import Any, Dict, Generic, Type, TypeVar
+from typing import Any, Dict, Generic, Optional, Type, TypeVar
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -29,6 +29,7 @@ from src.constants import (
     TextError,
 )
 from src.logger import logger
+from src.users.models.models import UserTabit
 
 ModelType = TypeVar('ModelType')
 CreateSchemaType = TypeVar('CreateSchemaType')
@@ -145,6 +146,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         session: AsyncSession,
         obj_in: CreateSchemaType,
+        owner: Optional[UserTabit] = None,
+        meeting_id: Optional[int] = None,
         auto_commit: bool = DEFAULT_AUTO_COMMIT,
     ) -> ModelType:
         """
@@ -152,6 +155,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         # TODO: Добавить возможность автозаполнение поля owner у модели.
         obj_data = obj_in.model_dump()
+        if owner is not None:
+            obj_data['owner_id'] = owner.id
+        if meeting_id is not None:
+            obj_data['meeting_id'] = meeting_id
         db_obj = self.model(**obj_data)
         try:
             session.add(db_obj)
