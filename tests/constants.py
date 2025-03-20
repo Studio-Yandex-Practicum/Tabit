@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from typing import Any
+from uuid import UUID
 
 from dotenv import load_dotenv
 from fastapi import status
@@ -47,6 +48,11 @@ class URL:
     COMMENTS_PATCH_DELETE_404_URL: str = '/api/v1/Zorg/problems/1/1/comments/99'
     LIKE_URL: str = '/api/v1/Zorg/problems/1/{message_feed_id}/comments/1/like'
     UNLIKE_URL: str = '/api/v1/Zorg/problems/1/{message_feed_id}/comments/1/unlike'
+
+    # URLs для tabit_management.py
+    ADMIN_GET_COMPANIES: str = '/api/v1/admin/'
+    ADMIN_MODS_URL: str = '/api/v1/admin/staff'
+    ADMIN_MOD_DATA_URL: str = '/api/v1/admin/staff/{user_id}'
 
 
 GOOD_PASSWORD: str = 'string123STRING'
@@ -231,3 +237,68 @@ COMMENT_UPDATE_BAD: tuple[tuple] = (
     ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
     ({'text': 'comment with extra field', 'rating': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
 )
+
+# Константы для тестов tabit_management.py
+TEST_UUID: UUID = UUID('{12345678-1234-5678-1234-567812345678}')
+MOD_TEST_EMAIL = 'test@example.com'
+MOD_TEST_EMAIL_BAD = 'test_bad@example.com'
+ADMIN_GET_MOD_INFO: tuple[tuple] = (
+    (URL.ADMIN_MOD_DATA_URL, status.HTTP_200_OK),
+    (URL.ADMIN_MOD_DATA_URL, status.HTTP_404_NOT_FOUND),
+)
+ADMIN_CREATE_MOD_NEW: dict[str] = {
+    'name': 'test',
+    'surname': 'test',
+    'role': RoleUserTabit.ADMIN,
+    'email': MOD_TEST_EMAIL,
+    'password': GOOD_PASSWORD,
+}
+
+# Варианты payload для ADMIN_CREATE_MOD_BAD:
+# 1) Отсутствие необходимого поля
+# 2) Некорректный пароль
+# 3) Повторяющийся email
+# 4) Некорректная роль
+# 5) Некорректный company_id
+ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'password': GOOD_PASSWORD,
+        'company_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': BAD_PASSWORD[-1],
+        'company_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'email': MOD_TEST_EMAIL,
+        'password': GOOD_PASSWORD,
+        'company_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.EMPLOYEE,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': GOOD_PASSWORD,
+        'company_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': GOOD_PASSWORD,
+        'company_id': 99,
+    },
+)
+ADMIN_UPDATE_MOD: dict[str] = {}
