@@ -100,7 +100,7 @@ async def create_staff(
         create_data.company_id, create_data.current_department_id, session
     )
     await check_telegram_username_for_duplicates(create_data.telegram_username, session)
-    return await admin_user_crud.create(session, create_data, user_manager)
+    return await admin_user_crud.create(create_data, user_manager)
 
 
 @router.get(

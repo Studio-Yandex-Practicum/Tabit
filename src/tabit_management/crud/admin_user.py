@@ -95,7 +95,6 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
 
     async def create(
         self,
-        session: AsyncSession,
         create_data: CompanyAdminCreateSchema,
         user_manager: BaseUserManager,
     ) -> UserTabit:
@@ -104,7 +103,6 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
         В случае возникновения ошибок, выбрасывает исключения.
 
         Параметры:
-            session: асинхронная сессия SQLAlchemy;
             create_data: Валидированные данные схемы CompanyAdminCreateSchema,
             для создания админа компании;
             user_manager - менеджер пользователей.
@@ -134,7 +132,6 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
         Параметры:
             user_id - UUID пользователя;
             update_date: объект схемы с данными для обновления;
-            session: асинхронная сессия SQLAlchemy;
             user_manager: менеджер пользователей.
         """
         try:
