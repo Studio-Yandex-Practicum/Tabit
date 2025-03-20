@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.v1.auth.dependencies import current_admin_tabit
 from src.api.v1.auth.managers import get_user_manager
 from src.api.v1.validators import (
+    check_company_and_department,
     check_telegram_username_for_duplicates,
 )
 from src.database.db_depends import get_async_session
@@ -15,8 +16,9 @@ from src.tabit_management.crud.admin_user import admin_user_crud
 from src.tabit_management.schemas.admin_company import (
     AdminCompanyResponseSchema,
     CompanyAdminCreateSchema,
+    CompanyAdminPatchSchema,
+    CompanyAdminPutSchema,
     CompanyAdminReadSchema,
-    CompanyAdminUpdateSchema,
 )
 from src.tabit_management.schemas.query_params import CompanyFilterSchema, UserFilterSchema
 
@@ -94,6 +96,9 @@ async def create_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
+    await check_company_and_department(
+        create_data.company_id, create_data.current_department_id, session
+    )
     await check_telegram_username_for_duplicates(create_data.telegram_username, session)
     return await admin_user_crud.create(session, create_data, user_manager)
 
@@ -126,7 +131,7 @@ async def get_staff(
 )
 async def full_update_staff(
     user_id: UUID,
-    update_data: CompanyAdminCreateSchema,
+    update_data: CompanyAdminPutSchema,
     session: AsyncSession = Depends(get_async_session),
     user_manager: BaseUserManager = Depends(get_user_manager),
 ) -> CompanyAdminReadSchema:
@@ -141,6 +146,8 @@ async def full_update_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
+    user = await admin_user_crud.get_or_404(user_id, user_manager)
+    await check_company_and_department(user.company_id, update_data.current_department_id, session)
     await check_telegram_username_for_duplicates(update_data.telegram_username, session)
     return await admin_user_crud.update(user_id, update_data, session, user_manager)
 
@@ -153,7 +160,7 @@ async def full_update_staff(
 )
 async def update_staff(
     user_id: UUID,
-    update_data: CompanyAdminUpdateSchema,
+    update_data: CompanyAdminPatchSchema,
     session: AsyncSession = Depends(get_async_session),
     user_manager: BaseUserManager = Depends(get_user_manager),
 ) -> CompanyAdminReadSchema:
@@ -168,6 +175,8 @@ async def update_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
+    user = await admin_user_crud.get_or_404(user_id, user_manager)
+    await check_company_and_department(user.company_id, update_data.current_department_id, session)
     await check_telegram_username_for_duplicates(update_data.telegram_username, session)
     return await admin_user_crud.update(user_id, update_data, session, user_manager)
 
