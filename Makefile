@@ -84,10 +84,10 @@ migration-apply:
 	poetry run alembic upgrade head
 
 ## Полный сброс базы данных и реинициализация
-db-reset: clean-volumes up apply-migration
+db-reset: clean-volumes up migration-apply
 
 ## Полный процесс инициализации базы данных
-db-init: up init-migration apply-migration
+db-init: up init-migration migration-apply
 
 # Заполнение БД данными
 
