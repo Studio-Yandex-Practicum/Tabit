@@ -6,8 +6,8 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from fake_data_factories.company_factories import CompanyFactory
-from fake_data_factories.company_user_factories import CompanyUserFactory
+from fake_data_factories.company_factories import create_companies
+from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.constants import FAKER_MESSAGE_FEEDS_COUNT
 from fake_data_factories.problem_factory import create_problems
 from src.database.sc_db_session import sc_session
@@ -49,17 +49,22 @@ async def create_message_feeds(
     - пользователь Tabit (uuid пользователя передаётся в фабрику).
 
     Если функция запускается через импорт, в неё можно передать именованный аргумент \
-    `owner_id`. Если не передать, запустится фабрика CompanyUserFactory \
-        с предварительным запуском фабрики CompanyFactory, а также запустится фабрика \
+    `owner_id`. Если не передать, запустится фабрика создания пользователей компании \
+        с предварительным запуском фабрики создания компании, а также запустится фабрика \
         создания проблемы от авторства созданного фабрикой пользователя.
 
     Функция возвращает список лент сообщений.
     """
     if 'owner_id' not in kwargs:
-        company = await CompanyFactory.create()
-        user_tabit = await CompanyUserFactory.create(company_id=company.id)
+        company = next(iter(await create_companies(count=1)), None)
+        user_tabit = next(iter(await create_company_users(count=1, company_id=company.id)), None)
         kwargs['owner_id'] = user_tabit.id
-        problem = (await create_problems(count=1, owner_id=user_tabit.id))[0]
+        problem = next(
+            iter(
+                await create_problems(count=1, owner_id=user_tabit.id, company_slug=company.slug)
+            ),
+            None,
+        )
         kwargs['problem_id'] = problem.id
     message_feeds = await MessageFeedFactory.create_batch(count, **kwargs)
     cprint(

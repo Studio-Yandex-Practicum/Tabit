@@ -6,8 +6,11 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from fake_data_factories.company_factories import CompanyFactory
-from fake_data_factories.company_user_factories import CompanyUserFactory
+from fake_data_factories.association_user_problem_factory import (
+    create_user_problem_associations,
+)
+from fake_data_factories.company_factories import create_companies
+from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.constants import (
     DEFAULT_PROBLEM_DESCRIPTIONS,
     DEFAULT_PROBLEM_NAMES,
@@ -60,23 +63,28 @@ async def create_problems(count: int = FAKER_PROBLEMS_COUNT, **kwargs) -> list[P
     - пользователь Tabit (uuid пользователя передаётся в фабрику).
 
     Если функция запускается через импорт, в неё можно передать именованные аргументы:
-    - `company_slug` (если не передать, запустится фабрика `CompanyFactory`);
-    - `owner_id` (если не передать, запустится фабрика `CompanyUserFactory`).
+    - `company_slug` (если не передать, запустится фабрика создания компании);
+    - `owner_id` (если не передать, запустится фабрика создания пользователей компании).
     Примечание: если какой-то из именованных параметров не передался, \
         работает так, как если не передавать именованные аргументы.
+
+    Функция вызывает фабрику связей пользователь-проблема.
 
     Функция возвращает список проблем.
     """
     if 'owner_id' not in kwargs or 'company_slug' not in kwargs:
-        company = await CompanyFactory.create()
+        company = next(iter(await create_companies(count=1)), None)
         kwargs['company_slug'] = company.slug
-        user_tabit = await CompanyUserFactory.create(company_id=company.id)
+        user_tabit = next(iter(await create_company_users(count=1, company_id=company.id)), None)
         kwargs['owner_id'] = user_tabit.id
     problems = await ProblemFactory.create_batch(count, **kwargs)
     cprint(
         f'Создано {count} проблем компании cо slug: {kwargs["company_slug"]} '
         f'от пользователя с id: {kwargs["owner_id"]}',
         'green',
+    )
+    await create_user_problem_associations(
+        user_id=kwargs['owner_id'], problem_ids=[problem.id for problem in problems]
     )
     return problems
 

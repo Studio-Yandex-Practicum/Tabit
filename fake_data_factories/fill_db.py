@@ -2,7 +2,6 @@ import asyncio
 
 from termcolor import colored, cprint
 
-from fake_data_factories.association_user_problem_factory import create_user_problem_associations
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.constants import (
@@ -43,16 +42,22 @@ async def fill_all_data():
         count=FAKER_COMPANY_COUNT, license_id=company_license_type.id
     )
     for company in companies:
-        await create_company_users(count=FAKER_USER_COUNT, company_id=company.id)
+        company_users = await create_company_users(count=FAKER_USER_COUNT, company_id=company.id)
+        for company_user in company_users:
+            if company_user.role != 'Админ':
+                problem = next(
+                    iter(
+                        await create_problems(
+                            count=1, company_slug=company.slug, owner_id=company_user.id
+                        )
+                    ),
+                    None,
+                )
+                await create_message_feeds(
+                    count=1, problem_id=problem.id, owner_id=problem.owner_id
+                )
         await create_company_department(count=FAKER_DEPARTMENT_COUNT, company_id=company.id)
     await create_tabit_admin_users(count=FAKER_USER_COUNT)
-    problems = await create_problems()
-    problem_ids = [problem.id for problem in problems]
-    await create_user_problem_associations(
-        user_id=problems[0].owner_id,
-        problem_ids=problem_ids,
-    )
-    await create_message_feeds(problem_id=problem_ids[0], owner_id=problems[0].owner_id)
 
     cprint(
         colored('Генерация завершена!', 'red', attrs=['reverse', 'blink']),

@@ -1,12 +1,8 @@
-import asyncio
 from uuid import UUID
 
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from fake_data_factories.company_factories import CompanyFactory
-from fake_data_factories.company_user_factories import CompanyUserFactory
-from fake_data_factories.problem_factory import create_problems
 from src.database.sc_db_session import sc_session
 from src.problems.models.association_models import AssociationUserProblem
 
@@ -59,24 +55,3 @@ async def create_user_problem_associations(
         'green',
     )
     return user_problem_associations
-
-
-async def main() -> None:
-    """
-    Запустить создание ассоциативных связей из модуля.
-
-    Примечание: запускается фабрика проблем, которая создаёт компанию, \
-        пользователя этой компании и пакет проблем от его авторства.
-    """
-    company = await CompanyFactory()
-    user_tabit = await CompanyUserFactory(company_id=company.id)
-    problems = await create_problems()
-    problem_ids = [problem.id for problem in problems]
-    await create_user_problem_associations(
-        user_id=user_tabit.id,
-        problem_ids=problem_ids,
-    )
-
-
-if __name__ == '__main__':
-    asyncio.run(main())

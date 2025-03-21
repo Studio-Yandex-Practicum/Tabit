@@ -1,4 +1,4 @@
-.PHONY: up down up-pgadmin down-pgadmin logs init-migrations apply-migrations reset-db init-db run clean-volumes
+.PHONY: up down up-pgadmin down-pgadmin logs init-migrations apply-migrations reset-db init-db run clean-volumes fill-problems fill-message-feeds
 
 # Docker Compose команды
 up:
@@ -77,15 +77,9 @@ fill-company-departments:
 fill-license-type:
 	poetry run python fake_data_factories/license_type_factories.py
 
-.PHONY: fill-problems
 fill-problems:
 	poetry run python fake_data_factories/problem_factory.py
 
-.PHONY: fill-user-problem-associations
-fill-user-problem-associations:
-	poetry run python fake_data_factories/association_user_problem_factory.py
-
-.PHONY: fill-message-feeds
 fill-message-feeds:
 	poetry run python fake_data_factories/message_feed_factory.py
 
