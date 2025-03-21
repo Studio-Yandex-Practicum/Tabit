@@ -4,7 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 
+from src.constants import TextError
 from src.crud import CRUDBase
+from src.logger import logger
 from src.problems.crud.association_utils import create_associations
 from src.problems.models import AssociationUserMeeting, Meeting, ResultMeeting
 from src.problems.schemas.meeting import MeetingCreateSchema
@@ -162,7 +164,7 @@ class CRUDResultMeeting(CRUDBase):
         )
         return result.scalars().first()
 
-    async def result_create(
+    async def create(
         self,
         session: AsyncSession,
         obj_in: dict,
@@ -181,13 +183,19 @@ class CRUDResultMeeting(CRUDBase):
         Возвращаемое значение:
             Созданный объект результата встречи.
         """
-        result = await self.create(
-            session=session,
-            obj_in=obj_in,
-            owner=owner,
-            meeting_id=meeting_id
-        )
-        return self.serialize_result(result)
+        obj_data = obj_in.model_dump()
+        obj_data['owner_id'] = owner.id
+        obj_data['meeting_id'] = meeting_id
+        db_obj = self.model(**obj_data)
+        try:
+            session.add(db_obj)
+            await session.commit()
+            await session.refresh(db_obj)
+        except Exception as error:
+            await session.rollback()
+            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
+            raise error
+        return self.serialize_result(db_obj)
 
 
 result_meeting_crud = CRUDResultMeeting(ResultMeeting)

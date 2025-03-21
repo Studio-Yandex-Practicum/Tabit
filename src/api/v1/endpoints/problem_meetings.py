@@ -215,7 +215,7 @@ async def create_meeting_result(
     await check_problem_exists(problem_id, session)
     await check_meeting_exists(meeting_id, session)
 
-    return await result_meeting_crud.result_create(session, result, owner, meeting_id)
+    return await result_meeting_crud.create(session, result, owner, meeting_id)
 
 
 @router.get(
