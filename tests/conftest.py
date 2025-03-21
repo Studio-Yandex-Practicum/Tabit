@@ -18,10 +18,23 @@ from src.companies.models.models import Company
 from src.database.db_depends import get_async_session
 from src.database.models import BaseTabitModel as Base
 from src.main import app_v1
+from src.problems.models import CommentFeed, Meeting, MessageFeed, Problem
+from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.tabit_management.models import LicenseType, TabitAdminUser
 from src.users.models import UserTabit
 from src.users.models.enum import RoleUserTabit
 from tests.constants import GOOD_PASSWORD, TEST_DATABASE_URL, URL
+
+
+def pytest_collection_modifyitems(items):
+    """
+    Добавляет всем тестам параметр loop_scope="session" в декоратор.
+    Подробности: https://github.com/pytest-dev/pytest-asyncio/issues/922
+    """
+    pytest_asyncio_tests = (item for item in items if pytest_asyncio.is_async_test(item))
+    session_scope_marker = pytest.mark.asyncio(loop_scope='session')
+    for async_test in pytest_asyncio_tests:
+        async_test.add_marker(session_scope_marker, append=False)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -296,6 +309,9 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
         """Функция-обёртка для пользователя тестовой компании с изменяемыми параметрами."""
         if not user_data or 'company_id' not in user_data:
             company = await company_for_test()
+            company_id = company.id
+        else:
+            company_id = user_data.pop('company_id')
         default_data = {
             'name': 'Брюс',
             'surname': 'Ли',
@@ -305,7 +321,7 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
             'is_superuser': False,
             'is_verified': False,
             'role': RoleUserTabit.EMPLOYEE,
-            'company_id': company.id,
+            'company_id': company_id,
         }
         if user_data:
             default_data.update(user_data)
@@ -444,3 +460,112 @@ async def employee_refresh_token(get_token_for_user, employee):
     Фикстура для получения заголовков авторизации пользователя от компании c refresh-token.
     """
     return await get_token_for_user(employee, refresh=True)
+
+ 
+# Фикстуры для тестов problem_feeds.py
+@pytest_asyncio.fixture
+async def problem_for_test(async_session: AsyncSession):
+    """Фикстура, создающая проблему, связанную с переданным сотрудником и компанией"""
+
+    async def _create_problem(employee, company_slug, problem_data=None):
+        problem_obj = {
+            'name': 'проблема',
+            'description': 'описание проблемы',
+            'color': ColorProblem.RED,
+            'type': TypeProblem.B,
+            'status': StatusProblem.NEW,
+            'owner_id': employee.id,
+            'company_slug': company_slug,
+        }
+        if problem_data:
+            problem_obj.update(problem_data)
+        return await make_entry_in_table(async_session, problem_obj, Problem)
+
+    return _create_problem
+
+
+@pytest_asyncio.fixture
+async def message_feed_for_test(async_session: AsyncSession, problem_for_test):
+    """Фикстура, создающая тред, принадлежащий переданному сотруднику"""
+
+    async def _create_message_feed(
+        employee, company_slug, message_feed_data=None, problem_id=None
+    ):
+        if not problem_id:
+            problem = await problem_for_test(employee, company_slug)
+            problem_id = problem.id
+        message_feed_obj = {
+            'problem_id': problem_id,
+            'owner_id': employee.id,
+            'text': 'текст треда',
+            'important': True,
+        }
+        if message_feed_data:
+            message_feed_obj.update(message_feed_data)
+        return await make_entry_in_table(async_session, message_feed_obj, MessageFeed)
+
+    return _create_message_feed
+
+
+@pytest_asyncio.fixture
+async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
+    """Фикстура, создающая комментарий, принадлежащий переданному сотруднику"""
+
+    async def _create_comment(employee, company_slug, comment_data=None, message_feed_id=None):
+        if not message_feed_id:
+            message_feed = await message_feed_for_test(employee, company_slug)
+            message_feed_id = message_feed.id
+        comment_obj = {
+            'text': 'текст комментария',
+            'message_id': message_feed_id,
+            'owner_id': employee.id,
+        }
+        if comment_data:
+            comment_obj.update(comment_data)
+        return await make_entry_in_table(async_session, comment_obj, CommentFeed)
+
+    return _create_comment
+
+
+@pytest_asyncio.fixture
+async def problem_for_meeting(async_session: AsyncSession, employee_of_company, company_for_test):
+    """Фикстура для создания проблемы."""
+
+    async def func(company_slug=None, owner_id=None):
+        if company_slug is None:
+            company = await company_for_test()
+            company_slug = company.slug
+        if owner_id is None:
+            owner = await employee_of_company()
+            owner_id = owner.id
+        default_data = {
+            'name': 'Test Problem',
+            'description': 'Some description',
+            'company_slug': company_slug,
+            'color': 1,
+            'type': 'A',
+            'status': 'Новая',
+            'owner_id': owner_id,
+        }
+        problem = await make_entry_in_table(async_session, default_data, Problem)
+        return problem
+
+    return func
+
+
+@pytest_asyncio.fixture
+async def create_meeting(async_session: AsyncSession):
+    """Фикстура для создания встречи."""
+
+    async def func(problem_id, owner_id, count=1):
+        meeting_data = {
+            'title': f'Test Meeting {count}',
+            'date_meeting': (datetime.now() + timedelta(days=count)).date(),
+            'status': 'Новая',
+            'problem_id': problem_id,
+            'owner_id': str(owner_id),
+        }
+        meeting = await make_entry_in_table(async_session, meeting_data, Meeting)
+        return meeting
+
+    return func
