@@ -14,7 +14,7 @@ from slugify import slugify
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from src.companies.models.models import Company
+from src.companies.models.models import Company, Department
 from src.database.db_depends import get_async_session
 from src.database.models import BaseTabitModel as Base
 from src.main import app_v1
@@ -558,3 +558,23 @@ async def create_meeting(async_session: AsyncSession):
         return meeting
 
     return func
+
+
+@pytest_asyncio.fixture
+async def department_for_test(async_session: AsyncSession, company_for_test):
+    """
+    Фикстура, создающая отдел для тестовой компании с возможностью изменения полей.
+    """
+
+    async def _create_department(department_data=None):
+        if not department_data or 'company_id' not in department_data:
+            company = await company_for_test()
+            company_id = company.id
+        else:
+            company_id = department_data.pop('company_id')
+        default_data = {'name': 'Отдел контроля отделов', 'slug': 'usls', 'company_id': company_id}
+        if department_data:
+            default_data.update(department_data)
+        return await make_entry_in_table(async_session, default_data, Department)
+
+    return _create_department

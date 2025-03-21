@@ -260,6 +260,8 @@ ADMIN_CREATE_MOD_NEW: dict[str] = {
 # 3) Повторяющийся email
 # 4) Некорректная роль
 # 5) Некорректный company_id
+# 6) Некорректный current_department_id
+# 7) Некорректная связка company_id и current_department_id
 ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
@@ -267,6 +269,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
         'role': RoleUserTabit.ADMIN,
         'password': GOOD_PASSWORD,
         'company_id': 1,
+        'current_department_id': 1,
     },
     {
         'name': 'test_bad',
@@ -275,6 +278,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
         'email': MOD_TEST_EMAIL_BAD,
         'password': BAD_PASSWORD[-1],
         'company_id': 1,
+        'current_department_id': 1,
     },
     {
         'name': 'test_bad',
@@ -283,6 +287,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
         'email': MOD_TEST_EMAIL,
         'password': GOOD_PASSWORD,
         'company_id': 1,
+        'current_department_id': 1,
     },
     {
         'name': 'test_bad',
@@ -291,6 +296,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
         'email': MOD_TEST_EMAIL_BAD,
         'password': GOOD_PASSWORD,
         'company_id': 1,
+        'current_department_id': 1,
     },
     {
         'name': 'test_bad',
@@ -299,6 +305,122 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
         'email': MOD_TEST_EMAIL_BAD,
         'password': GOOD_PASSWORD,
         'company_id': 99,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': GOOD_PASSWORD,
+        'company_id': 1,
+        'current_department_id': 99,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': GOOD_PASSWORD,
+        'company_id': 2,
+        'current_department_id': 1,
     },
 )
-ADMIN_UPDATE_MOD: dict[str] = {}
+ADMIN_PATCH_MOD: tuple[tuple] = (
+    ({'name': 'updated_name', 'email': 'updated@example.com'}, False),
+    ({'current_department_id': 2}, True),
+)
+
+# Варианты payload для ADMIN_PATCH_MOD_BAD:
+# 1) Лишнее поле
+# 2) Некорректный пароль
+# 3) Повторяющийся email
+# 4) Некорректный current_department_id
+# 5) Некорректная связка company_id и current_department_id
+ADMIN_PATCH_MOD_BAD: tuple[dict, ...] = (
+    {'company_id': 2},
+    {'password': BAD_PASSWORD[-1]},
+    {'email': MOD_TEST_EMAIL_BAD},
+    {'current_department_id': 99},
+    {'current_department_id': 2},
+)
+ADMIN_PUT_MOD: tuple[tuple] = (
+    (
+        {
+            'name': 'updated_name',
+            'surname': 'updated_surname',
+            'email': 'updated@example.com',
+            'role': RoleUserTabit.ADMIN,
+            'current_department_id': 1,
+        },
+        False,
+    ),
+    (
+        {
+            'name': 'updated_name',
+            'surname': 'updated_surname',
+            'email': 'updated@example.com',
+            'role': RoleUserTabit.ADMIN,
+            'current_department_id': 2,
+        },
+        True,
+    ),
+)
+
+# Варианты payload для ADMIN_PUT_MOD_BAD:
+# 1) Лишнее поле
+# 2) Отсутствие необходимого поля
+# 3) Некорректный пароль
+# 4) Повторяющийся email
+# 5) Некорректный current_department_id
+# 6) Некорректная связка company_id и current_department_id
+ADMIN_PUT_MOD_BAD: tuple[dict, ...] = (
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'email': MOD_TEST_EMAIL,
+        'password': GOOD_PASSWORD,
+        'company_id': 1,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'password': GOOD_PASSWORD,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'email': MOD_TEST_EMAIL,
+        'password': BAD_PASSWORD[-1],
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': GOOD_PASSWORD,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'email': MOD_TEST_EMAIL,
+        'password': GOOD_PASSWORD,
+        'current_department_id': 99,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': RoleUserTabit.ADMIN,
+        'email': MOD_TEST_EMAIL,
+        'password': GOOD_PASSWORD,
+        'current_department_id': 2,
+    },
+)
