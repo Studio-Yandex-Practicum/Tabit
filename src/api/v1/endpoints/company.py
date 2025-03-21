@@ -199,29 +199,29 @@ async def import_departments(
 
 
 @router.get(
-    '/{company_slug}/departments/{department_id}',
+    '/{company_slug}/departments/{department_slug}',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENT,
 )
 async def get_department(
     company_slug: str,
-    department_id: int,
+    department_slug: str,
     session: AsyncSession = Depends(get_async_session),
 ) -> CompanyDepartmentResponseSchema:
     """
     Получает информацию об отделе компании.
     Доступно только пользователю-админу компании.
     Проверяет существует ли компания и после, по id отдела получает данные.
-    В пути принимает 'company_slug' - значение `slug` компании и 'department_id'
-     - значение `id` отдела.
+    В пути принимает 'company_slug' - значение `slug` компании и 'department_slug'
+     - значение `slug` отдела.
     Параметры декоратора:
         path: URL-адрес, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
         company_slug: значение `slug` компании.
-        department_id: значение `id` отдела.
+        department_id: значение `slug` отдела.
         session: асинхронная сессия.
     При успешной транзакции вернет JSON, пример:
       {
@@ -233,18 +233,22 @@ async def get_department(
     Если отдела нет вернет ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    return await company_departments_crud.get_or_404(session=session, obj_id=department_id)
+    return await company_departments_crud.get_by_slug(
+        session=session,
+        obj_slug=department_slug,
+        raise_404=True,
+    )
 
 
 @router.patch(
-    '/{company_slug}/departments/{department_id}',
+    '/{company_slug}/departments/{department_slug}',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_UPDATE,
 )
 async def update_department(
     company_slug: str,
-    department_id: int,
+    department_slug: str,
     object_in: CompanyDepartmentUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
 ) -> CompanyDepartmentResponseSchema:
@@ -255,15 +259,15 @@ async def update_department(
     введенное пользователем для проверки на уникальность, если уникальность не соблюдена
     вернется ответ со статусом 400. Далее получает объект отдела и передает с данными
      для обновления.
-    В пути принимает 'company_slug' - значение `slug` компании и 'department_id'
-     - значение `id` отдела.
+    В пути принимает 'company_slug' - значение `slug` компании и 'department_slug'
+     - значение `slug` отдела.
     Параметры декоратора:
         path: URL-адрес, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
         company_slug: значение `slug` компании.
-        department_id: значение `id` отдела.
+        department_slug: значение `slug` отдела.
         object_in: данные введенные пользователем в соответствии со схемой.
         session: асинхронная сессия.
     При успешной транзакции вернет JSON, пример:
@@ -280,7 +284,9 @@ async def update_department(
     await check_department_name_duplicate(
         company_id=company.id, department_name=object_name, session=session
     )
-    db_object = await company_departments_crud.get_or_404(session, obj_id=department_id)
+    db_object = await company_departments_crud.get_by_slug(
+        session, obj_slug=department_slug, raise_404=True
+    )
     update_obj = await company_departments_crud.update(
         session, db_obj=db_object, obj_in=object_in, auto_commit=False
     )
@@ -294,39 +300,37 @@ async def update_department(
 
 
 @router.delete(
-    '/{company_slug}/departments/{department_id}',
+    '/{company_slug}/departments/{department_slug}',
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_DELETE,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_department(
     company_slug: str,
-    department_id: int,
+    department_slug: str,
     session: AsyncSession = Depends(get_async_session),
 ):
     """
     Удаляет отдел компании.
     Доступно только пользователю-админу компании.
     Проверяет существует ли компания и отдел, и после передает объект отдела для удаления.
-    В пути принимает 'company_slug' - значение `slug` компании и 'department_id'
-     - значение `id` отдела.
+    В пути принимает 'company_slug' - значение `slug` компании и 'department_slug'
+     - значение `slug` отдела.
     Параметры декоратора:
         path: URL-адрес, который будет использоваться для этой операции.
         summary: краткое описание.
         status_code: код статуса ответа.
     Параметры функции:
         company_slug: значение `slug` компании.
-        department_id: значение `id` отдела.
+        department_slug: значение `slug` отдела.
         session: асинхронная сессия.
     При успешной транзакции вернет ответ со статусом 204.
     Если компания или отдел не найдены ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     department = await validator_check_object_exists(
-        session, company_departments_crud, object_id=department_id
+        session, company_departments_crud, object_slug=department_slug
     )
     await company_departments_crud.remove(session, db_object=department)
-
-    return status.HTTP_204_NO_CONTENT
 
 
 @router.get(
