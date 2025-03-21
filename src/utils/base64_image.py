@@ -1,6 +1,6 @@
 import base64
 
-# import aiofiles
+import aiofiles
 from fastapi import HTTPException, status
 
 from src.constants import BASE64_STARTSWITH, Directory, TextError
