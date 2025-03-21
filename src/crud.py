@@ -11,14 +11,13 @@
 """
 
 from http import HTTPStatus
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, Type, TypeVar
 from uuid import UUID
 
 from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_users import BaseUserManager, exceptions, models, schemas
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 from starlette.requests import Request
@@ -27,18 +26,7 @@ from src.constants import (
     DEFAULT_AUTO_COMMIT,
     DEFAULT_LIMIT,
     DEFAULT_SKIP,
-    TEXT_ERROR_EXISTS_EMAIL,
-    TEXT_ERROR_INVALID_PASSWORD,
-    TEXT_ERROR_NOT_FOUND,
-    TEXT_ERROR_SERVER_CREATE,
-    TEXT_ERROR_SERVER_CREATE_LOG,
-    TEXT_ERROR_SERVER_DELETE,
-    TEXT_ERROR_SERVER_DELETE_LOG,
-    TEXT_ERROR_SERVER_UPDATE,
-    TEXT_ERROR_SERVER_UPDATE_LOG,
-    TEXT_ERROR_UNIQUE,
-    TEXT_ERROR_UNIQUE_CREATE_LOG,
-    TEXT_ERROR_UNIQUE_UPDATE_LOG,
+    TextError,
 )
 from src.logger import logger
 
@@ -61,7 +49,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         self.model = model
 
-    async def get(self, session: AsyncSession, obj_id: int | str | UUID) -> Optional[ModelType]:
+    async def get(self, session: AsyncSession, obj_id: int | str | UUID) -> ModelType | None:
         """
         Получает объект по ID (int, str или UUID).
 
@@ -71,7 +59,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.scalars().first()
 
     async def get_or_404(
-        self, session: AsyncSession, obj_id: int | UUID, message: str = TEXT_ERROR_NOT_FOUND
+        self, session: AsyncSession, obj_id: int | UUID, message: str = TextError.NOT_FOUND
     ) -> ModelType:
         """
         Получает объект по ID или выбрасывает 404-ошибку.
@@ -90,8 +78,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         obj_slug: str,
         raise_404: bool = False,
-        message: str = TEXT_ERROR_NOT_FOUND,
-    ) -> Optional[ModelType]:
+        message: str = TextError.NOT_FOUND,
+    ) -> ModelType | None:
         """
         Получает объект по полю slug.
 
@@ -100,7 +88,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         result = await session.execute(select(self.model).where(self.model.slug == obj_slug))
         obj_model = result.scalars().first()
-        if not result and raise_404:
+        if not obj_model and raise_404:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
         return obj_model
 
@@ -109,9 +97,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         skip: int = DEFAULT_SKIP,
         limit: int = DEFAULT_LIMIT,
-        filters: Optional[Dict[str, Any]] = None,
+        filters: Dict[str, Any] | None = None,
         order_by: list[str] | None = None,
-    ) -> List[ModelType]:
+    ) -> list[ModelType]:
         """
         Получает список объектов с пагинацией, фильтрацией и сортировкой.
 
@@ -161,8 +149,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> ModelType:
         """
         Создаёт новый объект в БД.
-
-        При нарушении уникальности выбрасывает 400-ошибку.
         """
         # TODO: Добавить возможность автозаполнение поля owner у модели.
         obj_data = obj_in.model_dump()
@@ -172,22 +158,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if auto_commit:
                 await session.commit()
                 await session.refresh(db_obj)
-        except IntegrityError as e:
-            # TODO: Сюда попадают не только ошибки уникальности, но и не правильно оформленные
-            # поля, надо переделать на более универсальный ответ.
+        except Exception as error:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_UNIQUE_CREATE_LOG} {self.model.__name__}: {e}')
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=TEXT_ERROR_UNIQUE,
-            )
-        except Exception as e:
-            await session.rollback()
-            logger.error(f'{TEXT_ERROR_SERVER_CREATE_LOG} {self.model.__name__}: {e}')
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TEXT_ERROR_SERVER_CREATE,
-            )
+            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
+            raise error
         return db_obj
 
     async def update(
@@ -214,20 +188,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if auto_commit:
                 await session.commit()
                 await session.refresh(db_obj)
-        except IntegrityError as e:
+        except Exception as error:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_UNIQUE_UPDATE_LOG} {self.model.__name__}: {e}')
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=TEXT_ERROR_UNIQUE,
-            )
-        except Exception as e:
-            await session.rollback()
-            logger.error(f'{TEXT_ERROR_SERVER_UPDATE_LOG} {self.model.__name__}: {e}')
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TEXT_ERROR_SERVER_UPDATE,
-            )
+            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            raise error
         return db_obj
 
     async def remove(
@@ -240,13 +204,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await session.delete(db_object)
             if auto_commit:
                 await session.commit()
-        except Exception as e:
+        except Exception as error:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_SERVER_DELETE_LOG} {self.model.__name__}: {e}')
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TEXT_ERROR_SERVER_DELETE,
-            )
+            logger.error(f'{TextError.SERVER_DELETE_LOG} {self.model.__name__}: {error}')
+            raise error
 
     def _apply_filters(self, query: Select, filters: dict[str, Any]) -> Select:
         """
@@ -324,13 +285,13 @@ class UserCreateMixin:
         except exceptions.UserAlreadyExists:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail=TEXT_ERROR_EXISTS_EMAIL,
+                detail=TextError.EXISTS_EMAIL,
             )
         except exceptions.InvalidPasswordException as e:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail={
-                    'code': TEXT_ERROR_INVALID_PASSWORD,
+                    'code': TextError.INVALID_PASSWORD,
                     'reason': e.reason,
                 },
             )

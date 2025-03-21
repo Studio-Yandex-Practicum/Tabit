@@ -32,7 +32,9 @@ class CompanyUserFactory(BaseUserFactory):
         4. role: По умолчанию 'Сотрудник', можно подставить 'Админ' при создании сотрудника.
     """
 
-    employee_position: str = factory.LazyFunction(lambda: random.choice(list(PositionEnum)))
+    employee_position: factory.LazyFunction = factory.LazyFunction(
+        lambda: random.choice(list(PositionEnum))
+    )
     current_department_id: Optional[int] = None
     role: str = 'Сотрудник'
     company_id: int

@@ -44,6 +44,9 @@ class Summary:
     COMPANY_USER_AUTH_LOGOUT: str = 'Выход из система'
     COMPANY_USER_AUTH_REFRESH_TOKEN: str = 'Обновить токен'
 
+    USER_AUTH_GET_ME: str = 'Доступ к своим данным пользователя сервиса'
+    USER_AUTH_PATCH_ME: str = 'Для редактирования своих данных пользователя сервиса'
+
 
 @dataclass
 class Description:
@@ -105,6 +108,15 @@ class Description:
         'сервиса. У администраторов сервиса своя конечная точка.'
     )
 
+    USER_AUTH_GET_ME: str = (
+        'Для доступа к своей учетной записи пользователей сервиса. '
+        'Доступно только хозяину учетной записи.'
+    )
+    USER_AUTH_PATCH_ME: str = (
+        'Позволит обновить данные о себе пользователей сервиса. '
+        'Доступно только хозяину учетной записи.'
+    )
+
 
 @dataclass
 class TextError:
@@ -113,4 +125,4 @@ class TextError:
     FORBIDDEN_ROLE_ADMIN: str = 'Доступно только админам компаний'
     LOGIN = 'Неверные учетные данные для входа в систему'
     IS_SUPERUSER: str = 'Объект - суперпользователь'
-    DEPARTMENT_EXIST_ERROR_MESSAGE = 'Объект с таким именем уже существует.'
+    DEPARTMENT_EXIST_ERROR_MESSAGE: str = 'Объект с таким именем уже существует.'

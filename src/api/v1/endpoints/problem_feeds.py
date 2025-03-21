@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_user_tabit
 from src.api.v1.validators import (
+    check_comment_and_message_feed,
     check_comment_has_likes_from_user,
     check_comment_owner,
     get_access_to_comments,
@@ -173,7 +174,8 @@ async def update_thread_comment(
     Доступ только для сотрудников компаний.
     """
     await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
-    comment = await check_comment_owner(comment_id, user.id, session)
+    comment = await check_comment_and_message_feed(comment_id, thread_id, session)
+    await check_comment_owner(comment, user.id)
     return await comment_crud.update(session, comment, update_data)
 
 
@@ -203,11 +205,12 @@ async def delete_thread_comment(
     Доступ только для сотрудников компаний.
     """
     await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
-    comment = await check_comment_owner(comment_id, user.id, session)
+    comment = await check_comment_and_message_feed(comment_id, thread_id, session)
+    await check_comment_owner(comment, user.id)
     await comment_crud.remove(session, comment)
 
 
-@router.get(
+@router.post(
     '/{thread_id}/comments/{comment_id}/like',
     summary='Поставить лайк комментарию в треде.',
     status_code=status.HTTP_200_OK,
@@ -233,12 +236,13 @@ async def like_a_comment(
     Доступ только для сотрудников компаний.
     """
     await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
+    comment = await check_comment_and_message_feed(comment_id, thread_id, session)
     await check_comment_has_likes_from_user(user.id, comment_id, session, like_mode=True)
-    comment = await check_comment_owner(comment_id, user.id, session, like_mode=True)
+    await check_comment_owner(comment, user.id, like_mode=True)
     await comment_crud.like(comment, user.id, session)
 
 
-@router.get(
+@router.post(
     '/{thread_id}/comments/{comment_id}/unlike',
     summary='Убрать свой лайк комментарию в треде.',
     status_code=status.HTTP_200_OK,
@@ -264,6 +268,7 @@ async def unlike_a_comment(
     Доступ только для сотрудников компаний.
     """
     await get_access_to_comments(user.company_id, company_slug, problem_id, thread_id, session)
-    comment = await check_comment_owner(comment_id, user.id, session, like_mode=True)
+    comment = await check_comment_and_message_feed(comment_id, thread_id, session)
+    await check_comment_owner(comment, user.id, like_mode=True)
     user_comment_obj = await check_comment_has_likes_from_user(user.id, comment_id, session)
     await comment_crud.unlike(user_comment_obj, comment, session)

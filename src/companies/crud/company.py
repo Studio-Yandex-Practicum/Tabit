@@ -1,5 +1,6 @@
 """Модуль CRUD для компании."""
 
+from datetime import datetime
 from typing import Any, List
 
 from fastapi.responses import FileResponse
@@ -7,7 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from src.companies.models import Company
+from src.companies.schemas import CompanyCreateSchema, CompanyUpdateSchema
+from src.constants import DEFAULT_AUTO_COMMIT, Directory
 from src.crud import CRUDBase
+from src.tabit_management.models import LicenseType
+from src.utils.base64_image import base64image
 
 
 class CRUDCompany(CRUDBase):
@@ -45,7 +50,7 @@ class CRUDCompany(CRUDBase):
         return FileResponse(path=f'{file_name}.txt', filename=f'{file_name}.txt')
 
     # TODO Этот метод был создан, чтобы исключить изменения в базовом crud, в методе get_by_slug
-    # Было принято решение покf не менять метод get_by_slug, а создать этот метод
+    # Было принято решение пока не менять метод get_by_slug, а создать этот метод
     # В методе get_by_slug допущена ошибка в условии проверке. Там проверяют not result
     # хотя на самом деле нам нужно проверять, был ли найден объект в базе данных.
     # result — это объект, полученный от запроса к базе данных, и даже если он пустой,
@@ -63,6 +68,73 @@ class CRUDCompany(CRUDBase):
         """
         company = await session.execute(select(Company).where(Company.slug == company_slug))
         return company.scalar_one_or_none()
+
+    async def is_company_slug_exists(self, session: AsyncSession, slug: str) -> bool:
+        """
+        Проверяет, существует ли компания с указанным slug.
+
+        Args:
+            session (AsyncSession): Асинхронная сессия SQLAlchemy.
+            slug (str): Уникальный slug компании.
+
+        Returns:
+            bool: True, если компания с таким slug уже существует, иначе False.
+        """
+        result = await session.execute(select(Company).where(Company.slug == slug))
+        return result.scalar_one_or_none() is not None
+
+    async def save_end_license_time(
+        self, session: AsyncSession, company_start_license_time: datetime, license_id: int
+    ) -> datetime:
+        """
+        Вычисляет дату окончания лицензии.
+
+        Args:
+            session (AsyncSession): Асинхронная сессия SQLAlchemy.
+            company_start_license_time (datetime): Дата начала лицензии.
+            license_id (int): ID лицензии.
+
+        Returns:
+            datetime: Дата окончания лицензии.
+        """
+        license_term = await session.scalar(
+            select(LicenseType.license_term).where(LicenseType.id == license_id)
+        )
+
+        return company_start_license_time + license_term
+
+    async def create(
+        self,
+        session: AsyncSession,
+        company_in: CompanyCreateSchema,
+        auto_commit: bool = DEFAULT_AUTO_COMMIT,
+    ) -> Company:
+        """
+        Создаёт запись в таблице "Компания".
+
+        Если был передан логотип, то декодирует его из троки Base64 в файл,
+        и в поле logo сохранит путь до него.
+        """
+        if company_in.logo:
+            company_in.logo = await base64image(company_in.logo, company_in.slug, Directory.LOGO)
+        return await super().create(session, company_in, auto_commit)
+
+    async def update(
+        self,
+        session: AsyncSession,
+        company_db: Company,
+        company_in: CompanyUpdateSchema,
+        auto_commit: bool = DEFAULT_AUTO_COMMIT,
+    ) -> Company:
+        """
+        Изменит запись в таблице "Компания".
+
+        Если был передан логотип, то декодирует его из троки Base64 в файл,
+        и в поле logo сохранит путь до него.
+        """
+        if company_in.logo:
+            company_in.logo = await base64image(company_in.logo, company_db.slug, Directory.LOGO)
+        return await super().update(session, company_db, company_in, auto_commit)
 
 
 company_crud = CRUDCompany(Company)
