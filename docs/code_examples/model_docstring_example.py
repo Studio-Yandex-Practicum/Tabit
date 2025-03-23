@@ -42,7 +42,7 @@
 Связи (атрибут - Модель):
     problem - Problem: Связь с моделью проблемы.
     owner - UserTabit: Связь с моделью пользователя, создавшего встречу.
-    members - AssociationUserMeeting -> UserTabit: Связь с участниками встречи через ассоциативную таблицу.
+    members - AssociationUserMeeting - UserTabit: Связь с участниками через ассоциативную таблицу.
     result - ResultMeeting: Связь с результатами встречи (анкеты, заполняемые после завершения).
     file - FileMeeting: Связь с файлами, прикрепленными к встрече.
 """
