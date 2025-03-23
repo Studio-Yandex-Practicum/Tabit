@@ -206,6 +206,8 @@ INVALID_IMAGE: tuple[tuple[Any, Any], ...] = (
     ),
 )
 
+ONE: int = 1
+
 # Константы для тестов problem_feeds.py
 COMPANY_DATA = {'name': 'Zorg', 'slug': 'Zorg', 'is_active': True}
 MESSAGE_FEED_CREATE_NEW: tuple[tuple] = (
