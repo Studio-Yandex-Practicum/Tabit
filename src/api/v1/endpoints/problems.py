@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.validators.problems_validators import check_company_exists
+from src.api.v1.validators.problems_validators import check_company_exists, check_max_number_problems
 from src.database.db_depends import get_async_session
 from src.problems.crud.problems import problem_crud
 from src.problems.schemas.problem import (
@@ -11,18 +11,34 @@ from src.problems.schemas.problem import (
     ProblemResponseSchema,
     ProblemUpdateSchema,
 )
+from src.api.v1.auth.dependencies import (
+    current_user_tabit,
+    current_admin_tabit,
+    current_superuser,
+    get_current_admin_refresh_token,
+    get_current_admin_token,
+    tabit_admin,
+)
+from src.users.models import UserTabit
+from src.companies.crud import company_crud
+from src.api.v1.validators.members import validate_field_members
+from src.api.v1.validator import validate_owner_object, validate_user_from_company, validate_close_problem
 
 router = APIRouter()
 
 
 @router.get(
     '/{company_slug}/problems',
-    response_model=List[ProblemResponseSchema],
+    response_model=list[ProblemResponseSchema],
     response_model_exclude_unset=True,
     summary='Получить список всех проблем',
     status_code=status.HTTP_200_OK,
 )
-async def get_all_problems(company_slug: str, session: AsyncSession = Depends(get_async_session)):
+async def get_problems_for_user(
+    company_slug: str,
+    user: UserTabit = Depends(current_user_tabit),
+    session: AsyncSession = Depends(get_async_session),
+):
     """Получает список всех проблем.
 
     Назначение:
@@ -33,9 +49,13 @@ async def get_all_problems(company_slug: str, session: AsyncSession = Depends(ge
     Возвращаемое значение:
         Список объектов ProblemResponseSchema.
     """
-    await check_company_exists(company_slug, session)
-    filters = {'company_slug': company_slug}
-    return await problem_crud.get_multi(session, filters=filters)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    return await problem_crud.get_multi(
+        session,
+        filters={'company_id': company.id},
+        unique_filter_rows=True,
+    )
 
 
 @router.post(
@@ -46,8 +66,9 @@ async def get_all_problems(company_slug: str, session: AsyncSession = Depends(ge
     status_code=status.HTTP_201_CREATED,
 )
 async def create_problem(
-    problem: ProblemCreateSchema,
+    problem_in: ProblemCreateSchema,
     company_slug: str,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ):
     """Создание проблемы.
@@ -61,17 +82,12 @@ async def create_problem(
     Возвращаемое значение:
         Созданный объект ProblemResponseSchema.
     """
-    await check_company_exists(company_slug, session)
-    problem_data = problem.model_dump()
-    if not problem_data.get('members'):
-        members = [problem_data['owner_id']]
-    else:
-        members = problem_data.pop('members')
-        members.append(problem_data['owner_id'])
-    created_problem = await problem_crud.create_problem_with_members(
-        session=session, problem_data=problem_data, members=members
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    await validate_field_members(session, problem_in.members)
+    return await problem_crud.create_problem_with_members(
+        session=session, problem_in=problem_in, owner=user, company=company,
     )
-    return created_problem
 
 
 @router.get(
@@ -84,6 +100,7 @@ async def create_problem(
 async def get_problem(
     problem_id: int,
     company_slug: str,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ):
     """Получение информации о проблеме по ID.
@@ -97,7 +114,8 @@ async def get_problem(
     Возвращаемое значение:
         Объект ProblemResponseSchema.
     """
-    await check_company_exists(company_slug, session)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
     return await problem_crud.get_or_404(session, problem_id)
 
 
@@ -109,9 +127,10 @@ async def get_problem(
     status_code=status.HTTP_200_OK,
 )
 async def update_problem(
-    problem: ProblemUpdateSchema,
+    problem_in: ProblemUpdateSchema,
     company_slug: str,
     problem_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ):
     """Обновление проблемы.
@@ -126,8 +145,13 @@ async def update_problem(
     Возвращаемое значение:
         Обновленный объект ProblemResponseSchema.
     """
-    await check_company_exists(company_slug, session)
-    return await problem_crud.update_problem(session, problem_id, problem)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    problem = await problem_crud.get_or_404(session, problem_id)
+    validate_owner_object(user, problem)
+    validate_close_problem(problem)
+    await validate_field_members(session, problem_in.members, company_id=company.id)
+    return await problem_crud.update_problem(session, problem, problem_in)
 
 
 @router.delete(
@@ -138,6 +162,7 @@ async def update_problem(
 async def delete_problem(
     company_slug: str,
     problem_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ):
     """Удаление проблемы.
@@ -151,5 +176,41 @@ async def delete_problem(
     Возвращаемое значение:
         None
     """
-    await check_company_exists(company_slug, session)
-    await problem_crud.delete_problem(session, problem_id)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    problem = await problem_crud.get_or_404(session, problem_id)
+    validate_owner_object(user, problem)
+    validate_close_problem(problem)
+    await problem_crud.remove(session, problem)
+
+
+# TODO: На эту ручку не писались тесты.
+@router.post(
+    '/{company_slug}/problems/{problem_id}/confirm',
+    response_model=ProblemResponseSchema,
+    response_model_exclude_unset=True,
+    summary='Стать участником решения проблемы',
+    status_code=status.HTTP_200_OK,
+)
+async def confirm_participation_in_problem(
+    company_slug: str,
+    problem_id: int,
+    user: UserTabit = Depends(current_user_tabit),
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Подтвердить участие в решение проблемы.
+
+    Назначение:
+        Удаляет проблему по её ID.
+    Параметры:
+        company_slug: Уникальный идентификатор компании.
+        problem_id: ID проблемы.
+        session: Асинхронная сессия SQLAlchemy.
+    Возвращаемое значение:
+        None
+    """
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    problem = await problem_crud.get_or_404(session, problem_id)
+    validate_close_problem(problem)
+    await check_max_number_problems(session, user)
+    return await problem_crud.edit_status_field_associations(session, problem, user)

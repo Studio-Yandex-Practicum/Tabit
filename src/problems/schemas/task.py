@@ -11,6 +11,7 @@ from src.problems.validators.task_validators import (
     validate_executors,
     validate_name,
 )
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class TaskBaseSchema(BaseModel):
@@ -47,7 +48,14 @@ class TaskBaseSchema(BaseModel):
         populate_by_name = True
 
 
-class TaskResponseSchema(TaskBaseSchema):
+class ExecutorsResponseSchema(BaseModel):
+
+    executor_id: UUID = Field(validation_alias='left_id')
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TaskResponseSchema(BaseModel):
     """
     Pydantic-схема для данных о задаче из БД.
 
@@ -63,51 +71,58 @@ class TaskResponseSchema(TaskBaseSchema):
     """
 
     id: int
+    name: str
+    description: str | None
+    date_completion: date
     owner_id: UUID
+    problem_id: int
+    executors: list[ExecutorsResponseSchema]
     status: StatusTask
-    executors: List[UUID]
     transfer_counter: int
-    file: Optional[List[str]] = None
 
-    @field_validator('executors', mode='before')
-    def transform_executors(cls, executors):
-        """
-        Преобразует список объектов AssociationUserTask в список UUID.
+    model_config = ConfigDict(from_attributes=True)
 
-        Назначение:
-            Преобразует список объектов в список UUID для корректной сериализации.
-        Параметры:
-            executors: Список объектов или UUID.
-        Возвращаемое значение:
-            Список UUID.
-        """
-        if executors and isinstance(executors[ZERO], object):
-            return [executor.left_id for executor in executors]
-        return executors
+    # @field_validator('executors', mode='before')
+    # def transform_executors(cls, executors):
+    #     """
+    #     Преобразует список объектов AssociationUserTask в список UUID.
 
-    class Config:
-        from_attributes = True
+    #     Назначение:
+    #         Преобразует список объектов в список UUID для корректной сериализации.
+    #     Параметры:
+    #         executors: Список объектов или UUID.
+    #     Возвращаемое значение:
+    #         Список UUID.
+    #     """
+    #     if executors and isinstance(executors[ZERO], object):
+    #         return [executor.left_id for executor in executors]
+    #     return executors
+
+    # class Config:
+    #     from_attributes = True
 
 
-class TaskCreateSchema(TaskBaseSchema):
+class TaskCreateSchema(BaseModel):
     """Схема для создания задачи"""
 
-    owner_id: Optional[UUID] = None
-    status: Optional[StatusTask] = None
-    transfer_counter: int = ZERO
-    file: Optional[List[str]] = None
-    executors: Optional[List[UUID]] = None
+    name: str
+    description: str | None
+    date_completion: date
+    executors: list[UUID] | None = []
 
-    @field_validator('executors')
+    @field_validator('date_completion')
     @classmethod
-    def validate_executors(cls, value: Optional[List[UUID]]) -> Optional[List[UUID]]:
-        """Валидирует список исполнителей."""
-        if value is not None:
-            return validate_executors(value)
-        return value
+    def validate_date_in_future(cls, value: date) -> date:
+        """Валидирует дату завершения задачи."""
+        return validate_date_in_future(value)
 
-    class Config:
-        from_attributes = True
+    @field_validator('name')
+    @classmethod
+    def validate_name_not_empty(cls, value: str) -> str:
+        """Валидирует название задачи."""
+        return validate_name(value)
+
+    model_config = ConfigDict(extra='forbid')
 
 
 class TaskUpdateSchema(BaseModel):
@@ -124,11 +139,11 @@ class TaskUpdateSchema(BaseModel):
         status: Статус задачи (опционально).
     """
 
-    name: Optional[str] = None
-    description: Optional[str] = None
-    date_completion: Optional[date] = None
-    executors: Optional[List[UUID]] = None
-    status: Optional[StatusTask] = None
+    name: str | None = None
+    description: str | None = None
+    date_completion: date | None = None
+    executors: list[UUID] | None = []
+    status: StatusTask | None = None
 
     @field_validator('date_completion')
     @classmethod
@@ -144,12 +159,4 @@ class TaskUpdateSchema(BaseModel):
         """Валидирует название задачи."""
         if value is not None:
             return validate_name(value)
-        return value
-
-    @field_validator('executors')
-    @classmethod
-    def validate_executors(cls, value: Optional[List[UUID]]) -> Optional[List[UUID]]:
-        """Валидирует список исполнителей."""
-        if value is not None:
-            return validate_executors(value)
         return value

@@ -15,6 +15,54 @@ from src.problems.schemas.task import (
     TaskResponseSchema,
     TaskUpdateSchema,
 )
+from src.api.v1.auth.dependencies import (
+    current_user_tabit,
+    current_admin_tabit,
+    current_superuser,
+    get_current_admin_refresh_token,
+    get_current_admin_token,
+    tabit_admin,
+)
+from src.users.models import UserTabit
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.api.v1.validators.meeting_validators import (
+    check_meeting_date_available,
+    check_meeting_title_unique,
+    check_problem_exists,
+
+)
+from src.api.v1.validators.problems_validators import check_company_exists
+from src.database.db_depends import get_async_session
+from src.problems.crud.meeting import meeting_crud
+from src.problems.schemas.meeting import (
+    MeetingCreateSchema,
+    MeetingResponseSchema,
+    MeetingUpdateSchema,
+)
+from src.api.v1.validators.problems_validators import check_company_exists, check_max_number_problems
+from src.database.db_depends import get_async_session
+from src.problems.crud.problems import problem_crud
+from src.problems.schemas.problem import (
+    ProblemCreateSchema,
+    ProblemResponseSchema,
+    ProblemUpdateSchema,
+)
+from src.api.v1.auth.dependencies import (
+    current_user_tabit,
+    current_admin_tabit,
+    current_superuser,
+    get_current_admin_refresh_token,
+    get_current_admin_token,
+    tabit_admin,
+)
+from src.users.models import UserTabit
+from src.companies.crud import company_crud
+from src.api.v1.validators.members import validate_field_members
+from src.api.v1.validator import (
+    validate_owner_object, validate_user_from_company, validate_is_member_problem,
+    validate_close_problem, validate_meeting_was_held, validate_task_completed,
+)
 
 router = APIRouter()
 
@@ -29,6 +77,7 @@ router = APIRouter()
 async def get_tasks(
     company_slug: str,
     problem_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> list[TaskResponseSchema]:
     """
@@ -41,10 +90,14 @@ async def get_tasks(
     Возвращаемое значение:
         Объект TaskResponseSchema.
     """
-    await check_company_exists(company_slug, session)
-    await check_problem_exists(problem_id, session)
-    await check_tasks_for_company_problem_exist(company_slug, problem_id, session)
-    return await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    await problem_crud.get_or_404(session, problem_id)
+    return await task_crud.get_multi(
+        session,
+        filters={'problem_id': problem_id},
+        unique_filter_rows=True,
+    )
 
 
 @router.post(
@@ -58,6 +111,7 @@ async def create_task(
     task: TaskCreateSchema,
     company_slug: str,
     problem_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskResponseSchema:
     """Создание задачи.
@@ -78,15 +132,13 @@ async def create_task(
            - Убедиться, что пользователь имеет доступ к компании и проблеме.
            - Проверить, что пользователь может создавать задачи в данной компании.
     """
-    await check_company_exists(company_slug, session)
-    await check_problem_exists(problem_id, session)
-    task_data = task.model_dump()
-    task_data['owner_id'] = (
-        '3fa85f64-5717-4562-b3fc-2c963f66af66'  # TODO: Заменить на реального пользователя
-    )
-    task_data['status'] = StatusTask.NEW
-    task_data['problem_id'] = problem_id
-    return await task_crud.create(session, TaskCreateSchema(**task_data))
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    problem = await problem_crud.get_or_404(session, problem_id)
+    validate_close_problem(problem)
+    validate_is_member_problem(user, problem)
+    await validate_field_members(session, task.executors, company.id)
+    return await task_crud.create_task_with_executors(session, task, user, problem)
 
 
 @router.get(
@@ -100,6 +152,7 @@ async def get_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskResponseSchema:
     """
@@ -114,10 +167,11 @@ async def get_task(
     Raises:
         HTTPException: Если задача не найдена
     """
-    await check_company_exists(company_slug, session)
-    await check_task_exists(task_id, session)
-    await check_problem_exists(problem_id, session)
-    return await task_crud.get_task_by_id(session, company_slug, problem_id, task_id)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    problem = await problem_crud.get_or_404(session, problem_id)
+    validate_close_problem(problem)
+    return await task_crud.get_or_404(session, task_id)
 
 
 @router.patch(
@@ -132,6 +186,7 @@ async def update_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskResponseSchema:
     """
@@ -151,10 +206,15 @@ async def update_task(
     Raises:
         HTTPException: Если задача не найдена
     """
-    await check_company_exists(company_slug, session)
-    await check_task_exists(task_id, session)
-    await check_problem_exists(problem_id, session)
-    return await task_crud.update(session, task_id, task_update, company_slug, problem_id)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    problem = await problem_crud.get_or_404(session, problem_id)
+    validate_close_problem(problem)
+    task = await task_crud.get_or_404(session, task_id)
+    validate_owner_object(user, task)
+    validate_task_completed(task)
+    await validate_field_members(session, task_update.executors, company.id)
+    return await task_crud.update_task(session, task, task_update)
 
 
 @router.delete(
@@ -166,10 +226,14 @@ async def delete_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """Удаляет задачу."""
-    await check_company_exists(company_slug, session)
-    await check_task_exists(task_id, session)
-    await check_problem_exists(problem_id, session)
-    await task_crud.delete_task(session, task_id)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    await problem_crud.get_or_404(session, problem_id)
+    task = await task_crud.get_or_404(session, task_id)
+    validate_owner_object(user, task)
+    validate_task_completed(task)
+    await task_crud.remove(session, task)

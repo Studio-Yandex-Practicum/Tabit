@@ -1,10 +1,8 @@
 from datetime import datetime
-from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, ConfigDict, Field
 
-from src.database.annotations import slug
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.problems.validators.problem_validators import validate_not_empty
 
@@ -24,23 +22,20 @@ class ProblemBaseSchema(BaseModel):
         company_slug: Слаг компании, с которой связана проблема.
     """
 
-    name: str
-    description: Optional[str] = None
-    color: ColorProblem
-    type: TypeProblem
-    status: StatusProblem
-    owner_id: UUID
-    company_slug: slug
+    description: str | None = None
+
     # TODO Надо реализовать добавление файлов в проблему
 
-    @field_validator('name')
-    @classmethod
-    def validate_name_not_empty(cls, value: str) -> str:
-        """Проверка, что название проблемы не пустое."""
-        return validate_not_empty(value)
+
+class MemberResponseSchema(BaseModel):
+
+    status: bool | None
+    member_id: UUID = Field(validation_alias='left_id')
+
+    model_config = ConfigDict(from_attributes=True)
 
 
-class ProblemResponseSchema(ProblemBaseSchema):
+class ProblemResponseSchema(BaseModel):
     """Схема Проблемы для ответа.
 
     Назначение:
@@ -52,21 +47,46 @@ class ProblemResponseSchema(ProblemBaseSchema):
     """
 
     id: int
+    name: str
+    description: str | None
+    color: ColorProblem
+    type: TypeProblem
+    status: StatusProblem
+    owner_id: UUID
+    company_id: int
     created_at: datetime
     updated_at: datetime
+    members: list[MemberResponseSchema]
+
+    model_config = ConfigDict(from_attributes=True)
 
 
-class ProblemCreateSchema(ProblemBaseSchema):
+class ProblemSchemaMixin:
+
+    members: list[UUID] | None = []
+
+    model_config = ConfigDict(extra='forbid')
+
+    @field_validator('name')
+    @classmethod
+    def validate_name_not_empty(cls, value: str) -> str:
+        """Проверка, что название проблемы не пустое."""
+        return validate_not_empty(value)
+
+
+class ProblemCreateSchema(ProblemSchemaMixin, ProblemBaseSchema):
     """Схема для создания проблемы.
 
     Назначение:
         Определяет структуру данных для создания новой проблемы.
     """
 
-    members: Optional[List[UUID]] = []
+    name: str
+    color: ColorProblem
+    type: TypeProblem
 
 
-class ProblemUpdateSchema(ProblemBaseSchema):
+class ProblemUpdateSchema(ProblemSchemaMixin, ProblemBaseSchema):
     """Схема для обновления проблемы.
 
     Назначение:
@@ -80,9 +100,7 @@ class ProblemUpdateSchema(ProblemBaseSchema):
         owner_id: Новый владелец проблемы (опционально).
     """
 
-    name: Optional[str] = None
-    description: Optional[str] = None
-    color: Optional[ColorProblem] = None
-    type: Optional[TypeProblem] = None
-    status: Optional[StatusProblem] = None
-    owner_id: Optional[UUID] = None
+    name: str | None = None
+    color: ColorProblem | None = None
+    type: TypeProblem | None = None
+    status: StatusProblem | None = None

@@ -100,7 +100,6 @@ class CRUDCompany(CRUDBase):
         license_term = await session.scalar(
             select(LicenseType.license_term).where(LicenseType.id == license_id)
         )
-
         return company_start_license_time + license_term
 
     async def create(

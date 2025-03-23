@@ -29,7 +29,7 @@ class MeetingBaseSchema(BaseModel):
     # TODO Надо реализовать добавление файлов в встречу
 
 
-class MeetingCreateSchema(MeetingBaseSchema):
+class MeetingCreateSchema(BaseModel):
     """Pydantic-схема для создания встреч.
 
     Назначение:
@@ -40,10 +40,10 @@ class MeetingCreateSchema(MeetingBaseSchema):
         members: Список идентификаторов участников (опционально).
         id: Идентификатор встречи (временное значение).
     """
-
-    problem_id: int
-    owner_id: UUID
-    members: Optional[List[UUID]] = Field(exclude=True)
+    title: str
+    description: str | None
+    date_meeting: date
+    place: str
 
     model_config = ConfigDict(extra='forbid', str_min_length=1)
 
@@ -60,7 +60,7 @@ class MeetingCreateSchema(MeetingBaseSchema):
         return validate_date(value)
 
 
-class MeetingUpdateSchema(MeetingBaseSchema):
+class MeetingUpdateSchema(BaseModel):
     """Pydantic-схема для обновления информации о встрече.
 
     Назначение:
@@ -76,8 +76,9 @@ class MeetingUpdateSchema(MeetingBaseSchema):
     title: Optional[str]
     description: Optional[str]
     date_meeting: Optional[date]
-    status: Optional[StatusMeeting]
     place: Optional[str]
+    status: Optional[StatusMeeting]
+    members: list[UUID] | None = []
 
     model_config = ConfigDict(extra='forbid', str_min_length=1)
 
@@ -94,7 +95,14 @@ class MeetingUpdateSchema(MeetingBaseSchema):
         return validate_date(value)
 
 
-class MeetingResponseSchema(MeetingBaseSchema):
+class MemberResponseSchema(BaseModel):
+
+    member_id: UUID = Field(validation_alias='left_id')
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MeetingResponseSchema(BaseModel):
     """Pydantic-схема для данных о встрече из БД.
 
     Назначение:
@@ -106,6 +114,15 @@ class MeetingResponseSchema(MeetingBaseSchema):
     """
 
     id: int
+    title: str
+    description: str | None
+    problem_id: int
+    owner_id: UUID
+    date_meeting: date
+    status: StatusMeeting
+    place: str
+    members: list[MemberResponseSchema]
+    transfer_counter: int
     created_at: datetime
     updated_at: datetime
 

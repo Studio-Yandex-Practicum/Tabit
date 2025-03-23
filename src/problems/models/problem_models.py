@@ -44,7 +44,7 @@ class Problem(BaseTabitModel):
     id: Mapped[int_pk]
     name: Mapped[name_problem]
     description: Mapped[description]
-    company_slug: Mapped[slug] = mapped_column(ForeignKey('company.slug'))
+    company_id: Mapped[int] = mapped_column(ForeignKey('company.id'), nullable=False)
     company: Mapped['Company'] = relationship(back_populates='problems')
     color: Mapped['ColorProblem']
     type: Mapped['TypeProblem']
@@ -54,7 +54,7 @@ class Problem(BaseTabitModel):
     owner_id: Mapped[owner]
     owner: Mapped['UserTabit'] = relationship(back_populates='problem_owner')
     members: Mapped[List['AssociationUserProblem']] = relationship(
-        back_populates='problem', cascade='all, delete-orphan'
+        back_populates='problem', cascade='all, delete-orphan', viewonly=True, lazy='joined',
     )
     meetings: Mapped[List['Meeting']] = relationship(
         back_populates='problem', cascade='all, delete-orphan'

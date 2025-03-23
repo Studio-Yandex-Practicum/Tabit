@@ -35,6 +35,8 @@ DEFAULT_AUTO_COMMIT: bool = True  # для crud
 
 BASE64_STARTSWITH: str = 'data:image'
 
+MAX_NUMBER_PROBLEM: int = 3
+
 
 @dataclass
 class TextError:
