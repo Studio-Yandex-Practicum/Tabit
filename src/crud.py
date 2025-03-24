@@ -17,7 +17,7 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi_users import BaseUserManager, exceptions, models, schemas
-from sqlalchemy import select, Table
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 from starlette.requests import Request
@@ -29,12 +29,8 @@ from src.constants import (
     TextError,
 )
 from src.logger import logger
-from src.problems.models import Task
-from src.problems.schemas.task import TaskUpdateSchema
 
 ModelType = TypeVar('ModelType')
-ModelUserType = TypeVar('ModelUserType')
-ModelAssociationType = TypeVar('ModelAssociationType')
 CreateSchemaType = TypeVar('CreateSchemaType')
 UpdateSchemaType = TypeVar('UpdateSchemaType')
 
@@ -172,15 +168,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             raise error
         return db_obj
 
-    # TODO: Следующий метод полностью повторяет метод update_problem из CRUDProblem
-    # Т.к. пока не ясно, как будет меняться логика проекта, эти методы пусть нарушают DRY
-    # Так легче вносить правки в отдельные круды. В последствие, если правок не будет,
-    # можно добавить метод update_with_associations в CRUDBaseWithAssociations
-    async def update_task(
+    async def update(
         self,
         session: AsyncSession,
-        task_db: Task,
-        task_in: TaskUpdateSchema,
+        db_obj: ModelType,
+        obj_in: UpdateSchemaType,
+        auto_commit: bool = DEFAULT_AUTO_COMMIT,
     ) -> ModelType:
         """
         "Обновляет существующий объект (частичное обновление).
@@ -310,73 +303,49 @@ class UserCreateMixin:
 
 
 class CRUDBaseWithAssociations(CRUDBase):
+    """Расширенный CRUD для изменения таблицы БД и связной модели."""
 
     def __init__(self, model, associations_model):
+        """
+        Параметры:
+            associations_model: связная таблица.
+        """
         super().__init__(model)
         self.associations_model = associations_model
-
-    def get_data_associations(
-        self,
-        left_id: int | UUID,
-        right_id: int | UUID,
-        status: bool | None = None,
-    ) -> dict[str, Any]:
-        """Создание ассоциаций между сущностями.
-
-        Назначение:
-            Создает ассоциации между левыми и правыми сущностями через указанную модель.
-            Выполняет массовую вставку для повышения производительности.
-            Для ассоциаций с проблемами добавляет поле status.
-
-        Параметры:
-            session: Асинхронная сессия SQLAlchemy.
-            association_model: Модель ассоциативной таблицы.
-            left_ids: Список UUID левых сущностей (например, ID участников).
-            right_id: ID правой сущности (например, ID встречи или проблемы).
-            status: Статус ассоциации (используется только для проблем).
-
-        Возвращаемое значение:
-            None
-        """
-        base_data = {
-            'right_id': right_id,
-            'left_id': left_id,
-        }
-        if status is not None:
-            base_data['status'] = status
-        return base_data
 
     def get_data_associations_for_updata(
         self,
         data_from_db: list[dict[str, Any]],
         data_to_update: set[Any],
         left_id: bool = True,
-    ):
+    ) -> tuple[list[str], list[str]]:
+        """
+        Подготовит информацию о добавлении и удалении записей в связную таблицу,
+        на основе изменений в основной таблице.
+
+        Параметры:
+            data_from_db: список словарей с записями связной таблицы из БД
+                (получив объект, мы можем получить все записи в связной таблице);
+            data_to_update: набор данных полученных из обновления
+                (при изменении записи основной таблице передаётся информация об изменениях
+                в связной, например, набор UUID);
+            left_id: если True, то в записях из БД будет сверять данные атрибут left_id,
+                в противном случае right_id.
+        Возвращает:
+            Кортеж из двух списков со строками. В первом списке перечень добавляемых значений,
+            во втором удаляемых. (Если в наборе с изменениями есть те параметры, которые уже
+            записаны в связную таблицу - они игнорируются и не будут добавлены не в один
+            из списков).
+        """
         side = 'left_id' if left_id else 'right_id'
         add_rows = [
-            str(update) for update in data_to_update
+            str(update)
+            for update in data_to_update
             if str(update) not in [from_db[side] for from_db in data_from_db]
         ]
         delete_rows = [
-            from_db[side] for from_db in data_from_db
+            from_db[side]
+            for from_db in data_from_db
             if (from_db[side] not in [str(update) for update in data_to_update])
         ]
         return add_rows, delete_rows
-
-    async def get_all_associations_by_user_id(
-        self,
-        session: AsyncSession,
-        user: ModelUserType,
-        status: bool | None = None
-    ) -> list[ModelAssociationType]:
-        if status is None:
-            request = select(self.associations_model).where(
-                    self.associations_model.left_id == user.id,  # type: ignore
-                )
-        else:
-            request = select(self.associations_model).where(
-                    self.associations_model.left_id == user.id,  # type: ignore
-                    self.associations_model.status == status,
-                )
-        association_rows = await session.execute(request)
-        return association_rows.scalars().all()  # type: ignore

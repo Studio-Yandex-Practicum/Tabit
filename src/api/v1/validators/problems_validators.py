@@ -1,14 +1,14 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.constants import MAX_NUMBER_PROBLEM
 from src.companies.crud.company import company_crud
-from src.problems.crud.problems import problem_crud
+from src.constants import MAX_NUMBER_PROBLEM
 from src.problems.constants import ERROR_COMPANY_NOT_FOUND, ERROR_PROBLEM_NUMBER
+from src.problems.crud.problems import problem_crud
+from src.users.models import UserTabit
 
 
-# TODO Вместо get_by_company_slug можно использовать метод базового crud
-# get_by_slug если исправть как описано в src/companies/crud/company
+# TODO Нигде не используется
 async def check_company_exists(company_slug: str, session: AsyncSession):
     """Проверяет существование компании по slug.
 
@@ -27,9 +27,22 @@ async def check_company_exists(company_slug: str, session: AsyncSession):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_COMPANY_NOT_FOUND)
 
 
-async def check_max_number_problems(session: AsyncSession, user):
-    number = await problem_crud.get_all_associations_by_user_id(session, user, status=True)
-    if len(number) > MAX_NUMBER_PROBLEM:
+async def check_max_number_problems(session: AsyncSession, user: UserTabit):
+    """Проверит количество проблем, в которых участвует пользователь.
+
+    Назначение:
+        Установлен лимит количества проблем, в которых может участвовать пользователь.
+    Параметры:
+        user: экземпляр модели пользователя.
+        session: Асинхронная сессия базы данных.
+    Исключения:
+        HTTPException: если превышен лимит.
+    """
+    all_open_problem = await problem_crud.get_all_open_problem_from_association_by_user_id(
+        session,
+        user,
+    )
+    if len(all_open_problem) >= MAX_NUMBER_PROBLEM:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=ERROR_PROBLEM_NUMBER.format(MAX_NUMBER_PROBLEM),

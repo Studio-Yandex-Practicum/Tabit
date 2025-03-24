@@ -1,33 +1,23 @@
-from typing import Union
-
-from fastapi import HTTPException, status
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import delete, select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from fastapi.encoders import jsonable_encoder
+
 from src.companies.models import Company
-from src.constants import DEFAULT_AUTO_COMMIT, TextError
-from src.crud import CRUDBase, CRUDBaseWithAssociations
+from src.constants import ZERO, TextError
+from src.crud import CRUDBaseWithAssociations
 from src.logger import logger
 from src.problems.models import Problem, Task
 from src.problems.models.association_models import AssociationUserTask
-from src.problems.models.file_path_models import FileTask
+from src.problems.models.enums import StatusTask
 from src.problems.schemas.task import TaskCreateSchema, TaskResponseSchema, TaskUpdateSchema
 from src.users.models import UserTabit
-from src.problems.models.enums import StatusTask
-from src.constants import (
-    LENGTH_FILE_LINK,
-    LENGTH_NAME_PROBLEM,
-    LENGTH_NAME_USER,
-    LENGTH_SLUG,
-    LENGTH_SMALL_NAME,
-    ZERO,
-)
+
 
 class CRUDTask(CRUDBaseWithAssociations):
     """CRUD операции для модели задачи."""
 
+    # TODO: используется в валидаторе, который нигде не используется.
     async def get_by_company_and_problem(
         self, session: AsyncSession, company_slug: str, problem_id: int
     ) -> list[TaskResponseSchema]:
@@ -58,48 +48,6 @@ class CRUDTask(CRUDBaseWithAssociations):
         tasks = result.scalars().all()
         return [TaskResponseSchema.model_validate(task) for task in tasks]
 
-    async def get_task_by_id(
-        self,
-        session: AsyncSession,
-        company_slug: str,
-        problem_id: int,
-        task_id: int,
-        as_object: bool = False,
-    ) -> Union[Task, TaskResponseSchema]:
-        """
-        Получает задачу по id с проверкой принадлежности к компании и проблеме.
-
-        Args:
-            session: Асинхронная сессия SQLAlchemy.
-            problem_id: ID проблемы.
-            company_slug: Уникальный идентификатор компании.
-            task_id: ID задачи.
-            as_object: Данные для обновления задачи.
-
-        Returns:
-            TaskResponseSchema: Конктетная задача.
-        """
-        query = (
-            select(self.model)
-            .join(self.model.problem)
-            .join(Problem.owner)
-            .join(UserTabit.company)
-            .where(
-                Company.slug == company_slug,
-                self.model.problem_id == problem_id,
-                self.model.id == task_id,
-            )
-            .options(
-                selectinload(self.model.file),
-                selectinload(self.model.executors),
-            )
-        )
-        result = await session.execute(query)
-        task = result.scalar_one_or_none()
-        if as_object:
-            return task
-        return TaskResponseSchema.model_validate(task)
-
     async def create_task_with_executors(
         self,
         session: AsyncSession,
@@ -109,15 +57,15 @@ class CRUDTask(CRUDBaseWithAssociations):
     ) -> Task:
         """Создает новую задачу.
 
-        Args:
+        Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            obj_in: Данные для создания задачи.
-            auto_commit: Автоматически коммитить изменения (по умолчанию True).
+            task_in: Данные для создания задачи.
+            owner: экземпляр модели пользователя, автор задачи.
+            problem: экземпляр модели проблемы, для решения который назначается задача.
+        Возвращает:
+            Созданная задача.
 
-        Returns:
-            TaskResponseSchema: Созданная задача.
-
-        Raises:
+        Возможные ошибки:
             HTTPException: Если произошла ошибка при создании задачи.
         """
         task_data = task_in.model_dump()
@@ -139,7 +87,8 @@ class CRUDTask(CRUDBaseWithAssociations):
                     self.associations_model(
                         left_id=executor,
                         right_id=task_db.id,
-                    ) for executor in executors
+                    )
+                    for executor in executors
                 ]
                 session.add_all(associations_data)
             await session.commit()
@@ -156,20 +105,17 @@ class CRUDTask(CRUDBaseWithAssociations):
         task_db: Task,
         task_in: TaskUpdateSchema,
     ) -> Task:
-        """Обновляет задачу.
+        """
+        Для изменения записи в таблице Проблемы.
 
-        Args:
+        Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            task_id: Идентификатор задачи для обновления.
-            obj_in: Данные для обновления задачи.
-            company_slug: Уникальный идентификатор компании.
-            problem_id: Идентификатор проблемы.
-            auto_commit: Автоматически коммитить изменения (по умолчанию True).
+            task_db: экземпляр модели задачи.
+            task_in: данные для изменения в виде схемы.
+        Возвращает:
+            Экземпляр модели проблемы после изменения.
 
-        Returns:
-            TaskResponseSchema: Обновлённая задача.
-
-        Raises:
+        Возможные ошибки:
             HTTPException: Если задача не найдена или произошла ошибка при обновлении.
         """
         task_data = jsonable_encoder(task_db)
@@ -202,7 +148,8 @@ class CRUDTask(CRUDBaseWithAssociations):
                         self.associations_model(
                             left_id=executor,
                             right_id=task_db.id,
-                        ) for executor in add_rows
+                        )
+                        for executor in add_rows
                     ]
                     session.add_all(associations_data)
 

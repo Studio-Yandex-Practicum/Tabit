@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import description, int_pk, name_problem, owner, slug
+from src.database.annotations import description, int_pk, name_problem, owner
 from src.database.models import BaseTabitModel
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 
@@ -54,7 +54,10 @@ class Problem(BaseTabitModel):
     owner_id: Mapped[owner]
     owner: Mapped['UserTabit'] = relationship(back_populates='problem_owner')
     members: Mapped[List['AssociationUserProblem']] = relationship(
-        back_populates='problem', cascade='all, delete-orphan', viewonly=True, lazy='joined',
+        back_populates='problem',
+        cascade='all, delete-orphan',
+        viewonly=True,
+        lazy='joined',
     )
     meetings: Mapped[List['Meeting']] = relationship(
         back_populates='problem', cascade='all, delete-orphan'

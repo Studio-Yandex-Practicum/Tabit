@@ -4,7 +4,6 @@ from uuid import UUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import int_pk, int_pk_autoincrement
 from src.database.models import BaseTabitModel
 
 if TYPE_CHECKING:
@@ -32,10 +31,12 @@ class AssociationUserProblem(BaseTabitModel):
     """
 
     left_id: Mapped[UUID] = mapped_column(
-        ForeignKey('usertabit.id', ondelete='CASCADE'), primary_key=True,
+        ForeignKey('usertabit.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     right_id: Mapped[int] = mapped_column(
-        ForeignKey('problem.id', ondelete='CASCADE'), primary_key=True,
+        ForeignKey('problem.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     user: Mapped['UserTabit'] = relationship(back_populates='problems')
     problem: Mapped['Problem'] = relationship(back_populates='members')
@@ -65,10 +66,12 @@ class AssociationUserMeeting(BaseTabitModel):
     """
 
     left_id: Mapped[UUID] = mapped_column(
-        ForeignKey('usertabit.id', ondelete='CASCADE'), primary_key=True,
+        ForeignKey('usertabit.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     right_id: Mapped[int] = mapped_column(
-        ForeignKey('meeting.id', ondelete='CASCADE'), primary_key=True,
+        ForeignKey('meeting.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     user: Mapped['UserTabit'] = relationship(back_populates='meetings')
     meeting: Mapped['Meeting'] = relationship(back_populates='members')
@@ -96,10 +99,12 @@ class AssociationUserTask(BaseTabitModel):
     """
 
     left_id: Mapped[UUID] = mapped_column(
-        ForeignKey('usertabit.id', ondelete='CASCADE'), primary_key=True,
+        ForeignKey('usertabit.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     right_id: Mapped[int] = mapped_column(
-        ForeignKey('task.id', ondelete='CASCADE'), primary_key=True,
+        ForeignKey('task.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     user: Mapped['UserTabit'] = relationship(back_populates='tasks')
     task: Mapped['Task'] = relationship(back_populates='executors')
@@ -126,10 +131,12 @@ class AssociationUserComment(BaseTabitModel):
     """
 
     left_id: Mapped[UUID] = mapped_column(
-        ForeignKey('usertabit.id', ondelete='CASCADE'), primary_key=True,
+        ForeignKey('usertabit.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     right_id: Mapped[int] = mapped_column(
-        ForeignKey('commentfeed.id', ondelete='CASCADE'), primary_key=True,
+        ForeignKey('commentfeed.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     user: Mapped['UserTabit'] = relationship(back_populates='comments_likes')
 

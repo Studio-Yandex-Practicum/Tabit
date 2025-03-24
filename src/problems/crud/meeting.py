@@ -1,29 +1,17 @@
-from uuid import UUID
-
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import delete, select, Table
 
+from src.constants import ZERO, TextError
 from src.crud import CRUDBaseWithAssociations
-from src.problems.crud.association_utils import create_associations
-from src.problems.models import AssociationUserMeeting, Meeting
-from src.problems.schemas.meeting import MeetingCreateSchema
-from src.users.models import UserTabit
+from src.logger import logger
+from src.problems.models import AssociationUserMeeting, Meeting, Problem
+from src.problems.models.enums import StatusMeeting, StatusProblem
 from src.problems.schemas.meeting import (
     MeetingCreateSchema,
-    MeetingResponseSchema,
     MeetingUpdateSchema,
 )
-from src.problems.models import Problem
-from src.problems.models.enums import StatusMeeting, StatusProblem
-from src.constants import ZERO
-from src.logger import logger
-from src.constants import (
-    DEFAULT_AUTO_COMMIT,
-    DEFAULT_LIMIT,
-    DEFAULT_SKIP,
-    TextError,
-)
-from fastapi.encoders import jsonable_encoder
+from src.users.models import UserTabit
 
 
 class CRUDMeeting(CRUDBaseWithAssociations):
@@ -43,10 +31,11 @@ class CRUDMeeting(CRUDBaseWithAssociations):
             Выполняет все операции в рамках одной транзакции.
         Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            meeting_data: Словарь с данными для создания встречи.
-            members: Список UUID участников встречи.
+            meeting_in: Словарь с данными для создания встречи.
+            owner: экземпляр модели пользователя, автор встречи.
+            problem: экземпляр модели проблемы, для решения которой организуется встреча.
         Возвращаемое значение:
-            Созданный объект встречи с обновленными данными.
+            Созданный объект встречи.
         """
         meeting_data = meeting_in.model_dump()
         default_data = {
@@ -66,7 +55,8 @@ class CRUDMeeting(CRUDBaseWithAssociations):
                     self.associations_model(
                         left_id=member.left_id,
                         right_id=meeting_db.id,
-                    ) for member in problem.members
+                    )
+                    for member in problem.members
                 ]
                 session.add_all(associations_data)
 
@@ -99,8 +89,8 @@ class CRUDMeeting(CRUDBaseWithAssociations):
             Перед обновлением проверяет существование встречи.
         Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            meeting_id: ID встречи для обновления.
-            meeting_update: Словарь с данными для обновления встречи.
+            meeting_db: экземпляр модели встречи.
+            meeting_in: данные для изменения в виде схемы.
         Возвращаемое значение:
             Обновленный объект встречи.
         """
@@ -136,7 +126,8 @@ class CRUDMeeting(CRUDBaseWithAssociations):
                         self.associations_model(
                             left_id=member,
                             right_id=meeting_db.id,
-                        ) for member in add_rows
+                        )
+                        for member in add_rows
                     ]
                     session.add_all(associations_data)
 
@@ -156,28 +147,6 @@ class CRUDMeeting(CRUDBaseWithAssociations):
             raise error
 
         return meeting_db
-
-    async def get_meeting(self, session: AsyncSession, **filters):
-        """Получает встречу по указанным параметрам модели.
-
-        Назначение:
-            Извлекает встречу из базы данных по указанным параметрам,
-            соответствующим полям модели Meeting. Возвращает объект встречи,
-            если такая встреча существует; иначе - None.
-        Параметры:
-            session: Асинхронная сессия SQLAlchemy.
-            filters: Ключевые аргументы, представляющие поля модели Meeting
-            и их значения для фильтрации.
-        Возвращаемое значение:
-            Объект встречи, если такая встреча существует с заданными параметрами, иначе None.
-        """
-
-        query = select(Meeting)
-        for key, value in filters.items():
-            if hasattr(Meeting, key):
-                query = query.where(getattr(Meeting, key) == value)
-        result = await session.execute(query)
-        return result.scalar_one_or_none() is None
 
 
 meeting_crud = CRUDMeeting(Meeting, AssociationUserMeeting)

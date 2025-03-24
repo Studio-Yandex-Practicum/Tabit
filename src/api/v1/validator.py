@@ -8,12 +8,12 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.constants import TextError
+from src.companies.models import Company
 from src.constants import TextError as ErrorText
 from src.crud import CRUDBase
-from src.companies.models import Company
-from src.users.models import UserTabit
-from src.problems.models import Problem, Meeting, Task
+from src.problems.models import Meeting, Problem, Task
 from src.problems.models.enums import StatusMeeting, StatusProblem, StatusTask
+from src.users.models import UserTabit
 
 
 async def validator_check_object_exists(
@@ -119,6 +119,7 @@ def validate_meeting_was_held(meeting: Meeting):
 def validate_task_completed(task: Task):
     """
     Валидатор, проверит что встреча не проведена.
+
     Иначе ошибка 422
     """
     if task.status == StatusTask.COMPLETED:

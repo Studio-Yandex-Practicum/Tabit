@@ -1,29 +1,17 @@
-from uuid import UUID
-
+from fastapi import HTTPException, status as status_
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy import and_, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.crud import CRUDBase, CRUDBaseWithAssociations
-from src.problems.crud.association_utils import create_associations
-from src.problems.models import AssociationUserProblem, Problem
-from src.problems.schemas.problem import ProblemCreateSchema, ProblemUpdateSchema
-from src.constants import TextError
-from src.problems.schemas.problem import ProblemCreateSchema
-from src.users.models import UserTabit
+from src.api.v1.constants import TextError as ErrorText
 from src.companies.models import Company
+from src.constants import TextError
+from src.crud import CRUDBaseWithAssociations
 from src.logger import logger
-from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
-from src.problems.models.association_models import AssociationUserProblem
-from sqlalchemy import delete, select, Table
-from src.constants import (
-    DEFAULT_AUTO_COMMIT,
-    DEFAULT_LIMIT,
-    DEFAULT_SKIP,
-    TextError,
-)
-from src.crud import ModelType
-from fastapi.encoders import jsonable_encoder
-
-from typing import Any
+from src.problems.models import AssociationUserProblem, Problem
+from src.problems.models.enums import StatusProblem
+from src.problems.schemas.problem import ProblemCreateSchema, ProblemUpdateSchema
+from src.users.models import UserTabit
 
 
 class CRUDProblem(CRUDBaseWithAssociations):
@@ -35,13 +23,24 @@ class CRUDProblem(CRUDBaseWithAssociations):
         problem_in: ProblemCreateSchema,
         owner: UserTabit,
         company: Company,
-    ):
+    ) -> Problem:
+        """
+        Для создания записи в таблице Проблемы.
+
+        Параметры:
+            session: Асинхронная сессия SQLAlchemy.
+            problem_in: данные для изменения в виде схемы.
+            owner: экземпляр модели пользователя, автор проблемы.
+            company: экземпляр модели компании, в которой возникла проблема.
+        Возвращает:
+            Экземпляр модели проблемы после создания.
+        """
         problem_data = problem_in.model_dump()
         members = problem_data.pop('members') if 'members' in problem_data else None
         default_data = {
             'owner_id': owner.id,
             'company_id': company.id,
-            'status': StatusProblem.NEW
+            'status': StatusProblem.NEW,
         }
         problem_data.update(default_data)
         problem_db = self.model(**problem_data)
@@ -56,7 +55,8 @@ class CRUDProblem(CRUDBaseWithAssociations):
                         left_id=member,
                         right_id=problem_db.id,
                         status=(True if member == owner.id else False),
-                    ) for member in members
+                    )
+                    for member in members
                 ]
                 session.add_all(associations_data)
             await session.commit()
@@ -73,17 +73,15 @@ class CRUDProblem(CRUDBaseWithAssociations):
         problem_db: Problem,
         problem_in: ProblemUpdateSchema,
     ) -> Problem:
-        """Обновление проблемы.
+        """
+        Для изменения записи в таблице Проблемы.
 
-        Назначение:
-            Обновляет данные проблемы в базе данных по её ID.
-            Перед обновлением проверяет существование проблемы.
         Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            problem_id: ID проблемы для обновления.
-            problem_update: Схема с данными для обновления проблемы.
-        Возвращаемое значение:
-            Обновленный объект проблемы.
+            problem_db: экземпляр модели проблемы.
+            problem_in: данные для изменения в виде схемы.
+        Возвращает:
+            Экземпляр модели проблемы после изменения.
         """
         problem_data = jsonable_encoder(problem_db)
         problem_update_data = problem_in.model_dump(exclude_unset=True)
@@ -113,7 +111,8 @@ class CRUDProblem(CRUDBaseWithAssociations):
                             left_id=member,
                             right_id=problem_db.id,
                             status=False,
-                        ) for member in add_rows
+                        )
+                        for member in add_rows
                     ]
                     session.add_all(associations_data)
 
@@ -138,9 +137,23 @@ class CRUDProblem(CRUDBaseWithAssociations):
         self,
         session: AsyncSession,
         problem: Problem,
-        user: UserTabit
+        user: UserTabit,
+        status: bool = True,
     ) -> Problem:
-        # TODO: Есть ли необходимость проверять, что статус уже True?
+        """
+        Для изменения статуса участника решения проблемы.
+
+        Изменит поле status в связной модели.
+
+        Параметры:
+            session: Асинхронная сессия SQLAlchemy.
+            problem: экземпляр модели проблемы.
+            user: экземпляр модели пользователя.
+            status: какой присвоить статус участнику.
+        Возвращает:
+            Экземпляр модели проблемы после изменения.
+        """
+        # TODO: Есть ли необходимость проверять, что статус уже True? Это лишние запросы.
         association_row = await session.execute(
             select(self.associations_model).where(
                 self.associations_model.right_id == problem.id,
@@ -148,7 +161,14 @@ class CRUDProblem(CRUDBaseWithAssociations):
             )
         )
         associations_data = association_row.scalars().first()
-        associations_data.status = True  # type: ignore
+
+        if associations_data:
+            associations_data.status = status
+        else:
+            raise HTTPException(
+                status_code=status_.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=ErrorText.NOT_IS_MEMBERS,
+            )
 
         try:
             session.add(associations_data)
@@ -162,6 +182,30 @@ class CRUDProblem(CRUDBaseWithAssociations):
             raise error
 
         return problem
+
+    async def get_all_open_problem_from_association_by_user_id(
+        self,
+        session: AsyncSession,
+        user: UserTabit,
+    ) -> list[AssociationUserProblem]:
+        """
+        Получить записи из связной таблице по id пользователя, где пользователь уже подтвердил
+        своё участие, а проблем ещё не закрыта.
+
+        Параметры:
+            session: Асинхронная сессия SQLAlchemy.
+            user: экземпляр модели пользователя.
+        Возвращает:
+            Список записей из связной модели.
+        """
+        query = and_(
+            self.associations_model.left_id == user.id,
+            self.associations_model.status == True,  # noqa: E712
+            self.model.status != StatusProblem.COMPLETED,
+        )
+        request = select(self.associations_model).join(self.model).where(query)
+        association_rows = await session.execute(request)
+        return association_rows.scalars().all()  # type: ignore
 
 
 problem_crud = CRUDProblem(Problem, AssociationUserProblem)

@@ -53,7 +53,10 @@ class Meeting(BaseTabitModel):
     status: Mapped['StatusMeeting']
     place: Mapped[str] = mapped_column(String(LENGTH_NAME_MEETING_PLACE), nullable=False)
     members: Mapped[List['AssociationUserMeeting']] = relationship(
-        back_populates='meeting', cascade='all, delete-orphan', viewonly=True, lazy='joined',
+        back_populates='meeting',
+        cascade='all, delete-orphan',
+        viewonly=True,
+        lazy='joined',
     )
     result: Mapped['ResultMeeting'] = relationship(
         back_populates='meeting', cascade='all, delete-orphan'
