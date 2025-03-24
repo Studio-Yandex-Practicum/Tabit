@@ -4,6 +4,7 @@ from .company_user_factories import CompanyUserFactory, create_company_users
 from .message_feed_factory import MessageFeedFactory, create_message_feeds
 from .problem_factory import ProblemFactory, create_problems
 from .tabit_user_factories import TabitAdminUserFactory, create_tabit_admin_users
+from .voting_feed_factory import VotingFeedFactory, create_voting_feeds
 
 __all__ = [
     'CompanyFactory',
@@ -16,4 +17,6 @@ __all__ = [
     'create_problems',
     'TabitAdminUserFactory',
     'create_tabit_admin_users',
+    'VotingFeedFactory',
+    'create_voting_feeds',
 ]
