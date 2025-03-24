@@ -5,6 +5,7 @@ FAKER_COMPANY_COUNT = 5  # Число компаний для генерации
 FAKER_DEPARTMENT_COUNT = 5  # Число отделов для генерации
 FAKER_PROBLEMS_COUNT: int = 5
 FAKER_MESSAGE_FEEDS_COUNT: int = 5
+FAKER_VOTING_FEEDS_COUNT: int = 5
 DEFAULT_DEPARTMENT_NAMES = [
     'Отдел кадров',
     'Отдел менеджмента',
