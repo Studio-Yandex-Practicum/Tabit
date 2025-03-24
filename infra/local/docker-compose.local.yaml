@@ -24,6 +24,8 @@ services:
       - ${PWD}/.env
     volumes:
       - ${PWD}/${MEDIA_FOLDER:-media}:/app/media
+      - ${PWD}/src:/app/src
+      - ${PWD}/alembic:/app/alembic
     profiles:
       - app_dc
     environment:
@@ -31,6 +33,7 @@ services:
       - PATH="/app/.venv/bin:$PATH"
       - DB_HOST=${DB_CONTAINER_NAME:-postgres_local}
       - DB_PORT=5432
+      - UVICORN_RELOAD=true
 
   pgadmin:
     container_name: ${PGADMIN_CONTAINER_NAME:-pgadmin_local}

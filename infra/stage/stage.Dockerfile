@@ -2,16 +2,16 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir poetry==1.5
+RUN pip install --no-cache-dir poetry==1.7.1
 
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true \
     PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH"
 
-COPY ../pyproject.toml ../poetry.lock /app/
+COPY pyproject.toml poetry.lock /app/
 
 RUN poetry install --no-root --all-extras --with dev --no-interaction
 
-COPY . /app/
+COPY alembic src /app/
 
-CMD ["/usr/local/bin/poetry", "run", "uvicorn", "src.main:app_v1", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["/usr/local/bin/poetry", "run", "uvicorn", "src.main:app_v1", "--host", "0.0.0.0", "--port", "8000"]
