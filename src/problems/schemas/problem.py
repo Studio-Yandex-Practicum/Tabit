@@ -2,8 +2,9 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, field_validator
 
+from src.database.annotations import slug
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.problems.validators.problem_validators import validate_not_empty
 
@@ -20,6 +21,7 @@ class ProblemBaseSchema(BaseModel):
         type: Тип проблемы из перечисления TypeProblem.
         status: Статус проблемы из перечисления StatusProblem.
         owner_id: UUID владельца проблемы.
+        company_slug: Слаг компании, с которой связана проблема.
     """
 
     name: str
@@ -28,6 +30,7 @@ class ProblemBaseSchema(BaseModel):
     type: TypeProblem
     status: StatusProblem
     owner_id: UUID
+    company_slug: slug
     # TODO Надо реализовать добавление файлов в проблему
 
     @field_validator('name')
@@ -49,7 +52,6 @@ class ProblemResponseSchema(ProblemBaseSchema):
     """
 
     id: int
-    company_id: int
     created_at: datetime
     updated_at: datetime
 
@@ -61,8 +63,7 @@ class ProblemCreateSchema(ProblemBaseSchema):
         Определяет структуру данных для создания новой проблемы.
     """
 
-    company_id: int
-    members: Optional[List[UUID]] = Field(exclude=True)
+    members: Optional[List[UUID]] = []
 
 
 class ProblemUpdateSchema(ProblemBaseSchema):
