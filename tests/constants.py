@@ -39,7 +39,7 @@ class URL:
     MEETINGS_SINGLE: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/{meeting_id}'
     COMPANY_ENDPOINT: str = '/api/v1/{company_slug}'
     DEPARTMENTS_ENDPOINT: str = '/api/v1/{company_slug}/departments'
-    DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments/{department_id}'
+    DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments/{department_slug}'
     CREATE_DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments'
     EMPLOYEES_ENDPOINT: str = '/api/v1/{company_slug}/employees'
     EMPLOYEE_ENDPOINT: str = '/api/v1/{company_slug}/employees/{employee_id}'
