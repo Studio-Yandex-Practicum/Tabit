@@ -14,7 +14,7 @@ from slugify import slugify
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from src.companies.models.models import Company
+from src.companies.models.models import Company, Department
 from src.database.db_depends import get_async_session
 from src.database.models import BaseTabitModel as Base
 from src.main import app_v1
@@ -211,7 +211,25 @@ async def make_entry_in_table(async_session: AsyncSession, payload: dict[str, An
 
 @pytest_asyncio.fixture
 async def license_for_test(async_session):
-    """Фикстура, создающая тестовую лицензию с возможностью изменения полей."""
+    """
+    Фикстура, создающая тестовую лицензию с возможностью изменения полей.
+
+    Параметры:
+        - license_data (dict, optional): Данные для создания лицензии. Если не переданы,
+          используются значения по умолчанию.
+
+    Возвращает:
+        - LicenseType: Объект созданной лицензии.
+
+    Примеры использования:
+        # Создание лицензии с данными по умолчанию
+        license_instance = await license_for_test()
+
+        # Создание лицензии с кастомными параметрами
+        license_instance = await license_for_test(
+            {'name': 'Премиум Лицензия', 'max_admins_count': 10}
+        )
+    """
 
     async def _create_license(license_data=None):
         """Функция-обёртка для создания лицензии с изменяемыми параметрами."""
@@ -234,12 +252,37 @@ async def license_for_test(async_session):
 async def company_for_test(async_session, license_for_test):
     """
     Фикстура, создающая тестовую компанию с возможностью изменения полей.
-    По умолчанию, только обязательные поля.
+
+    Параметры:
+        - company_data (dict, optional): Данные для создания компании. Если не переданы,
+          используются значения по умолчанию.
+        - all_fields (bool, optional): Если True, создаётся компания со всеми возможными полями.
+        - return_license (bool, optional): Если True, возвращает объект лицензии вместе с компанией
+
+    Возвращает:
+        - Company: Объект созданной компании.
+        - (Company, LicenseType): Если `return_license=True`,
+           возвращает кортеж (компания, лицензия).
+
+    Примеры использования:
+        # Создание компании только с обязательными полями
+        company = await company_for_test()
+
+        # Создание компании с кастомными данными
+        company = await company_for_test({'name': 'Моя Компания', 'license_id': 123})
+
+        # Создание компании со всеми полями
+        company = await company_for_test(all_fields=True)
+
+        # Получение компании и лицензии
+        company, license_instance = await company_for_test(return_license=True)
     """
 
-    async def _create_company(company_data=None, all_fields=False):
+    async def _create_company(company_data=None, all_fields=False, return_license=False):
         """Функция-обёртка для создания компании с изменяемыми параметрами."""
-        if not company_data or 'license_id' not in company_data:
+        license_instance = None
+
+        if not company_data or 'license_id' not in company_data and all_fields:
             license_instance = await license_for_test()
 
         default_data = {
@@ -248,17 +291,25 @@ async def company_for_test(async_session, license_for_test):
             'is_active': True,
         }
         if all_fields:
+            license_id = (
+                company_data.get('license_id')
+                if company_data and 'license_id' in company_data
+                else license_instance.id
+            )
+
             default_data.update(
                 {
                     'description': 'Тестовое описание компании',
                     'logo': 'https://example.com/logo.png',
-                    'license_id': license_instance.id,
+                    'license_id': license_id,
                     'start_license_time': datetime.now(timezone.utc).isoformat(),
                 }
             )
         if company_data:
             default_data.update(company_data)
-        return await make_entry_in_table(async_session, default_data, Company)
+        company = await make_entry_in_table(async_session, default_data, Company)
+
+        return (company, license_instance) if return_license else company
 
     return _create_company
 
@@ -302,19 +353,43 @@ async def admin(administrator_tabit):
 async def employee_of_company(async_session: AsyncSession, company_for_test):
     """
     Фикстура, создающая пользователя тестовой компании с возможностью изменения полей.
-    По умолчанию, только обязательные поля.
+
+    Параметры:
+        - user_data (dict, optional): Данные для создания пользователя. Если не переданы,
+          используются значения по умолчанию.
+        - return_company (bool, optional): Если True, возвращает объект компании
+          вместе с пользователем.
+
+    Возвращает:
+        - UserTabit: Объект созданного пользователя.
+        - (UserTabit, Company): Если `return_company=True`, возвращает кортеж
+          (пользователь, компания).
+
+    Примеры использования:
+        # Создание пользователя только с обязательными полями
+        employee = await employee_of_company()
+
+        # Создание пользователя с кастомными параметрами
+        employee = await employee_of_company({'name': 'Джон', 'role': RoleUserTabit.MANAGER})
+
+        # Получение пользователя и компании
+        employee, company = await employee_of_company(return_company=True)
     """
 
-    async def _create_employee(user_data=None):
+    async def _create_employee(user_data=None, return_company=False):
         """Функция-обёртка для пользователя тестовой компании с изменяемыми параметрами."""
+        company = None
+
         if not user_data or 'company_id' not in user_data:
             company = await company_for_test()
-            company_id = company.id
-        else:
-            company_id = user_data.pop('company_id')
+
+        company_id = (
+            user_data.get('company_id') if user_data and 'company_id' in user_data else company.id
+        )
+
         default_data = {
-            'name': 'Брюс',
-            'surname': 'Ли',
+            'name': f'Брюс {uuid.uuid4().hex[:8]}',
+            'surname': f'Ли {uuid.uuid4().hex[:8]}',
             'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
             'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
             'is_active': True,
@@ -325,7 +400,11 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
         }
         if user_data:
             default_data.update(user_data)
-        return await make_entry_in_table(async_session, default_data, UserTabit)
+        employee = await make_entry_in_table(async_session, default_data, UserTabit)
+
+        if return_company:
+            return employee, company
+        return employee
 
     return _create_employee
 
@@ -334,13 +413,40 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
 async def moderator_of_company(employee_of_company):
     """
     Фикстура, создающая модератора тестовой компании с возможностью изменения полей.
-    По умолчанию, только обязательные поля.
+
+    Параметры:
+        - moderator_data (dict, optional): Данные для создания модератора. Если не переданы,
+          используются значения по умолчанию.
+        - return_company (bool, optional): Если True, возвращает объект компании
+          вместе с модератором.
+
+    Возвращает:
+        - UserTabit: Объект созданного модератора.
+        - (UserTabit, Company): Если `return_company=True`, возвращает кортеж
+          (модератор, компания).
+
+    Примеры использования:
+        # Создание модератора только с обязательными полями
+        moderator = await moderator_of_company()
+
+        # Создание модератора с кастомными параметрами
+        moderator = await moderator_of_company({
+            'name': 'Иван',
+            'email': 'ivan@example.com',
+            'role': RoleUserTabit.ADMIN
+        })
+
+        # Получение модератора и компании
+        moderator, company = await moderator_of_company(return_company=True)
     """
 
-    async def _create_moderator(moderator_data=None):
+    async def _create_moderator(moderator_data=None, return_company=False):
         """Функция-обёртка для модератора тестовой компании с изменяемыми параметрами."""
         default = moderator_data or {}
         default['role'] = RoleUserTabit.ADMIN
+
+        if return_company:
+            return await employee_of_company(default, return_company=True)
         return await employee_of_company(default)
 
     return _create_moderator
@@ -461,111 +567,345 @@ async def employee_refresh_token(get_token_for_user, employee):
     """
     return await get_token_for_user(employee, refresh=True)
 
- 
-# Фикстуры для тестов problem_feeds.py
-@pytest_asyncio.fixture
-async def problem_for_test(async_session: AsyncSession):
-    """Фикстура, создающая проблему, связанную с переданным сотрудником и компанией"""
 
-    async def _create_problem(employee, company_slug, problem_data=None):
-        problem_obj = {
+@pytest_asyncio.fixture
+async def problem_for_test(async_session: AsyncSession, employee_of_company):
+    """
+    Фикстура, создающая проблему с возможностью изменения полей.
+
+    Параметры:
+        - problem_data (dict, optional): Данные для создания проблемы. Если не переданы,
+          используются значения по умолчанию.
+        - return_all_objects (bool, optional): Если True, возвращает кортеж
+          (проблема, сотрудник, компания).
+
+    Возвращает:
+        - Problem: Объект созданной проблемы.
+        - (Problem, UserTabit, Company): Если `return_all_objects=True`,
+           возвращает кортеж (проблема, сотрудник, компания).
+
+    Примеры использования:
+        # Создание проблемы только с обязательными полями
+        problem = await problem_for_test()
+
+        # Создание проблемы с кастомными параметрами
+        problem = await problem_for_test({
+            'name': 'Важная проблема',
+            'color': ColorProblem.RED,
+            'type': TypeProblem.A
+        })
+
+        # Получение проблемы, сотрудника и компании
+        problem, employee, company = await problem_for_test(return_all_objects=True)
+    """
+
+    async def _create_problem(problem_data=None, return_all_objects=False):
+        """Функция-обёртка для создания проблемы с изменяемыми параметрами."""
+        employee = None
+        company = None
+
+        if not problem_data or (
+            'owner_id' not in problem_data and 'company_slug' not in problem_data
+        ):
+            employee, company = await employee_of_company(return_company=True)
+
+        owner_id = (
+            problem_data.get('owner_id')
+            if problem_data and 'owner_id' in problem_data
+            else employee.id
+        )
+        company_slug = (
+            problem_data.get('company_slug')
+            if problem_data and 'company_slug' in problem_data
+            else company.slug
+        )
+
+        default_data = {
             'name': 'проблема',
             'description': 'описание проблемы',
             'color': ColorProblem.RED,
             'type': TypeProblem.B,
             'status': StatusProblem.NEW,
-            'owner_id': employee.id,
+            'owner_id': owner_id,
             'company_slug': company_slug,
         }
         if problem_data:
-            problem_obj.update(problem_data)
-        return await make_entry_in_table(async_session, problem_obj, Problem)
+            default_data.update(problem_data)
+
+        problem = await make_entry_in_table(async_session, default_data, Problem)
+
+        if return_all_objects:
+            return problem, employee, company
+        return problem
 
     return _create_problem
 
 
 @pytest_asyncio.fixture
 async def message_feed_for_test(async_session: AsyncSession, problem_for_test):
-    """Фикстура, создающая тред, принадлежащий переданному сотруднику"""
+    """
+    Фикстура, создающая тред с возможностью изменения полей.
 
-    async def _create_message_feed(
-        employee, company_slug, message_feed_data=None, problem_id=None
-    ):
-        if not problem_id:
-            problem = await problem_for_test(employee, company_slug)
-            problem_id = problem.id
-        message_feed_obj = {
+    Параметры:
+        - message_feed_data (dict, optional): Данные для создания треда. Если не переданы,
+          используются значения по умолчанию.
+        - return_all_objects (bool, optional): Если True, возвращает кортеж
+          (тред, проблема, сотрудник, компания).
+
+    Возвращает:
+        - MessageFeed: Объект созданного треда.
+        - (MessageFeed, Problem, UserTabit, Company): Если `return_all_objects=True`,
+           возвращает кортеж (тред, проблема, сотрудник, компания).
+
+    Примеры использования:
+        # Создание треда только с обязательными полями
+        message_feed = await message_feed_for_test()
+
+        # Создание треда с кастомными параметрами
+        message_feed = await message_feed_for_test({
+            'text': 'Важное сообщение',
+            'important': True
+        })
+
+        # Получение треда, проблемы, сотрудника и компании
+        message_feed, problem, employee, company = await message_feed_for_test(
+            return_all_objects=True
+        )
+    """
+
+    async def _create_message_feed(message_feed_data=None, return_all_objects=False):
+        """Функция-обёртка для создания треда с изменяемыми параметрами."""
+        employee = None
+        company = None
+        problem = None
+
+        if not message_feed_data or (
+            'owner_id' not in message_feed_data and 'problem_id' not in message_feed_data
+        ):
+            problem, employee, company = await problem_for_test(return_all_objects=True)
+
+        owner_id = (
+            message_feed_data.get('owner_id')
+            if message_feed_data and 'owner_id' in message_feed_data
+            else employee.id
+        )
+        problem_id = (
+            message_feed_data.get('problem_id')
+            if message_feed_data and 'problem_id' in message_feed_data
+            else problem.id
+        )
+
+        default_data = {
             'problem_id': problem_id,
-            'owner_id': employee.id,
+            'owner_id': owner_id,
             'text': 'текст треда',
             'important': True,
         }
         if message_feed_data:
-            message_feed_obj.update(message_feed_data)
-        return await make_entry_in_table(async_session, message_feed_obj, MessageFeed)
+            default_data.update(message_feed_data)
+
+        message_feed = await make_entry_in_table(async_session, default_data, MessageFeed)
+
+        if return_all_objects:
+            return message_feed, problem, employee, company
+        return message_feed
 
     return _create_message_feed
 
 
 @pytest_asyncio.fixture
 async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
-    """Фикстура, создающая комментарий, принадлежащий переданному сотруднику"""
+    """
+    Фикстура, создающая комментарий с возможностью изменения полей.
 
-    async def _create_comment(employee, company_slug, comment_data=None, message_feed_id=None):
-        if not message_feed_id:
-            message_feed = await message_feed_for_test(employee, company_slug)
-            message_feed_id = message_feed.id
-        comment_obj = {
+    Параметры:
+        - comment_data (dict, optional): Данные для создания комментария. Если не переданы,
+          используются значения по умолчанию.
+        - return_all_objects (bool, optional): Если True, возвращает кортеж
+          (комментарий, тред, проблема, сотрудник, компания).
+
+    Возвращает:
+        - CommentFeed: Объект созданного комментария.
+        - (CommentFeed, MessageFeed, Problem, UserTabit, Company): Если `return_all_objects=True`,
+           возвращает кортеж (комментарий, тред, проблема, сотрудник, компания).
+
+    Примеры использования:
+        # Создание комментария только с обязательными полями
+        comment = await comment_for_test()
+
+        # Создание комментария с кастомными параметрами
+        comment = await comment_for_test({
+            'text': 'Важный комментарий',
+            'message_id': 123
+        })
+
+        # Получение комментария, треда, проблемы, сотрудника и компании
+        comment, message_feed, problem, employee, company = await comment_for_test(
+            return_all_objects=True
+        )
+    """
+
+    async def _create_comment(comment_data=None, return_all_objects=False):
+        """Функция-обёртка для создания комментария с изменяемыми параметрами."""
+        employee = None
+        company = None
+        problem = None
+        message_feed = None
+
+        if not comment_data or (
+            'owner_id' not in comment_data and 'message_id' not in comment_data
+        ):
+            message_feed, problem, employee, company = await message_feed_for_test(
+                return_all_objects=True
+            )
+
+        message_id = (
+            comment_data.get('message_id')
+            if comment_data and 'message_id' in comment_data
+            else message_feed.id
+        )
+        owner_id = (
+            comment_data.get('owner_id')
+            if comment_data and 'owner_id' in comment_data
+            else employee.id
+        )
+
+        default_data = {
             'text': 'текст комментария',
-            'message_id': message_feed_id,
-            'owner_id': employee.id,
+            'message_id': message_id,
+            'owner_id': owner_id,
         }
         if comment_data:
-            comment_obj.update(comment_data)
-        return await make_entry_in_table(async_session, comment_obj, CommentFeed)
+            default_data.update(comment_data)
+
+        comment = await make_entry_in_table(async_session, default_data, CommentFeed)
+
+        if return_all_objects:
+            return comment, message_feed, problem, employee, company
+        return comment
 
     return _create_comment
 
 
 @pytest_asyncio.fixture
-async def problem_for_meeting(async_session: AsyncSession, employee_of_company, company_for_test):
-    """Фикстура для создания проблемы."""
+async def meeting_for_test(async_session: AsyncSession, problem_for_test):
+    """
+    Фикстура, создающая встречу с возможностью изменения полей.
 
-    async def func(company_slug=None, owner_id=None):
-        if company_slug is None:
-            company = await company_for_test()
-            company_slug = company.slug
-        if owner_id is None:
-            owner = await employee_of_company()
-            owner_id = owner.id
+    Параметры:
+        - meeting_data (dict, optional): Данные для создания встречи. Если не переданы,
+          используются значения по умолчанию.
+        - return_all_objects (bool, optional): Если True, возвращает кортеж
+          (встреча, проблема, сотрудник, компания).
+
+    Возвращает:
+        - Meeting: Объект созданной встречи.
+        - (Meeting, Problem, UserTabit, Company): Если `return_all_objects=True`,
+           возвращает кортеж (встреча, проблема, сотрудник, компания).
+
+    Примеры использования:
+        # Создание встречи только с обязательными полями
+        meeting = await meeting_for_test()
+
+        # Создание встречи с кастомными параметрами
+        meeting = await meeting_for_test({
+            'title': 'Важная встреча',
+            'date_meeting': datetime.now().date(),
+            'status': 'Завершена'
+        })
+
+        # Получение встречи, проблемы, сотрудника и компании
+        meeting, problem, employee, company = await meeting_for_test(return_all_objects=True)
+    """
+
+    async def _create_meeting(meeting_data=None, return_all_objects=False):
+        """Функция-обёртка для создания встречи с изменяемыми параметрами."""
+        employee = None
+        company = None
+        problem = None
+
+        if not meeting_data or (
+            'owner_id' not in meeting_data and 'problem_id' not in meeting_data
+        ):
+            problem, employee, company = await problem_for_test(return_all_objects=True)
+
+        owner_id = (
+            meeting_data.get('owner_id')
+            if meeting_data and 'owner_id' in meeting_data
+            else employee.id
+        )
+        problem_id = (
+            meeting_data.get('problem_id')
+            if meeting_data and 'problem_id' in meeting_data
+            else problem.id
+        )
+
         default_data = {
-            'name': 'Test Problem',
-            'description': 'Some description',
-            'company_slug': company_slug,
-            'color': 1,
-            'type': 'A',
+            'title': f'Test Meeting {uuid.uuid4().hex[:8]}',
+            'date_meeting': (datetime.now() + timedelta(days=1)).date(),
             'status': 'Новая',
+            'problem_id': problem_id,
             'owner_id': owner_id,
         }
-        problem = await make_entry_in_table(async_session, default_data, Problem)
-        return problem
+        if meeting_data:
+            default_data.update(meeting_data)
 
-    return func
+        meeting = await make_entry_in_table(async_session, default_data, Meeting)
+
+        if return_all_objects:
+            return meeting, problem, employee, company
+        return meeting
+
+    return _create_meeting
 
 
 @pytest_asyncio.fixture
-async def create_meeting(async_session: AsyncSession):
-    """Фикстура для создания встречи."""
+async def department_for_test(async_session: AsyncSession, company_for_test):
+    """
+    Фикстура, создающая департамент с возможностью изменения полей.
 
-    async def func(problem_id, owner_id, count=1):
-        meeting_data = {
-            'title': f'Test Meeting {count}',
-            'date_meeting': (datetime.now() + timedelta(days=count)).date(),
-            'status': 'Новая',
-            'problem_id': problem_id,
-            'owner_id': str(owner_id),
+    Параметры:
+        - department_data (dict, optional): Данные для создания департамента.
+          Если не переданы, используются значения по умолчанию.
+        - return_company (bool, optional): Если True, возвращает кортеж
+          (департамент, компания).
+
+    Возвращает:
+        - Department: Объект созданного департамента.
+        - (Department, Company): Если return_company=True, возвращает кортеж
+          (департамент, компания).
+
+    Примеры использования:
+        # Создание департамента только с обязательными полями:
+        department = await department_for_test()
+
+        # Создание департамента с кастомными параметрами:
+        department = await department_for_test({'name': 'Отдел продаж'})
+
+        # Получение департамента и компании:
+        department, company = await department_for_test(return_company=True)
+    """
+
+    async def _create_department(department_data=None, return_company=False):
+        company = None
+
+        if not department_data or 'company_id' not in department_data:
+            company = await company_for_test()
+
+        company_id = company.id if company else department_data.get('company_id')
+
+        default_data = {
+            'name': f'Department {uuid.uuid4().hex[:8]}',
+            'company_id': company_id,
+            'slug': slugify(f'Department {uuid.uuid4().hex[:8]}'),
         }
-        meeting = await make_entry_in_table(async_session, meeting_data, Meeting)
-        return meeting
 
-    return func
+        if department_data:
+            default_data.update(department_data)
+        department = await make_entry_in_table(async_session, default_data, Department)
+
+        if return_company:
+            return department, company
+        return department
+
+    return _create_department
