@@ -17,7 +17,7 @@ from src.problems.models.task_models import Task
 
 class TaskFactory(AsyncSQLAlchemyFactory):
     """
-    Фабрика для генерации данных задач.
+    Фабрика для генерации данных задачи.
 
     Поля:
         name: Название задачи.
@@ -47,6 +47,11 @@ class TaskFactory(AsyncSQLAlchemyFactory):
 async def create_tasks(count: int = FAKER_TASK_COUNT, **kwargs) -> None:
     """
     Функция для для пакетного создания задач.
+
+    Функция создает указанное количество задач. Можно передать следуюшие аргументы:
+        count: Количество задач для создания.
+        owner_id: ID владельца задач.
+        problem_id: ID проблемы, с которой связаны задачи.
     """
     if 'problem_id' not in kwargs or 'owner_id' not in kwargs:
         problem = next(iter(await create_problems(count=1)), None)
