@@ -1,10 +1,8 @@
 # Определение всех целей, которые могут быть вызваны через make
-.PHONY: help \
-	up down logs up-pgadmin up-dc clean-volumes \
-	migration-init migration-auto migration-empty migration-apply \
-	db-reset db-init create-superuser fill-db fill-companies fill-company-users \
-	fill-tabit-admin-users fill-company-departments  fill-license-type \
-	run up-dc migrate-dc
+.PHONY: help up up-dc up-pgadmin down clean-volumes logs run migration-init migration-auto \
+migration-empty migration-apply migration-apply-dc migration-rollback db-reset db-init \
+create-superuser fill-db fill-companies fill-company-users fill-tabit-admin-users \
+fill-company-departments fill-license-type fill-problems fill-message-feeds
 
 # Определение переменной с именем файла окружения
 ENV_FILE = .env
@@ -26,25 +24,43 @@ endif
 # Используется локальный конфиг и файл окружения
 DOCKER_COMPOSE = docker compose -f infra/local/docker-compose.local.yaml --env-file $(ENV_FILE)
 
-# Помощь и общее
-
+# Основные команды
 help: ## Показать меню помощи
 	@echo "Использование: make [цель]"
 	@echo ""
-	@echo "Доступные цели:"
-	@awk 'BEGIN {FS = ":.*?## "}; /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
+	@echo "Основные категории команд:"
+	@echo ""
+	@echo "\033[1mУправление Docker контейнерами:\033[0m"
+	@awk 'BEGIN {FS = ":.*?## "}; /^(up|up-dc|up-pgadmin|down|clean-volumes|logs):.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
+	@echo ""
+	@echo "\033[1mЛокальный запуск приложения:\033[0m"
+	@awk 'BEGIN {FS = ":.*?## "}; /^run:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
+	@echo ""
+	@echo "\033[1mУправление миграциями:\033[0m"
+	@awk 'BEGIN {FS = ":.*?## "}; /^migration-.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
+	@echo ""
+	@echo "\033[1mУправление базой данных:\033[0m"
+	@awk 'BEGIN {FS = ":.*?## "}; /^(db-reset|db-init):.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
+	@echo ""
+	@echo "\033[1mГенерация тестовых данных:\033[0m"
+	@awk 'BEGIN {FS = ":.*?## "}; /^(create-superuser|fill-.*):.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
 
+# Управление Docker контейнерами
 
-# Минимальный набор для работы: БД в Docker-контейнере
-
-up: ## Запуск контейнероа с локальной БД в фоновом режиме
+# Запуск контейнеров
+up: ## Запуск контейнера с локальной БД в фоновом режиме
 	@echo "Запуск локальной БД в Docker..."
 	$(DOCKER_COMPOSE) up -d
+
+up-dc: ## Запуск всех контейнеров, включая приложение в Docker
+	@echo "Запуск всех контейнеров, включая приложение..."
+	$(DOCKER_COMPOSE) --profile app_dc --profile pgadmin up -d --build
 
 up-pgadmin: ## Запуск контейнеров с локальной БД и pgAdmin в фоновом режиме
 	@echo "Запуск pgAdmin..."
 	$(DOCKER_COMPOSE) --profile pgadmin up -d
 
+# Остановка и очистка контейнеров
 down: ## Остановка всех контейнеров Docker
 	@echo "Остановка всех контейнеров Docker..."
 	$(DOCKER_COMPOSE) --profile "*" down
@@ -53,45 +69,55 @@ clean-volumes: ## Остановка всех контейнеров и удал
 	@echo "Остановка контейнеров и очистка БД и других вольюмов..."
 	$(DOCKER_COMPOSE) --profile "*" down -v
 
+# Мониторинг контейнеров
 logs: ## Показать логи всех контейнеров
 	@echo "Отображение логов контейнеров (Ctrl+C для выхода)..."
 	$(DOCKER_COMPOSE) logs -f
 
-#Работа с миграциями
+# Локальный запуск приложения
+run: ## Запуск приложения локально
+	@echo "Запускаем приложение локально..."
+	poetry run uvicorn src.main:app_v1 --port $(APP_PORT) --reload
 
-## Создание первичной миграции (если все миграции были удалены)
-migration-init:
+# Управление миграциями
+
+# Создание миграций
+migration-init: ## Создание первичной миграции
 	@echo "Создание первичной миграции..."
 	poetry run alembic revision --autogenerate -m "initial migration"
 
-## Команда создания автогенерируемой миграции с возможностью передачи коммита
-## через флаг m='...' для составления названия миграции
-## Пример: make migration-auto m="сообщение"
-migration-auto:
+migration-auto: ## Создание автогенерируемой миграции
 	@echo "Создание автоматической миграции с сообщением $(m)..."
 	poetry run alembic revision --autogenerate -m "$(m)"
 
-## Команда создания пустой миграции с возможностью передачи коммита
-## через флаг m='...' для составления названия миграции
-## Пример: make empty-migration m="сообщение"
-migration-empty:
-	@echo "Создание автоматической миграции с сообщением $(m)..."
+migration-empty: ## Создание пустой миграции
+	@echo "Создание пустой миграции с сообщением $(m)..."
 	poetry run alembic revision -m "$(m)"
 
-## Команда для применения миграций
-migration-apply:
-	@echo "Применяем миграцю..."
+# Применение миграций
+migration-apply: ## Применение миграций локально
+	@echo "Применяем миграции..."
 	poetry run alembic upgrade head
 
-## Полный сброс базы данных и реинициализация
-db-reset: clean-volumes up migration-apply
+migration-apply-dc: ## Применение миграций через контейнер
+	@echo "Применяем миграции через контейнер приложения..."
+	$(DOCKER_COMPOSE) exec app poetry run alembic upgrade head
 
-## Полный процесс инициализации базы данных
-db-init: up init-migration migration-apply
+# Откат миграций
+migration-rollback: ## Откатить последнюю миграцию
+	@echo "Откат последней миграции..."
+	$(DOCKER_COMPOSE) exec app poetry run alembic downgrade -1
+	@echo "Миграция успешно откачена"
 
-# Заполнение БД данными
+# Управление базой данных
+db-reset: ## Полный сброс базы данных и реинициализация
+	clean-volumes up migration-apply
 
-create-superuser: ## Создаст в базе данных суперпользователя.
+db-init: ## Полный процесс инициализации базы данных
+	up init-migration migration-apply
+
+# Генерация тестовых данных
+create-superuser: ## Создание суперпользователя
 	@echo "Создание суперпользователя..."
 	python src/main.py -c
 
@@ -113,20 +139,8 @@ fill-company-departments: ## Заполнение базы данных данн
 fill-license-type: ## Заполнение базы данных типами лицензий
 	poetry run python fake_data_factories/license_type_factories.py
 
+fill-problems: ## Заполнение базы данных тестовыми проблемами
+	poetry run python fake_data_factories/problem_factory.py
 
-# Запуск приложения с uvicorn вне контейнера
-
-run: ## Запуск всех контейнеров, включая приложение в Docker
-	@echo "Запускаем приложение локально..."
-	poetry run uvicorn src.main:app_v1 --port $(APP_PORT) --reload
-
-# Docker с запуском приложения в контейнере
-
-up-dc: ## Запуск всех контейнеров, включая приложение в Docker
-	@echo "Запуск всех контейнеров, включая приложение..."
-	$(DOCKER_COMPOSE) --profile app_dc --profile pgadmin up -d --build
-
-# Команда для выполнения миграций Alembic в контейнере
-migrate-dc:
-	@echo "Применяем миграции через контейнер придожения.."
-	$(DOCKER_COMPOSE) exec app poetry run alembic upgrade head
+fill-message-feeds: ## Заполнение базы данных тестовыми лентами сообщений
+	poetry run python fake_data_factories/message_feed_factory.py
