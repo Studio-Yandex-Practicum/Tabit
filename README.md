@@ -253,7 +253,7 @@ poetry update
    make up                 # Запуск контейнера с БД
 
    # Если миграции уже существуют:
-   make migration-apply   # Применение существующих миграций
+   make migration-apply    # Применение существующих миграций
 
    # Если это первая инициализация:
    make db-init            # Создание и применение начальных миграций
@@ -340,7 +340,7 @@ poetry update
    make up                 # Запуск контейнера с БД
 
    # Если миграции уже существуют:
-   make migration-apply   # Применение существующих миграций
+   make migration-apply    # Применение существующих миграций
 
    # Если это первая инициализация:
    make db-init            # Создание и применение начальных миграций
@@ -367,7 +367,7 @@ poetry update
 POSTGRES_USER=warlock                     # Имя пользователя БД
 POSTGRES_PASSWORD=zTudS8LBSquBMwvS3ky5    # Пароль к БД
 POSTGRES_DB=tabit                         # Название БД
-DB_PORT=5432                     # Порт для подключения к БД
+DB_PORT=5432                              # Порт для подключения к БД
 DB_TYPE=postgresql                        # Тип базы данных
 DB_API=asyncpg                            # API для работы с БД
 DB_HOST=localhost                         # Хост для подключения к БД
@@ -580,18 +580,19 @@ poetry run ruff format .
 
 1. **Только база данных**
    ```bash
-   make up     # Запуск
+   make up              # Запуск
    ```
 
 2. **База данных с pgAdmin**
    ```bash
-   make up-pgadmin         # Запуск
+   make up-pgadmin      # Запуск
    ```
 
 3. **Полное окружение**
    ```bash
-   make up-dc              # Запуск
+   make up-dc           # Запуск
    ```
+
 4. **Общие команды**
    ```bash
    make logs            # Просмотр логов
@@ -689,7 +690,7 @@ make logs
 
 #### 4. Применение миграций
 ```bash
-make migrate-dc
+make migration-apply-dc
 ```
 
 #### 5. Остановка контейнеров
