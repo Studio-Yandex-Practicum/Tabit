@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from dotenv import load_dotenv
+from fastapi import status
 
 from src.constants import TextError
 from src.users.models.enum import RoleUserTabit
@@ -34,6 +35,28 @@ class URL:
     USER_REFRESH: str = '/api/v1/auth/refresh-token'
     COMPANIES_ENDPOINT: str = '/api/v1/admin/companies/'
     LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
+    MEETINGS_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings'
+    MEETINGS_SINGLE: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/{meeting_id}'
+    COMPANY_ENDPOINT: str = '/api/v1/{company_slug}'
+    DEPARTMENTS_ENDPOINT: str = '/api/v1/{company_slug}/departments'
+    DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments/{department_id}'
+    CREATE_DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments'
+    EMPLOYEES_ENDPOINT: str = '/api/v1/{company_slug}/employees'
+    EMPLOYEE_ENDPOINT: str = '/api/v1/{company_slug}/employees/{employee_id}'
+    CREATE_EMPLOYEE_ENDPOINT: str = '/api/v1/{company_slug}/employees'
+    FEEDBACK_ENDPOINT: str = '/api/v1/{company_slug}/feedback/'
+
+    # URLs для problem_feeds.py
+    MESSAGE_FEED_URL: str = '/api/v1/{company_slug}/problems/{problem_id}/thread'
+    COMMENTS_URL: str = '/api/v1/{company_slug}/problems/{problem_id}/{message_feed_id}/comments'
+    COMMENTS_PATCH_DELETE_URL: str = (
+        '/api/v1/{company_slug}/problems/1/{message_feed_id}/comments/{comment_id}'
+    )
+    COMMENTS_PATCH_DELETE_404_URL: str = (
+        '/api/v1/{company_slug}/{problem_id}/{message_feed_id}/comments/{comment_id}'
+    )
+    LIKE_URL: str = '/api/v1/{company_slug}/problems/1/{message_feed_id}/comments/1/like'
+    UNLIKE_URL: str = '/api/v1/{company_slug}/problems/1/{message_feed_id}/comments/1/unlike'
 
 
 GOOD_PASSWORD: str = 'string123STRING'
@@ -192,3 +215,68 @@ INVALID_IMAGE: tuple[tuple[Any, Any], ...] = (
         ),
     ),
 )
+
+# Константы для тестов problem_feeds.py
+MESSAGE_FEED_CREATE_NEW: tuple[tuple] = (
+    ({'text': 'feed with important field', 'important': True}, True),
+    ({'text': 'feed w/o important field'}, False),
+)
+MESSAGE_FEED_CREATE_BAD: tuple[tuple] = (
+    ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'text': 'feed with extra field', 'problem_id': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+)
+MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY: dict[str] = {'text': 'feed for another company'}
+COMMENT_CREATE_NEW: dict[str] = {'text': 'new comment'}
+COMMENT_CREATE_BAD: tuple[tuple] = (
+    ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'text': 'comment with extra field', 'message_id': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+)
+COMMENT_UPDATE: dict[str] = {'text': 'updated comment'}
+COMMENT_UPDATE_BAD: tuple[tuple] = (
+    ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'text': 'comment with extra field', 'rating': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+)
+
+# Константы для ожидаемых полей в ответах API
+COMPANY_FIELDS = {
+    'id',
+    'name',
+    'description',
+    'logo',
+    'license_id',
+    'max_admins_count',
+    'max_employees_count',
+    'start_license_time',
+    'end_license_time',
+    'is_active',
+    'slug',
+    'created_at',
+    'updated_at',
+}
+
+DEPARTMENT_FIELDS = {'name', 'slug', 'id', 'company_id'}
+
+EMPLOYEE_FIELDS = {
+    'id',
+    'email',
+    'is_active',
+    'is_superuser',
+    'is_verified',
+    'name',
+    'surname',
+    'patronymic',
+    'phone_number',
+    'birthday',
+    'telegram_username',
+    'role',
+    'start_date_employment',
+    'end_date_employment',
+    'avatar_link',
+    'company_id',
+    'current_department_id',
+    'last_department_id',
+    'department_transition_date',
+    'employee_position',
+    'created_at',
+    'updated_at',
+}

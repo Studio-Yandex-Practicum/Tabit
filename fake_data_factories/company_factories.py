@@ -55,7 +55,7 @@ async def create_companies(count: int = FAKER_COMPANY_COUNT, **kwargs) -> None:
     Функция для наполнения таблицы бд Company.
     """
     companies = await CompanyFactory.create_batch(count, **kwargs)
-    cprint(f'Создано {count} Companies', 'green')
+    cprint(f'Создано {count} компаний', 'green')
     return companies
 
 

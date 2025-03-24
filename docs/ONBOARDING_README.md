@@ -342,21 +342,17 @@ logger.error('Ошибка')
 - Придерживайтесь Git Flow и именования веток
 - Соблюдайте процесс создания и проверки PR
 
-## Примеры кода и шаблоны (в разработке)
+## Примеры кода и шаблоны
 
 Примеры реализации типовых задач можно найти в соответствующих разделах кодовой базы:
 
-- Создание нового эндпоинта
-
-- Создание новой модели SQLAlchemy
-
-- Создание нового сервиса
-
-- Создание нового теста
-
-- Шаблон докстринга
-
-- Шаблон логирования
+- [CRUD операции](./code_examples/crud_example.py)
+- [API эндпоинты](./code_examples/endpoints_example.py)
+- [Валидаторы эндпоинтов](./code_examples/endpoints_validators_examples.py)
+- [Модели базы данных](./code_examples/models_example.py)
+- [Pydantic схемы](./code_examples/schemas_example.py)
+- [Валидаторы схем](./code_examples/schemas_validators_examples.py)
+- [Service-операции](./code_examples/services_example.py)
 
 ## Техническая документация
 
