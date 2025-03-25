@@ -20,7 +20,7 @@ class TaskBaseSchema(BaseModel):
         description: Описание задачи (опционально).
     """
 
-    description: str | None
+    description: str | None = None
     # TODO Надо реализовать добавление файлов в встречу
 
 

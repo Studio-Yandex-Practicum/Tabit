@@ -36,7 +36,7 @@ class CRUDProblem(CRUDBaseWithAssociations):
             Экземпляр модели проблемы после создания.
         """
         problem_data = problem_in.model_dump()
-        members = problem_data.pop('members') if 'members' in problem_data else None
+        members = problem_data.pop('members') if 'members' in problem_data else []
         default_data = {
             'owner_id': owner.id,
             'company_id': company.id,
@@ -47,18 +47,17 @@ class CRUDProblem(CRUDBaseWithAssociations):
         try:
             session.add(problem_db)
             await session.flush()
-            if members:
-                members.append(owner.id)
-                members = set(members)
-                associations_data = [
-                    self.associations_model(
-                        left_id=member,
-                        right_id=problem_db.id,
-                        status=(True if member == owner.id else False),
-                    )
-                    for member in members
-                ]
-                session.add_all(associations_data)
+            members.append(owner.id)
+            members = set(members)
+            associations_data = [
+                self.associations_model(
+                    left_id=member,
+                    right_id=problem_db.id,
+                    status=(True if member == owner.id else False),
+                )
+                for member in members
+            ]
+            session.add_all(associations_data)
             await session.commit()
             await session.refresh(problem_db)
         except Exception as error:

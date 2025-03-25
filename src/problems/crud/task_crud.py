@@ -69,7 +69,7 @@ class CRUDTask(CRUDBaseWithAssociations):
             HTTPException: Если произошла ошибка при создании задачи.
         """
         task_data = task_in.model_dump()
-        executors = task_data.pop('executors') if 'executors' in task_data else None
+        executors = task_data.pop('executors') if 'executors' in task_data else []
         default_data = {
             'problem_id': problem.id,
             'owner_id': owner.id,

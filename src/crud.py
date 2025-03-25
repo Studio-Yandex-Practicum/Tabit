@@ -59,15 +59,25 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.scalars().first()
 
     async def get_or_404(
-        self, session: AsyncSession, obj_id: int | UUID, message: str = TextError.NOT_FOUND
+        self, session: AsyncSession, obj_id: int | UUID, message: str | None = None
     ) -> ModelType:
         """
-        Получает объект по ID или выбрасывает 404-ошибку.
+        Получает объект из БД по id или выбрасывает 404-ошибку.
 
-        Возвращает объект или HTTPException(404), если не найден.
+        Параметры:
+            session: Асинхронная сессия SQLAlchemy.
+            obj_id: идентификатор объекта.
+            message: сообщение, которое вернется с ошибкой 404.
+        Возвращает:
+            Экземпляр модели.
+
+        Возможные ошибки:
+            HTTPException со статусом 404, если не найдет объект по id в БД.
         """
         obj = await self.get(session, obj_id)
         if not obj:
+            if message is None:
+                message = TextError.NOT_FOUND.format(obj=self.model.__name__, id=obj_id)
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
         return obj
 
@@ -76,7 +86,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         obj_slug: str,
         raise_404: bool = False,
-        message: str = TextError.NOT_FOUND,
+        message: str | None = None,
     ) -> ModelType | None:
         """
         Получает объект по полю slug.
@@ -87,6 +97,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         result = await session.execute(select(self.model).where(self.model.slug == obj_slug))
         obj_model = result.scalars().first()
         if not obj_model and raise_404:
+            if message is None:
+                message = TextError.NOT_FOUND_BY_SLUG.format(
+                    obj=self.model.__name__, slug=obj_slug
+                )
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
         return obj_model
 

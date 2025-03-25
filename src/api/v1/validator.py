@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.constants import TextError
 from src.companies.models import Company
-from src.constants import TextError as ErrorText
 from src.crud import CRUDBase
 from src.problems.models import Meeting, Problem, Task
 from src.problems.models.enums import StatusMeeting, StatusProblem, StatusTask
@@ -21,7 +20,7 @@ async def validator_check_object_exists(
     model_crud: CRUDBase,
     object_id: int | UUID | None = None,
     object_slug: str | None = None,
-    message: str = ErrorText.NOT_FOUND,
+    message: str | None = None,
 ):
     """Проверит наличие и вернет объект из таблицы по id или slug."""
     object_model = (

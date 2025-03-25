@@ -17,7 +17,7 @@ class MeetingBaseSchema(BaseModel):
         description: Описание встречи (опционально).
     """
 
-    description: str | None
+    description: str | None = None
     # TODO Надо реализовать добавление файлов в встречу
 
 
@@ -72,10 +72,10 @@ class MeetingUpdateSchema(MeetingSchemaMixin, MeetingBaseSchema):
         members: список участников, из связной таблицы, оформленных через схему (опционально).
     """
 
-    title: str | None
-    date_meeting: date | None
-    place: str | None
-    status: StatusMeeting | None
+    title: str | None = None
+    date_meeting: date | None = None
+    place: str | None = None
+    status: StatusMeeting | None = None
     members: list[UUID] | None = []
 
 
