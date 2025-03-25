@@ -934,7 +934,7 @@ class TestCreateEmployee:
             )
 
     @pytest.mark.asyncio
-    async def test_create_employeeы_with_same_telegram(
+    async def test_create_employees_with_same_telegram(
         self, client: AsyncClient, moderator_of_company, get_token_for_user, department_for_test
     ):
         """
