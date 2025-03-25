@@ -27,7 +27,7 @@ async def check_telegram_username_for_duplicates(username: str, session: AsyncSe
 
 
 async def check_company_and_department(
-    company_id: int, department_id: int, session: AsyncSession
+    company_id: int, department_id: int | None, session: AsyncSession
 ) -> None:
     """
     Функция проверяет существование объектов Company и Department с указанными id.
@@ -37,11 +37,10 @@ async def check_company_and_department(
         department_id: id отдела, переданный в запросе к API;
         session: асинхронная сессия SQLAlchemy;
     """
-    if company_id:
-        if not await company_crud.get(session, company_id):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=COMPANY_NOT_FOUND
-            )
+    if not await company_crud.get(session, company_id):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=COMPANY_NOT_FOUND
+        )
     if department_id:
         department = await company_departments_crud.get(session, department_id)
         if not department:
@@ -50,7 +49,7 @@ async def check_company_and_department(
             )
     else:
         return
-    if department and department.company_id != company_id:
+    if department.company_id != company_id:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=WRONG_COMPANY_DEPARTMENT
         )
