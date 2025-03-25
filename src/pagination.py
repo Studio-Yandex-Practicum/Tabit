@@ -3,19 +3,17 @@ from typing import Generic, Optional, Sequence, TypeVar
 from fastapi_pagination import Page
 from pydantic import Field
 
-T = TypeVar("T")
+T = TypeVar('T')
 
 
 class CustomPage(Page[T], Generic[T]):
     """Кастомная страница пагинации"""
 
-    has_next: bool = Field(..., description="Наличие следующей страницы")
-    has_previous: bool = Field(..., description="Наличие предыдущей страницы")
+    has_next: bool = Field(..., description='Наличие следующей страницы')
+    has_previous: bool = Field(..., description='Наличие предыдущей страницы')
 
     @classmethod
-    def create(
-        cls, items: Sequence[T], total: int, page: int, size: int
-    ) -> "CustomPage[T]":
+    def create(cls, items: Sequence[T], total: int, page: int, size: int) -> 'CustomPage[T]':
         return cls(
             items=items,
             total=total,
@@ -42,17 +40,11 @@ class BasePagination(Generic[T]):
         total (Optional[int]): Общее количество элементов.
     """
 
-    def __init__(
-            self,
-            items: Sequence[T],
-            page: int,
-            page_size: int,
-            total: Optional[int]
-    ):
+    def __init__(self, items: Sequence[T], page: int, page_size: int, total: Optional[int]):
         if page < 1:
-            raise ValueError("Номер страницы должен быть больше 0.")
+            raise ValueError('Номер страницы должен быть больше 0.')
         if page_size < 1:
-            raise ValueError("Размер страницы должен быть больше 0.")
+            raise ValueError('Размер страницы должен быть больше 0.')
         if total is not None:
             self.total = total
         else:
@@ -78,9 +70,9 @@ class BasePagination(Generic[T]):
         start = (self.page - 1) * self.page_size
         end = start + self.page_size
         return self.items[start:end]
-    
+
     def to_page(self) -> Page[T]:
-        """"Преобразует данные в формат Page."""
+        """ "Преобразует данные в формат Page."""
         return Page(
             items=self.get_items(),
             total=self.get_total(),

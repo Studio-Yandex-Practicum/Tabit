@@ -16,6 +16,7 @@ app_v1.middleware('http')(LoggingMiddleware())  # Add logging requests feature a
 app_v1.include_router(main_router)
 add_pagination(app_v1)
 
+
 def main():
     """Функция запустит управляющую функцию. Для доступа извне."""
     application_management()
