@@ -71,9 +71,9 @@ class BasePagination(Generic[T]):
         end = start + self.page_size
         return self.items[start:end]
 
-    def to_page(self) -> Page[T]:
-        """ "Преобразует данные в формат Page."""
-        return Page(
+    def to_page(self) -> CustomPage[T]:
+        """Преобразует данные в формат кастомной страницы."""
+        return CustomPage.create(
             items=self.get_items(),
             total=self.get_total(),
             page=self.get_page(),
