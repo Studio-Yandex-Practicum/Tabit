@@ -6,9 +6,10 @@ from typing import Optional
 import factory
 from termcolor import cprint
 
-from constants import AMOUNT_OF_ADMIN, FAKER_USER_COUNT
 from fake_data_factories.base_user_factory import BaseUserFactory
 from fake_data_factories.company_factories import CompanyFactory
+from fake_data_factories.constants import AMOUNT_OF_ADMIN, FAKER_USER_COUNT, Color
+from fake_data_factories.utils import start_and_end
 from src.database.alembic_models import UserTabit
 from src.database.sc_db_session import sc_session
 
@@ -44,6 +45,7 @@ class CompanyUserFactory(BaseUserFactory):
         sqlalchemy_session = sc_session
 
 
+@start_and_end(__name__)
 async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> list[UserTabit]:
     """
     Функция для наполнения таблицы бд UserTabit.
@@ -61,7 +63,7 @@ async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> list[
         kwargs['company_id'] = company_users.id
     company_users += await CompanyUserFactory.create_batch(AMOUNT_OF_ADMIN, role='Админ', **kwargs)
     company_users += await CompanyUserFactory.create_batch(count - AMOUNT_OF_ADMIN, **kwargs)
-    cprint(f'Создано {count} работников компании c id: {kwargs["company_id"]}', 'green')
+    cprint(f'Создано {count} работников компании c id: {kwargs["company_id"]}', Color.green)
     return company_users
 
 

@@ -3,6 +3,8 @@ from uuid import UUID
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
+from fake_data_factories.constants import Color
+from fake_data_factories.utils import start_and_end
 from src.database.sc_db_session import sc_session
 from src.problems.models.association_models import AssociationUserTask
 
@@ -24,6 +26,7 @@ class AssociationUserTaskFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
+@start_and_end(__name__)
 async def create_user_task_associations(
     user_id: UUID,
     task_ids: list[int],
@@ -40,5 +43,5 @@ async def create_user_task_associations(
     cprint(
         f'Создано {len(task_ids)} ассоциативных связей задача-пользователь '
         f'от пользователя с id: {user_id}',
-        'green',
+        Color.green,  # type: ignore
     )

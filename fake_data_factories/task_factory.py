@@ -6,9 +6,15 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from constants import DEFAULT_TASK_DESCRIPTION_LENGTH, DEFAULT_TASK_NAMES, FAKER_TASK_COUNT
 from fake_data_factories.association_user_task_factory import create_user_task_associations
+from fake_data_factories.constants import (
+    DEFAULT_TASK_DESCRIPTION_LENGTH,
+    DEFAULT_TASK_NAMES,
+    FAKER_TASK_COUNT,
+    Color,
+)
 from fake_data_factories.problem_factory import create_problems
+from fake_data_factories.utils import start_and_end
 from src.constants import ZERO
 from src.database.sc_db_session import sc_session
 from src.problems.models.enums import StatusTask
@@ -44,6 +50,7 @@ class TaskFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
+@start_and_end(__name__)
 async def create_tasks(count: int = FAKER_TASK_COUNT, **kwargs) -> None:
     """
     Функция для для пакетного создания задач.
@@ -61,7 +68,7 @@ async def create_tasks(count: int = FAKER_TASK_COUNT, **kwargs) -> None:
     cprint(
         f'Создано {count} задач в проблеме c id: {kwargs["problem_id"]} '
         f'от пользователя с id: {kwargs["owner_id"]}',
-        'green',
+        Color.green,  # type: ignore
     )
     await create_user_task_associations(
         user_id=kwargs['owner_id'], task_ids=[task.id for task in tasks]
