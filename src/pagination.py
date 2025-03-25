@@ -1,6 +1,7 @@
+from typing import Generic, Optional, Sequence, TypeVar
+
 from fastapi_pagination import Page
 from pydantic import Field
-from typing import Generic, Optional, Sequence, TypeVar
 
 T = TypeVar("T")
 
