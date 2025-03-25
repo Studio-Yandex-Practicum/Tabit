@@ -7,16 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.companies.models import Company
-from src.constants import (
-    DEFAULT_AUTO_COMMIT,
-    TEXT_ERROR_SERVER_CREATE,
-    TEXT_ERROR_SERVER_CREATE_LOG,
-    TEXT_ERROR_SERVER_UPDATE,
-    TEXT_ERROR_SERVER_UPDATE_LOG,
-    TEXT_ERROR_UNIQUE,
-    TEXT_ERROR_UNIQUE_CREATE_LOG,
-    TEXT_ERROR_UNIQUE_UPDATE_LOG,
-)
+from src.constants import DEFAULT_AUTO_COMMIT, TextError
 from src.crud import CRUDBase
 from src.logger import logger
 from src.problems.models import Problem, Task
@@ -143,17 +134,17 @@ class CRUDTask(CRUDBase):
             return TaskResponseSchema.model_validate(new_task)
         except IntegrityError as e:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_UNIQUE_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.UNIQUE_CREATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=TEXT_ERROR_UNIQUE,
+                detail=TextError.UNIQUE,
             )
         except Exception as e:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_SERVER_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TEXT_ERROR_SERVER_CREATE,
+                detail=TextError.SERVER_CREATE,
             )
 
     async def update(
@@ -205,17 +196,17 @@ class CRUDTask(CRUDBase):
             return TaskResponseSchema.model_validate(db_obj)
         except IntegrityError as e:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_UNIQUE_UPDATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.UNIQUE_UPDATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=TEXT_ERROR_UNIQUE,
+                detail=TextError.UNIQUE,
             )
         except Exception as e:
             await session.rollback()
-            logger.error(f'{TEXT_ERROR_SERVER_UPDATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TEXT_ERROR_SERVER_UPDATE,
+                detail=TextError.SERVER_UPDATE,
             )
 
     async def delete_task(self, session: AsyncSession, task_id: int) -> None:

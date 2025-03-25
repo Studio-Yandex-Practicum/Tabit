@@ -44,7 +44,7 @@ class CompanyUserFactory(BaseUserFactory):
         sqlalchemy_session = sc_session
 
 
-async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
+async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> list[UserTabit]:
     """
     Функция для наполнения таблицы бд UserTabit.
     Для компании создается 1 админ, и все остальные простые сотрудники.
@@ -52,13 +52,17 @@ async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
     компания, id этой компании передается в фабрику.
     Если функция запускается через импорт, в неё нужно передать именованный аргумент company_id,
     чтобы он попал в kwargs для заполнения обязательного поля фабрики company_id.
+
+    Возвращает список созданных пользователей.
     """
+    company_users: list[UserTabit] = []
     if __name__ == '__main__':
-        company = await CompanyFactory.create()
-        kwargs['company_id'] = company.id
-    await CompanyUserFactory.create_batch(AMOUNT_OF_ADMIN, role='Админ', **kwargs)
-    await CompanyUserFactory.create_batch(count - AMOUNT_OF_ADMIN, **kwargs)
+        company_users = await CompanyFactory.create()
+        kwargs['company_id'] = company_users.id
+    company_users += await CompanyUserFactory.create_batch(AMOUNT_OF_ADMIN, role='Админ', **kwargs)
+    company_users += await CompanyUserFactory.create_batch(count - AMOUNT_OF_ADMIN, **kwargs)
     cprint(f'Создано {count} работников компании c id: {kwargs["company_id"]}', 'green')
+    return company_users
 
 
 if __name__ == '__main__':
