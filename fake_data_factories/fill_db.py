@@ -2,6 +2,9 @@ import asyncio
 
 from termcolor import colored, cprint
 
+from fake_data_factories.association_user_problem_factory import (
+    create_user_problem_associations,
+)
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.constants import (
@@ -47,26 +50,35 @@ async def fill_all_data():
     )
     for company in companies:
         company_users = await create_company_users(count=FAKER_USER_COUNT, company_id=company.id)
-        for company_user in company_users:
-            if company_user.role != 'Админ':
-                problem = next(
-                    iter(
-                        await create_problems(
-                            count=1, company_slug=company.slug, owner_id=company_user.id
-                        )
-                    ),
-                    None,
-                )
-                message_feeds = await create_message_feeds(
-                    count=1, problem_id=problem.id, owner_id=problem.owner_id
-                )
-                for message_feed in message_feeds:
-                    await create_voting_feeds(
-                        count=FAKER_VOTING_FEEDS_COUNT, message_id=message_feed.id
+        company_users_not_admins = [
+            company_user for company_user in company_users if company_user.role != 'Админ'
+        ]
+        for company_user in company_users_not_admins:
+            problem = next(
+                iter(
+                    await create_problems(
+                        count=1, company_slug=company.slug, owner_id=company_user.id
                     )
-                await create_tasks(
-                    count=FAKER_TASK_COUNT, problem_id=problem.id, owner_id=company_user.id
+                ),
+                None,
+            )
+            company_users_not_problem_owners = [
+                user for user in company_users_not_admins if user != company_user
+            ]
+            for user in company_users_not_problem_owners:
+                await create_user_problem_associations(user_id=user.id, problem_ids=[problem.id])
+            message_feeds = await create_message_feeds(
+                count=1, problem_id=problem.id, owner_id=problem.owner_id
+            )
+            for message_feed in message_feeds:
+                await create_voting_feeds(
+                    count=FAKER_VOTING_FEEDS_COUNT, message_id=message_feed.id
                 )
+                # for user in company_users_not_problem_owners:
+                #     ...
+            await create_tasks(
+                count=FAKER_TASK_COUNT, problem_id=problem.id, owner_id=company_user.id
+            )
         await create_company_department(count=FAKER_DEPARTMENT_COUNT, company_id=company.id)
     await create_tabit_admin_users(count=FAKER_USER_COUNT)
 
