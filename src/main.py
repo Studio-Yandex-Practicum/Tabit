@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 
 from src.api.v1.routers import main_router
 from src.config import settings
@@ -13,6 +14,7 @@ app_v1 = FastAPI(
 )
 app_v1.middleware('http')(LoggingMiddleware())  # Add logging requests feature as middleware
 app_v1.include_router(main_router)
+add_pagination(app_v1)
 
 def main():
     """Функция запустит управляющую функцию. Для доступа извне."""
