@@ -1,6 +1,28 @@
+from fastapi_pagination import Page
+from pydantic import Field
 from typing import Generic, Optional, Sequence, TypeVar
 
 T = TypeVar("T")
+
+
+class CustomPage(Page[T], Generic[T]):
+    """Кастомная страница пагинации"""
+
+    has_next: bool = Field(..., description="Наличие следующей страницы")
+    has_previous: bool = Field(..., description="Наличие предыдущей страницы")
+
+    @classmethod
+    def create(
+        cls, items: Sequence[T], total: int, page: int, size: int
+    ) -> "CustomPage[T]":
+        return cls(
+            items=items,
+            total=total,
+            page=page,
+            size=size,
+            has_next=(page * size < total),
+            has_previous=(page > 1),
+        )
 
 
 class BasePagination(Generic[T]):
@@ -55,11 +77,12 @@ class BasePagination(Generic[T]):
         start = (self.page - 1) * self.page_size
         end = start + self.page_size
         return self.items[start:end]
-
-    def has_next(self) -> bool:
-        """Проверяет наличие следующей страницы."""
-        return self.page * self.page_size < self.total
-
-    def has_previous(self) -> bool:
-        """Проверяет наличие предыдущей страницы."""
-        return self.page > 1
+    
+    def to_page(self) -> Page[T]:
+        """"Преобразует данные в формат Page."""
+        return Page(
+            items=self.get_items(),
+            total=self.get_total(),
+            page=self.get_page(),
+            size=self.get_page_size(),
+        )
