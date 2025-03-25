@@ -23,6 +23,7 @@ from src.tabit_management.schemas.license_type import (
 )
 
 router = APIRouter(dependencies=[Depends(current_admin_tabit)])
+# router = APIRouter()
 
 
 @router.get(
