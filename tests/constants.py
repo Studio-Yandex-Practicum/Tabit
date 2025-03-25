@@ -36,6 +36,7 @@ class URL:
     COMPANIES_ENDPOINT: str = '/api/v1/admin/companies/'
     LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
     PROBLEMS_ENDPOINT: str = '/api/v1/{company_slug}/problems'
+    PROBLEM_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}'
     MEETINGS_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings'
     MEETINGS_SINGLE: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/{meeting_id}'
     COMPANY_ENDPOINT: str = '/api/v1/{company_slug}'
