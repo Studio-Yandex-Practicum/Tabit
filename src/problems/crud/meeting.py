@@ -29,17 +29,18 @@ class CRUDMeeting(CRUDBase):
             Созданный объект встречи с обновленными данными.
         """
         try:
-            meeting_data['members'] = members
+            meeting_data.pop('members', None)
             meeting_model = MeetingCreateSchema(**meeting_data)
             created_meeting = await self.create(session, meeting_model)
 
-            # Создаем ассоциации участников с встречей
-            await create_associations(
-                session=session,
-                association_model=AssociationUserMeeting,
-                left_ids=members,
-                right_id=created_meeting.id,
-            )
+            # Связываем участников
+            if members:
+                await create_associations(
+                    session=session,
+                    association_model=AssociationUserMeeting,
+                    left_ids=members,
+                    right_id=created_meeting.id,
+                )
 
             await session.commit()
             await session.refresh(created_meeting)

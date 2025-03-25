@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from src.problems.models.enums import ResultMeetingEnum, StatusMeeting
 from src.problems.validators.meeting_validators import validate_date, validate_not_empty
@@ -22,10 +22,10 @@ class MeetingBaseSchema(BaseModel):
     """
 
     title: str
-    description: Optional[str]
+    description: Optional[str] = None
     date_meeting: date
     status: StatusMeeting
-    place: Optional[str]
+    place: Optional[str] = None
     # TODO Надо реализовать добавление файлов в встречу
 
 
@@ -43,7 +43,7 @@ class MeetingCreateSchema(MeetingBaseSchema):
 
     problem_id: int
     owner_id: UUID
-    members: Optional[List[UUID]] = Field(exclude=True)
+    members: Optional[List[UUID]] = []
 
     model_config = ConfigDict(extra='forbid', str_min_length=1)
 
@@ -73,11 +73,9 @@ class MeetingUpdateSchema(MeetingBaseSchema):
         place: Место проведения встречи (опционально).
     """
 
-    title: Optional[str]
-    description: Optional[str]
-    date_meeting: Optional[date]
-    status: Optional[StatusMeeting]
-    place: Optional[str]
+    title: Optional[str] = None
+    date_meeting: Optional[date] = None
+    status: Optional[StatusMeeting] = None
 
     model_config = ConfigDict(extra='forbid', str_min_length=1)
 
