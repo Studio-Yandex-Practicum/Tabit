@@ -7,7 +7,9 @@ from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.constants import (
     FAKER_COMPANY_COUNT,
     FAKER_DEPARTMENT_COUNT,
+    FAKER_TASK_COUNT,
     FAKER_USER_COUNT,
+    FAKER_VOTING_FEEDS_COUNT,
     LICENSE_TYPE_COUNT,
 )
 from fake_data_factories.department_factories import create_company_department
@@ -15,6 +17,8 @@ from fake_data_factories.license_type_factories import create_license_type
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.tabit_user_factories import create_tabit_admin_users
+from fake_data_factories.task_factory import create_tasks
+from fake_data_factories.voting_feed_factory import create_voting_feeds
 
 
 async def fill_all_data():
@@ -53,8 +57,15 @@ async def fill_all_data():
                     ),
                     None,
                 )
-                await create_message_feeds(
+                message_feeds = await create_message_feeds(
                     count=1, problem_id=problem.id, owner_id=problem.owner_id
+                )
+                for message_feed in message_feeds:
+                    await create_voting_feeds(
+                        count=FAKER_VOTING_FEEDS_COUNT, message_id=message_feed.id
+                    )
+                await create_tasks(
+                    count=FAKER_TASK_COUNT, problem_id=problem.id, owner_id=company_user.id
                 )
         await create_company_department(count=FAKER_DEPARTMENT_COUNT, company_id=company.id)
     await create_tabit_admin_users(count=FAKER_USER_COUNT)
