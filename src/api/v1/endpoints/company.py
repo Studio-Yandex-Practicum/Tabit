@@ -13,9 +13,10 @@ from src.api.v1.auth.managers import get_user_manager
 # from src.api.v1.permissions import company_permissions
 from src.api.v1.constants import Summary
 from src.api.v1.validator import validator_check_object_exists
-from src.api.v1.validators.company_validators import (
+from src.api.v1.validators import (
     check_department_name_duplicate,
     check_slug_duplicate,
+    check_telegram_username_for_duplicates,
     validate_password,
     validate_user_not_exists,
 )
@@ -440,6 +441,7 @@ async def create_company_employee(
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     await validate_user_not_exists(create_data, user_manager)
     await validate_password(create_data, user_manager)
+    await check_telegram_username_for_duplicates(create_data.telegram_username, session)
     created_user = await user_manager.create(create_data)
     return created_user
 
@@ -587,6 +589,7 @@ async def update_company_employee(
     await validator_check_object_exists(session, user_crud, object_id=uuid)
     await validate_user_not_exists(user_data=object_in, user_manager=user_manager)
     await validate_password(user_data=object_in, user_manager=user_manager)
+    await check_telegram_username_for_duplicates(object_in.telegram_username, session)
     user = await user_manager.get(uuid)
     user_manager.parse_id
     user = await user_manager.update(object_in, user)
