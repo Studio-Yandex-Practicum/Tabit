@@ -258,6 +258,7 @@ class TestUpdateTabitManagement:
         payload,
         check_department_change,
     ):
+        """Тест для проверки обновления модератора PUT-запросом"""
         department = await department_for_test()
         await department_for_test({'company_id': department.company_id})
         moderator = await moderator_of_company(
@@ -288,6 +289,7 @@ class TestUpdateTabitManagement:
         moderator_of_company,
         payload,
     ):
+        """Тест для проверки неуспешного обновления модератора PUT-запросом"""
         department = await department_for_test()
         moderator = await moderator_of_company(
             {
@@ -321,6 +323,7 @@ class TestUpdateTabitManagement:
         )
 
     async def test_update_404(self, client: AsyncClient, admin_token):
+        """Тест для проверки PATCH- и PUT- запросов к несуществующему пользователю"""
         response = await client.patch(
             URL.ADMIN_MOD_DATA_URL.format(user_id=TEST_UUID),
             headers=admin_token,
@@ -352,6 +355,7 @@ class TestDeleteTabitManagement:
         department_for_test,
         moderator_of_company,
     ):
+        """Тест для проверки удаления модератора"""
         department = await department_for_test()
         moderator = await moderator_of_company(
             {'company_id': department.company_id, 'current_department_id': department.id}
@@ -365,6 +369,7 @@ class TestDeleteTabitManagement:
         )
 
     async def test_delete_moderator_404(self, client: AsyncClient, admin_token):
+        """Тест для проверки удаления несуществующего модератора"""
         response = await client.delete(
             URL.ADMIN_MOD_DATA_URL.format(user_id=TEST_UUID), headers=admin_token
         )
