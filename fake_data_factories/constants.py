@@ -1,9 +1,26 @@
 # Константы для генерации тестовых данных в Faker-сидерах
 
+# Основные параметры генерации
 FAKER_USER_COUNT = 5  # Число пользователей для генерации
 FAKER_COMPANY_COUNT = 5  # Число компаний для генерации
 FAKER_DEPARTMENT_COUNT = 5  # Число отделов для генерации
-FAKER_PROBLEMS_COUNT: int = 5
+FAKER_PROBLEMS_COUNT: int = 5  # Число проблем для генерации
+FAKER_MESSAGE_FEEDS_COUNT: int = 5  # Число лент сообщений для генерации
+FAKER_VOTING_FEEDS_COUNT: int = 5  # Число лент голосований для генерации
+FAKER_TASK_COUNT: int = 5  # Число задач для генерации
+AMOUNT_OF_ADMIN = 1  # Количество админов создаваемых для компании за 1 запуск скрипта
+
+# Параметры лицензий
+LICENSE_TYPE_COUNT = 5
+DEFAULT_LICENSE_TERM = 365
+LICENSE_MAX_ADMINS = 100
+LICENSE_MAX_EMPLOYEES = 1000
+
+# Текстовые константы
+COMPANY_USER_CREATED_TEXT = '{role} компании c id={company_id}: {user_email}, пасс: {password}'
+DEFAULT_TASK_DESCRIPTION_LENGTH: int = 256
+
+# Списки значений по умолчанию
 DEFAULT_DEPARTMENT_NAMES = [
     'Отдел кадров',
     'Отдел менеджмента',
@@ -11,12 +28,6 @@ DEFAULT_DEPARTMENT_NAMES = [
     'IT-отдел',
     'Технический отдел',
 ]  # Имена для отделов компании
-AMOUNT_OF_ADMIN = 1  # количество админов создаваемых для компании за 1 запуск скрипта
-COMPANY_USER_CREATED_TEXT = '{role} компании c id={company_id}: {user_email}, пасс: {password}'
-LICENSE_TYPE_COUNT = 5
-DEFAULT_LICENSE_TERM = 365
-LICENSE_MAX_ADMINS = 100
-LICENSE_MAX_EMPLOYEES = 1000
 
 DEFAULT_PROBLEM_NAMES: list[str] = [
     'Нехватка персонала',
@@ -25,10 +36,20 @@ DEFAULT_PROBLEM_NAMES: list[str] = [
     'Переносы сроков проектов',
     'Неэффективные встречи',
 ]
+
 DEFAULT_PROBLEM_DESCRIPTIONS: list[str | None] = [
     None,
     'Проблемы возникают на этапе взаимодействия с менеджерами.',
     'Из проектов исчезло поле с дедлайном.',
     'Слишком много времени тратится впустую.',
     'Общение через почту слишком неэффективно.',
+]
+
+DEFAULT_TASK_NAMES: list[str] = [
+    'Разработка новой формы договора',
+    'Пересмотреть активные сделки',
+    'Собрать список незакрытых сделок',
+    'Позвонить клиентам, которые давно к нам не обращались',
+    'Подготовить список клиентов, которые заказали на сумму менее 500 тыс.',
+    'Подготовить отчётность о сделках за последний квартал',
 ]
