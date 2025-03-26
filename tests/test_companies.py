@@ -5,7 +5,14 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from tests.constants import COMPANY_FIELDS, DEPARTMENT_FIELDS, EMPLOYEE_FIELDS, URL
+from src.tabit_management.constants import ERROR_INVALID_TELEGRAM_USERNAME
+from tests.constants import (
+    COMPANY_FIELDS,
+    DEPARTMENT_FIELDS,
+    EMPLOYEE_FIELDS,
+    URL,
+    USER_TELEGRAM,
+)
 
 
 def generate_department_data(all_fields=False):
@@ -329,6 +336,57 @@ class TestPatchEmployee:
                     f"Ожидалось значение поля '{field}': '{expected_value}', "
                     f"получено: '{data[field]}'"
                 )
+
+    @pytest.mark.asyncio
+    async def test_patch_employee_with_same_telegram(
+        self,
+        client: AsyncClient,
+        moderator_of_company,
+        get_token_for_user,
+        department_for_test,
+        employee_of_company,
+    ):
+        """
+        Тест создаст двух сотрудников: со всеми полями и с минимальным набором.
+        Затем попрбует установить дублирующий Телеграм одному из них.
+
+        Проверяет:
+        1. Статус ответа 400 Bad Request
+        2. Корректность сообщения об ошибке
+        """
+        moderator, company = await moderator_of_company(return_company=True)
+        token = await get_token_for_user(moderator)
+
+        department = await department_for_test({'company_id': company.id})
+
+        response = None
+
+        existing_employee_data = generate_employee_data(all_fields=True)
+        existing_employee_data['company_id'] = company.id
+        existing_employee_data['current_department_id'] = department.id
+        existing_employee_data['last_department_id'] = department.id
+        existing_employee_data['telegram_username'] = USER_TELEGRAM
+        response = await client.post(
+            URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
+            headers=token,
+            json=existing_employee_data,
+        )
+        employee = await employee_of_company({'company_id': company.id})
+        response = await client.patch(
+            URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
+            headers=token,
+            json={'telegram_username': USER_TELEGRAM},
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'При попытке создать запись с дублированием Telegram-имени'
+            f'не было ответа cо статусом {status.HTTP_400_BAD_REQUEST}:\n{response.text}'
+        )
+        data = response.json()
+        assert 'detail' in data, "В ответе отсутствует поле 'detail'"
+        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+            f", получено: '{data['detail']}'"
+        )
 
     @pytest.mark.asyncio
     async def test_patch_employee_not_found(
@@ -874,6 +932,45 @@ class TestCreateEmployee:
             assert (
                 data[field] == expected_value
             ), f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
+
+    @pytest.mark.asyncio
+    async def test_create_employees_with_same_telegram(
+        self, client: AsyncClient, moderator_of_company, get_token_for_user, department_for_test
+    ):
+        """
+        Тест создаст 2 сотрудников со всеми полями, но с соваадающими Telegram.
+
+        Проверяет:
+        1. Статус ответа 400 Bad Request
+        2. Корректность сообщения об ошибке
+        """
+        moderator, company = await moderator_of_company(return_company=True)
+        token = await get_token_for_user(moderator)
+
+        department = await department_for_test({'company_id': company.id})
+
+        response = None
+        for i in range(2):
+            employee_data = generate_employee_data(all_fields=True)
+            employee_data['company_id'] = company.id
+            employee_data['current_department_id'] = department.id
+            employee_data['last_department_id'] = department.id
+            employee_data['telegram_username'] = USER_TELEGRAM
+            response = await client.post(
+                URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
+                headers=token,
+                json=employee_data,
+            )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'При попытке создать запись с дублированием Telegram-имени'
+            f'не было ответа cо статусом {status.HTTP_400_BAD_REQUEST}:\n{response.text}'
+        )
+        data = response.json()
+        assert 'detail' in data, "В ответе отсутствует поле 'detail'"
+        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+            f", получено: '{data['detail']}'"
+        )
 
 
 class TestFeedback:

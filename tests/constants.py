@@ -216,6 +216,8 @@ INVALID_IMAGE: tuple[tuple[Any, Any], ...] = (
     ),
 )
 
+ONE: int = 1
+
 # Константы для тестов problem_feeds.py
 MESSAGE_FEED_CREATE_NEW: tuple[tuple] = (
     ({'text': 'feed with important field', 'important': True}, True),
