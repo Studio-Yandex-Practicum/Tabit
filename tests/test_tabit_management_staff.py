@@ -12,6 +12,7 @@ from tests.constants import (
     ADMIN_PATCH_MOD,
     ADMIN_PATCH_MOD_BAD,
     ADMIN_PUT_MOD,
+    MOD_TEST_EMAIL,
     MOD_TEST_EMAIL_BAD,
     TEST_UUID,
     URL,
@@ -23,14 +24,10 @@ from tests.utils import get_count, update_object
 class TestGetTabitManagement:
     """Класс для тестов GET-эндпоинтов tabit_management.py"""
 
-    async def test_get_companies_info(
-        self, client: AsyncClient, administrator_tabit, company_for_test, get_token
-    ):
+    async def test_get_companies_info(self, client: AsyncClient, admin_token, company_for_test):
         """Тест для проверки получения списка компаний."""
         ten_companies = [await company_for_test() for _ in range(10)]
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
-        response = await client.get(URL.ADMIN_GET_COMPANIES, headers=token)
+        response = await client.get(URL.ADMIN_GET_COMPANIES, headers=admin_token)
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         )
@@ -44,7 +41,7 @@ class TestGetTabitManagement:
 
     @pytest.mark.skip(reason='Нет возможности протестировать')
     async def test_get_paginated_companies_info(
-        self, client: AsyncClient, administrator_tabit, company_for_test, get_token
+        self, client: AsyncClient, admin_token, company_for_test
     ):
         """Тест для проверки получения списка компаний с пагинацией."""
         # TODO: после добавления пагинации написать тест для её проверки
@@ -53,14 +50,11 @@ class TestGetTabitManagement:
     async def test_get_multiple_staff(
         self,
         client: AsyncClient,
-        administrator_tabit,
-        get_token,
+        admin_token,
         department_for_test,
         moderator_of_company,
     ):
         """Тест для проверки получения списка модераторов."""
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
         department = await department_for_test()
         ten_mods = [
             await moderator_of_company(
@@ -68,7 +62,7 @@ class TestGetTabitManagement:
             )
             for _ in range(10)
         ]
-        response = await client.get(URL.ADMIN_MODS_URL, headers=token)
+        response = await client.get(URL.ADMIN_MODS_URL, headers=admin_token)
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
         )
@@ -82,56 +76,55 @@ class TestGetTabitManagement:
 
     @pytest.mark.skip(reason='Нет возможности протестировать')
     async def test_get_paginated_multiple_staff(
-        self, client: AsyncClient, administrator_tabit, get_token, moderator_of_company
+        self, client: AsyncClient, admin_token, moderator_of_company
     ):
         """Тест для проверки получения списка модераторов с пагинацией."""
         # TODO: после добавления пагинации написать тест для её проверки
         pass
 
-    @pytest.mark.parametrize('url, status_code', ADMIN_GET_MOD_INFO)
+    @pytest.mark.parametrize('status_code', ADMIN_GET_MOD_INFO)
     async def test_get_moderator_info(
         self,
         client: AsyncClient,
-        administrator_tabit,
-        get_token,
+        admin_token,
         department_for_test,
         moderator_of_company,
-        url,
         status_code,
     ):
         """Тест для проверки получения информации о модераторе по переданному UUID."""
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
         department = await department_for_test()
         moderator = await moderator_of_company(
             {'company_id': department.company_id, 'current_department_id': department.id}
         )
         if status_code == status.HTTP_200_OK:
-            response = await client.get(url.format(user_id=moderator.id), headers=token)
+            response = await client.get(
+                URL.ADMIN_MOD_DATA_URL.format(user_id=moderator.id), headers=admin_token
+            )
         else:
-            response = await client.get(url.format(user_id=TEST_UUID), headers=token)
+            response = await client.get(
+                URL.ADMIN_MOD_DATA_URL.format(user_id=TEST_UUID), headers=admin_token
+            )
         assert response.status_code == status_code, (
             f'В ответе ожидается status_code {status_code}, получен {response.status_code}'
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(loop_scope='session')
 class TestPostTabitManagement:
     """Класс для тестов POST-эндпоинтов tabit_management.py"""
 
     async def test_successful_create_moderator(
-        self, client: AsyncClient, administrator_tabit, get_token, department_for_test
+        self, client: AsyncClient, admin_token, department_for_test
     ):
         """Тест для проверки создания модератора"""
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
         department = await department_for_test()
         response = await client.post(
             URL.ADMIN_MODS_URL,
-            headers=token,
-            json=ADMIN_CREATE_MOD_NEW.update(
-                {'company_id': department.company_id, 'current_department_id': department.id}
-            ),
+            headers=admin_token,
+            json={
+                **ADMIN_CREATE_MOD_NEW,
+                **{'company_id': department.company_id, 'current_department_id': department.id},
+            },
         )
         assert response.status_code == status.HTTP_200_OK, (
             f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
@@ -149,25 +142,24 @@ class TestPostTabitManagement:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        administrator_tabit,
-        get_token,
+        admin_token,
         company_for_test,
         department_for_test,
         moderator_of_company,
         payload,
     ):
         """Тест для проверки неуспешного создания модератора"""
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
         department = await department_for_test()
         await moderator_of_company(
-            ADMIN_CREATE_MOD_NEW.update(
-                {'company_id': department.company_id, 'current_department_id': department.id}
-            )
+            {
+                'email': MOD_TEST_EMAIL,
+                'company_id': department.company_id,
+                'current_department_id': department.id,
+            }
         )
         await company_for_test()  # создаётся другая компания
         old_user_count = await get_count(async_session, UserTabit)
-        response = await client.post(URL.ADMIN_MODS_URL, headers=token, json=payload)
+        response = await client.post(URL.ADMIN_MODS_URL, headers=admin_token, json=payload)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
             f'В ответе ожидается status_code {status.HTTP_422_UNPROCESSABLE_ENTITY}, '
             f'получен {response.status_code}'
@@ -179,7 +171,7 @@ class TestPostTabitManagement:
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio(loop_scope='session')
 class TestUpdateTabitManagement:
     """Класс для тестов PUT и PATCH -эндпоинтов tabit_management.py"""
 
@@ -187,16 +179,13 @@ class TestUpdateTabitManagement:
     async def test_successful_patch_moderator(
         self,
         client: AsyncClient,
-        administrator_tabit,
-        get_token,
+        admin_token,
         department_for_test,
         moderator_of_company,
         payload,
         check_department_change,
     ):
         """Тест для проверки обновления модератора PATCH-запросом"""
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
         department = await department_for_test()
         await department_for_test({'company_id': department.company_id})
         moderator = await moderator_of_company(
@@ -204,7 +193,7 @@ class TestUpdateTabitManagement:
         )
         response = await client.patch(
             URL.ADMIN_MOD_DATA_URL.format(user_id=moderator.id),
-            headers=token,
+            headers=admin_token,
             json=payload,
         )
         assert response.status_code == status.HTTP_200_OK, (
@@ -221,20 +210,19 @@ class TestUpdateTabitManagement:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        administrator_tabit,
-        get_token,
+        admin_token,
         department_for_test,
         moderator_of_company,
         payload,
     ):
         """Тест для проверки неуспешного обновления модератора PATCH-запросом"""
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
         department = await department_for_test()
         moderator = await moderator_of_company(
-            ADMIN_CREATE_MOD_NEW.update(
-                {'company_id': department.company_id, 'current_department_id': department.id}
-            )
+            {
+                'email': MOD_TEST_EMAIL,
+                'company_id': department.company_id,
+                'current_department_id': department.id,
+            }
         )
         await moderator_of_company(
             {
@@ -247,14 +235,15 @@ class TestUpdateTabitManagement:
         old_moderator_data = jsonable_encoder(moderator)
         response = await client.patch(
             URL.ADMIN_MOD_DATA_URL.format(user_id=moderator.id),
-            headers=token,
+            headers=admin_token,
             json=payload,
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
             f'В ответе ожидается status_code {status.HTTP_422_UNPROCESSABLE_ENTITY}, '
             f'получен {response.status_code}'
         )
-        new_moderator_data = update_object(async_session, moderator)
+        moderator = await async_session.merge(moderator)
+        new_moderator_data = await update_object(async_session, moderator)
         assert new_moderator_data == old_moderator_data, (
             'При неуспешном PATCH-запросе объект пользователя не должен меняться'
         )
@@ -263,15 +252,12 @@ class TestUpdateTabitManagement:
     async def test_successful_put_moderator(
         self,
         client: AsyncClient,
-        administrator_tabit,
-        get_token,
+        admin_token,
         department_for_test,
         moderator_of_company,
         payload,
         check_department_change,
     ):
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
         department = await department_for_test()
         await department_for_test({'company_id': department.company_id})
         moderator = await moderator_of_company(
@@ -279,7 +265,7 @@ class TestUpdateTabitManagement:
         )
         response = await client.put(
             URL.ADMIN_MOD_DATA_URL.format(user_id=moderator.id),
-            headers=token,
+            headers=admin_token,
             json=payload,
         )
         assert response.status_code == status.HTTP_200_OK, (
@@ -287,7 +273,8 @@ class TestUpdateTabitManagement:
         )
         result = response.json()
         for key in payload:
-            assert result[key] == payload[key]
+            if key != 'password':
+                assert result[key] == payload[key]
         if check_department_change:
             assert result['last_department_id'] == department.id
 
@@ -296,19 +283,18 @@ class TestUpdateTabitManagement:
         self,
         async_session: AsyncSession,
         client: AsyncClient,
-        administrator_tabit,
-        get_token,
+        admin_token,
         department_for_test,
         moderator_of_company,
         payload,
     ):
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
         department = await department_for_test()
         moderator = await moderator_of_company(
-            ADMIN_CREATE_MOD_NEW.update(
-                {'company_id': department.company_id, 'current_department_id': department.id}
-            )
+            {
+                'email': MOD_TEST_EMAIL,
+                'company_id': department.company_id,
+                'current_department_id': department.id,
+            }
         )
         await moderator_of_company(
             {
@@ -321,35 +307,33 @@ class TestUpdateTabitManagement:
         old_moderator_data = jsonable_encoder(moderator)
         response = await client.put(
             URL.ADMIN_MOD_DATA_URL.format(user_id=moderator.id),
-            headers=token,
+            headers=admin_token,
             json=payload,
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
             f'В ответе ожидается status_code {status.HTTP_422_UNPROCESSABLE_ENTITY}, '
             f'получен {response.status_code}'
         )
-        new_moderator_data = update_object(async_session, moderator)
+        moderator = await async_session.merge(moderator)
+        new_moderator_data = await update_object(async_session, moderator)
         assert new_moderator_data == old_moderator_data, (
             'При неуспешном PUT-запросе объект пользователя не должен меняться'
         )
 
-    async def test_update_404(
-        self,
-        client: AsyncClient,
-        administrator_tabit,
-        get_token,
-    ):
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
+    async def test_update_404(self, client: AsyncClient, admin_token):
         response = await client.patch(
-            URL.ADMIN_MOD_DATA_URL.format(user_id=TEST_UUID), headers=token, json=ADMIN_PATCH_MOD
+            URL.ADMIN_MOD_DATA_URL.format(user_id=TEST_UUID),
+            headers=admin_token,
+            json=ADMIN_PATCH_MOD[0][0],
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
             f'получен {response.status_code}'
         )
         response = await client.put(
-            URL.ADMIN_MOD_DATA_URL.format(user_id=TEST_UUID), headers=token, json=ADMIN_PUT_MOD
+            URL.ADMIN_MOD_DATA_URL.format(user_id=TEST_UUID),
+            headers=admin_token,
+            json=ADMIN_PUT_MOD[0][0],
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '
@@ -364,30 +348,25 @@ class TestDeleteTabitManagement:
     async def test_delete_moderator(
         self,
         client: AsyncClient,
-        administrator_tabit,
-        get_token,
+        admin_token,
         department_for_test,
         moderator_of_company,
     ):
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
         department = await department_for_test()
         moderator = await moderator_of_company(
             {'company_id': department.company_id, 'current_department_id': department.id}
         )
         response = await client.delete(
-            URL.ADMIN_MOD_DATA_URL.format(user_id=moderator.id), headers=token
+            URL.ADMIN_MOD_DATA_URL.format(user_id=moderator.id), headers=admin_token
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, (
             f'В ответе ожидается status_code {status.HTTP_204_NO_CONTENT}, '
             f'получен {response.status_code}'
         )
 
-    async def test_delete_moderator_404(self, client: AsyncClient, administrator_tabit, get_token):
-        admin = await administrator_tabit()
-        token = await get_token(client, admin, URL.ADMIN_LOGIN)
+    async def test_delete_moderator_404(self, client: AsyncClient, admin_token):
         response = await client.delete(
-            URL.ADMIN_MOD_DATA_URL.format(user_id=TEST_UUID), headers=token
+            URL.ADMIN_MOD_DATA_URL.format(user_id=TEST_UUID), headers=admin_token
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
             f'В ответе ожидается status_code {status.HTTP_404_NOT_FOUND}, '

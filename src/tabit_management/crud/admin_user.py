@@ -111,11 +111,11 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
             created_admin_user = await user_manager.create(create_data)
         except UserAlreadyExists:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ERROR_USER_ALREADY_EXISTS
             )
         except InvalidPasswordException:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_PASSWORD
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ERROR_INVALID_PASSWORD
             )
         return created_admin_user
 
@@ -150,11 +150,11 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
             )
         except UserAlreadyExists:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_USER_ALREADY_EXISTS
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ERROR_USER_ALREADY_EXISTS
             )
         except InvalidPasswordException:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_PASSWORD
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ERROR_INVALID_PASSWORD
             )
         return admin_user
 

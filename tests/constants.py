@@ -249,10 +249,7 @@ COMMENT_UPDATE_BAD: tuple[tuple] = (
 TEST_UUID: UUID = UUID('{12345678-1234-5678-1234-567812345678}')
 MOD_TEST_EMAIL = 'test@example.com'
 MOD_TEST_EMAIL_BAD = 'test_bad@example.com'
-ADMIN_GET_MOD_INFO: tuple[tuple] = (
-    (URL.ADMIN_MOD_DATA_URL, status.HTTP_200_OK),
-    (URL.ADMIN_MOD_DATA_URL, status.HTTP_404_NOT_FOUND),
-)
+ADMIN_GET_MOD_INFO: tuple[str] = (status.HTTP_200_OK, status.HTTP_404_NOT_FOUND)
 ADMIN_CREATE_MOD_NEW: dict[str] = {
     'name': 'test',
     'surname': 'test',
@@ -357,6 +354,7 @@ ADMIN_PUT_MOD: tuple[tuple] = (
             'name': 'updated_name',
             'surname': 'updated_surname',
             'email': 'updated@example.com',
+            'password': GOOD_PASSWORD,
             'role': RoleUserTabit.ADMIN,
             'current_department_id': 1,
         },
@@ -367,6 +365,7 @@ ADMIN_PUT_MOD: tuple[tuple] = (
             'name': 'updated_name',
             'surname': 'updated_surname',
             'email': 'updated@example.com',
+            'password': GOOD_PASSWORD,
             'role': RoleUserTabit.ADMIN,
             'current_department_id': 2,
         },
