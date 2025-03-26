@@ -1,4 +1,4 @@
-.PHONY: up down up-pgadmin down-pgadmin logs init-migrations apply-migrations reset-db init-db run clean-volumes fill-problems fill-message-feeds fill-tasks fill-voting-feeds
+.PHONY: up down up-pgadmin down-pgadmin logs init-migrations apply-migrations reset-db init-db run clean-volumes fill-problems fill-message-feeds fill-tasks fill-voting-feeds fill-tags
 
 # Docker Compose команды
 up:
@@ -88,6 +88,9 @@ fill-voting-feeds:
 
 fill-tasks:
 	poetry run python fake_data_factories/task_factory.py
+
+fill-tags:
+	poetry run python fake_data_factories/tag_factories.py
 
 # Команды для полного запуска в Docker
 up-dc:

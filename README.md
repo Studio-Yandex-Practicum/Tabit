@@ -747,6 +747,7 @@ make down-dc
 | `make fill-message-feeds`        | Создание тестовых лент сообщений             |
 | `make fill-voting-feeds`         | Создание тестовых вариантов голосования      |
 | `make fill-tasks`                | Создание тестовых задач                      |
+| `make fill-tags`                 | Создание тестовых тэгов                      |
 
 </details>
 
