@@ -103,19 +103,17 @@ class TestCreateCompany:
         new_license = await license_for_test()
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
 
-        jwt_token = superuser_token
-
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
             json=payload,
-            headers=jwt_token,
+            headers=superuser_token,
         )
         assert response.status_code == status.HTTP_201_CREATED, response.text
 
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
             json=payload,
-            headers=jwt_token,
+            headers=superuser_token,
         )
         assert response.status_code == 400, response.text
         assert (
@@ -595,7 +593,7 @@ class TestCreateCompany:
         Убедимся, что ответ содержит правильное сообщение об ошибке и статус-код 400.
         """
         new_license = await license_for_test()
-        payload = generate_company_data(all_fields=True, license_id=new_license.id+ONE)
+        payload = generate_company_data(all_fields=True, license_id=new_license.id + ONE)
 
         jwt_token = superuser_token
 
@@ -604,13 +602,12 @@ class TestCreateCompany:
             json=payload,
             headers=jwt_token,
         )
-        assert response.status_code == 400, ('Статус-код должен быть 400 '
-                                             'при попытки создать компанию '
-                                             'с несуществующей license')
-        assert (
-            response.json()['detail']
-            == f"Лицензия с id {payload['license_id']} не найдена."
+        assert response.status_code == 400, (
+            'Статус-код должен быть 400 '
+            'при попытки создать компанию '
+            'с несуществующей license'
         )
+        assert response.json()['detail'] == f"Лицензия с id {payload['license_id']} не найдена."
 
     @pytest.mark.asyncio
     async def test_create_company_existent_license(
@@ -625,16 +622,14 @@ class TestCreateCompany:
         new_license = await license_for_test()
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
 
-        jwt_token = superuser_token
-
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
             json=payload,
-            headers=jwt_token,
+            headers=superuser_token,
         )
-        assert response.status_code == status.HTTP_201_CREATED, ('Статус-код должен быть 201 '
-                                                                 'при попытки создать компанию '
-                                                                 'с существующей license')
+        assert response.status_code == status.HTTP_201_CREATED, (
+            'Статус-код должен быть 201 ' 'при попытки создать компанию ' 'с существующей license'
+        )
         data = response.json()
         assert data['license_id'] == payload['license_id']
 
