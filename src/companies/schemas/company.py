@@ -23,7 +23,6 @@ from src.companies.constants import (
     TITLE_NAME_COMPANY,
     TITLE_NAME_DEPARTMENT,
     TITLE_SLUG_COMPANY,
-    TITLE_SLUG_DEPARTMENT,
     TITLE_START_LICENSE_TIME_COMPANY,
 )
 from src.companies.validators.company_validators import (
@@ -187,14 +186,12 @@ class CompanyTypeFilterSchema(BaseModel):
 class CompanyDepartmentUpdateSchema(BaseModel):
     """Схема для обновления данных об отделе."""
 
-    name: Optional[str] = Field(
-        None,
+    name: str = Field(
+        ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_COMPANY,
         title=TITLE_NAME_DEPARTMENT,
     )
-    slug: Optional[str] = Field(None, title=TITLE_SLUG_DEPARTMENT)
-
     model_config = ConfigDict(extra='forbid')
 
 

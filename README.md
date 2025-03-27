@@ -753,6 +753,8 @@ make down
 | `make fill-license-type`         | Создание тестовых типов лицензий             |
 | `make fill-problems`             | Создание тестовых проблем                    |
 | `make fill-message-feeds`        | Создание тестовых лент сообщений             |
+| `make fill-voting-feeds`         | Создание тестовых вариантов голосования      |
+| `make fill-tasks`                | Создание тестовых задач                      |
 
 </details>
 

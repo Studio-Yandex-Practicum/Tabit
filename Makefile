@@ -2,7 +2,8 @@
 .PHONY: help up up-dc up-pgadmin down clean-volumes logs run migration-init migration-auto \
 migration-empty migration-apply migration-apply-dc migration-rollback db-reset db-init \
 create-superuser fill-db fill-companies fill-company-users fill-tabit-admin-users \
-fill-company-departments fill-license-type fill-problems fill-message-feeds
+fill-company-departments fill-license-type fill-problems fill-message-feeds \
+fill-voting-feeds fill-tasks
 
 # Определение переменной с именем файла окружения
 ENV_FILE = .env
@@ -144,3 +145,9 @@ fill-problems: ## Заполнение базы данных тестовыми 
 
 fill-message-feeds: ## Заполнение базы данных тестовыми лентами сообщений
 	poetry run python fake_data_factories/message_feed_factory.py
+  
+fill-voting-feeds: ## Заполнение базы данных тестовыми вариантами голосования
+	poetry run python fake_data_factories/voting_feed_factory.py
+
+fill-tasks: #№ Заполнение базы данных тестовыми задачами
+	poetry run python fake_data_factories/task_factory.py

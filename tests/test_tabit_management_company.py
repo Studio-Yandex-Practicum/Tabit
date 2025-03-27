@@ -7,7 +7,7 @@ from fastapi import status
 from httpx import AsyncClient
 
 from src.constants import Directory
-from tests.constants import IMAGE_BASE64_JPG, IMAGE_BASE64_PNG, INVALID_IMAGE, URL
+from tests.constants import IMAGE_BASE64_JPG, IMAGE_BASE64_PNG, INVALID_IMAGE, ONE, URL
 
 
 def generate_company_data(all_fields=False, license_id=None):
@@ -583,6 +583,60 @@ class TestCreateCompany:
             )
             for error in error_detail
         ), response.text
+
+    @pytest.mark.asyncio
+    async def test_create_company_non_existent_license(
+        self, client: AsyncClient, superuser_token: str, license_for_test
+    ):
+        """
+        Тест ошибки 400 при создании компании с несуществующей license.
+
+        Проверяет, что API не позволяет создать компанию с несуществующей license.
+        Убедимся, что ответ содержит правильное сообщение об ошибке и статус-код 400.
+        """
+        new_license = await license_for_test()
+        payload = generate_company_data(all_fields=True, license_id=new_license.id+ONE)
+
+        jwt_token = superuser_token
+
+        response = await client.post(
+            URL.COMPANIES_ENDPOINT,
+            json=payload,
+            headers=jwt_token,
+        )
+        assert response.status_code == 400, ('Статус-код должен быть 400 '
+                                             'при попытки создать компанию '
+                                             'с несуществующей license')
+        assert (
+            response.json()['detail']
+            == f"Лицензия с id {payload['license_id']} не найдена."
+        )
+
+    @pytest.mark.asyncio
+    async def test_create_company_existent_license(
+        self, client: AsyncClient, superuser_token: str, license_for_test
+    ):
+        """
+        Тест успешного создания компании с существующей license.
+
+        Проверяет, что API позволяет создать компанию с существующей license.
+        Убедимся, что ответ содержит правильные значения и API возвращает 201
+        """
+        new_license = await license_for_test()
+        payload = generate_company_data(all_fields=True, license_id=new_license.id)
+
+        jwt_token = superuser_token
+
+        response = await client.post(
+            URL.COMPANIES_ENDPOINT,
+            json=payload,
+            headers=jwt_token,
+        )
+        assert response.status_code == status.HTTP_201_CREATED, ('Статус-код должен быть 201 '
+                                                                 'при попытки создать компанию '
+                                                                 'с существующей license')
+        data = response.json()
+        assert data['license_id'] == payload['license_id']
 
 
 class TestGetCompany:
