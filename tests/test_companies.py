@@ -553,7 +553,9 @@ class TestGetDepartment:
         department = await department_for_test({'company_id': company.id})
 
         response = await client.get(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
         )
         assert (
@@ -581,7 +583,7 @@ class TestGetDepartment:
 class TestPatchDepartment:
     """Тесты для эндпоинта обновления информации о департаменте."""
 
-    @pytest.mark.skip(reason='Тест временно пропущен, так как есть баг на slug')
+    # @pytest.mark.skip(reason='Тест временно пропущен, так как есть баг на slug')
     @pytest.mark.asyncio
     async def test_patch_department_success(
         self, client: AsyncClient, moderator_of_company, get_token_for_user, department_for_test
@@ -601,7 +603,9 @@ class TestPatchDepartment:
         new_name = 'Иванушка'
 
         response = await client.patch(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
             json={'name': new_name},
         )
@@ -618,7 +622,7 @@ class TestPatchDepartment:
             data['name'] == new_name
         ), f"Ожидалось новое имя '{new_name}', получено: '{data['name']}'"
 
-        field_checks = {'id': department.id, 'company_id': company.id, 'slug': department.slug}
+        field_checks = {'id': department.id, 'company_id': company.id}
 
         for field, expected_value in field_checks.items():
             assert (
@@ -639,10 +643,10 @@ class TestPatchDepartment:
         moderator, company = await moderator_of_company(return_company=True)
         token = await get_token_for_user(moderator)
 
-        non_existent_id = 99999
+        non_existent_slug = '99999'
         response = await client.patch(
             URL.DEPARTMENT_ENDPOINT.format(
-                company_slug=company.slug, department_id=non_existent_id
+                company_slug=company.slug, department_slug=non_existent_slug
             ),
             headers=token,
             json={'name': 'Иванушка'},
@@ -679,7 +683,9 @@ class TestDeleteDepartment:
         department = await department_for_test({'company_id': company.id})
 
         response = await client.delete(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, (
@@ -688,7 +694,9 @@ class TestDeleteDepartment:
         )
 
         response = await client.get(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -710,10 +718,10 @@ class TestDeleteDepartment:
         moderator, company = await moderator_of_company(return_company=True)
         token = await get_token_for_user(moderator)
 
-        non_existent_id = 99999
+        non_existent_slug = '99999'
         response = await client.delete(
             URL.DEPARTMENT_ENDPOINT.format(
-                company_slug=company.slug, department_id=non_existent_id
+                company_slug=company.slug, department_slug=non_existent_slug
             ),
             headers=token,
         )
@@ -766,7 +774,6 @@ class TestCreateDepartment:
 
         field_checks = {
             'name': department_data['name'],
-            'slug': department_data['name'],
             'company_id': company.id,
         }
 

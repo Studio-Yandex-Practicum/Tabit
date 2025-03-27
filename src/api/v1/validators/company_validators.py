@@ -1,20 +1,18 @@
 """Модуль валидаторов эндпоинтов Company.py."""
 
+import random
+
 from fastapi import Depends, HTTPException, status
 from fastapi_users.exceptions import InvalidPasswordException
 from fastapi_users.manager import BaseUserManager
+from slugify import slugify
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.managers import get_user_manager
 from src.api.v1.constants import TextError
-from src.api.v1.utilities import generate_unique_slug
-from src.companies.constants import (
-    ATTEMPTS,
-    SLUG_NOT_GENERATED,
-)
 from src.companies.crud import company_crud, company_departments_crud
 from src.companies.models import Company, Department
-from src.constants import TextError as ErrorText
+from src.constants import LENGTH_SLUG, TextError as ErrorText
 from src.database.db_depends import get_async_session
 from src.users.schemas import UserCreateSchema
 
@@ -53,22 +51,13 @@ async def check_slug_duplicate(
     Args:
         db_obj (Department | Company): объект отдела или компании.
         session (AsyncSession): Асинхронная сессия SQLAlchemy.
-    Raises:
-        OSError: Если за определенное количество попыток ATTEMPTS уникальный
-        `slug` не удается сгенерировать вызывается ошибка.
     """
-    db_obj.slug = db_obj.name
-    # TODO: Избавится от этого.
-    for _ in range(ATTEMPTS):
-        crud = company_departments_crud if isinstance(db_obj, Department) else company_crud
-        db_objects = await crud.get_multi(session=session, filters={'slug': db_obj.slug})
-        if not db_objects:
-            return db_obj.slug
-        db_obj.slug = generate_unique_slug(db_obj.slug)
-        db_objects = await crud.get_multi(session=session, filters={'slug': db_obj.slug})
-        if not db_objects:
-            return db_obj.slug
-    raise OSError(SLUG_NOT_GENERATED)
+    base_slug = slugify(db_obj.name)[:LENGTH_SLUG]
+    new_slug = base_slug
+    crud = company_departments_crud if isinstance(db_obj, Department) else company_crud
+    while await crud.get_multi(session=session, filters={'slug': new_slug}):
+        new_slug = f'{base_slug[: LENGTH_SLUG - 6]}-{random.randint(1000, 9999)}'
+    return new_slug
 
 
 async def validate_user_not_exists(

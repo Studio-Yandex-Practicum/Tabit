@@ -151,18 +151,20 @@ class UserTabit(BaseUser):
     supervisor: Mapped[Optional[bool]] = mapped_column(default=None)
 
     current_department_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('department.id'), nullable=True
+        ForeignKey('department.id', ondelete='SET NULL'), nullable=True
     )
     current_department: Mapped[Optional['Department']] = relationship(
         # back_populates='employees',
         foreign_keys=[current_department_id],
+        passive_deletes=True,
     )
     last_department_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('department.id'), nullable=True
+        ForeignKey('department.id', ondelete='SET NULL'), nullable=True
     )
     last_department: Mapped[Optional['Department']] = relationship(
         # back_populates='employees_lost',
         foreign_keys=[last_department_id],
+        passive_deletes=True,
     )
 
     problem_owner: Mapped[List['Problem']] = relationship(back_populates='owner')
