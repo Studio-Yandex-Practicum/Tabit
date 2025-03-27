@@ -20,7 +20,9 @@ def generate_department_data(all_fields=False):
     data = {'name': f'Тестовый департамент {uuid.uuid4().hex[:3]}'}
 
     if all_fields:
-        data.update({'slug': f'test-department-{uuid.uuid4().hex[:3]}'})
+        pass
+        # Slug автогенерится.
+        # data.update({'slug': f'test-department-{uuid.uuid4().hex[:3]}'})
 
     return data
 
@@ -659,7 +661,7 @@ class TestPatchDepartment:
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
         assert (
-            data['detail'] == f'Не найден объект Department по данному id: {non_existent_id}'
+            data['detail'] == f'Не найден объект Department по данному slug: {non_existent_slug}'
         ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
@@ -733,7 +735,7 @@ class TestDeleteDepartment:
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
         assert (
-            data['detail'] == f'Не найден объект Department по данному id: {non_existent_id}'
+            data['detail'] == f'Не найден объект Department по данному slug: {non_existent_slug}'
         ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
