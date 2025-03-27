@@ -68,5 +68,4 @@ def downgrade() -> None:
                existing_type=sa.String(length=110),
                type_=sa.VARCHAR(length=25),
                existing_nullable=False)
-    op.drop_column('problem', 'company_slug')
     # ### end Alembic commands ###
