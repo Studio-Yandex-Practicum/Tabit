@@ -42,17 +42,17 @@ def setup_test_db():
     """
     Фикстура для автоматического запуска и удаления контейнера с тестовой базой данных.
 
-    - Перед тестами запускает контейнер PostgreSQL с помощью `docker-compose`.
+    - Перед тестами запускает контейнер PostgreSQL с помощью `docker compose`.
     - Ожидает готовности базы перед выполнением тестов.
     - После тестов останавливает и удаляет контейнер с тестовой БД.
 
     Использует:
-        - `docker-compose -f infra/docker-compose.test-db.yaml up -d`
-        - `docker-compose -f infra/docker-compose.test-db.yaml down -v`
+        - `docker compose -f infra/docker-compose.test-db.yaml up -d`
+        - `docker compose -f infra/docker-compose.test-db.yaml down -v`
     """
     try:
         subprocess.run(
-            ['docker-compose', '-f', 'infra/docker-compose.test-db.yaml', 'up', '-d'],
+            ['docker', 'compose', '-f', 'infra/docker-compose.test-db.yaml', 'up', '-d'],
             check=True,
         )
         wait_for_postgres(
@@ -65,7 +65,7 @@ def setup_test_db():
         yield
     finally:
         subprocess.run(
-            ['docker-compose', '-f', 'infra/docker-compose.test-db.yaml', 'down', '-v'],
+            ['docker', 'compose', '-f', 'infra/docker-compose.test-db.yaml', 'down', '-v'],
             check=True,
         )
 

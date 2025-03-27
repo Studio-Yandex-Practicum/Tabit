@@ -192,3 +192,4 @@ cython_debug/
 #others
 departments_list.txt
 employees_list.txt
+media/
