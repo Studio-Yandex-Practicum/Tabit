@@ -143,7 +143,23 @@ class ResultMeetingCreateSchema(ResultMeetingBaseSchema):
     model_config = ConfigDict(extra='forbid', str_min_length=1)
 
 
-class ResultMeetingInDB(ResultMeetingBaseSchema):
+class ResultMeetingSchema(BaseModel):
+    """Pydantic-схема для данных о результатах встречи из БД из связанной модели Meeting.
+
+    Назначение:
+        Используется для сериализации данных о результатах встречи при получении из БД.
+    Параметры:
+        place: Место проведения встречи.
+        date_meeting: Дата проведения встречи.
+    """
+
+    place: str
+    date_meeting: date
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ResultMeetingResponseSchema(ResultMeetingBaseSchema):
     """Pydantic-схема для данных о результатах встречи из БД.
 
     Назначение:
@@ -152,14 +168,12 @@ class ResultMeetingInDB(ResultMeetingBaseSchema):
         id: Идентификатор результата.
         meeting_id: Идентификатор связанной встречи.
         owner_id: Идентификатор создателя результата.
-        place: Место встречи из модели Meeting
-        date_meeting: Дата встречи из модели Meeting
+        meeting: Поля из модели Meeting.
     """
 
     id: int
     owner_id: UUID
-    place: str
-    date_meeting: date
+    meeting: ResultMeetingSchema
 
     model_config = ConfigDict(from_attributes=True)
 

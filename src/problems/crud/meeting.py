@@ -116,33 +116,7 @@ meeting_crud = CRUDMeeting(Meeting)
 class CRUDResultMeeting(CRUDBase):
     """CRUD операции для модели результата встречи."""
 
-    def serialize_result(self, result: ResultMeeting) -> dict:
-        """Сериализует данные.
-
-        Назначение:
-            Преобразовывает объект модели ResultMeeting в словарь Python,
-            подходящий для сериализации,
-            который включает как основные атрибуты объекта,
-            так и данные из связанной сущности Meeting.
-        Параметры:
-            session: Асинхронная сессия SQLAlchemy.
-            result: объет модели ResultMeeting
-        Возвращаемое значение:
-            Словарь с объединеными атрибутами модели ResultMeeting и Meeting
-        """
-
-        return {
-            'meeting_result': result.meeting_result,
-            'participant_engagement': result.participant_engagement,
-            'problem_solution': result.problem_solution,
-            'meeting_feedback': result.meeting_feedback,
-            'id': result.id,
-            'owner_id': result.owner_id,
-            'place': result.meeting.place,
-            'date_meeting': result.meeting.date_meeting,
-        }
-
-    async def get(self, session: AsyncSession, obj_id: int) -> ResultMeeting or None:
+    async def get(self, session: AsyncSession, obj_id: int) -> ResultMeeting | None:
         """Возвращает результат встречи по ID.
 
         Назначение:
@@ -170,7 +144,7 @@ class CRUDResultMeeting(CRUDBase):
         obj_in: dict,
         owner: UserTabit,
         meeting_id: int,
-    ) -> dict:
+    ) -> ResultMeeting:
         """Создает результат встречи.
 
         Назначение:
@@ -195,7 +169,7 @@ class CRUDResultMeeting(CRUDBase):
             await session.rollback()
             logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
             raise error
-        return self.serialize_result(db_obj)
+        return db_obj
 
 
 result_meeting_crud = CRUDResultMeeting(ResultMeeting)

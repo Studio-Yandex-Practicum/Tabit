@@ -7,6 +7,7 @@ from src.api.v1.validators.meeting_validators import (
     check_meeting_exists,
     check_meeting_title_unique,
     check_problem_exists,
+    check_result_meeting_unique,
 )
 from src.api.v1.validators.problems_validators import check_company_exists
 from src.database.db_depends import get_async_session
@@ -16,7 +17,7 @@ from src.problems.schemas.meeting import (
     MeetingResponseSchema,
     MeetingUpdateSchema,
     ResultMeetingCreateSchema,
-    ResultMeetingInDB,
+    ResultMeetingResponseSchema,
     ResultMeetingUpdateSchema,
 )
 from src.users.models.models import UserTabit
@@ -184,7 +185,7 @@ async def delete_meeting(
 
 @router.post(
     '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}/result',
-    response_model=ResultMeetingInDB,
+    response_model=ResultMeetingResponseSchema,
     response_model_exclude_none=True,
     summary='Создать результат встречи',
     status_code=status.HTTP_201_CREATED,
@@ -196,7 +197,7 @@ async def create_meeting_result(
     meeting_id: int,
     session: AsyncSession = Depends(get_async_session),
     owner: UserTabit = Depends(current_user_tabit),
-):
+) -> ResultMeetingResponseSchema:
     """Создает результат встречи.
 
     Назначение:
@@ -208,19 +209,19 @@ async def create_meeting_result(
         session: Асинхронная сессия SQLAlchemy.
         owner: Текущий пользователь.
     Возвращаемое значение:
-        Объект ResultMeetingInDB.
+        Объект ResultMeetingResponseSchema.
     """
 
     await check_company_exists(company_slug, session)
     await check_problem_exists(problem_id, session)
     await check_meeting_exists(meeting_id, session)
-
+    await check_result_meeting_unique(meeting_id, owner, session)
     return await result_meeting_crud.create(session, result, owner, meeting_id)
 
 
 @router.get(
     '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}/result/{result_id}',
-    response_model=ResultMeetingInDB,
+    response_model=ResultMeetingResponseSchema,
     response_model_exclude_none=True,
     summary='Результат встречи',
     status_code=status.HTTP_200_OK,
@@ -231,7 +232,7 @@ async def get_meeting_result(
     meeting_id: int,
     result_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> ResultMeetingResponseSchema:
     """Возвращает результат встречи.
 
     Назначение:
@@ -243,19 +244,18 @@ async def get_meeting_result(
         session: Асинхронная сессия SQLAlchemy.
         owner: Текущий пользователь.
     Возвращаемое значение:
-        Объект ResultMeetingInDB.
+        Объект ResultMeetingResponseSchema.
     """
 
     await check_company_exists(company_slug, session)
     await check_problem_exists(problem_id, session)
     await check_meeting_exists(meeting_id, session)
-    result = await result_meeting_crud.get_or_404(session, result_id)
-    return result_meeting_crud.serialize_result(result)
+    return await result_meeting_crud.get_or_404(session, result_id)
 
 
 @router.patch(
     '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}/result/{result_id}',
-    response_model=ResultMeetingInDB,
+    response_model=ResultMeetingResponseSchema,
     response_model_exclude_none=True,
     summary='Обновить результат встречи',
     status_code=status.HTTP_200_OK,
@@ -268,7 +268,7 @@ async def patch_meeting_result(
     result_update: ResultMeetingUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
     owner: UserTabit = Depends(current_user_tabit),
-):
+) -> ResultMeetingResponseSchema:
     """Обновляет результат встречи.
 
     Назначение:
@@ -280,11 +280,10 @@ async def patch_meeting_result(
         session: Асинхронная сессия SQLAlchemy.
         owner: Текущий пользователь.
     Возвращаемое значение:
-        Объект ResultMeetingInDB.
+        Объект RResultMeetingResponseSchema.
     """
     await check_company_exists(company_slug, session)
     await check_problem_exists(problem_id, session)
     await check_meeting_exists(meeting_id, session)
     result_data = await result_meeting_crud.get_or_404(session, result_id)
-    result = await result_meeting_crud.update(session, result_data, result_update)
-    return result_meeting_crud.serialize_result(result)
+    return await result_meeting_crud.update(session, result_data, result_update)
