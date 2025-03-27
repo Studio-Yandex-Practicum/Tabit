@@ -12,6 +12,6 @@ COPY pyproject.toml poetry.lock /app/
 
 RUN poetry install --no-root --all-extras --with dev --no-interaction
 
-COPY alembic src /app/
+COPY . /app/
 
 CMD ["/usr/local/bin/poetry", "run", "uvicorn", "src.main:app_v1", "--host", "0.0.0.0", "--port", "8000"]
