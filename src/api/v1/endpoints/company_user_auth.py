@@ -17,6 +17,7 @@ from src.api.v1.auth.protocol import StrategyT
 from src.api.v1.auth.schema_token import TokenReadSchemas
 from src.api.v1.constants import Description, Summary
 from src.api.v1.validator import check_user_is_active
+from src.api.v1.validators import check_telegram_username_for_duplicates
 from src.database.db_depends import get_async_session
 from src.users.crud.user import user_crud
 from src.users.models import UserTabit
@@ -186,4 +187,5 @@ async def update_me_user(
         session: асинхронная сессия через зависимость.
         user: получение пользователя через зависимости.
     """
+    await check_telegram_username_for_duplicates(user_in.telegram_username, session)
     return await user_crud.update(session, user, user_in)
