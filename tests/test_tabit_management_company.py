@@ -103,19 +103,17 @@ class TestCreateCompany:
         new_license = await license_for_test()
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
 
-        jwt_token = superuser_token
-
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
             json=payload,
-            headers=jwt_token,
+            headers=superuser_token,
         )
         assert response.status_code == status.HTTP_201_CREATED, response.text
 
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
             json=payload,
-            headers=jwt_token,
+            headers=superuser_token,
         )
         assert response.status_code == 400, response.text
         assert (
@@ -622,12 +620,10 @@ class TestCreateCompany:
         new_license = await license_for_test()
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
 
-        jwt_token = superuser_token
-
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
             json=payload,
-            headers=jwt_token,
+            headers=superuser_token,
         )
         assert response.status_code == status.HTTP_201_CREATED, (
             'Статус-код должен быть 201 при попытки создать компанию с существующей license'
@@ -1263,13 +1259,16 @@ class TestDeleteCompany:
         если компания с указанным slug не существует.
         """
 
+        nonexistent_slug = 'nonexistent-slug'
         response = await client.delete(
-            f'{URL.COMPANIES_ENDPOINT}nonexistent-slug',
+            f'{URL.COMPANIES_ENDPOINT}{nonexistent_slug}',
             headers=superuser_token,
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
-        assert response.json()['detail'] == 'Объект не найден'
+        assert (response_json := response.json()['detail']) == (
+            f'Не найден объект Company по данному slug: {nonexistent_slug}'
+        ), response_json
 
     @pytest.mark.asyncio
     async def test_delete_company_already_deleted(
@@ -1296,7 +1295,9 @@ class TestDeleteCompany:
             headers=superuser_token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
-        assert response.json()['detail'] == 'Объект не найден'
+        assert (response_json := response.json()['detail']) == (
+            f'Не найден объект Company по данному slug: {company.slug}'
+        ), response_json
 
     @pytest.mark.asyncio
     async def test_delete_company_without_token(self, client: AsyncClient, company_for_test):

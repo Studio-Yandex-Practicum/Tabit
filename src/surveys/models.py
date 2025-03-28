@@ -1,4 +1,4 @@
-# TODO Требуется проработка ERD
+# TODO: Требуется проработка ERD
 
 
 # from sqlalchemy import Boolean, Date, DateTime, Integer, ForeignKey, String, Table, Text

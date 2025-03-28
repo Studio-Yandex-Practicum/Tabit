@@ -15,6 +15,7 @@ from fake_data_factories.constants import (
     FAKER_USER_COUNT,
     FAKER_VOTING_FEEDS_COUNT,
     LICENSE_TYPE_COUNT,
+    ColorCPrint,
 )
 from fake_data_factories.department_factories import create_company_department
 from fake_data_factories.license_type_factories import create_license_type
@@ -47,8 +48,9 @@ async def fill_all_data():
             (количество вариантов выбора пользователя выбирается случайным образом \
             для каждого голосования).
     """
+    color = ColorCPrint.light_cyan
     cprint(
-        colored('Начинаем генерацию тестовых данных...', 'red', attrs=['reverse', 'blink']),
+        colored('Начинаем генерацию тестовых данных...', color, attrs=['reverse', 'blink']),
     )
     license_types = await create_license_type(count=LICENSE_TYPE_COUNT)
     company_license_type = license_types[0]
@@ -96,7 +98,7 @@ async def fill_all_data():
     await create_tabit_admin_users(count=FAKER_USER_COUNT)
 
     cprint(
-        colored('Генерация завершена!', 'red', attrs=['reverse', 'blink']),
+        colored('Генерация завершена!', color, attrs=['reverse', 'blink']),
     )
 
 

@@ -4,7 +4,6 @@ from uuid import UUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database.annotations import int_pk, int_pk_autoincrement
 from src.database.models import BaseTabitModel
 
 if TYPE_CHECKING:
@@ -31,8 +30,14 @@ class AssociationUserProblem(BaseTabitModel):
         problem - Problem.
     """
 
-    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
-    right_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
+    left_id: Mapped[UUID] = mapped_column(
+        ForeignKey('usertabit.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
+    right_id: Mapped[int] = mapped_column(
+        ForeignKey('problem.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
     user: Mapped['UserTabit'] = relationship(back_populates='problems')
     problem: Mapped['Problem'] = relationship(back_populates='members')
     status: Mapped[bool] = mapped_column(default=False)
@@ -40,7 +45,6 @@ class AssociationUserProblem(BaseTabitModel):
     def __repr__(self):
         return (
             f'{self.__class__.__name__}('
-            f'id={self.id!r}, '
             f'status={self.status!r}, '
             f'user id {self.left_id!r} <-> problem id {self.right_id!r})'
         )
@@ -51,9 +55,8 @@ class AssociationUserMeeting(BaseTabitModel):
     Связная таблица UserTabit и Meeting, для поля members таблицы Meeting.
 
     Поля:
-        id: Идентификатор.
-        left_id: Внешний ключ первой таблицы.
-        right_id: Внешний ключ второй таблицы.
+        left_id: FK, ссылается на пользователя, часть составного PK.
+        right_id: FK, ссылается на встречу, часть составного PK.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
@@ -62,17 +65,21 @@ class AssociationUserMeeting(BaseTabitModel):
         meeting - Meeting.
     """
 
-    id: Mapped[int_pk]
-    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), nullable=False)
-    right_id: Mapped[int] = mapped_column(ForeignKey('meeting.id'), nullable=False)
+    left_id: Mapped[UUID] = mapped_column(
+        ForeignKey('usertabit.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
+    right_id: Mapped[int] = mapped_column(
+        ForeignKey('meeting.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
     user: Mapped['UserTabit'] = relationship(back_populates='meetings')
     meeting: Mapped['Meeting'] = relationship(back_populates='members')
 
     def __repr__(self):
         return (
-            f'{self.__class__.__name__}('
-            f'id={self.id!r}, '
-            f'user id {self.left_id!r} <-> meeting id {self.right_id!r})'
+            f'{self.__class__.__name__}'
+            f'(user id {self.left_id!r} <-> meeting id {self.right_id!r})'
         )
 
 
@@ -81,9 +88,8 @@ class AssociationUserTask(BaseTabitModel):
     Связная таблица UserTabit и Task, для поля executors таблицы Task.
 
     Поля:
-        id: Идентификатор.
-        left_id: Внешний ключ первой таблицы.
-        right_id: Внешний ключ второй таблицы.
+        left_id: FK, ссылается на пользователя, часть составного PK.
+        right_id: FK, ссылается на задачу, часть составного PK.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
@@ -92,21 +98,21 @@ class AssociationUserTask(BaseTabitModel):
         task - Task.
     """
 
-    id: Mapped[int_pk]
     left_id: Mapped[UUID] = mapped_column(
-        ForeignKey('usertabit.id', ondelete='CASCADE'), nullable=False
+        ForeignKey('usertabit.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     right_id: Mapped[int] = mapped_column(
-        ForeignKey('task.id', ondelete='CASCADE'), nullable=False
+        ForeignKey('task.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     user: Mapped['UserTabit'] = relationship(back_populates='tasks')
     task: Mapped['Task'] = relationship(back_populates='executors')
 
     def __repr__(self):
         return (
-            f'{self.__class__.__name__}('
-            f'id={self.id!r}, '
-            f'user id {self.left_id!r} <-> task id {self.right_id!r})'
+            f'{self.__class__.__name__}'
+            f'(user id {self.left_id!r} <-> task id {self.right_id!r})'
         )
 
 
@@ -115,9 +121,8 @@ class AssociationUserComment(BaseTabitModel):
     Связная таблица UserTabit и CommentFeed для учёта лайков.
 
     Поля:
-        id: Идентификатор.
-        left_id: Внешний ключ модели UserTabit.
-        right_id: Внешний ключ модели CommentFeed.
+        left_id: FK, ссылается на пользователя, часть составного PK.
+        right_id: FK, ссылается на комментарий, часть составного PK.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
@@ -125,14 +130,18 @@ class AssociationUserComment(BaseTabitModel):
         user - UserTabit;
     """
 
-    id: Mapped[int_pk_autoincrement]
-    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
-    right_id: Mapped[int] = mapped_column(ForeignKey('commentfeed.id'), primary_key=True)
+    left_id: Mapped[UUID] = mapped_column(
+        ForeignKey('usertabit.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
+    right_id: Mapped[int] = mapped_column(
+        ForeignKey('commentfeed.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
     user: Mapped['UserTabit'] = relationship(back_populates='comments_likes')
 
     def __repr__(self):
         return (
-            f'{self.__class__.__name__}('
-            f'id={self.id!r}, '
-            f'user id {self.left_id!r} <-> comment id {self.right_id!r})'
+            f'{self.__class__.__name__}'
+            f'(user id {self.left_id!r} <-> comment id {self.right_id!r})'
         )
