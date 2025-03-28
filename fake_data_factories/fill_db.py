@@ -65,9 +65,7 @@ async def fill_all_data():
         for company_user in company_users_not_admins:
             problem = next(
                 iter(
-                    await create_problems(
-                        count=1, company_slug=company.slug, owner_id=company_user.id
-                    )
+                    await create_problems(count=1, company_id=company.id, owner_id=company_user.id)
                 ),
                 None,
             )
