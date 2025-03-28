@@ -50,6 +50,10 @@ async def create_user_voting_associations(
         user_voting_associations.append(
             await VotingByUserFactory.create(user_id=user_id, voting_id=voting_id)
         )
+    cprint(
+        f'Создано {len(user_voting_associations)} голосов пользователя с id: {user_id}',
+        'green',
+    )
     return user_voting_associations
 
 
@@ -94,15 +98,10 @@ async def create_voting_by_user(count: int = 1, **kwargs) -> list[VotingByUser]:
         )
         voting_feeds = await create_voting_feeds(message_id=message_feed.id)
         voting_ids = [voting_feed.id for voting_feed in voting_feeds]
-    user_voting_associations = await create_user_voting_associations(
+    return await create_user_voting_associations(
         user_id=kwargs['user_id'],
         voting_ids=sample(voting_ids, count),
     )
-    cprint(
-        f'Создано {count} голосов пользователя с id: {kwargs["user_id"]}',
-        'green',
-    )
-    return user_voting_associations
 
 
 if __name__ == '__main__':
