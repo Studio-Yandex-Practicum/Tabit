@@ -5,7 +5,7 @@ from src.problems.constants import ERROR_TASK_FOR_PROBLEM_NOT_FOUND, ERROR_TASK_
 from src.problems.crud import task_crud
 
 
-# TODO: Не уверен, что так надо. Нигде не используется.
+# TODO LOST: Не уверен, что так надо. Нигде не используется.
 async def check_task_exists(task_id: int, session: AsyncSession):
     """Проверяет, существует ли задача в базе данных.
 
@@ -19,7 +19,7 @@ async def check_task_exists(task_id: int, session: AsyncSession):
     return await task_crud.get_or_404(session, task_id, message=ERROR_TASK_NOT_FOUND)
 
 
-# TODO: Нигде не используется.
+# TODO LOST: Нигде не используется.
 async def check_tasks_for_company_problem_exist(
     company_slug: str, problem_id: int, session: AsyncSession
 ):

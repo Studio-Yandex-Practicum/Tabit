@@ -21,7 +21,7 @@ class TaskBaseSchema(BaseModel):
     """
 
     description: str | None = None
-    # TODO Надо реализовать добавление файлов в встречу
+    # TODO: Надо реализовать добавление файлов в встречу
 
 
 class TaskSchemaMixin:

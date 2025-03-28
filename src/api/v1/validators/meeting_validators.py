@@ -5,7 +5,7 @@ from src.problems.constants import ERROR_PROBLEM_NOT_FOUND
 from src.problems.crud.problems import problem_crud
 
 
-# TODO: Нигде не используется
+# TODO LOST: Нигде не используется
 async def check_problem_exists(problem_id: int, session: AsyncSession):
     """Проверяет существование проблемы по ID.
 

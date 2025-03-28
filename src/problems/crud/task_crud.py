@@ -17,7 +17,7 @@ from src.users.models import UserTabit
 class CRUDTask(CRUDBaseWithAssociations):
     """CRUD операции для модели задачи."""
 
-    # TODO: используется в валидаторе, который нигде не используется.
+    # TODO LOST: используется в валидаторе, который нигде не используется.
     async def get_by_company_and_problem(
         self, session: AsyncSession, company_slug: str, problem_id: int
     ) -> list[TaskResponseSchema]:

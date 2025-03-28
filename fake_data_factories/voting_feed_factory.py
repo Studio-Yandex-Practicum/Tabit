@@ -6,7 +6,7 @@ from termcolor import cprint
 
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import FAKER_VOTING_FEEDS_COUNT, Color
+from fake_data_factories.constants import FAKER_VOTING_FEEDS_COUNT, ColorCPrint
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
@@ -72,7 +72,7 @@ async def create_voting_feeds(count: int = FAKER_VOTING_FEEDS_COUNT, **kwargs) -
     voting_feeds = await VotingFeedFactory.create_batch(count, **kwargs)
     cprint(
         f'Создано {count} вариантов голосования для сообщения c id: {kwargs["message_id"]}',
-        Color.green,  # type: ignore
+        ColorCPrint.green,  # type: ignore
     )
     return voting_feeds
 

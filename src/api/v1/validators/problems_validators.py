@@ -8,7 +8,7 @@ from src.problems.crud.problems import problem_crud
 from src.users.models import UserTabit
 
 
-# TODO Нигде не используется
+# TODO LOST: Нигде не используется
 async def check_company_exists(company_slug: str, session: AsyncSession):
     """Проверяет существование компании по slug.
 

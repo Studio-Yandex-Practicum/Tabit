@@ -11,7 +11,7 @@ from fake_data_factories.constants import (
     FAKER_USER_COUNT,
     FAKER_VOTING_FEEDS_COUNT,
     LICENSE_TYPE_COUNT,
-    Color,
+    ColorCPrint,
 )
 from fake_data_factories.department_factories import create_company_department
 from fake_data_factories.license_type_factories import create_license_type
@@ -38,7 +38,7 @@ async def fill_all_data():
             создаются ленты сообщений от автора проблемы (чтобы гарантировать принадлежность \
             автора проблемы и ленты сообщений одной организации)).
     """
-    color = Color.light_cyan
+    color = ColorCPrint.light_cyan
     cprint(
         colored('Начинаем генерацию тестовых данных...', color, attrs=['reverse', 'blink']),
     )

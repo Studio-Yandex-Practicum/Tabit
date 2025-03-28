@@ -11,7 +11,7 @@ from fake_data_factories.constants import (
     DEFAULT_TASK_DESCRIPTION_LENGTH,
     DEFAULT_TASK_NAMES,
     FAKER_TASK_COUNT,
-    Color,
+    ColorCPrint,
 )
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
@@ -68,7 +68,7 @@ async def create_tasks(count: int = FAKER_TASK_COUNT, **kwargs) -> None:
     cprint(
         f'Создано {count} задач в проблеме c id: {kwargs["problem_id"]} '
         f'от пользователя с id: {kwargs["owner_id"]}',
-        Color.green,  # type: ignore
+        ColorCPrint.green,  # type: ignore
     )
     await create_user_task_associations(
         user_id=kwargs['owner_id'], task_ids=[task.id for task in tasks]

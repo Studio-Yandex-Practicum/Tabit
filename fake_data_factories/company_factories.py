@@ -6,7 +6,7 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from fake_data_factories.constants import FAKER_COMPANY_COUNT, Color
+from fake_data_factories.constants import FAKER_COMPANY_COUNT, ColorCPrint
 from fake_data_factories.utils import start_and_end
 from src.database.alembic_models import Company
 from src.database.sc_db_session import sc_session
@@ -57,7 +57,7 @@ async def create_companies(count: int = FAKER_COMPANY_COUNT, **kwargs) -> None:
     Функция для наполнения таблицы бд Company.
     """
     companies = await CompanyFactory.create_batch(count, **kwargs)
-    cprint(f'Создано {count} компаний', Color.green)  # type: ignore
+    cprint(f'Создано {count} компаний', ColorCPrint.green)  # type: ignore
     return companies
 
 

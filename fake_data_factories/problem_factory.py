@@ -15,7 +15,7 @@ from fake_data_factories.constants import (
     DEFAULT_PROBLEM_DESCRIPTIONS,
     DEFAULT_PROBLEM_NAMES,
     FAKER_PROBLEMS_COUNT,
-    Color,
+    ColorCPrint,
 )
 from fake_data_factories.utils import start_and_end
 from src.database.sc_db_session import sc_session
@@ -84,7 +84,7 @@ async def create_problems(count: int = FAKER_PROBLEMS_COUNT, **kwargs) -> list[P
     cprint(
         f'Создано {count} проблем компании cо id: {kwargs["company_id"]} '
         f'от пользователя с id: {kwargs["owner_id"]}',
-        Color.green,  # type: ignore
+        ColorCPrint.green,  # type: ignore
     )
     await create_user_problem_associations(
         user_id=kwargs['owner_id'], problem_ids=[problem.id for problem in problems]

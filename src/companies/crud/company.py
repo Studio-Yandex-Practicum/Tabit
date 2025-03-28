@@ -49,7 +49,7 @@ class CRUDCompany(CRUDBase):
                 count += 1
         return FileResponse(path=f'{file_name}.txt', filename=f'{file_name}.txt')
 
-    # TODO используется в валидаторе, который нигде не используется
+    # TODO LOST: используется в валидаторе, который нигде не используется
     async def get_by_company_slug(self, session: AsyncSession, company_slug: str):
         """Получает компанию по slug.
 

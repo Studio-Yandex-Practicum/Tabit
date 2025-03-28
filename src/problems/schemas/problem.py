@@ -17,7 +17,7 @@ class ProblemBaseSchema(BaseModel):
     """
 
     description: str | None = None
-    # TODO Надо реализовать добавление файлов в проблему
+    # TODO: Надо реализовать добавление файлов в проблему
 
 
 class ProblemSchemaMixin:

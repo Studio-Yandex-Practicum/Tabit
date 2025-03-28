@@ -8,7 +8,7 @@ from termcolor import cprint
 
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import FAKER_MESSAGE_FEEDS_COUNT, Color
+from fake_data_factories.constants import FAKER_MESSAGE_FEEDS_COUNT, ColorCPrint
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
 from src.database.sc_db_session import sc_session
@@ -72,7 +72,7 @@ async def create_message_feeds(
     cprint(
         f'Создано {count} лент сообщений по проблеме c id: {kwargs["problem_id"]} '
         f'от пользователя с id: {kwargs["owner_id"]}',
-        Color.green,  # type: ignore
+        ColorCPrint.green,  # type: ignore
     )
     return message_feeds
 

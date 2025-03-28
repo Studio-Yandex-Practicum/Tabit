@@ -2,10 +2,10 @@ from functools import wraps
 
 from termcolor import cprint
 
-from fake_data_factories.constants import Color
+from fake_data_factories.constants import ColorCPrint
 
 
-def start_and_end(name: str = '', color: str = Color.yellow):
+def start_and_end(name: str = '', color: str = ColorCPrint.yellow):
     def decorator(func):
         wraps(func)
 

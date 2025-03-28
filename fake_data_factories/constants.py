@@ -58,7 +58,7 @@ DEFAULT_TASK_NAMES: list[str] = [
 
 
 @dataclass
-class Color:
+class ColorCPrint:
     """Набор цветов для cprint."""
 
     black: str = 'black'

@@ -11,7 +11,7 @@ from fake_data_factories.constants import (
     LICENSE_MAX_ADMINS,
     LICENSE_MAX_EMPLOYEES,
     LICENSE_TYPE_COUNT,
-    Color,
+    ColorCPrint,
 )
 from fake_data_factories.utils import start_and_end
 from src.database.sc_db_session import sc_session
@@ -49,7 +49,7 @@ async def create_license_type(count=LICENSE_TYPE_COUNT, **kwargs):
     Функция для наполнения таблицы бд LicenseType.
     """
     licenses = await LicenseTypeFactory.create_batch(count, **kwargs)
-    cprint(f'Создано {count} лицензий для компании', Color.green)  # type: ignore
+    cprint(f'Создано {count} лицензий для компании', ColorCPrint.green)  # type: ignore
     return licenses
 
 
