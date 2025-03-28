@@ -34,3 +34,6 @@ FILTER_NAME_DESCRIPTION = 'Фильтр по названию компании'
 SORTING_DESCRIPTION = (
     "Сортировка по полю (name, created_at, updated_at). '-' означает сортировку в обратном порядке"
 )
+COMPANY_NOT_FOUND = 'Указан некорректный id компании'
+DEPARTMENT_NOT_FOUND = 'Указан некорректный id отдела.'
+WRONG_COMPANY_DEPARTMENT = 'У данной компании нет указанного отдела.'

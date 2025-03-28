@@ -19,7 +19,8 @@ from src.tabit_management.constants import (
 )
 from src.tabit_management.schemas.admin_company import (
     CompanyAdminCreateSchema,
-    CompanyAdminUpdateSchema,
+    CompanyAdminPatchSchema,
+    CompanyAdminPutSchema,
 )
 from src.users.models import UserTabit
 
@@ -94,7 +95,6 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
 
     async def create(
         self,
-        session: AsyncSession,
         create_data: CompanyAdminCreateSchema,
         user_manager: BaseUserManager,
     ) -> UserTabit:
@@ -103,7 +103,6 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
         В случае возникновения ошибок, выбрасывает исключения.
 
         Параметры:
-            session: асинхронная сессия SQLAlchemy;
             create_data: Валидированные данные схемы CompanyAdminCreateSchema,
             для создания админа компании;
             user_manager - менеджер пользователей.
@@ -123,8 +122,7 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
     async def update(
         self,
         user_id: UUID,
-        update_data: CompanyAdminUpdateSchema,
-        session: AsyncSession,
+        update_data: CompanyAdminPatchSchema | CompanyAdminPutSchema,
         user_manager: BaseUserManager,
     ) -> UserTabit:
         """
@@ -134,11 +132,17 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
         Параметры:
             user_id - UUID пользователя;
             update_date: объект схемы с данными для обновления;
-            session: асинхронная сессия SQLAlchemy;
             user_manager: менеджер пользователей.
         """
         try:
             admin_user = await user_manager.get(user_id)
+            if (
+                update_data.current_department_id is not None
+                and admin_user.current_department_id != update_data.current_department_id
+            ):
+                update_data.last_department_id = admin_user.current_department_id
+            else:
+                update_data.last_department_id = admin_user.last_department_id
             admin_user = await user_manager.update(update_data, admin_user)
         except UserNotExists:
             raise HTTPException(
