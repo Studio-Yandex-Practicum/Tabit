@@ -26,7 +26,6 @@ def current_company_admin(
     """
     Зависимость. Проверит, является ли пользователь админом от компании. Вернет этого пользователя.
     """
-    # TODO: Не проверялось. В бд хранится название переменной - ADMIN, а не её значение - 'Админ'.
     if not user.role == RoleUserTabit.ADMIN:
         raise HTTPException(
             status_code=HTTPStatus.FORBIDDEN,
