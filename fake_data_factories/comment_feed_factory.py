@@ -10,9 +10,9 @@ from fake_data_factories.association_user_comment_factory import create_user_com
 from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.constants import (
     FAKER_COMMENT_COUNT,
+    FAKER_COMMENT_WORDS_COUNT,
     FAKER_MAX_COMMENT_RATING,
     FAKER_MIN_COMMENT_RATING,
-    MAX_COMMENT_WORDS_COUNT,
 )
 from fake_data_factories.message_feed_factory import create_message_feeds
 from src.database.sc_db_session import sc_session
@@ -34,7 +34,7 @@ class CommentFeedFactory(AsyncSQLAlchemyFactory):
     message_id: int
     owner_id: UUID
     text: str = factory.Faker(
-        'sentence', locale='ru_RU', nb_words=MAX_COMMENT_WORDS_COUNT, variable_nb_words=True
+        'sentence', locale='ru_RU', nb_words=FAKER_COMMENT_WORDS_COUNT, variable_nb_words=True
     )
     rating: int = factory.Faker(
         'random_int', min=FAKER_MIN_COMMENT_RATING, max=FAKER_MAX_COMMENT_RATING
@@ -53,27 +53,42 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
         count: Количество комментариев для создания.
         owner_id: ID автора комментариев.
         message_id: ID треда, к которому относится комментарий.
+
+    Если не указать owner_id, то создается 5 новых пользователей в той же компании что и автор
+    сообщения, и каждый комментарий будет создан от имени нового автора.
     """
     if 'message_id' not in kwargs:
         message = next(iter(await create_message_feeds(count=1)), None)
         kwargs['message_id'] = message.id
     else:
-        query = await sc_session.execute(
+        result = await sc_session.execute(
             select(MessageFeed).where(MessageFeed.id == kwargs['message_id'])
         )
-        message = query.scalar()
+        message = result.scalar()
     if 'owner_id' not in kwargs:
-        query = await sc_session.execute(select(UserTabit).where(UserTabit.id == message.owner_id))
-        message_owner = query.scalar()
-        owner = next(
-            iter(await create_company_users(count=1, company_id=message_owner.company_id)), None
+        result = await sc_session.execute(
+            select(UserTabit).where(UserTabit.id == message.owner_id)
         )
-        kwargs['owner_id'] = owner.id
-    comments = await CommentFeedFactory.create_batch(count, **kwargs)
-    cprint(f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}', 'green')
-    await create_user_comment_associations(
-        user_id=kwargs['owner_id'], comment_ids=[comment.id for comment in comments]
-    )
+        message_owner = result.scalar()
+        comment_owners = await create_company_users(
+            count=count, company_id=message_owner.company_id
+        )
+        comment_owners_ids = [owner.id for owner in comment_owners]
+        comments = [
+            await CommentFeedFactory.create(owner_id=owner_id, **kwargs)
+            for owner_id in comment_owners_ids
+        ]
+        cprint(f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}', 'green')
+        for i in range(count):
+            await create_user_comment_associations(
+                user_id=comment_owners_ids[i], comment_ids=[comments[i].id]
+            )
+    else:
+        comments = await CommentFeedFactory.create_batch(owner_id=kwargs['owner_id'], **kwargs)
+        cprint(f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}', 'green')
+        await create_user_comment_associations(
+            user_id=kwargs['owner_id'], comment_ids=[comment.id for comment in comments]
+        )
 
 
 if __name__ == '__main__':

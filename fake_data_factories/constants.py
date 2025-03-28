@@ -9,6 +9,7 @@ FAKER_MESSAGE_FEEDS_COUNT: int = 5  # Число лент сообщений д�
 FAKER_VOTING_FEEDS_COUNT: int = 5  # Число лент голосований для генерации
 FAKER_TASK_COUNT: int = 5  # Число задач для генерации
 FAKER_COMMENT_COUNT: int = 5  # Число комментариев для генерации
+FAKER_COMMENT_WORDS_COUNT: int = 7  # Количество слов в комментарии
 FAKER_MIN_COMMENT_RATING: int = 0  # Минимальный рейтинг комментария
 FAKER_MAX_COMMENT_RATING: int = 5  # Максимальный рейтинг комментария
 AMOUNT_OF_ADMIN = 1  # Количество админов создаваемых для компании за 1 запуск скрипта
@@ -22,7 +23,6 @@ LICENSE_MAX_EMPLOYEES = 1000
 # Текстовые константы
 COMPANY_USER_CREATED_TEXT = '{role} компании c id={company_id}: {user_email}, пасс: {password}'
 DEFAULT_TASK_DESCRIPTION_LENGTH: int = 256
-MAX_COMMENT_WORDS_COUNT: int = 7  # Количество слов в комментарии
 
 # Списки значений по умолчанию
 DEFAULT_DEPARTMENT_NAMES = [

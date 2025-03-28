@@ -3,7 +3,7 @@
 migration-empty migration-apply migration-apply-dc migration-rollback db-reset db-init \
 create-superuser fill-db fill-companies fill-company-users fill-tabit-admin-users \
 fill-company-departments fill-license-type fill-problems fill-message-feeds \
-fill-voting-feeds fill-tasks
+fill-voting-feeds fill-tasks fill-comments
 
 # Определение переменной с именем файла окружения
 ENV_FILE = .env
@@ -111,7 +111,7 @@ migration-rollback: ## Откатить последнюю миграцию
 	@echo "Миграция успешно откачена"
 
 # Управление базой данных
-db-reset: ## Полный сброс базы данных и реинициализация
+db-reset:
 	clean-volumes up migration-apply
 
 db-init: ## Полный процесс инициализации базы данных
@@ -145,9 +145,12 @@ fill-problems: ## Заполнение базы данных тестовыми 
 
 fill-message-feeds: ## Заполнение базы данных тестовыми лентами сообщений
 	poetry run python fake_data_factories/message_feed_factory.py
-  
+
 fill-voting-feeds: ## Заполнение базы данных тестовыми вариантами голосования
 	poetry run python fake_data_factories/voting_feed_factory.py
 
-fill-tasks: #№ Заполнение базы данных тестовыми задачами
+fill-tasks: ## Заполнение базы данных тестовыми задачами
 	poetry run python fake_data_factories/task_factory.py
+
+fill-comments: ## Заполнение базы данных тестовыми комментариями
+	poetry run python fake_data_factories/comment_feed_factory.py

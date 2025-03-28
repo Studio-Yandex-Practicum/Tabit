@@ -2,9 +2,11 @@ import asyncio
 
 from termcolor import colored, cprint
 
+from fake_data_factories.comment_feed_factory import create_comments
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.constants import (
+    FAKER_COMMENT_COUNT,
     FAKER_COMPANY_COUNT,
     FAKER_DEPARTMENT_COUNT,
     FAKER_TASK_COUNT,
@@ -64,6 +66,7 @@ async def fill_all_data():
                     await create_voting_feeds(
                         count=FAKER_VOTING_FEEDS_COUNT, message_id=message_feed.id
                     )
+                    await create_comments(count=FAKER_COMMENT_COUNT, message_id=message_feed.id)
                 await create_tasks(
                     count=FAKER_TASK_COUNT, problem_id=problem.id, owner_id=company_user.id
                 )
