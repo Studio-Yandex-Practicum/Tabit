@@ -79,6 +79,7 @@ async def fill_all_data():
             await create_tasks(
                 count=FAKER_TASK_COUNT, problem_id=problem.id, owner_id=company_user.id
             )
+            break  # УБРАТЬ, когда в problem уберут unique_constraint problem_company_slug_key!!!
         await create_company_department(count=FAKER_DEPARTMENT_COUNT, company_id=company.id)
     await create_tabit_admin_users(count=FAKER_USER_COUNT)
 

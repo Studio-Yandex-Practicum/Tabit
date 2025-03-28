@@ -83,7 +83,7 @@ async def create_company(
         company: схема для создания компании.
         session: асинхронная сессия через зависимость.
     """
-    if company.license_id :
+    if company.license_id:
         await validate_license_exists(session, company.license_id)
     if company.slug:
         await validate_company_slug(session, company.slug)
