@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi_pagination import add_pagination
 
-
 from src.api.v1.routers import main_router
 from src.config import settings
 from src.logger import LoggingMiddleware
