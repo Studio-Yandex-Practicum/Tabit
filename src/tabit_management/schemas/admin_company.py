@@ -93,10 +93,6 @@ class CompanyAdminSchemaMixin:
     avatar_link: Annotated[
         url_to_string, Field(None, max_length=LENGTH_FILE_LINK, title=title_avatar_link_user)
     ]
-    current_department_id: Optional[int] = Field(
-        None,
-        title=title_current_department_id_user,
-    )
     last_department_id: Optional[int] = Field(
         None,
         title=title_last_department_id_user,
@@ -154,8 +150,8 @@ class CompanyAdminReadSchema(BaseUser[UUID]):
     model_config = ConfigDict(from_attributes=True)
 
 
-class CompanyAdminCreateSchema(CompanyAdminSchemaMixin, BaseUserCreate):
-    """Схема для создания админов от компаний."""
+class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
+    """Схема для PUT-запроса изменения данных админов от компаний."""
 
     name: str = Field(
         ...,
@@ -169,6 +165,16 @@ class CompanyAdminCreateSchema(CompanyAdminSchemaMixin, BaseUserCreate):
         max_length=LENGTH_NAME_USER,
         title=title_surname_user,
     )
+    role: RoleUserTabit
+    current_department_id: int = Field(
+        ...,
+        title=title_current_department_id_user,
+    )
+
+
+class CompanyAdminCreateSchema(CompanyAdminPutSchema):
+    """Схема для создания админов от компаний."""
+
     role: Literal[RoleUserTabit.ADMIN]
     company_id: int = Field(
         ...,
@@ -176,8 +182,8 @@ class CompanyAdminCreateSchema(CompanyAdminSchemaMixin, BaseUserCreate):
     )
 
 
-class CompanyAdminUpdateSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
-    """Схема для изменение данных админов от компаний."""
+class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
+    """Схема для PATCH-запроса изменения данных админов от компаний."""
 
     name: Optional[str] = Field(
         None,
@@ -192,7 +198,7 @@ class CompanyAdminUpdateSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
         title=title_surname_user,
     )
     role: Optional[RoleUserTabit] = None
-    company_id: Optional[int] = Field(
+    current_department_id: Optional[int] = Field(
         None,
-        title=title_company_id_user,
+        title=title_current_department_id_user,
     )

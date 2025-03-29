@@ -1,25 +1,23 @@
-from typing import Union
-
-from fastapi import HTTPException, status
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import delete, select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.companies.models import Company
-from src.constants import DEFAULT_AUTO_COMMIT, TextError
-from src.crud import CRUDBase
+from src.constants import ZERO, TextError
+from src.crud import CRUDBaseWithAssociations
 from src.logger import logger
 from src.problems.models import Problem, Task
 from src.problems.models.association_models import AssociationUserTask
-from src.problems.models.file_path_models import FileTask
+from src.problems.models.enums import StatusTask
 from src.problems.schemas.task import TaskCreateSchema, TaskResponseSchema, TaskUpdateSchema
 from src.users.models import UserTabit
 
 
-class CRUDTask(CRUDBase):
+class CRUDTask(CRUDBaseWithAssociations):
     """CRUD операции для модели задачи."""
 
+    # TODO LOST: используется в валидаторе, который нигде не используется.
     async def get_by_company_and_problem(
         self, session: AsyncSession, company_slug: str, problem_id: int
     ) -> list[TaskResponseSchema]:
@@ -50,181 +48,127 @@ class CRUDTask(CRUDBase):
         tasks = result.scalars().all()
         return [TaskResponseSchema.model_validate(task) for task in tasks]
 
-    async def get_task_by_id(
+    async def create_task_with_executors(
         self,
         session: AsyncSession,
-        company_slug: str,
-        problem_id: int,
-        task_id: int,
-        as_object: bool = False,
-    ) -> Union[Task, TaskResponseSchema]:
-        """
-        Получает задачу по id с проверкой принадлежности к компании и проблеме.
-
-        Args:
-            session: Асинхронная сессия SQLAlchemy.
-            problem_id: ID проблемы.
-            company_slug: Уникальный идентификатор компании.
-            task_id: ID задачи.
-            as_object: Данные для обновления задачи.
-
-        Returns:
-            TaskResponseSchema: Конктетная задача.
-        """
-        query = (
-            select(self.model)
-            .join(self.model.problem)
-            .join(Problem.owner)
-            .join(UserTabit.company)
-            .where(
-                Company.slug == company_slug,
-                self.model.problem_id == problem_id,
-                self.model.id == task_id,
-            )
-            .options(
-                selectinload(self.model.file),
-                selectinload(self.model.executors),
-            )
-        )
-        result = await session.execute(query)
-        task = result.scalar_one_or_none()
-        if as_object:
-            return task
-        return TaskResponseSchema.model_validate(task)
-
-    async def create(
-        self,
-        session: AsyncSession,
-        obj_in: TaskCreateSchema,
-        auto_commit: bool = DEFAULT_AUTO_COMMIT,
-    ) -> TaskResponseSchema:
+        task_in: TaskCreateSchema,
+        owner: UserTabit,
+        problem: Problem,
+    ) -> Task:
         """Создает новую задачу.
 
-        Args:
+        Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            obj_in: Данные для создания задачи.
-            auto_commit: Автоматически коммитить изменения (по умолчанию True).
+            task_in: Данные для создания задачи.
+            owner: экземпляр модели пользователя, автор задачи.
+            problem: экземпляр модели проблемы, для решения который назначается задача.
+        Возвращает:
+            Созданная задача.
 
-        Returns:
-            TaskResponseSchema: Созданная задача.
-
-        Raises:
+        Возможные ошибки:
             HTTPException: Если произошла ошибка при создании задачи.
         """
+        task_data = task_in.model_dump()
+        executors = task_data.pop('executors') if 'executors' in task_data else []
+        default_data = {
+            'problem_id': problem.id,
+            'owner_id': owner.id,
+            'status': StatusTask.NEW,
+            'transfer_counter': ZERO,
+        }
+        task_data.update(default_data)
+        task_db = self.model(**task_data)
         try:
-            new_task = Task(**obj_in.model_dump(exclude={'executors', 'file'}))
-            session.add(new_task)
+            session.add(task_db)
             await session.flush()
-            if obj_in.file:
-                new_task.file = [FileTask(url=url, task_id=new_task.id) for url in obj_in.file]
-            if obj_in.executors:
-                associations = [
-                    AssociationUserTask(left_id=executor_id, right_id=new_task.id)
-                    for executor_id in obj_in.executors
+            if executors:
+                executors = set(executors)
+                associations_data = [
+                    self.associations_model(
+                        left_id=executor,
+                        right_id=task_db.id,
+                    )
+                    for executor in executors
                 ]
-                session.add_all(associations)
-            if auto_commit:
-                await session.commit()
-                await session.refresh(new_task)
-            await session.execute(
-                select(Task)
-                .filter_by(id=new_task.id)
-                .options(selectinload(Task.executors), selectinload(Task.file))
-            )
-            return TaskResponseSchema.model_validate(new_task)
-        except IntegrityError as e:
+                session.add_all(associations_data)
+            await session.commit()
+            await session.refresh(task_db)
+        except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.UNIQUE_CREATE_LOG} {self.model.__name__}: {e}')
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=TextError.UNIQUE,
-            )
-        except Exception as e:
-            await session.rollback()
-            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {e}')
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TextError.SERVER_CREATE,
-            )
+            logger.error(f'{TextError.SERVER_DELETE_LOG} {self.model.__name__}: {error}')
+            raise error
+        return task_db
 
-    async def update(
+    async def update_task(
         self,
         session: AsyncSession,
-        task_id: int,
-        obj_in: TaskUpdateSchema,
-        company_slug: str,
-        problem_id: int,
-        auto_commit: bool = DEFAULT_AUTO_COMMIT,
-    ) -> TaskResponseSchema:
-        """Обновляет задачу.
+        task_db: Task,
+        task_in: TaskUpdateSchema,
+    ) -> Task:
+        """
+        Для изменения записи в таблице Проблемы.
 
-        Args:
+        Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            task_id: Идентификатор задачи для обновления.
-            obj_in: Данные для обновления задачи.
-            company_slug: Уникальный идентификатор компании.
-            problem_id: Идентификатор проблемы.
-            auto_commit: Автоматически коммитить изменения (по умолчанию True).
+            task_db: экземпляр модели задачи.
+            task_in: данные для изменения в виде схемы.
+        Возвращает:
+            Экземпляр модели проблемы после изменения.
 
-        Returns:
-            TaskResponseSchema: Обновлённая задача.
-
-        Raises:
+        Возможные ошибки:
             HTTPException: Если задача не найдена или произошла ошибка при обновлении.
         """
+        task_data = jsonable_encoder(task_db)
+        task_update_data = task_in.model_dump(exclude_unset=True)
+        executors = task_update_data.pop('executors') if 'executors' in task_update_data else None
+
+        old_data_task = task_db.date_completion
+
+        for field in task_data:
+            if field in task_update_data:
+                setattr(task_db, field, task_update_data[field])
+
+        if old_data_task < task_db.date_completion:
+            task_db.transfer_counter += 1
+
         try:
-            db_obj = await self.get_task_by_id(
-                session, company_slug, problem_id, task_id, as_object=True
-            )
-            old_date_completion = db_obj.date_completion
-            update_data = obj_in.model_dump(exclude_unset=True)
-            executors_data = update_data.pop('executors', None)
-            for field, value in update_data.items():
-                setattr(db_obj, field, value)
-            if executors_data is not None:
-                await session.execute(
-                    delete(AssociationUserTask).where(AssociationUserTask.right_id == db_obj.id)
+            session.add(task_db)
+            await session.flush()
+
+            if executors is not None:
+                executors = set(executors)
+
+                add_rows, delete_rows = self.get_data_associations_for_updata(
+                    task_data['executors'],
+                    executors,
                 )
-                for executor_id in executors_data:
-                    association = AssociationUserTask(left_id=executor_id, right_id=db_obj.id)
-                    session.add(association)
-            if db_obj.date_completion > old_date_completion:
-                db_obj.transfer_counter += 1
-            if auto_commit:
-                await session.commit()
-                await session.refresh(db_obj)
-            return TaskResponseSchema.model_validate(db_obj)
-        except IntegrityError as e:
+
+                if add_rows:
+                    associations_data = [
+                        self.associations_model(
+                            left_id=executor,
+                            right_id=task_db.id,
+                        )
+                        for executor in add_rows
+                    ]
+                    session.add_all(associations_data)
+
+                await session.execute(
+                    delete(self.associations_model).where(
+                        self.associations_model.right_id == task_db.id,
+                        self.associations_model.left_id.in_(delete_rows),
+                    )
+                )
+
+            await session.commit()
+            await session.refresh(task_db)
+
+        except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.UNIQUE_UPDATE_LOG} {self.model.__name__}: {e}')
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=TextError.UNIQUE,
-            )
-        except Exception as e:
-            await session.rollback()
-            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {e}')
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TextError.SERVER_UPDATE,
-            )
+            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            raise error
 
-    async def delete_task(self, session: AsyncSession, task_id: int) -> None:
-        """
-            Удаляет задачу из базы данных по её ID.
-            Перед удалением проверяет существование задачи.
-
-        Args:
-            session: Асинхронная сессия SQLAlchemy.
-            problem_id: ID проблемы.
-            company_slug: Уникальный идентификатор компании.
-            task_id: ID задачи.
-
-        Returns:
-            None
-        """
-        db_obj = await self.get_or_404(session, task_id)
-        await self.remove(session, db_obj)
+        return task_db
 
 
-task_crud = CRUDTask(Task)
+task_crud = CRUDTask(Task, AssociationUserTask)

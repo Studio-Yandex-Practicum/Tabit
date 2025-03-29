@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "b706bb72-b3da-4929-a49d-beac80ba93e6",
 		"name": "Tabit",
-		"description": "Коллекция запросов к API-bakend проекта Tabit.  \napi/v1/\n\n(версия 0.3.0)",
+		"description": "Коллекция запросов к API-bakend проекта Tabit.  \napi/v1/\n\n(версия 0.3.1)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "34844245"
 	},
@@ -600,7 +600,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"raw": "{\r\n  \"email\": \"{{email_admin_company}}\",\r\n  \"password\": \"{{password_admin_company}}\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": {{department_id}},\r\n  \"last_department_id\": null,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": {{comment_id}}\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1129,24 +1129,24 @@
 								{
 									"key": "username",
 									"value": "{{email_user}}",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "password",
 									"value": "{{password_user}}",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "username",
 									"value": "{{email_admin_company}}",
-									"type": "text",
-									"disabled": true
+									"type": "text"
 								},
 								{
 									"key": "password",
 									"value": "{{password_admin_company}}",
-									"type": "text",
-									"disabled": true
+									"type": "text"
 								}
 							]
 						},
@@ -1455,6 +1455,12 @@
 								"key": "Authorization",
 								"value": "{{bearer}} {{access_token_admin_company}}",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"body": {
@@ -1863,7 +1869,19 @@
 					"name": "problems",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/",
 							"protocol": "{{protocol}}",
@@ -1886,10 +1904,22 @@
 					"name": "problems",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"color\": 1,\r\n  \"type\": \"Взаимодействие в коллективе\",\r\n  \"status\": \"Новая\",\r\n  \"company_id\": 0,\r\n  \"owner_id\": \"{{uuid_user}}\",\r\n  \"members\": []\r\n}",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"color\": 1,\r\n  \"type\": \"Взаимодействие в коллективе\",\r\n  \"members\": [\"{{uuid_user}}\"]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1918,7 +1948,19 @@
 					"name": "problem",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/",
 							"protocol": "{{protocol}}",
@@ -1942,10 +1984,22 @@
 					"name": "problem",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"color\": 1,\r\n  \"type\": \"Взаимодействие в коллективе\",\r\n  \"status\": \"Новая\",\r\n   \"owner_id\": \"e285f5f7-cc0e-4580-8246-f02cb9cd9374\"\r\n}",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"color\": 2,\r\n  \"type\": \"Оптимизация бизнес-процессов\",\r\n  \"status\": \"Новая\",\r\n  \"members\": [\"{{uuid_user}}\"]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1975,7 +2029,19 @@
 					"name": "problem",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/",
 							"protocol": "{{protocol}}",
@@ -1994,6 +2060,51 @@
 						"description": "Удалить проблему"
 					},
 					"response": []
+				},
+				{
+					"name": "confirm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/confirm",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"confirm"
+							]
+						},
+						"description": "Подтвердить участие в решение проблемы пользователем."
+					},
+					"response": []
 				}
 			],
 			"description": "Управление \"Проблемами\""
@@ -2005,7 +2116,19 @@
 					"name": "meetings",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/",
 							"protocol": "{{protocol}}",
@@ -2030,10 +2153,22 @@
 					"name": "meetings",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"string\",\r\n  \"description\": \"string\",\r\n  \"date_meeting\": \"2025-03-07\",\r\n  \"status\": \"Новая\",\r\n  \"place\": \"string\",\r\n  \"problem_id\": 0\r\n}",
+							"raw": "{\r\n  \"title\": \"string\",\r\n  \"description\": \"string\",\r\n  \"date_meeting\": \"2030-03-07\",\r\n  \"place\": \"string\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2064,7 +2199,19 @@
 					"name": "meeting",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}/",
 							"protocol": "{{protocol}}",
@@ -2090,7 +2237,28 @@
 					"name": "meeting",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"string1\",\r\n  \"description\": \"string1\",\r\n  \"date_meeting\": \"2035-03-22\",\r\n  \"place\": \"string1\",\r\n  \"status\": \"Новая\",\r\n  \"members\": [\"{{uuid_user}}\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}/",
 							"protocol": "{{protocol}}",
@@ -2116,7 +2284,19 @@
 					"name": "meeting",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}/",
 							"protocol": "{{protocol}}",
@@ -2148,7 +2328,19 @@
 					"name": "tasks",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/tasks/",
 							"protocol": "{{protocol}}",
@@ -2173,10 +2365,22 @@
 					"name": "tasks",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"date_completion\": \"2025-03-07\",\r\n  \"problem_id\": 0,\r\n  \"owner_id\": \"20cc96fd-9d9f-4664-b3a2-5ab9e482726d\",\r\n  \"status\": \"Новая\",\r\n  \"transfer_counter\": 0,\r\n  \"file\": [\r\n    \"string\"\r\n  ],\r\n  \"executors\": [\r\n    \"20cc96fd-9d9f-4664-b3a2-5ab9e482726d\"\r\n  ]\r\n}",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"date_completion\": \"2030-03-07\",\r\n  \"executors\": [\r\n    \"{{uuid_user}}\"\r\n  ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2207,7 +2411,19 @@
 					"name": "task",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/tasks/{{task_id}}/",
 							"protocol": "{{protocol}}",
@@ -2233,7 +2449,28 @@
 					"name": "task",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"date_completion\": \"2025-03-24\",\r\n  \"executors\": [\r\n    \"{{uuid_user}}\"\r\n  ],\r\n  \"status\": \"Новая\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/tasks/{{task_id}}/",
 							"protocol": "{{protocol}}",
@@ -2259,7 +2496,19 @@
 					"name": "task",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/tasks/{{task_id}}/",
 							"protocol": "{{protocol}}",
@@ -2915,6 +3164,16 @@
 		{
 			"key": "department_slug",
 			"value": "department_slug",
+			"type": "string"
+		},
+		{
+			"key": "company_id",
+			"value": "company_id",
+			"type": "string"
+		},
+		{
+			"key": "department_id",
+			"value": "department_id",
 			"type": "string"
 		},
 		{
