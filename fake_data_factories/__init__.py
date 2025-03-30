@@ -1,4 +1,8 @@
 # Импорты сидеров для удобства вызова
+from .association_user_comment_factory import (
+    AssociationUserCommentFactory,
+    create_user_comment_associations,
+)
 from .association_user_problem_factory import (
     AssociationUserProblemFactory,
     create_user_problem_associations,
@@ -8,6 +12,7 @@ from .association_user_task_factory import (
     create_user_task_associations,
 )
 from .base_user_factory import BaseUserFactory
+from .comment_feed_factory import CommentFeedFactory, create_comments
 from .company_factories import CompanyFactory, create_companies
 from .company_user_factories import CompanyUserFactory, create_company_users
 from .department_factories import DeparmentFactory, create_company_department
@@ -20,6 +25,8 @@ from .voting_feed_factory import VotingFeedFactory, create_voting_feeds
 
 __all__ = [
     'BaseUserFactory',
+    'CommentFeedFactory',
+    'create_comments',
     'CompanyFactory',
     'create_companies',
     'CompanyUserFactory',
@@ -38,6 +45,8 @@ __all__ = [
     'create_tasks',
     'VotingFeedFactory',
     'create_voting_feeds',
+    'AssociationUserCommentFactory',
+    'create_user_comment_associations',
     'AssociationUserProblemFactory',
     'create_user_problem_associations',
     'AssociationUserTaskFactory',

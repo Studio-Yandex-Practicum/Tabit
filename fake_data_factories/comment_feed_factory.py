@@ -13,8 +13,10 @@ from fake_data_factories.constants import (
     FAKER_COMMENT_WORDS_COUNT,
     FAKER_MAX_COMMENT_RATING,
     FAKER_MIN_COMMENT_RATING,
+    ColorCPrint,
 )
 from fake_data_factories.message_feed_factory import create_message_feeds
+from fake_data_factories.utils import start_and_end
 from src.database.sc_db_session import sc_session
 from src.problems.models.message_models import CommentFeed, MessageFeed
 from src.users.models.models import UserTabit
@@ -45,6 +47,7 @@ class CommentFeedFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
+@start_and_end(__name__)
 async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
     """
     Функция для пакетного создания комментариев.
@@ -78,14 +81,20 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
             await CommentFeedFactory.create(owner_id=owner_id, **kwargs)
             for owner_id in comment_owners_ids
         ]
-        cprint(f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}', 'green')
+        cprint(
+            f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}',
+            ColorCPrint.green,  # type: ignore
+        )
         for i in range(count):
             await create_user_comment_associations(
                 user_id=comment_owners_ids[i], comment_ids=[comments[i].id]
             )
     else:
         comments = await CommentFeedFactory.create_batch(owner_id=kwargs['owner_id'], **kwargs)
-        cprint(f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}', 'green')
+        cprint(
+            f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}',
+            ColorCPrint.green,  # type: ignore
+        )
         await create_user_comment_associations(
             user_id=kwargs['owner_id'], comment_ids=[comment.id for comment in comments]
         )

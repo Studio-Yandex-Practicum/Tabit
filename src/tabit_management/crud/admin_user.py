@@ -28,7 +28,7 @@ from src.users.models import UserTabit
 class CRUDAdminUser(UserCreateMixin, CRUDBase):
     """CRUD операций для моделей администраторов сервиса Табит."""
 
-    async def get_multi(
+    async def get_multi(  # type: ignore
         self,
         session: AsyncSession,
         skip: int = DEFAULT_SKIP,
@@ -76,7 +76,9 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
         )
         return user.scalars().first()
 
-    async def get_or_404(self, user_id: UUID, user_manager: BaseUserManager) -> UserTabit:
+    async def get_or_404(  # type: ignore
+        self, user_id: UUID, user_manager: BaseUserManager
+    ) -> UserTabit:
         """
         Переопределённый метод get_or_404 от CRUDBase. Возвращает найденный объект UserTabit.
         В случае, если объект не был найден, выбрасывается исключение HTTP 404.
@@ -93,7 +95,7 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
             )
         return admin_user
 
-    async def create(
+    async def create(  # type: ignore
         self,
         create_data: CompanyAdminCreateSchema,
         user_manager: BaseUserManager,
@@ -119,7 +121,7 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
             )
         return created_admin_user
 
-    async def update(
+    async def update(  # type: ignore
         self,
         user_id: UUID,
         update_data: CompanyAdminPatchSchema | CompanyAdminPutSchema,
@@ -158,7 +160,7 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
             )
         return admin_user
 
-    async def remove(self, user_id: UUID, user_manager: BaseUserManager) -> None:
+    async def remove(self, user_id: UUID, user_manager: BaseUserManager) -> None:  # type: ignore
         """
         Переопределённый метод remove от CRUDBase. Функция удалёет из БД запись об
         объекте UserTabit с переданным UUID.
