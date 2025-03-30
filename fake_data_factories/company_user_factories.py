@@ -6,9 +6,10 @@ from typing import Optional
 import factory
 from termcolor import cprint
 
-from constants import AMOUNT_OF_ADMIN, FAKER_USER_COUNT
 from fake_data_factories.base_user_factory import BaseUserFactory
 from fake_data_factories.company_factories import CompanyFactory
+from fake_data_factories.constants import AMOUNT_OF_ADMIN, FAKER_USER_COUNT, ColorCPrint
+from fake_data_factories.utils import start_and_end
 from src.database.alembic_models import UserTabit
 from src.database.sc_db_session import sc_session
 
@@ -44,7 +45,8 @@ class CompanyUserFactory(BaseUserFactory):
         sqlalchemy_session = sc_session
 
 
-async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
+@start_and_end(__name__)
+async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> list[UserTabit]:
     """
     Функция для наполнения таблицы бд UserTabit.
     Для компании создается 1 админ, и все остальные простые сотрудники.
@@ -52,13 +54,17 @@ async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> None:
     компания, id этой компании передается в фабрику.
     Если функция запускается через импорт, в неё нужно передать именованный аргумент company_id,
     чтобы он попал в kwargs для заполнения обязательного поля фабрики company_id.
+
+    Возвращает список созданных пользователей.
     """
+    company_users: list[UserTabit] = []
     if __name__ == '__main__':
-        company = await CompanyFactory.create()
-        kwargs['company_id'] = company.id
-    await CompanyUserFactory.create_batch(AMOUNT_OF_ADMIN, role='Админ', **kwargs)
-    await CompanyUserFactory.create_batch(count - AMOUNT_OF_ADMIN, **kwargs)
-    cprint(f'Создано {count} работников компании c id: {kwargs["company_id"]}', 'green')
+        company_users = await CompanyFactory.create()
+        kwargs['company_id'] = company_users.id
+    company_users += await CompanyUserFactory.create_batch(AMOUNT_OF_ADMIN, role='Админ', **kwargs)
+    company_users += await CompanyUserFactory.create_batch(count - AMOUNT_OF_ADMIN, **kwargs)
+    cprint(f'Создано {count} работников компании c id: {kwargs["company_id"]}', ColorCPrint.green)
+    return company_users
 
 
 if __name__ == '__main__':

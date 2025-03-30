@@ -3,6 +3,7 @@ from fastapi import status
 from httpx import AsyncClient
 from pytest_lazy_fixtures import lf
 
+from src.tabit_management.constants import ERROR_INVALID_TELEGRAM_USERNAME
 from src.users.models.enum import RoleUserTabit
 from tests.constants import (
     GOOD_PASSWORD,
@@ -365,30 +366,35 @@ class TestPatchMeUser:
                     'а не должно.'
                 )
 
-    # TODO: a где это валидируется? Пока до базового круда доходит, а там падает с 500кой.
-    # @pytest.mark.asyncio
-    # async def test_patch_me_user_same_telegram(
-    #     self,
-    #     client: AsyncClient,
-    #     moderator_token,
-    #     employee_token,
-    # ):
-    #     """Тесты на появление пользователей с одинаковым Telegram"""
-    #     payload = {'telegram_username': MODERATOR_TELEGRAM}
-    #     await client.patch(
-    #         URL.USER_ME,
-    #         json=payload,
-    #         headers=moderator_token,
-    #     )
-    #     response = await client.patch(
-    #         URL.USER_ME,
-    #         json=payload,
-    #         headers=employee_token,
-    #     )
-    # assert response.status_code == status.HTTP_400_BAD_REQUEST, (
-    #     f'При попытке создать запись с дублированием Telegram-имени'
-    #     f'не было ответа cо статусом {status.HTTP_400_BAD_REQUEST}:\n{response.text}'
-    # )
+    @pytest.mark.asyncio
+    async def test_patch_me_user_same_telegram(
+        self,
+        client: AsyncClient,
+        moderator_token,
+        employee_token,
+    ):
+        """Тесты на появление пользователей с одинаковым Telegram"""
+        payload = {'telegram_username': MODERATOR_TELEGRAM}
+        await client.patch(
+            URL.USER_ME,
+            json=payload,
+            headers=moderator_token,
+        )
+        response = await client.patch(
+            URL.USER_ME,
+            json=payload,
+            headers=employee_token,
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'При попытке создать запись с дублированием Telegram-имени'
+            f'не было ответа cо статусом {status.HTTP_400_BAD_REQUEST}:\n{response.text}'
+        )
+        data = response.json()
+        assert 'detail' in data, "В ответе отсутствует поле 'detail'"
+        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+            f", получено: '{data['detail']}'"
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(

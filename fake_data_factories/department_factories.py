@@ -7,7 +7,12 @@ from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
 from fake_data_factories.company_factories import CompanyFactory
-from fake_data_factories.constants import DEFAULT_DEPARTMENT_NAMES, FAKER_DEPARTMENT_COUNT
+from fake_data_factories.constants import (
+    DEFAULT_DEPARTMENT_NAMES,
+    FAKER_DEPARTMENT_COUNT,
+    ColorCPrint,
+)
+from fake_data_factories.utils import start_and_end
 from src.companies.models.models import Department
 from src.database.sc_db_session import sc_session
 
@@ -44,6 +49,7 @@ class DeparmentFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
+@start_and_end(__name__)
 async def create_company_department(count=FAKER_DEPARTMENT_COUNT, **kwargs):
     """
     Функция для наполнения таблицы бд Department.
@@ -56,7 +62,9 @@ async def create_company_department(count=FAKER_DEPARTMENT_COUNT, **kwargs):
         company = await CompanyFactory.create()
         kwargs['company_id'] = company.id
     await DeparmentFactory.create_batch(count, **kwargs)
-    cprint(f'Создано {count} департаментов компании c id: {kwargs["company_id"]}', 'green')
+    cprint(
+        f'Создано {count} департаментов компании c id: {kwargs["company_id"]}', ColorCPrint.green
+    )
 
 
 if __name__ == '__main__':

@@ -1,8 +1,8 @@
 """Change resultmeeting
 
-Revision ID: 03
-Revises: 02
-Create Date: 2025-03-20 20:30:00.910274
+Revision ID: 05
+Revises: 04
+Create Date: 2025-03-30 20:30:00.910274
 
 """
 from typing import Sequence, Union
@@ -13,8 +13,8 @@ from sqlalchemy.dialects import postgresql
 
 
 # revision identifiers, used by Alembic.
-revision: str = '03'
-down_revision: Union[str, None] = '02'
+revision: str = '05'
+down_revision: Union[str, None] = '04'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

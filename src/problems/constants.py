@@ -7,7 +7,7 @@ ERROR_MEETING_NOT_FOUND = 'Такая встреча не найдена'
 
 # Константы к валидаторам (Problem)
 ERROR_PROBLEM_NAME_EMPTY = 'Название проблемы не может быть пустым'
-
+ERROR_PROBLEM_NUMBER: str = 'Вы уже участвуете в решение {} или более проблем.'
 
 # Константы к валидаторам (Meeting)
 ERROR_MEETING_TITLE_EMPTY = 'Название встречи не может быть пустым'
