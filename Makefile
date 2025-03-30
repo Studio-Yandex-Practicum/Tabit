@@ -3,7 +3,7 @@
 migration-empty migration-apply migration-apply-dc migration-rollback db-reset db-init \
 create-superuser fill-db fill-companies fill-company-users fill-tabit-admin-users \
 fill-company-departments fill-license-type fill-problems fill-message-feeds \
-fill-voting-feeds fill-voting-by-user fill-tasks fill-comments
+fill-voting-feeds fill-voting-by-user fill-tasks fill-tags fill-comments
 
 # Определение переменной с именем файла окружения
 ENV_FILE = .env
@@ -154,6 +154,9 @@ fill-voting-by-user: ## Заполнение базы данных тестов�
 
 fill-tasks: ## Заполнение базы данных тестовыми задачами
 	poetry run python fake_data_factories/task_factory.py
+
+fill-tags: ## Заполнение базы данных тестовыми тэгами
+	poetry run python fake_data_factories/tag_factories.py
 
 fill-comments: ## Заполнение базы данных тестовыми комментариями
 	poetry run python fake_data_factories/comment_feed_factory.py

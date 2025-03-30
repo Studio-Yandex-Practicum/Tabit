@@ -9,6 +9,7 @@ from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.problem_factory import create_problems
+from fake_data_factories.utils import start_and_end
 from fake_data_factories.voting_feed_factory import create_voting_feeds
 from src.database.sc_db_session import sc_session
 from src.problems.models.message_models import VotingByUser
@@ -33,6 +34,7 @@ class VotingByUserFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
+@start_and_end(__name__)
 async def create_user_voting_associations(
     user_id: UUID, voting_ids: list[int]
 ) -> list[VotingByUser]:
@@ -57,6 +59,7 @@ async def create_user_voting_associations(
     return user_voting_associations
 
 
+@start_and_end(__name__)
 async def create_voting_by_user(count: int = 1, **kwargs) -> list[VotingByUser]:
     """
     Создать запись(-и) в таблицу объекта `VotingByUser`.
