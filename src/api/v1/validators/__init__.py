@@ -4,11 +4,6 @@ from .company_validators import (
     validate_password,
     validate_user_not_exists,
 )
-from .meeting_validators import (
-    check_meeting_exists,
-    check_problem_exists,
-    check_result_meeting_unique,
-)
 from .problem_feeds_validators import (
     check_comment_and_message_feed,
     check_comment_has_likes_from_user,
@@ -27,10 +22,7 @@ __all__ = [
     'check_comment_owner',
     'check_company_and_department',
     'check_department_name_duplicate',
-    'check_meeting_exists',
     'check_slug_duplicate',
-    'check_problem_exists',
-    'check_result_meeting_unique',
     'check_telegram_username_for_duplicates',
     'get_access_to_comments',
     'get_access_to_feeds',

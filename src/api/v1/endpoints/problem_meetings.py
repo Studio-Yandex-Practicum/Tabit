@@ -4,14 +4,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.v1.auth.dependencies import current_user_tabit
 from src.api.v1.constants import Description, Summary
 from src.api.v1.validator import (
-    check_meeting_exists,
-    check_problem_exists,
-    check_result_meeting_unique,
     validate_close_problem,
     validate_is_member_problem,
     validate_meeting_was_held,
     validate_owner_object,
     validate_user_from_company,
+)
+from src.api.v1.validators.meeting_validators import (
+    check_meeting_exists,
+    check_problem_exists,
+    check_result_meeting_unique,
 )
 from src.api.v1.validators.members import validate_field_members
 from src.companies.crud import company_crud
