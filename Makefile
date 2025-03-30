@@ -3,7 +3,7 @@
 migration-empty migration-apply migration-apply-dc migration-rollback db-reset db-init \
 create-superuser fill-db fill-companies fill-company-users fill-tabit-admin-users \
 fill-company-departments fill-license-type fill-problems fill-message-feeds \
-fill-voting-feeds fill-voting-by-user fill-tasks
+fill-voting-feeds fill-voting-by-user fill-tasks fill-tags
 
 # Определение переменной с именем файла окружения
 ENV_FILE = .env
