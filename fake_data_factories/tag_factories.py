@@ -8,6 +8,7 @@ from constants import FAKER_USER_TAGS_COUNT
 from fake_data_factories.association_user_tags_factory import create_user_tag_associations
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
+from fake_data_factories.utils import start_and_end
 from src.database.sc_db_session import sc_session
 from src.users.models import TagUser
 
@@ -29,6 +30,7 @@ class TagUserFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
+@start_and_end(__name__)
 async def create_tags(count: int = FAKER_USER_TAGS_COUNT, **kwargs) -> None:
     """
     Функция для пакетного создания тэгов.
