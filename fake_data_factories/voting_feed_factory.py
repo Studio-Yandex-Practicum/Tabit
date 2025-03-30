@@ -6,9 +6,10 @@ from termcolor import cprint
 
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import FAKER_VOTING_FEEDS_COUNT
+from fake_data_factories.constants import FAKER_VOTING_FEEDS_COUNT, ColorCPrint
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.problem_factory import create_problems
+from fake_data_factories.utils import start_and_end
 from src.constants import LENGTH_SMALL_NAME
 from src.database.sc_db_session import sc_session
 from src.problems.models.message_models import VotingFeed
@@ -33,6 +34,7 @@ class VotingFeedFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
+@start_and_end(__name__)
 async def create_voting_feeds(count: int = FAKER_VOTING_FEEDS_COUNT, **kwargs) -> list[VotingFeed]:
     """
     Создать запись(-и) в таблицу объекта `VotingFeed`.
@@ -70,7 +72,7 @@ async def create_voting_feeds(count: int = FAKER_VOTING_FEEDS_COUNT, **kwargs) -
     voting_feeds = await VotingFeedFactory.create_batch(count, **kwargs)
     cprint(
         f'Создано {count} вариантов голосования для сообщения c id: {kwargs["message_id"]}',
-        'green',
+        ColorCPrint.green,  # type: ignore
     )
     return voting_feeds
 

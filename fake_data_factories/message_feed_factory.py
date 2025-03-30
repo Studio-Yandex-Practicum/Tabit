@@ -8,8 +8,9 @@ from termcolor import cprint
 
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import FAKER_MESSAGE_FEEDS_COUNT
+from fake_data_factories.constants import FAKER_MESSAGE_FEEDS_COUNT, ColorCPrint
 from fake_data_factories.problem_factory import create_problems
+from fake_data_factories.utils import start_and_end
 from src.database.sc_db_session import sc_session
 from src.problems.models.message_models import MessageFeed
 
@@ -37,6 +38,7 @@ class MessageFeedFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
+@start_and_end(__name__)
 async def create_message_feeds(
     count: int = FAKER_MESSAGE_FEEDS_COUNT, **kwargs
 ) -> list[MessageFeed]:
@@ -70,7 +72,7 @@ async def create_message_feeds(
     cprint(
         f'Создано {count} лент сообщений по проблеме c id: {kwargs["problem_id"]} '
         f'от пользователя с id: {kwargs["owner_id"]}',
-        'green',
+        ColorCPrint.green,  # type: ignore
     )
     return message_feeds
 

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
 
 from src.constants import LENGTH_TELEGRAM_USERNAME
-from src.database.annotations import int_pk, url_link_field
+from src.database.annotations import url_link_field
 from src.database.models import BaseTabitModel, BaseTag, BaseUser
 from src.users.models.enum import RoleUserTabit
 
@@ -36,9 +36,8 @@ class AssociationUserTags(BaseTabitModel):
         Обеспечить связь Many to Many между двумя другими таблицами.
 
     Поля:
-        id: Идентификатор.
-        left_id: Внешний ключ первой таблицы.
-        right_id: Внешний ключ второй таблицы.
+        left_id: FK, ссылается на пользователя, часть составного PK.
+        right_id: FK, ссылается на комментарий, часть составного PK.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
@@ -47,17 +46,20 @@ class AssociationUserTags(BaseTabitModel):
         tag - TagUser.
     """
 
-    id: Mapped[int_pk]
-    left_id: Mapped[UUID] = mapped_column(ForeignKey('usertabit.id'), primary_key=True)
-    right_id: Mapped[int] = mapped_column(ForeignKey('taguser.id'), primary_key=True)
+    left_id: Mapped[UUID] = mapped_column(
+        ForeignKey('usertabit.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
+    right_id: Mapped[int] = mapped_column(
+        ForeignKey('taguser.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
     user: Mapped['UserTabit'] = relationship(back_populates='tags')
     tag: Mapped['TagUser'] = relationship(back_populates='user')
 
     def __repr__(self):
         return (
-            f'{self.__class__.__name__}('
-            f'id={self.id!r}, '
-            f'user id {self.left_id!r} <-> tag id {self.right_id!r})'
+            f'{self.__class__.__name__}' f'(user id {self.left_id!r} <-> tag id {self.right_id!r})'
         )
 
 
@@ -69,7 +71,6 @@ class TagUser(BaseTag):
         Админ от компании может для сотрудников своей компании придумывать свои тэги.
 
     Поля:
-        id: Идентификационный номер тэга.
         name: Имя тега.
         company_id: Идентификатор компании, в которой будет использоваться тэг.
         created_at: Дата создания записи в таблице. Автозаполнение.

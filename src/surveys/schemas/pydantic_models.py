@@ -1,4 +1,4 @@
-# TODO Требуется проработка ERD
+# TODO: Требуется проработка ERD
 
 # from pydantic import BaseModel
 # from typing import Optional

@@ -656,7 +656,7 @@ python src/main.py -r -h 127.0.0.1 -p 1234
 1. Заполните `.env` параметрами (примеры из .env.example):
 ```ini
 FIRST_SUPERUSER_EMAIL=yandex@yandex.ru    # Почта
-FIRST_SUPERUSER_PASSWORD=Password123      # Пароль (мин. 8 символов)
+FIRST_SUPERUSER_PASSWORD=Password123      # Пароль (Латинские символов в обоих регистрах, числа, минимальная длина 8 символов)
 FIRST_SUPERUSER_NAME=Ип                   # Имя
 FIRST_SUPERUSER_SURNAME=Ман               # Фамилия
 ```
@@ -754,6 +754,7 @@ make down
 | `make fill-problems`             | Создание тестовых проблем                    |
 | `make fill-message-feeds`        | Создание тестовых лент сообщений             |
 | `make fill-voting-feeds`         | Создание тестовых вариантов голосования      |
+| `make fill-voting-by-user`       | Создание тестовых голосований                |
 | `make fill-tasks`                | Создание тестовых задач                      |
 | `make fill-tags`                 | Создание тестовых тэгов                      |
 

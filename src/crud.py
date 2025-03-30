@@ -59,17 +59,25 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.scalars().first()
 
     async def get_or_404(
-        self, session: AsyncSession, obj_id: int | UUID, message: str = TextError.NOT_FOUND
+        self, session: AsyncSession, obj_id: int | UUID, message: str | None = None
     ) -> ModelType:
         """
-        Получает объект по ID или выбрасывает 404-ошибку.
+        Получает объект из БД по id или выбрасывает 404-ошибку.
 
-        Возвращает объект или HTTPException(404), если не найден.
+        Параметры:
+            session: Асинхронная сессия SQLAlchemy.
+            obj_id: идентификатор объекта.
+            message: сообщение, которое вернется с ошибкой 404.
+        Возвращает:
+            Экземпляр модели.
+
+        Возможные ошибки:
+            HTTPException со статусом 404, если не найдет объект по id в БД.
         """
         obj = await self.get(session, obj_id)
         if not obj:
-            # TODO: Здесь и далее по коду избавиться от литералов, упаковать всё в константы.
-            # Константы хранить в отдельном файле.
+            if message is None:
+                message = TextError.NOT_FOUND.format(obj=self.model.__name__, id=obj_id)
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
         return obj
 
@@ -78,7 +86,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         obj_slug: str,
         raise_404: bool = False,
-        message: str = TextError.NOT_FOUND,
+        message: str | None = None,
     ) -> ModelType | None:
         """
         Получает объект по полю slug.
@@ -89,6 +97,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         result = await session.execute(select(self.model).where(self.model.slug == obj_slug))
         obj_model = result.scalars().first()
         if not obj_model and raise_404:
+            if message is None:
+                message = TextError.NOT_FOUND_BY_SLUG.format(
+                    obj=self.model.__name__, slug=obj_slug
+                )
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
         return obj_model
 
@@ -99,6 +111,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         limit: int = DEFAULT_LIMIT,
         filters: Dict[str, Any] | None = None,
         order_by: list[str] | None = None,
+        unique_filter_rows: bool = False,
     ) -> list[ModelType]:
         """
         Получает список объектов с пагинацией, фильтрацией и сортировкой.
@@ -113,6 +126,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             limit: Максимальное число записей.
             filters: Словарь {имя_поля: значение} для фильтрации.
             order_by: Список полей для сортировки; '-' в начале для убывания.
+            unique_filter_rows: При значении True изменит результирующий ответЖ:
+                добавит метод unique(), чтобы каждая строка возвращалась уникальным образом.
+                Необходим для некоторых запросов.
         Возвращаемое значение:
             Список объектов модели.
         Пример:
@@ -139,7 +155,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         query = query.offset(skip).limit(limit)
         result = await session.execute(query)
-        return result.scalars().all()
+        if unique_filter_rows:
+            return result.unique().scalars().all()  # type: ignore
+        return result.scalars().all()  # type: ignore
 
     async def create(
         self,
@@ -151,7 +169,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         Создаёт новый объект в БД.
         """
         # TODO: Добавить возможность автозаполнение поля owner у модели.
-        obj_data = obj_in.model_dump()
+        obj_data = obj_in.model_dump()  # type: ignore
         db_obj = self.model(**obj_data)
         try:
             session.add(db_obj)
@@ -296,3 +314,52 @@ class UserCreateMixin:
                 },
             )
         return created_user
+
+
+class CRUDBaseWithAssociations(CRUDBase):
+    """Расширенный CRUD для изменения таблицы БД и связной модели."""
+
+    def __init__(self, model, associations_model):
+        """
+        Параметры:
+            associations_model: связная таблица.
+        """
+        super().__init__(model)
+        self.associations_model = associations_model
+
+    def get_data_associations_for_updata(
+        self,
+        data_from_db: list[dict[str, Any]],
+        data_to_update: set[Any],
+        left_id: bool = True,
+    ) -> tuple[list[str], list[str]]:
+        """
+        Подготовит информацию о добавлении и удалении записей в связную таблицу,
+        на основе изменений в основной таблице.
+
+        Параметры:
+            data_from_db: список словарей с записями связной таблицы из БД
+                (получив объект, мы можем получить все записи в связной таблице);
+            data_to_update: набор данных полученных из обновления
+                (при изменении записи основной таблице передаётся информация об изменениях
+                в связной, например, набор UUID);
+            left_id: если True, то в записях из БД будет сверять данные атрибут left_id,
+                в противном случае right_id.
+        Возвращает:
+            Кортеж из двух списков со строками. В первом списке перечень добавляемых значений,
+            во втором удаляемых. (Если в наборе с изменениями есть те параметры, которые уже
+            записаны в связную таблицу - они игнорируются и не будут добавлены не в один
+            из списков).
+        """
+        side = 'left_id' if left_id else 'right_id'
+        add_rows = [
+            str(update)
+            for update in data_to_update
+            if str(update) not in [from_db[side] for from_db in data_from_db]
+        ]
+        delete_rows = [
+            from_db[side]
+            for from_db in data_from_db
+            if (from_db[side] not in [str(update) for update in data_to_update])
+        ]
+        return add_rows, delete_rows
