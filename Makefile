@@ -152,8 +152,8 @@ fill-voting-feeds: ## Заполнение базы данных тестовы�
 fill-voting-by-user: ## Заполнение базы данных тестовыми выборами пользователя вариантов голосования
 	poetry run python fake_data_factories/voting_by_user_factory.py
 
-fill-tasks: #№ Заполнение базы данных тестовыми задачами
+fill-tasks: ## Заполнение базы данных тестовыми задачами
 	poetry run python fake_data_factories/task_factory.py
 
-fill-tags: ## Заполнение базы данных тестовыми задачами
-	poetry run python fake_data_factories/task_factory.py
+fill-tags: #№ Заполнение базы данных тестовыми задачами
+	poetry run python fake_data_factories/tag_factories.py
