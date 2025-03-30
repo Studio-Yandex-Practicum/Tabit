@@ -10,6 +10,7 @@ FAKER_PROBLEMS_COUNT: int = 5  # Число проблем для генерац
 FAKER_MESSAGE_FEEDS_COUNT: int = 5  # Число лент сообщений для генерации
 FAKER_VOTING_FEEDS_COUNT: int = 5  # Число лент голосований для генерации
 FAKER_TASK_COUNT: int = 5  # Число задач для генерации
+FAKER_USER_TAGS_COUNT: int = 3  # Число тэгов для генерации
 AMOUNT_OF_ADMIN = 1  # Количество админов создаваемых для компании за 1 запуск скрипта
 
 # Параметры лицензий
