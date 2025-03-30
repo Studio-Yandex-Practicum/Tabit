@@ -1,3 +1,7 @@
-# Для исключения папок и файлов при копировании в собираемые контейнеры
-# Пример:
-# .venv
+*
+!alembic
+!alembic.ini
+!scripts
+!src
+!poetry.lock
+!pyproject.toml

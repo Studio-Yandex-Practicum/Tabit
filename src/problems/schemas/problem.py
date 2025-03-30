@@ -1,10 +1,8 @@
 from datetime import datetime
-from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.database.annotations import slug
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.problems.validators.problem_validators import validate_not_empty
 
@@ -15,29 +13,46 @@ class ProblemBaseSchema(BaseModel):
     Назначение:
         Определяет базовую структуру данных для проблемы.
     Параметры:
-        name: Название проблемы.
         description: Описание проблемы (опционально).
-        color: Цвет проблемы из перечисления ColorProblem.
-        type: Тип проблемы из перечисления TypeProblem.
-        status: Статус проблемы из перечисления StatusProblem.
-        owner_id: UUID владельца проблемы.
-        company_slug: Слаг компании, с которой связана проблема.
     """
 
-    name: str
-    description: Optional[str] = None
-    color: ColorProblem
-    type: TypeProblem
-    status: StatusProblem
-    owner_id: UUID
-    company_slug: slug
-    # TODO Надо реализовать добавление файлов в проблему
+    description: str | None = None
+    # TODO: Надо реализовать добавление файлов в проблему
+
+
+class ProblemSchemaMixin:
+    """
+    Миксин для схем Проблемы, с полями и валидаторами.
+
+    Параметры:
+        members: список участников, из связной таблицы, оформленных через схему
+    """
+
+    members: list[UUID] | None = []
+
+    model_config = ConfigDict(extra='forbid')
 
     @field_validator('name')
     @classmethod
     def validate_name_not_empty(cls, value: str) -> str:
         """Проверка, что название проблемы не пустое."""
         return validate_not_empty(value)
+
+
+class MemberResponseSchema(BaseModel):
+    """Схема участника Проблемы.
+
+    Назначение:
+        Определяет структуру данных для ответа с информацией о участнике Проблемы.
+    Параметры:
+        status: статус, отображающий участие пользователя в решении Проблемы.
+        member_id: UUID участника Проблемы.
+    """
+
+    status: bool | None
+    member_id: UUID = Field(validation_alias='left_id')
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ProblemResponseSchema(ProblemBaseSchema):
@@ -47,42 +62,65 @@ class ProblemResponseSchema(ProblemBaseSchema):
         Определяет структуру данных для ответа с информацией о проблеме.
     Параметры:
         id: Уникальный идентификатор проблемы.
+        name: Название проблемы.
+        description: Описание проблемы (опционально).
+        color: Цвет проблемы из перечисления ColorProblem.
+        type: Тип проблемы из перечисления TypeProblem.
+        status: Статус проблемы из перечисления StatusProblem.
+        owner_id: UUID владельца проблемы.
+        company_id: id компании, с которой связана проблема.
+        members: список участников, из связной таблицы, оформленных через схему
         created_at: Время создания проблемы.
         updated_at: Время последнего обновления проблемы.
     """
 
     id: int
+    name: str
+    color: ColorProblem
+    type: TypeProblem
+    status: StatusProblem
+    owner_id: UUID
+    company_id: int
+    members: list[MemberResponseSchema]
     created_at: datetime
     updated_at: datetime
 
+    model_config = ConfigDict(from_attributes=True)
 
-class ProblemCreateSchema(ProblemBaseSchema):
+
+class ProblemCreateSchema(ProblemSchemaMixin, ProblemBaseSchema):
     """Схема для создания проблемы.
 
     Назначение:
         Определяет структуру данных для создания новой проблемы.
+    Параметры:
+        name: Название проблемы.
+        description: Описание проблемы (опционально).
+        color: Цвет проблемы из перечисления ColorProblem.
+        type: Тип проблемы из перечисления TypeProblem.
+        members: список участников, из связной таблицы, оформленных через схему
     """
 
-    members: Optional[List[UUID]] = []
+    name: str
+    color: ColorProblem
+    type: TypeProblem
 
 
-class ProblemUpdateSchema(ProblemBaseSchema):
+class ProblemUpdateSchema(ProblemSchemaMixin, ProblemBaseSchema):
     """Схема для обновления проблемы.
 
     Назначение:
         Определяет структуру данных для обновления существующей проблемы.
     Параметры:
-        name: Новое название проблемы (опционально).
-        description: Новое описание проблемы (опционально).
-        color: Новый цвет проблемы (опционально).
-        type: Новый тип проблемы (опционально).
-        status: Новый статус проблемы (опционально).
-        owner_id: Новый владелец проблемы (опционально).
+        name: Название проблемы (опционально).
+        description: Описание проблемы (опционально).
+        color: Цвет проблемы из перечисления ColorProblem (опционально).
+        type: Тип проблемы из перечисления TypeProblem (опционально).
+        status: Статус проблемы из перечисления StatusProblem (опционально).
+        members: список участников, из связной таблицы, оформленных через схему (опционально).
     """
 
-    name: Optional[str] = None
-    description: Optional[str] = None
-    color: Optional[ColorProblem] = None
-    type: Optional[TypeProblem] = None
-    status: Optional[StatusProblem] = None
-    owner_id: Optional[UUID] = None
+    name: str | None = None
+    color: ColorProblem | None = None
+    type: TypeProblem | None = None
+    status: StatusProblem | None = None
