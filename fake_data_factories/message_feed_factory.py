@@ -62,9 +62,7 @@ async def create_message_feeds(
         user_tabit = next(iter(await create_company_users(count=1, company_id=company.id)), None)
         kwargs['owner_id'] = user_tabit.id
         problem = next(
-            iter(
-                await create_problems(count=1, owner_id=user_tabit.id, company_slug=company.slug)
-            ),
+            iter(await create_problems(count=1, owner_id=user_tabit.id, company_id=company.id)),
             None,
         )
         kwargs['problem_id'] = problem.id
