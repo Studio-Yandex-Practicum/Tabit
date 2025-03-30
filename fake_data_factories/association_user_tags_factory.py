@@ -3,6 +3,7 @@ from uuid import UUID
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
+from fake_data_factories.constants import ColorCPrint
 from fake_data_factories.utils import start_and_end
 from src.database.sc_db_session import sc_session
 from src.users.models import AssociationUserTags
@@ -39,5 +40,5 @@ async def create_user_tag_associations(user_id: UUID, tag_ids: list[int]) -> Non
     cprint(
         f'Создано {len(tag_ids)} ассоциативных связей тэг-пользователь '
         f'от пользователя с id: {user_id}',
-        'green',
+        ColorCPrint.green,  # type: ignore
     )
