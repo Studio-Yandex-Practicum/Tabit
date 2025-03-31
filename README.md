@@ -756,6 +756,8 @@ make down
 | `make fill-voting-feeds`         | Создание тестовых вариантов голосования      |
 | `make fill-voting-by-user`       | Создание тестовых голосований                |
 | `make fill-tasks`                | Создание тестовых задач                      |
+| `make fill-comments`             | Создание тестовых комментариев               |
+| `make fill-tags`                 | Создание тестовых тэгов                      |
 
 </details>
 
