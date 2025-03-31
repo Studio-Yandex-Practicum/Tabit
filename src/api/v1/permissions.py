@@ -1,4 +1,4 @@
-# TODO Необходимо добавить user manager, сейчас не работает
+# TODO: Необходимо добавить user manager, сейчас не работает
 # from fastapi import Depends
 # from fastapi import Depends, HTTPException, status
 # from fastapi_users import FastAPIUsers

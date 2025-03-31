@@ -5,7 +5,7 @@ from sqlalchemy import Table
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-# TODO В зависисмоти от выбора добавления списка участников во встречу изменить метод
+# TODO: В зависисмоти от выбора добавления списка участников во встречу изменить метод
 async def create_associations(
     session: AsyncSession,
     association_model: Type[Table],

@@ -42,17 +42,17 @@ def setup_test_db():
     """
     Фикстура для автоматического запуска и удаления контейнера с тестовой базой данных.
 
-    - Перед тестами запускает контейнер PostgreSQL с помощью `docker-compose`.
+    - Перед тестами запускает контейнер PostgreSQL с помощью `docker compose`.
     - Ожидает готовности базы перед выполнением тестов.
     - После тестов останавливает и удаляет контейнер с тестовой БД.
 
     Использует:
-        - `docker-compose -f infra/docker-compose.test-db.yaml up -d`
-        - `docker-compose -f infra/docker-compose.test-db.yaml down -v`
+        - `docker compose -f infra/docker-compose.test-db.yaml up -d`
+        - `docker compose -f infra/docker-compose.test-db.yaml down -v`
     """
     try:
         subprocess.run(
-            ['docker-compose', '-f', 'infra/docker-compose.test-db.yaml', 'up', '-d'],
+            ['docker', 'compose', '-f', 'infra/docker-compose.test-db.yaml', 'up', '-d'],
             check=True,
         )
         wait_for_postgres(
@@ -65,7 +65,7 @@ def setup_test_db():
         yield
     finally:
         subprocess.run(
-            ['docker-compose', '-f', 'infra/docker-compose.test-db.yaml', 'down', '-v'],
+            ['docker', 'compose', '-f', 'infra/docker-compose.test-db.yaml', 'down', '-v'],
             check=True,
         )
 
@@ -504,7 +504,7 @@ async def get_token_for_user(client: AsyncClient):
     class TestExample:
 
         @pytest.mark.asyncio
-        async def test_example(self, employee_of_company):
+        async def test_example(self, employee_of_company, get_token_for_user):
             user_1 = await employee_of_company({name: user_1})
             user_2 = await employee_of_company({name: user_2})
             access_token_user_1 = await get_token_for_user(user_1)
@@ -605,7 +605,7 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
         company = None
 
         if not problem_data or (
-            'owner_id' not in problem_data and 'company_slug' not in problem_data
+            'owner_id' not in problem_data and 'company_id' not in problem_data
         ):
             employee, company = await employee_of_company(return_company=True)
 
@@ -614,10 +614,10 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
             if problem_data and 'owner_id' in problem_data
             else employee.id
         )
-        company_slug = (
-            problem_data.get('company_slug')
-            if problem_data and 'company_slug' in problem_data
-            else company.slug
+        company_id = (
+            problem_data.get('company_id')
+            if problem_data and 'company_id' in problem_data
+            else company.id
         )
 
         default_data = {
@@ -627,7 +627,7 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
             'type': TypeProblem.B,
             'status': StatusProblem.NEW,
             'owner_id': owner_id,
-            'company_slug': company_slug,
+            'company_id': company_id,
         }
         if problem_data:
             default_data.update(problem_data)
@@ -844,6 +844,7 @@ async def meeting_for_test(async_session: AsyncSession, problem_for_test):
             'title': f'Test Meeting {uuid.uuid4().hex[:8]}',
             'date_meeting': (datetime.now() + timedelta(days=1)).date(),
             'status': 'Новая',
+            'place': 'place',
             'problem_id': problem_id,
             'owner_id': owner_id,
         }

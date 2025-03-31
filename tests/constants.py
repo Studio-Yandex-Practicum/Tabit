@@ -16,7 +16,7 @@ class TEST_DATABASE_URL:
     TEST_USER: str = os.getenv('TEST_POSTGRES_USER', 'test_user')
     TEST_PASSWORD: str = os.getenv('TEST_POSTGRES_PASSWORD', 'test_password')
     TEST_HOST: str = os.getenv('TEST_POSTGRES_HOST', 'localhost')
-    TEST_PORT: int = int(os.getenv('TEST_POSTGRES_PORT', 5433))
+    TEST_PORT: int = int(os.getenv('TEST_POSTGRES_PORT', 54333))
     TEST_DBNAME: str = os.getenv('TEST_POSTGRES_DB', 'test_db')
 
 
@@ -41,7 +41,7 @@ class URL:
     MEETINGS_SINGLE: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/{meeting_id}'
     COMPANY_ENDPOINT: str = '/api/v1/{company_slug}'
     DEPARTMENTS_ENDPOINT: str = '/api/v1/{company_slug}/departments'
-    DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments/{department_id}'
+    DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments/{department_slug}'
     CREATE_DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments'
     EMPLOYEES_ENDPOINT: str = '/api/v1/{company_slug}/employees'
     EMPLOYEE_ENDPOINT: str = '/api/v1/{company_slug}/employees/{employee_id}'
@@ -217,6 +217,8 @@ INVALID_IMAGE: tuple[tuple[Any, Any], ...] = (
         ),
     ),
 )
+
+ONE: int = 1
 
 # Константы для тестов problem_feeds.py
 MESSAGE_FEED_CREATE_NEW: tuple[tuple] = (

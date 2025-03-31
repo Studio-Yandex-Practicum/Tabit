@@ -49,14 +49,7 @@ class CRUDCompany(CRUDBase):
                 count += 1
         return FileResponse(path=f'{file_name}.txt', filename=f'{file_name}.txt')
 
-    # TODO Этот метод был создан, чтобы исключить изменения в базовом crud, в методе get_by_slug
-    # Было принято решение пока не менять метод get_by_slug, а создать этот метод
-    # В методе get_by_slug допущена ошибка в условии проверке. Там проверяют not result
-    # хотя на самом деле нам нужно проверять, был ли найден объект в базе данных.
-    # result — это объект, полученный от запроса к базе данных, и даже если он пустой,
-    # у него все равно будет значение (например, объект запроса), поэтому not result
-    # не обязательно будет истинным, когда данные не найдены.
-    # Вместо этого нам нужно проверять obj_model, который содержит реальный результат запроса.
+    # TODO LOST: используется в валидаторе, который нигде не используется
     async def get_by_company_slug(self, session: AsyncSession, company_slug: str):
         """Получает компанию по slug.
 
@@ -100,7 +93,6 @@ class CRUDCompany(CRUDBase):
         license_term = await session.scalar(
             select(LicenseType.license_term).where(LicenseType.id == license_id)
         )
-
         return company_start_license_time + license_term
 
     async def create(

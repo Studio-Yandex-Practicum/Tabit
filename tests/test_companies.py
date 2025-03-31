@@ -5,7 +5,14 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from tests.constants import COMPANY_FIELDS, DEPARTMENT_FIELDS, EMPLOYEE_FIELDS, URL
+from src.tabit_management.constants import ERROR_INVALID_TELEGRAM_USERNAME
+from tests.constants import (
+    COMPANY_FIELDS,
+    DEPARTMENT_FIELDS,
+    EMPLOYEE_FIELDS,
+    URL,
+    USER_TELEGRAM,
+)
 
 
 def generate_department_data(all_fields=False):
@@ -13,7 +20,9 @@ def generate_department_data(all_fields=False):
     data = {'name': f'Тестовый департамент {uuid.uuid4().hex[:3]}'}
 
     if all_fields:
-        data.update({'slug': f'test-department-{uuid.uuid4().hex[:3]}'})
+        pass
+        # Slug автогенерится.
+        # data.update({'slug': f'test-department-{uuid.uuid4().hex[:3]}'})
 
     return data
 
@@ -74,13 +83,13 @@ class TestGetСompanies:
         response = await client.get(
             URL.COMPANY_ENDPOINT.format(company_slug=company.slug), headers=token
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
         data = response.json()
-        assert set(data.keys()) == COMPANY_FIELDS, (
-            f'Ожидались поля {COMPANY_FIELDS}, получены поля {set(data.keys())}'
-        )
+        assert (
+            set(data.keys()) == COMPANY_FIELDS
+        ), f'Ожидались поля {COMPANY_FIELDS}, получены поля {set(data.keys())}'
 
         field_checks = {
             'name': company.name,
@@ -88,9 +97,9 @@ class TestGetСompanies:
         }
 
         for field, expected_value in field_checks.items():
-            assert data[field] == expected_value, (
-                f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
-            )
+            assert (
+                data[field] == expected_value
+            ), f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
 
 
 class TestGetEmployees:
@@ -119,21 +128,21 @@ class TestGetEmployees:
         response = await client.get(
             URL.EMPLOYEES_ENDPOINT.format(company_slug=company.slug), headers=token
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
 
         assert isinstance(data, list), f'Ожидался список, получен тип {type(data)}'
-        assert len(data) == len(employees), (
-            f'Ожидалось {len(employees)} сотрудников, получено {len(data)}'
-        )
+        assert len(data) == len(
+            employees
+        ), f'Ожидалось {len(employees)} сотрудников, получено {len(data)}'
 
         for employee_data in data:
-            assert set(employee_data.keys()) == EMPLOYEE_FIELDS, (
-                f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(employee_data.keys())}'
-            )
+            assert (
+                set(employee_data.keys()) == EMPLOYEE_FIELDS
+            ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(employee_data.keys())}'
 
             field_checks = {
                 'company_id': company.id,
@@ -173,29 +182,29 @@ class TestGetEmployee:
             URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
             headers=token,
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
-        assert set(data.keys()) == EMPLOYEE_FIELDS, (
-            f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
-        )
-        assert data['id'] == str(employee.id), (
-            f'Ожидался id сотрудника {employee.id}, получен {data["id"]}'
-        )
-        assert data['email'] == employee.email, (
-            f'Ожидался email сотрудника "{employee.email}", получен "{data["email"]}"'
-        )
-        assert data['name'] == employee.name, (
-            f'Ожидалось имя сотрудника "{employee.name}", получено "{data["name"]}"'
-        )
-        assert data['surname'] == employee.surname, (
-            f'Ожидалась фамилия сотрудника "{employee.surname}", получена "{data["surname"]}"'
-        )
-        assert data['company_id'] == company.id, (
-            f'Ожидался company_id {company.id}, получен {data["company_id"]}'
-        )
+        assert (
+            set(data.keys()) == EMPLOYEE_FIELDS
+        ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
+        assert data['id'] == str(
+            employee.id
+        ), f'Ожидался id сотрудника {employee.id}, получен {data["id"]}'
+        assert (
+            data['email'] == employee.email
+        ), f'Ожидался email сотрудника "{employee.email}", получен "{data["email"]}"'
+        assert (
+            data['name'] == employee.name
+        ), f'Ожидалось имя сотрудника "{employee.name}", получено "{data["name"]}"'
+        assert (
+            data['surname'] == employee.surname
+        ), f'Ожидалась фамилия сотрудника "{employee.surname}", получена "{data["surname"]}"'
+        assert (
+            data['company_id'] == company.id
+        ), f'Ожидался company_id {company.id}, получен {data["company_id"]}'
 
 
 class TestPatchEmployee:
@@ -261,18 +270,18 @@ class TestPatchEmployee:
             headers=token,
             json={field: new_value},
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
-        assert set(data.keys()) == EMPLOYEE_FIELDS, (
-            f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
-        )
+        assert (
+            set(data.keys()) == EMPLOYEE_FIELDS
+        ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
 
-        assert data[field] == new_value, (
-            f"Ожидалось новое значение поля '{field}': '{new_value}', получено: '{data[field]}'"
-        )
+        assert (
+            data[field] == new_value
+        ), f"Ожидалось новое значение поля '{field}': '{new_value}', получено: '{data[field]}'"
 
         for key, value in old_data.items():
             if key != field and key not in ('updated_at', 'created_at'):
@@ -314,14 +323,14 @@ class TestPatchEmployee:
             headers=token,
             json=update_data,
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
-        assert set(data.keys()) == EMPLOYEE_FIELDS, (
-            f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
-        )
+        assert (
+            set(data.keys()) == EMPLOYEE_FIELDS
+        ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
 
         for field, expected_value in update_data.items():
             if field != 'password':
@@ -329,6 +338,57 @@ class TestPatchEmployee:
                     f"Ожидалось значение поля '{field}': '{expected_value}', "
                     f"получено: '{data[field]}'"
                 )
+
+    @pytest.mark.asyncio
+    async def test_patch_employee_with_same_telegram(
+        self,
+        client: AsyncClient,
+        moderator_of_company,
+        get_token_for_user,
+        department_for_test,
+        employee_of_company,
+    ):
+        """
+        Тест создаст двух сотрудников: со всеми полями и с минимальным набором.
+        Затем попрбует установить дублирующий Телеграм одному из них.
+
+        Проверяет:
+        1. Статус ответа 400 Bad Request
+        2. Корректность сообщения об ошибке
+        """
+        moderator, company = await moderator_of_company(return_company=True)
+        token = await get_token_for_user(moderator)
+
+        department = await department_for_test({'company_id': company.id})
+
+        response = None
+
+        existing_employee_data = generate_employee_data(all_fields=True)
+        existing_employee_data['company_id'] = company.id
+        existing_employee_data['current_department_id'] = department.id
+        existing_employee_data['last_department_id'] = department.id
+        existing_employee_data['telegram_username'] = USER_TELEGRAM
+        response = await client.post(
+            URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
+            headers=token,
+            json=existing_employee_data,
+        )
+        employee = await employee_of_company({'company_id': company.id})
+        response = await client.patch(
+            URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
+            headers=token,
+            json={'telegram_username': USER_TELEGRAM},
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'При попытке создать запись с дублированием Telegram-имени'
+            f'не было ответа cо статусом {status.HTTP_400_BAD_REQUEST}:\n{response.text}'
+        )
+        data = response.json()
+        assert 'detail' in data, "В ответе отсутствует поле 'detail'"
+        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+            f", получено: '{data['detail']}'"
+        )
 
     @pytest.mark.asyncio
     async def test_patch_employee_not_found(
@@ -357,9 +417,9 @@ class TestPatchEmployee:
 
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == 'Объект не найден', (
-            f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
-        )
+        assert (
+            data['detail'] == f'Не найден объект UserTabit по данному id: {non_existent_id}'
+        ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
 class TestDeleteEmployee:
@@ -425,9 +485,9 @@ class TestDeleteEmployee:
 
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == 'Объект не найден', (
-            f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
-        )
+        assert (
+            data['detail'] == f'Не найден объект UserTabit по данному id: {non_existent_id}'
+        ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
 class TestGetDepartments:
@@ -455,23 +515,23 @@ class TestGetDepartments:
         response = await client.get(
             URL.DEPARTMENTS_ENDPOINT.format(company_slug=company.slug), headers=token
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
 
         assert isinstance(data, list), f'Ожидался список, получен тип {type(data)}'
-        assert len(data) == len(departments), (
-            f'Ожидалось {len(departments)} департаментов, получено {len(data)}'
-        )
+        assert len(data) == len(
+            departments
+        ), f'Ожидалось {len(departments)} департаментов, получено {len(data)}'
         for dept in data:
-            assert set(dept.keys()) == DEPARTMENT_FIELDS, (
-                f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(dept.keys())}'
-            )
-            assert dept['company_id'] == company.id, (
-                f'Ожидался company_id {company.id}, получен {dept["company_id"]}'
-            )
+            assert (
+                set(dept.keys()) == DEPARTMENT_FIELDS
+            ), f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(dept.keys())}'
+            assert (
+                dept['company_id'] == company.id
+            ), f'Ожидался company_id {company.id}, получен {dept["company_id"]}'
 
 
 class TestGetDepartment:
@@ -495,17 +555,19 @@ class TestGetDepartment:
         department = await department_for_test({'company_id': company.id})
 
         response = await client.get(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
-        assert set(data.keys()) == DEPARTMENT_FIELDS, (
-            f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
-        )
+        assert (
+            set(data.keys()) == DEPARTMENT_FIELDS
+        ), f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
 
         field_checks = {
             'name': department.name,
@@ -515,15 +577,15 @@ class TestGetDepartment:
         }
 
         for field, expected_value in field_checks.items():
-            assert data[field] == expected_value, (
-                f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
-            )
+            assert (
+                data[field] == expected_value
+            ), f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
 
 
 class TestPatchDepartment:
     """Тесты для эндпоинта обновления информации о департаменте."""
 
-    @pytest.mark.skip(reason='Тест временно пропущен, так как есть баг на slug')
+    # @pytest.mark.skip(reason='Тест временно пропущен, так как есть баг на slug')
     @pytest.mark.asyncio
     async def test_patch_department_success(
         self, client: AsyncClient, moderator_of_company, get_token_for_user, department_for_test
@@ -543,29 +605,31 @@ class TestPatchDepartment:
         new_name = 'Иванушка'
 
         response = await client.patch(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
             json={'name': new_name},
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
-        assert set(data.keys()) == DEPARTMENT_FIELDS, (
-            f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
-        )
+        assert (
+            set(data.keys()) == DEPARTMENT_FIELDS
+        ), f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
 
-        assert data['name'] == new_name, (
-            f"Ожидалось новое имя '{new_name}', получено: '{data['name']}'"
-        )
+        assert (
+            data['name'] == new_name
+        ), f"Ожидалось новое имя '{new_name}', получено: '{data['name']}'"
 
-        field_checks = {'id': department.id, 'company_id': company.id, 'slug': department.slug}
+        field_checks = {'id': department.id, 'company_id': company.id}
 
         for field, expected_value in field_checks.items():
-            assert data[field] == expected_value, (
-                f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
-            )
+            assert (
+                data[field] == expected_value
+            ), f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
 
     @pytest.mark.asyncio
     async def test_patch_department_not_found(
@@ -581,10 +645,10 @@ class TestPatchDepartment:
         moderator, company = await moderator_of_company(return_company=True)
         token = await get_token_for_user(moderator)
 
-        non_existent_id = 99999
+        non_existent_slug = '99999'
         response = await client.patch(
             URL.DEPARTMENT_ENDPOINT.format(
-                company_slug=company.slug, department_id=non_existent_id
+                company_slug=company.slug, department_slug=non_existent_slug
             ),
             headers=token,
             json={'name': 'Иванушка'},
@@ -596,9 +660,9 @@ class TestPatchDepartment:
 
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == 'Объект не найден', (
-            f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
-        )
+        assert (
+            data['detail'] == f'Не найден объект Department по данному slug: {non_existent_slug}'
+        ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
 class TestDeleteDepartment:
@@ -621,7 +685,9 @@ class TestDeleteDepartment:
         department = await department_for_test({'company_id': company.id})
 
         response = await client.delete(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, (
@@ -630,7 +696,9 @@ class TestDeleteDepartment:
         )
 
         response = await client.get(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -652,10 +720,10 @@ class TestDeleteDepartment:
         moderator, company = await moderator_of_company(return_company=True)
         token = await get_token_for_user(moderator)
 
-        non_existent_id = 99999
+        non_existent_slug = '99999'
         response = await client.delete(
             URL.DEPARTMENT_ENDPOINT.format(
-                company_slug=company.slug, department_id=non_existent_id
+                company_slug=company.slug, department_slug=non_existent_slug
             ),
             headers=token,
         )
@@ -666,9 +734,9 @@ class TestDeleteDepartment:
 
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == 'Объект не найден', (
-            f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
-        )
+        assert (
+            data['detail'] == f'Не найден объект Department по данному slug: {non_existent_slug}'
+        ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
 class TestCreateDepartment:
@@ -697,28 +765,27 @@ class TestCreateDepartment:
             headers=token,
             json=department_data,
         )
-        assert response.status_code == status.HTTP_201_CREATED, (
-            f'Ожидался статус 201 Created, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_201_CREATED
+        ), f'Ожидался статус 201 Created, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
-        assert set(data.keys()) == DEPARTMENT_FIELDS, (
-            f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
-        )
+        assert (
+            set(data.keys()) == DEPARTMENT_FIELDS
+        ), f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
 
         field_checks = {
             'name': department_data['name'],
-            'slug': department_data['name'],
             'company_id': company.id,
         }
 
         for field, expected_value in field_checks.items():
-            assert data[field] == expected_value, (
-                f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
-            )
-        assert isinstance(data['id'], int), (
-            f'Ожидался целочисленный id, получен тип {type(data["id"])}'
-        )
+            assert (
+                data[field] == expected_value
+            ), f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
+        assert isinstance(
+            data['id'], int
+        ), f'Ожидался целочисленный id, получен тип {type(data["id"])}'
 
     @pytest.mark.asyncio
     async def test_create_department_with_all_fields(
@@ -743,24 +810,24 @@ class TestCreateDepartment:
             headers=token,
             json=department_data,
         )
-        assert response.status_code == status.HTTP_201_CREATED, (
-            f'Ожидался статус 201 Created, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_201_CREATED
+        ), f'Ожидался статус 201 Created, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
-        assert set(data.keys()) == DEPARTMENT_FIELDS, (
-            f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
-        )
+        assert (
+            set(data.keys()) == DEPARTMENT_FIELDS
+        ), f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
 
         field_checks = {'name': department_data['name'], 'company_id': company.id}
 
         for field, expected_value in field_checks.items():
-            assert data[field] == expected_value, (
-                f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
-            )
-        assert isinstance(data['id'], int), (
-            f'Ожидался целочисленный id, получен тип {type(data["id"])}'
-        )
+            assert (
+                data[field] == expected_value
+            ), f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
+        assert isinstance(
+            data['id'], int
+        ), f'Ожидался целочисленный id, получен тип {type(data["id"])}'
 
 
 class TestCreateEmployee:
@@ -791,14 +858,14 @@ class TestCreateEmployee:
             headers=token,
             json=employee_data,
         )
-        assert response.status_code == status.HTTP_201_CREATED, (
-            f'Ожидался статус 201 Created, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_201_CREATED
+        ), f'Ожидался статус 201 Created, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
-        assert set(data.keys()) == EMPLOYEE_FIELDS, (
-            f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
-        )
+        assert (
+            set(data.keys()) == EMPLOYEE_FIELDS
+        ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
 
         required_fields = {
             'email': employee_data['email'],
@@ -809,9 +876,9 @@ class TestCreateEmployee:
         }
 
         for field, expected_value in required_fields.items():
-            assert data[field] == expected_value, (
-                f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
-            )
+            assert (
+                data[field] == expected_value
+            ), f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
 
     @pytest.mark.asyncio
     async def test_create_employee_with_all_fields(
@@ -840,14 +907,14 @@ class TestCreateEmployee:
             headers=token,
             json=employee_data,
         )
-        assert response.status_code == status.HTTP_201_CREATED, (
-            f'Ожидался статус 201 Created, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_201_CREATED
+        ), f'Ожидался статус 201 Created, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
-        assert set(data.keys()) == EMPLOYEE_FIELDS, (
-            f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
-        )
+        assert (
+            set(data.keys()) == EMPLOYEE_FIELDS
+        ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
 
         field_checks = {
             'email': employee_data['email'],
@@ -871,9 +938,48 @@ class TestCreateEmployee:
         }
 
         for field, expected_value in field_checks.items():
-            assert data[field] == expected_value, (
-                f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
+            assert (
+                data[field] == expected_value
+            ), f"Ожидалось значение поля '{field}': '{expected_value}', получено: '{data[field]}'"
+
+    @pytest.mark.asyncio
+    async def test_create_employees_with_same_telegram(
+        self, client: AsyncClient, moderator_of_company, get_token_for_user, department_for_test
+    ):
+        """
+        Тест создаст 2 сотрудников со всеми полями, но с соваадающими Telegram.
+
+        Проверяет:
+        1. Статус ответа 400 Bad Request
+        2. Корректность сообщения об ошибке
+        """
+        moderator, company = await moderator_of_company(return_company=True)
+        token = await get_token_for_user(moderator)
+
+        department = await department_for_test({'company_id': company.id})
+
+        response = None
+        for i in range(2):
+            employee_data = generate_employee_data(all_fields=True)
+            employee_data['company_id'] = company.id
+            employee_data['current_department_id'] = department.id
+            employee_data['last_department_id'] = department.id
+            employee_data['telegram_username'] = USER_TELEGRAM
+            response = await client.post(
+                URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
+                headers=token,
+                json=employee_data,
             )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'При попытке создать запись с дублированием Telegram-имени'
+            f'не было ответа cо статусом {status.HTTP_400_BAD_REQUEST}:\n{response.text}'
+        )
+        data = response.json()
+        assert 'detail' in data, "В ответе отсутствует поле 'detail'"
+        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+            f", получено: '{data['detail']}'"
+        )
 
 
 class TestFeedback:
@@ -910,9 +1016,9 @@ class TestFeedback:
             headers=token,
             json=feedback_data,
         )
-        assert response.status_code == status.HTTP_200_OK, (
-            f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_200_OK
+        ), f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
 
         data = response.json()
         assert isinstance(data, dict), f'Ожидался словарь, получен тип {type(data)}'
