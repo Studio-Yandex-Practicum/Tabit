@@ -53,12 +53,7 @@ class UserFactory:
     """
 
     def __init__(self, default_role: str = "user"):
-        """
-        Инициализация фабрики пользователей.
-
-        Аргументы:
-            default_role (str): Роль по умолчанию для новых пользователей.
-        """
+        pass
 
     def create(self, **kwargs) -> dict:
         """
