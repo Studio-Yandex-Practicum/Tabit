@@ -18,7 +18,7 @@ from src.companies.models.models import Company, Department
 from src.database.db_depends import get_async_session
 from src.database.models import BaseTabitModel as Base
 from src.main import app_v1
-from src.problems.models import CommentFeed, Meeting, MessageFeed, Problem
+from src.problems.models import AssociationUserProblem, CommentFeed, Meeting, MessageFeed, Problem
 from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.tabit_management.models import LicenseType, TabitAdminUser
 from src.users.models import UserTabit
@@ -633,6 +633,11 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
             default_data.update(problem_data)
 
         problem = await make_entry_in_table(async_session, default_data, Problem)
+
+        # Так как при создании проблемы owner автоматически становится её участником,
+        # делаем запись в связанной таблице.
+        user_problem_data = {'left_id': str(owner_id), 'right_id': problem.id}
+        await make_entry_in_table(async_session, user_problem_data, AssociationUserProblem)
 
         if return_all_objects:
             return problem, employee, company

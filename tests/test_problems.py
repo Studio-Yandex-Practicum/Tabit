@@ -401,16 +401,19 @@ class TestPatchProblem:
         Проверяем, что API возвращает статус 200.
         Проверяем, что данные ответа соответствуют данным для обновления.
 
-        # TODO: добавить проверку обновления поля members
+        # TODO: Добавить проверку обновления поля members, если передаём несколько человек.
+                В текущей реализации не работает.
 
         """
         test_problem, test_owner, test_company = await problem_for_test(return_all_objects=True)
+        member_for_updating = await employee_of_company({'company_id': test_company.id})
         data_for_updating = {
             'name': 'обновлённая проблема',
             'description': 'описание обновлённой проблемы',
             'color': 2,
             'status': 'В работе',
             'type': 'Взаимодействие в коллективе',
+            'members': [str(member_for_updating.id)],
         }
         response = await client.patch(
             URL.PROBLEM_ENDPOINT.format(
@@ -422,29 +425,35 @@ class TestPatchProblem:
         assert response.status_code == status.HTTP_200_OK
         updated_data = response.json()
         for key, value in data_for_updating.items():
+            if key == 'members':
+                assert len(updated_data[key]) == 2
+                continue
             assert updated_data[key] == value
 
     @pytest.mark.asyncio
     async def test_patch_problem_partial_update(
-        self, client: AsyncClient, problem_for_test, get_token_for_user
+        self, client: AsyncClient, problem_for_test, employee_of_company, get_token_for_user
     ):
         """
         Тест на частичное обновление проблемы.
-        Перед тестом создаём проблему и создаём словарь данных для обновления.
+        Перед тестом создаём проблему и словарь данных для обновления.
 
         Проверяем, что API возвращает статус 200.
         Проверяем, что данные ответа соответствуют данным для обновления."
 
-        # TODO: добавить проверку обновления поля members
+        # TODO: Добавить проверку обновления поля members, если передаём несколько человек.
+                В текущей реализации не работает.
 
         """
         test_problem, test_owner, test_company = await problem_for_test(return_all_objects=True)
+        member_for_updating = await employee_of_company({'company_id': test_company.id})
         data_for_updating = {
             'name': 'обновлённая проблема',
             'description': 'описание обновлённой проблемы',
             'color': 2,
             'status': 'В работе',
             'type': 'Взаимодействие в коллективе',
+            'members': [str(member_for_updating.id)],
         }
         url = URL.PROBLEM_ENDPOINT.format(
             company_slug=test_company.slug,
@@ -456,6 +465,9 @@ class TestPatchProblem:
             )
             assert response.status_code == status.HTTP_200_OK
             updated_data = response.json()
+            if key == 'members':
+                assert len(updated_data[key]) == 2
+                continue
             assert updated_data[key] == value
 
     @pytest.mark.asyncio
