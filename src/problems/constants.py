@@ -2,6 +2,7 @@
 ERROR_COMPANY_NOT_FOUND = 'Такая компания не найдена'
 ERROR_PROBLEM_NOT_FOUND = 'Такая проблема не найдена'
 ERROR_TASK_NOT_FOUND = 'Такая задача не найдена'
+ERROR_MEETING_NOT_FOUND = 'Такая встреча не найдена'
 
 
 # Константы к валидаторам (Problem)
@@ -37,3 +38,4 @@ VALID_COMMENT_NOT_OWNER: str = 'Вы можете изменять только 
 VALID_LIKE_OWN_COMMENT: str = 'Нельзя менять рейтинг собственного комментария.'
 VALID_REPEATED_LIKE: str = 'Вы уже лайкнули данный комментарий.'
 VALID_NOT_LIKED_COMMENT: str = 'Вы не лайкали данный комментарий.'
+VALID_NOT_UNIQUE_RESULT_MEETING: str = 'Вы уже создали результат данной встречи.'

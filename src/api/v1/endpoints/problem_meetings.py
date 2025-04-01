@@ -10,15 +10,23 @@ from src.api.v1.validator import (
     validate_owner_object,
     validate_user_from_company,
 )
+from src.api.v1.validators.meeting_validators import (
+    check_meeting_exists,
+    check_problem_exists,
+    check_result_meeting_unique,
+)
 from src.api.v1.validators.members import validate_field_members
 from src.companies.crud import company_crud
 from src.database.db_depends import get_async_session
-from src.problems.crud.meeting import meeting_crud
+from src.problems.crud.meeting import meeting_crud, result_meeting_crud
 from src.problems.crud.problems import problem_crud
 from src.problems.schemas.meeting import (
     MeetingCreateSchema,
     MeetingResponseSchema,
     MeetingUpdateSchema,
+    ResultMeetingCreateSchema,
+    ResultMeetingResponseSchema,
+    ResultMeetingUpdateSchema,
 )
 from src.users.models import UserTabit
 
@@ -276,3 +284,111 @@ async def delete_meeting(
     validate_owner_object(user, meeting)
     validate_meeting_was_held(meeting)
     await meeting_crud.remove(session, meeting)
+
+
+@router.post(
+    '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}/result',
+    response_model=ResultMeetingResponseSchema,
+    response_model_exclude_none=True,
+    summary='Создать результат встречи',
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_meeting_result(
+    result: ResultMeetingCreateSchema,
+    company_slug: str,
+    problem_id: int,
+    meeting_id: int,
+    session: AsyncSession = Depends(get_async_session),
+    owner: UserTabit = Depends(current_user_tabit),
+) -> ResultMeetingResponseSchema:
+    """Создает результат встречи.
+
+    Назначение:
+        Создает результат конкретной встречи.
+    Параметры:
+        company_slug: Уникальный идентификатор компании.
+        problem_id: Идентификатор проблемы.
+        meeting_id: Идентификатор встречи.
+        session: Асинхронная сессия SQLAlchemy.
+        owner: Текущий пользователь.
+    Возвращаемое значение:
+        Объект ResultMeetingResponseSchema.
+    """
+
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(owner, company)
+    await check_problem_exists(problem_id, session)
+    await check_meeting_exists(meeting_id, session)
+    await check_result_meeting_unique(meeting_id, owner, session)
+    return await result_meeting_crud.create(session, result, owner, meeting_id)
+
+
+@router.get(
+    '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}/result/{result_id}',
+    response_model=ResultMeetingResponseSchema,
+    response_model_exclude_none=True,
+    summary='Результат встречи',
+    status_code=status.HTTP_200_OK,
+)
+async def get_meeting_result(
+    company_slug: str,
+    problem_id: int,
+    meeting_id: int,
+    result_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> ResultMeetingResponseSchema:
+    """Возвращает результат встречи.
+
+    Назначение:
+        Возвращает результат конкретной встречи.
+    Параметры:
+        company_slug: Уникальный идентификатор компании.
+        problem_id: Идентификатор проблемы.
+        meeting_id: Идентификатор встречи.
+        session: Асинхронная сессия SQLAlchemy.
+        owner: Текущий пользователь.
+    Возвращаемое значение:
+        Объект ResultMeetingResponseSchema.
+    """
+
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    await check_problem_exists(problem_id, session)
+    await check_meeting_exists(meeting_id, session)
+    return await result_meeting_crud.get_or_404(session, result_id)
+
+
+@router.patch(
+    '/{company_slug}/problems/{problem_id}/meetings/{meeting_id}/result/{result_id}',
+    response_model=ResultMeetingResponseSchema,
+    response_model_exclude_none=True,
+    summary='Обновить результат встречи',
+    status_code=status.HTTP_200_OK,
+)
+async def patch_meeting_result(
+    company_slug: str,
+    problem_id: int,
+    meeting_id: int,
+    result_id: int,
+    result_update: ResultMeetingUpdateSchema,
+    session: AsyncSession = Depends(get_async_session),
+    owner: UserTabit = Depends(current_user_tabit),
+) -> ResultMeetingResponseSchema:
+    """Обновляет результат встречи.
+
+    Назначение:
+        Обновляет результат конкретной встречи.
+    Параметры:
+        company_slug: Уникальный идентификатор компании.
+        problem_id: Идентификатор проблемы.
+        meeting_id: Идентификатор встречи.
+        session: Асинхронная сессия SQLAlchemy.
+        owner: Текущий пользователь.
+    Возвращаемое значение:
+        Объект ResultMeetingResponseSchema.
+    """
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(owner, company)
+    await check_problem_exists(problem_id, session)
+    await check_meeting_exists(meeting_id, session)
+    result_data = await result_meeting_crud.get_or_404(session, result_id)
+    return await result_meeting_crud.update(session, result_data, result_update)
