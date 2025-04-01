@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends
-from fastapi.security import HTTPBearer
+from fastapi import APIRouter
 
 from src.api.v1.endpoints import (
     auth_employees,
@@ -24,19 +23,12 @@ main_router.include_router(
     tabit_admin_auth_router,
     prefix='/admin/auth',
     tags=['Tabit Admin Auth'],
-    dependencies=[Depends(HTTPBearer(auto_error=False))],
 )
 main_router.include_router(
-    tabit_management_router,
-    prefix='/admin',
-    tags=['Tabit Management - Staff'],
-    dependencies=[Depends(HTTPBearer(auto_error=False))],
+    tabit_management_router, prefix='/admin', tags=['Tabit Management - Staff']
 )
 main_router.include_router(
-    companies_management_router,
-    prefix='/admin/companies',
-    tags=['Tabit Management - Companies'],
-    dependencies=[Depends(HTTPBearer(auto_error=False))],
+    companies_management_router, prefix='/admin/companies', tags=['Tabit Management - Companies']
 )
 main_router.include_router(
     licenses_router, prefix='/admin/licenses', tags=[' Tabit Management - licenses']

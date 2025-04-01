@@ -40,6 +40,7 @@ router = APIRouter()
     dependencies=[Depends(current_superuser)],
     summary=Summary.TABIT_ADMIN_AUTH_LIST,
     description=Description.TABIT_ADMIN_AUTH_LIST,
+    openapi_extra={'security': [{'jwt_auth_backend_admin': []}]},
 )
 async def get_tabit_admin(
     session: AsyncSession = Depends(get_async_session),
@@ -64,6 +65,7 @@ async def get_tabit_admin(
     response_model=AdminReadSchema,
     summary=Summary.TABIT_ADMIN_AUTH_GET_ME,
     description=Description.TABIT_ADMIN_AUTH_GET_ME,
+    openapi_extra={'security': [{'jwt_auth_backend_admin': []}]},
 )
 async def get_me_tabit_admin(
     session: AsyncSession = Depends(get_async_session),
@@ -90,6 +92,7 @@ async def get_me_tabit_admin(
     response_model=AdminReadSchema,
     summary=Summary.TABIT_ADMIN_AUTH_PATCH_ME,
     description=Description.TABIT_ADMIN_AUTH_PATCH_ME,
+    openapi_extra={'security': [{'jwt_auth_backend_admin': []}]},
 )
 async def update_me_tabit_admin(
     user_in: AdminUpdateSchema,
@@ -119,6 +122,7 @@ async def update_me_tabit_admin(
     dependencies=[Depends(current_superuser)],
     summary=Summary.TABIT_ADMIN_AUTH_GET_BY_ID,
     description=Description.TABIT_ADMIN_AUTH_GET_BY_ID,
+    openapi_extra={'security': [{'jwt_auth_backend_admin': []}]},
 )
 async def get_tabit_admin_by_id(
     user_id: UUID,
@@ -146,6 +150,7 @@ async def get_tabit_admin_by_id(
     dependencies=[Depends(current_superuser)],
     summary=Summary.TABIT_ADMIN_AUTH_PATCH_BY_ID,
     description=Description.TABIT_ADMIN_AUTH_PATCH_BY_ID,
+    openapi_extra={'security': [{'jwt_auth_backend_admin': []}]},
 )
 async def update_tabit_admin_by_id(
     user_id: UUID,
@@ -181,6 +186,7 @@ async def update_tabit_admin_by_id(
     status_code=HTTPStatus.NO_CONTENT,
     summary=Summary.TABIT_ADMIN_AUTH_DELETE_BY_ID,
     description=Description.TABIT_ADMIN_AUTH_DELETE_BY_ID,
+    openapi_extra={'security': [{'jwt_auth_backend_admin': []}]},
 )
 async def delete_tabit_admin_by_id(
     user_id: UUID,
@@ -225,6 +231,7 @@ router.include_router(  # форгот и резет пассворд
     response_model=TokenReadSchemas,
     summary=Summary.TABIT_ADMIN_AUTH_REFRESH_TOKEN,
     description=Description.TABIT_ADMIN_AUTH_REFRESH_TOKEN,
+    openapi_extra={'security': [{'jwt_auth_backend_admin': []}]},
 )
 async def refresh_token_tabit_admin(
     user_and_refresh_token: tuple[TabitAdminUser, str] = Depends(get_current_admin_refresh_token),
@@ -264,6 +271,7 @@ async def refresh_token_tabit_admin(
     status_code=HTTPStatus.CREATED,
     summary=Summary.TABIT_ADMIN_AUTH_CREATE,
     description=Description.TABIT_ADMIN_AUTH_CREATE,
+    openapi_extra={'security': [{'jwt_auth_backend_admin': []}]},
 )
 async def create_tabit_admin(
     request: Request,
@@ -335,6 +343,7 @@ async def login(
     '/logout',
     summary=Summary.TABIT_ADMIN_AUTH_LOGOUT,
     description=Description.TABIT_ADMIN_AUTH_LOGOUT,
+    openapi_extra={'security': [{'jwt_auth_backend_admin': []}]},
 )
 async def logout(
     user_and_access_token: tuple[models.UP, str] = Depends(get_current_admin_token),
