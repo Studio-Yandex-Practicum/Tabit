@@ -157,31 +157,25 @@ class TestCreateProblem:
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    # TODO: пока закомменчено, так как данная валидация не работает.
-    # @pytest.mark.asyncio
-    # async def test_create_problem_if_member_not_from_company(
-    #     self,
-    #     client: AsyncClient,
-    #     employee_of_company,
-    #     get_token_for_user
-    # ):
-    #     """
-    #     Тест создания проблемы с передачей в members пользотвалея,
-    #     не являющегося сотрудником компании.
+    @pytest.mark.asyncio
+    async def test_create_problem_if_member_not_from_company(
+        self, client: AsyncClient, employee_of_company, get_token_for_user
+    ):
+        """
+        Тест создания проблемы с передачей в members пользотвалея,
+        не являющегося сотрудником компании.
 
-    #     Проверяем, что API возвращает 400 статус.
-    #     """
-    #     test_owner, test_company = await employee_of_company(return_company=True)
-    #     user_not_from_company = await employee_of_company()
-    #     test_data = get_test_problem_data()
-    #     test_data['members'] = [f'{user_not_from_company.id}']
-    #     url = URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
-    #     response = await client.post(
-    #         url,
-    #         json=test_data,
-    #         headers=await get_token_for_user(test_owner)
-    #         )
-    #     assert response.status_code == status.HTTP_400_BAD_REQUEST
+        Проверяем, что API возвращает 400 статус.
+        """
+        test_owner, test_company = await employee_of_company(return_company=True)
+        user_not_from_company = await employee_of_company()
+        test_data = get_test_problem_data()
+        test_data['members'] = [f'{user_not_from_company.id}']
+        url = URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
+        response = await client.post(
+            url, json=test_data, headers=await get_token_for_user(test_owner)
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
 class TestGetProblem:
@@ -401,9 +395,6 @@ class TestPatchProblem:
         Проверяем, что API возвращает статус 200.
         Проверяем, что данные ответа соответствуют данным для обновления.
 
-        # TODO: Добавить проверку обновления поля members, если передаём несколько человек.
-                В текущей реализации не работает.
-
         """
         test_problem, test_owner, test_company = await problem_for_test(return_all_objects=True)
         member_for_updating = await employee_of_company({'company_id': test_company.id})
@@ -440,9 +431,6 @@ class TestPatchProblem:
 
         Проверяем, что API возвращает статус 200.
         Проверяем, что данные ответа соответствуют данным для обновления."
-
-        # TODO: Добавить проверку обновления поля members, если передаём несколько человек.
-                В текущей реализации не работает.
 
         """
         test_problem, test_owner, test_company = await problem_for_test(return_all_objects=True)
