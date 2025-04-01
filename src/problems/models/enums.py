@@ -69,3 +69,21 @@ class StatusTask(StrEnum):
     IN_PROGRESS = 'В работе'
     NOT_ACCEPTED = 'Не принята'
     COMPLETED = 'Завершена'
+
+
+class ResultMeetingEngagementEnum(StrEnum):
+    """Варианты значений поля participant_engagement модели ResultMeeting."""
+
+    YES = 'Да'
+    MORE_THAN_HALF = 'Больше половины'
+    LESS_THAN_HALF = 'Меньше половины'
+    NOBODY = 'Никто'
+
+
+class ResultMeetingSolutionEnum(StrEnum):
+    """Варианты значений поля meeting_feedback модели ResultMeeting."""
+
+    YES = 'Да'
+    MORE_YES = 'Скорее да, чем нет'
+    MORE_NO = 'Скорее нет, чем да'
+    NO = 'Нет'

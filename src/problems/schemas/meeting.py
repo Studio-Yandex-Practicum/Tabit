@@ -4,7 +4,12 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.problems.models.enums import ResultMeetingEnum, StatusMeeting
+from src.problems.models.enums import (
+    ResultMeetingEngagementEnum,
+    ResultMeetingEnum,
+    ResultMeetingSolutionEnum,
+    StatusMeeting,
+)
 from src.problems.validators.meeting_validators import validate_date, validate_not_empty
 
 
@@ -141,8 +146,8 @@ class ResultMeetingBaseSchema(BaseModel):
     """
 
     meeting_result: ResultMeetingEnum
-    participant_engagement: bool
-    problem_solution: bool
+    participant_engagement: ResultMeetingEngagementEnum
+    problem_solution: ResultMeetingSolutionEnum
     meeting_feedback: Optional[str]
 
 
@@ -151,18 +156,28 @@ class ResultMeetingCreateSchema(ResultMeetingBaseSchema):
 
     Назначение:
         Используется для валидации данных при создании результатов встречи.
-    Параметры:
-        meeting_id: Идентификатор связанной встречи.
-        owner_id: Идентификатор создателя результата.
     """
-
-    meeting_id: int
-    owner_id: UUID
 
     model_config = ConfigDict(extra='forbid', str_min_length=1)
 
 
-class ResultMeetingInDB(ResultMeetingBaseSchema):
+class ResultMeetingSchema(BaseModel):
+    """Pydantic-схема для данных о результатах встречи из БД из связанной модели Meeting.
+
+    Назначение:
+        Используется для сериализации данных о результатах встречи при получении из БД.
+    Параметры:
+        place: Место проведения встречи.
+        date_meeting: Дата проведения встречи.
+    """
+
+    place: str
+    date_meeting: date
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ResultMeetingResponseSchema(ResultMeetingBaseSchema):
     """Pydantic-схема для данных о результатах встречи из БД.
 
     Назначение:
@@ -171,10 +186,31 @@ class ResultMeetingInDB(ResultMeetingBaseSchema):
         id: Идентификатор результата.
         meeting_id: Идентификатор связанной встречи.
         owner_id: Идентификатор создателя результата.
+        meeting: Поля из модели Meeting.
     """
 
     id: int
-    meeting_id: int
     owner_id: UUID
+    meeting: ResultMeetingSchema
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ResultMeetingUpdateSchema(BaseModel):
+    """Pydantic-схема для обновления результатов встреч.
+
+    Назначение:
+        Используется для валидации данных при обновлении результатов встречи.
+    Параметры:
+        meeting_result: Результат встречи (опционально).
+        participant_engagement: Участие в встрече (опционально).
+        problem_solution: Решение проблемы (опционально).
+        meeting_feedback: Отзыв о встрече (опционально).
+    """
+
+    meeting_result: Optional[ResultMeetingEnum] = None
+    participant_engagement: Optional[ResultMeetingEngagementEnum] = None
+    problem_solution: Optional[ResultMeetingSolutionEnum] = None
+    meeting_feedback: Optional[str] = None
+
+    model_config = ConfigDict(extra='forbid')
