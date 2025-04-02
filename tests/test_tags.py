@@ -150,7 +150,7 @@ class TestTagsBusinessLogic:
         response = await client.post(
             URL.TAGS_ENDPOINT.format(company_id=company.id),
             headers=token,
-            json={'name': tag.name, 'user_id': str(user.id)},
+            json={'name': tag.name, 'user_id': str(admin.id)},
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'При создании тегов в компании, дубликатов быть не должно. '

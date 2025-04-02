@@ -1,9 +1,12 @@
-from datetime import date
+from datetime import datetime
+from typing import Optional
+from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.constants import LENGTH_NAME_USER, MIN_LENGTH_NAME
-from src.users.constants import title_company_id_tag, title_name_tag
+from src.users.constants import title_name_tag
+from src.users.tag_validators import validate_name, validate_uuid_user
 
 
 class TagUserUpdateSchema(BaseModel):
@@ -16,14 +19,25 @@ class TagUserUpdateSchema(BaseModel):
         title=title_name_tag,
     )
 
+    @field_validator('name')
+    @classmethod
+    def validate_name_not_empty(cls, value: str) -> str:
+        """Валидирует название тэга."""
+        return validate_name(value)
+
 
 class TagUserCreateSchema(TagUserUpdateSchema):
     """Схема для создания тэгов пользователей."""
 
-    company_id: int = Field(
-        ...,
-        title=title_company_id_tag,
-    )
+    user_id: UUID = Field(..., title='Идентификатор пользователя')
+
+    @field_validator('user_id')
+    @classmethod
+    def validate_uuid_user(cls, value: Optional[UUID]) -> Optional[UUID]:
+        """Валидирует uuid пользователя."""
+        if value is not None:
+            return validate_uuid_user(value)
+        return value
 
 
 class TagUserResponseSchema(BaseModel):
@@ -32,7 +46,7 @@ class TagUserResponseSchema(BaseModel):
     id: int
     name: str
     company_id: int
-    created_at: date
-    updated_at: date
+    created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
