@@ -22,6 +22,7 @@ from src.companies.schemas import (
     CompanyUpdateSchema,
 )
 from src.companies.schemas.company import CompanyTypeFilterSchema
+from src.constants import OPENAPI_EXTRA_ADMIN_AUTH
 from src.database.db_depends import get_async_session
 
 router = APIRouter()
@@ -33,6 +34,7 @@ router = APIRouter()
     dependencies=[Depends(current_admin_tabit)],
     summary=Summary.TABIT_MANAGEMENT_COMPANY_LIST,
     description=Description.TABIT_MANAGEMENT_COMPANY_LIST,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_companies(
     session: AsyncSession = Depends(get_async_session),
@@ -64,6 +66,7 @@ async def get_companies(
     status_code=HTTPStatus.CREATED,
     summary=Summary.TABIT_MANAGEMENT_COMPANY_CREATE,
     description=Description.TABIT_MANAGEMENT_COMPANY_CREATE,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def create_company(
     company: CompanyCreateSchema,
@@ -99,6 +102,7 @@ async def create_company(
     dependencies=[Depends(current_admin_tabit)],
     summary=Summary.TABIT_MANAGEMENT_COMPANY_UPDATE,
     description=Description.TABIT_MANAGEMENT_COMPANY_UPDATE,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_company(
     company_slug: str,
@@ -137,6 +141,7 @@ async def update_company(
     status_code=HTTPStatus.NO_CONTENT,
     summary=Summary.TABIT_MANAGEMENT_COMPANY_DELETE,
     description=Description.TABIT_MANAGEMENT_COMPANY_DELETE,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def delete_company(
     company_slug: str,

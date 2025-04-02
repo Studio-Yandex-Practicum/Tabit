@@ -20,7 +20,9 @@ main_router = APIRouter(prefix='/api/v1')
 
 main_router.include_router(email_router, prefix='', tags=['Send Email'])
 main_router.include_router(
-    tabit_admin_auth_router, prefix='/admin/auth', tags=['Tabit Admin Auth']
+    tabit_admin_auth_router,
+    prefix='/admin/auth',
+    tags=['Tabit Admin Auth'],
 )
 main_router.include_router(
     tabit_management_router, prefix='/admin', tags=['Tabit Management - Staff']
