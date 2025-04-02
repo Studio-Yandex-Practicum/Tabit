@@ -37,6 +37,8 @@ BASE64_STARTSWITH: str = 'data:image'
 
 MAX_NUMBER_PROBLEM: int = 3
 
+OPENAPI_EXTRA_ADMIN_AUTH = {'security': [{'jwt_auth_backend_admin': []}]}
+
 
 @dataclass
 class TextError:

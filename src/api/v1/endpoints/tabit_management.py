@@ -11,6 +11,7 @@ from src.api.v1.validators import (
     check_company_and_department,
     check_telegram_username_for_duplicates,
 )
+from src.constants import OPENAPI_EXTRA_ADMIN_AUTH
 from src.database.db_depends import get_async_session
 from src.tabit_management.crud.admin_company import admin_company_crud
 from src.tabit_management.crud.admin_user import admin_user_crud
@@ -32,6 +33,7 @@ router = APIRouter()
     dependencies=[Depends(current_admin_tabit)],
     summary=Summary.TABIT_MANAGEMENT,
     description=Description.TABIT_MANAGEMENT,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_all_info(
     session: AsyncSession = Depends(get_async_session),
@@ -56,6 +58,7 @@ async def get_all_info(
     dependencies=[Depends(current_admin_tabit)],
     summary=Summary.TABIT_MANAGEMENT_LIST,
     description=Description.TABIT_MANAGEMENT_LIST,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_all_staff(
     session: AsyncSession = Depends(get_async_session),
@@ -80,6 +83,7 @@ async def get_all_staff(
     summary=Summary.TABIT_MANAGEMENT_CREATE,
     description=Description.TABIT_MANAGEMENT_CREATE,
     response_model=CompanyAdminReadSchema,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def create_staff(
     create_data: CompanyAdminCreateSchema,
@@ -113,6 +117,7 @@ async def create_staff(
     description=Description.TABIT_MANAGEMENT_ADMIN,
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_staff(
     user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)
@@ -134,6 +139,7 @@ async def get_staff(
     description=Description.TABIT_MANAGEMENT_ADMIN_PUT,
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def full_update_staff(
     user_id: UUID,
@@ -164,6 +170,7 @@ async def full_update_staff(
     description=Description.TABIT_MANAGEMENT_ADMIN_PATCH,
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_staff(
     user_id: UUID,
@@ -194,6 +201,7 @@ async def update_staff(
     description=Description.TABIT_MANAGEMENT_ADMIN_DELETE,
     dependencies=[Depends(current_admin_tabit)],
     status_code=status.HTTP_204_NO_CONTENT,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
     """
@@ -217,6 +225,7 @@ async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(ge
     dependencies=[Depends(current_admin_tabit)],
     summary=Summary.TABIT_MANAGEMENT_ADMIN_PASSWORD,
     description=Description.TABIT_MANAGEMENT_ADMIN_PASSWORD,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def reset_password_staff(
     user_id: UUID,
