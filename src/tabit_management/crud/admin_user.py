@@ -19,7 +19,8 @@ from src.tabit_management.constants import (
 )
 from src.tabit_management.schemas.admin_company import (
     CompanyAdminCreateSchema,
-    CompanyAdminUpdateSchema,
+    CompanyAdminPatchSchema,
+    CompanyAdminPutSchema,
 )
 from src.users.models import UserTabit
 
@@ -27,7 +28,7 @@ from src.users.models import UserTabit
 class CRUDAdminUser(UserCreateMixin, CRUDBase):
     """CRUD операций для моделей администраторов сервиса Табит."""
 
-    async def get_multi(
+    async def get_multi(  # type: ignore
         self,
         session: AsyncSession,
         skip: int = DEFAULT_SKIP,
@@ -75,7 +76,9 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
         )
         return user.scalars().first()
 
-    async def get_or_404(self, user_id: UUID, user_manager: BaseUserManager) -> UserTabit:
+    async def get_or_404(  # type: ignore
+        self, user_id: UUID, user_manager: BaseUserManager
+    ) -> UserTabit:
         """
         Переопределённый метод get_or_404 от CRUDBase. Возвращает найденный объект UserTabit.
         В случае, если объект не был найден, выбрасывается исключение HTTP 404.
@@ -92,9 +95,8 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
             )
         return admin_user
 
-    async def create(
+    async def create(  # type: ignore
         self,
-        session: AsyncSession,
         create_data: CompanyAdminCreateSchema,
         user_manager: BaseUserManager,
     ) -> UserTabit:
@@ -103,7 +105,6 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
         В случае возникновения ошибок, выбрасывает исключения.
 
         Параметры:
-            session: асинхронная сессия SQLAlchemy;
             create_data: Валидированные данные схемы CompanyAdminCreateSchema,
             для создания админа компании;
             user_manager - менеджер пользователей.
@@ -120,11 +121,10 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
             )
         return created_admin_user
 
-    async def update(
+    async def update(  # type: ignore
         self,
         user_id: UUID,
-        update_data: CompanyAdminUpdateSchema,
-        session: AsyncSession,
+        update_data: CompanyAdminPatchSchema | CompanyAdminPutSchema,
         user_manager: BaseUserManager,
     ) -> UserTabit:
         """
@@ -134,11 +134,17 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
         Параметры:
             user_id - UUID пользователя;
             update_date: объект схемы с данными для обновления;
-            session: асинхронная сессия SQLAlchemy;
             user_manager: менеджер пользователей.
         """
         try:
             admin_user = await user_manager.get(user_id)
+            if (
+                update_data.current_department_id is not None
+                and admin_user.current_department_id != update_data.current_department_id
+            ):
+                update_data.last_department_id = admin_user.current_department_id
+            else:
+                update_data.last_department_id = admin_user.last_department_id
             admin_user = await user_manager.update(update_data, admin_user)
         except UserNotExists:
             raise HTTPException(
@@ -154,7 +160,7 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
             )
         return admin_user
 
-    async def remove(self, user_id: UUID, user_manager: BaseUserManager) -> None:
+    async def remove(self, user_id: UUID, user_manager: BaseUserManager) -> None:  # type: ignore
         """
         Переопределённый метод remove от CRUDBase. Функция удалёет из БД запись об
         объекте UserTabit с переданным UUID.

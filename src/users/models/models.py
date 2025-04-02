@@ -47,10 +47,12 @@ class AssociationUserTags(BaseTabitModel):
     """
 
     left_id: Mapped[UUID] = mapped_column(
-        ForeignKey('usertabit.id', ondelete='CASCADE'), primary_key=True
+        ForeignKey('usertabit.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     right_id: Mapped[int] = mapped_column(
-        ForeignKey('taguser.id', ondelete='CASCADE'), primary_key=True
+        ForeignKey('taguser.id', ondelete='CASCADE'),
+        primary_key=True,
     )
     user: Mapped['UserTabit'] = relationship(back_populates='tags')
     tag: Mapped['TagUser'] = relationship(back_populates='user', passive_deletes=True)
@@ -67,7 +69,6 @@ class TagUser(BaseTag):
         Админ от компании может для сотрудников своей компании придумывать свои тэги.
 
     Поля:
-        id: Идентификационный номер тэга.
         name: Имя тега.
         company_id: Идентификатор компании, в которой будет использоваться тэг.
         created_at: Дата создания записи в таблице. Автозаполнение.
@@ -152,18 +153,20 @@ class UserTabit(BaseUser):
     supervisor: Mapped[Optional[bool]] = mapped_column(default=None)
 
     current_department_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('department.id'), nullable=True
+        ForeignKey('department.id', ondelete='SET NULL'), nullable=True
     )
     current_department: Mapped[Optional['Department']] = relationship(
         # back_populates='employees',
         foreign_keys=[current_department_id],
+        passive_deletes=True,
     )
     last_department_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('department.id'), nullable=True
+        ForeignKey('department.id', ondelete='SET NULL'), nullable=True
     )
     last_department: Mapped[Optional['Department']] = relationship(
         # back_populates='employees_lost',
         foreign_keys=[last_department_id],
+        passive_deletes=True,
     )
 
     problem_owner: Mapped[List['Problem']] = relationship(back_populates='owner')
