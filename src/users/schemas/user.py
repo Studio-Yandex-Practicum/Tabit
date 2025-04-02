@@ -142,8 +142,8 @@ class UserReadSchema(BaseUser[UUID]):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title="Схема пользователя",
-        description="Схема пользователя сервиса для ответов"
+        title='Схема пользователя',
+        description='Схема пользователя сервиса для ответов',
     )
 
 
@@ -178,8 +178,7 @@ class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
     )
 
     model_config = ConfigDict(
-        title="Схема создания пользователя",
-        description="Схема для создание пользователя сервиса"
+        title='Схема создания пользователя', description='Схема для создание пользователя сервиса'
     )
 
 
@@ -214,8 +213,8 @@ class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
     )
 
     model_config = ConfigDict(
-        title="Схема изменения пользователя",
-        description="Схема для изменения данных пользователя сервиса"
+        title='Схема изменения пользователя',
+        description='Схема для изменения данных пользователя сервиса',
     )
 
 
@@ -229,8 +228,8 @@ class ResetPasswordByAdmin(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
         str_strip_whitespace=True,
-        title="Схема пароля",
-        description="Схема для сброса пароля админа"
+        title='Схема пароля',
+        description='Схема для сброса пароля админа',
     )
 
 
@@ -286,6 +285,6 @@ class UserForUserUpdateSchema(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
         str_strip_whitespace=True,
-        title="Схема для ответов",
-        description="Схема пользователя сервиса для ответов"
+        title='Схема юзера для ответов',
+        description='Схема пользователя сервиса для ответов',
     )

@@ -20,8 +20,7 @@ class TaskBaseSchema(BaseModel):
     # TODO: Надо реализовать добавление файлов в встречу
 
     model_config = ConfigDict(
-        title = "Схема для задач",
-        description = "Определяет базовые поля для работы с данными задач"
+        title='Схема для задач', description='Определяет базовые поля для работы с данными задач'
     )
 
 
@@ -60,13 +59,9 @@ class ExecutorsResponseSchema(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема для исполнителя задач",
-        description = "Схема для ответа с информацией о исполнителе задачи"
+        title='Схема для исполнителя задач',
+        description='Схема для ответа с информацией о исполнителе задачи',
     )
-
-    class Config:
-        title = "Схема для исполнителя задач"
-        description = "Схема для ответа с информацией о исполнителе задачи"
 
 
 class TaskResponseSchema(BaseModel):
@@ -95,8 +90,8 @@ class TaskResponseSchema(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема для данных о задаче из БД",
-        description = "Схема для сериализации данных о задаче"
+        title='Схема для данных о задаче из БД',
+        description='Схема для сериализации данных о задаче',
     )
 
 
@@ -111,8 +106,8 @@ class TaskCreateSchema(TaskSchemaMixin, TaskBaseSchema):
     date_completion: date
 
     model_config = ConfigDict(
-        title = "Схема создания задачи",
-        description = "Схема для сериализации данных при создании задачи"
+        title='Схема создания задачи',
+        description='Схема для сериализации данных при создании задачи',
     )
 
 
@@ -129,6 +124,6 @@ class TaskUpdateSchema(TaskSchemaMixin, TaskBaseSchema):
     status: StatusTask | None = None
 
     model_config = ConfigDict(
-        title = "Схема для обновления задачи",
-        description = "Схема для валидации обновленных данных о задаче"
+        title='Схема для обновления задачи',
+        description='Схема для валидации обновленных данных о задаче',
     )

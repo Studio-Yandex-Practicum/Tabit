@@ -19,8 +19,8 @@ class MessageFeedBase(BaseModel):
     model_config = ConfigDict(
         str_strip_whitespace=True,
         extra='forbid',
-        title = "Схема тредов",
-        description = "Базовая схема для тредов"
+        title='Схема тредов',
+        description='Базовая схема для тредов',
     )
 
 
@@ -35,8 +35,7 @@ class MessageFeedCreate(MessageFeedBase):
     important: bool = Field(False, title=TITLE_MESSAGE_FEED_IMPORTANT)
 
     model_config = ConfigDict(
-        title = "Схема создания тредов",
-        description = "Схема для создания нового треда к проблеме"
+        title='Схема создания тредов', description='Схема для создания нового треда к проблеме'
     )
 
 
@@ -57,7 +56,5 @@ class MessageFeedRead(MessageFeedBase):
     updated_at: datetime
 
     model_config = ConfigDict(
-        from_attributes=True,
-        title = "Схема треда",
-        description = "Схема треда для ответов API"
+        from_attributes=True, title='Схема треда', description='Схема треда для ответов API'
     )

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.constants import Description, Summary
 from src.api.v1.auth.dependencies import current_user_tabit
+from src.api.v1.constants import Description, Summary
 from src.api.v1.validators import (
     check_comment_and_message_feed,
     check_comment_has_likes_from_user,

@@ -69,8 +69,8 @@ class CompanyUpdateForUserSchema(BaseModel):
     )
 
     model_config = ConfigDict(
-        title = "Схема изменения компании",
-        description = "Схема для частичного изменения компании пользователем-админом"
+        title='Схема изменения компании',
+        description='Схема для частичного изменения компании пользователем-админом',
     )
 
     @field_validator('description', mode='after', check_fields=False)
@@ -103,10 +103,10 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         title=TITLE_START_LICENSE_TIME_COMPANY,
     )
     end_license_time: datetime | None = None
-    
+
     model_config = ConfigDict(
-        title = "Схема изменения компании админом",
-        description = "Схема для частичного изменения компании админом сервиса"
+        title='Схема изменения компании админом',
+        description='Схема для частичного изменения компании админом сервиса',
     )
 
     @field_validator('name', mode='after', check_fields=False)
@@ -137,8 +137,8 @@ class CompanyCreateSchema(CompanyUpdateSchema):
     slug: Optional[str] = Field(None, title=TITLE_SLUG_COMPANY)
 
     model_config = ConfigDict(
-        title = "Схема создания компании",
-        description = "Схема для создания новой компании, доступно только админу"
+        title='Схема создания компании',
+        description='Схема для создания новой компании, доступно только админу',
     )
 
     @field_validator('slug')
@@ -182,8 +182,8 @@ class CompanyResponseSchema(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема компании",
-        description = "Схема компании для ответов админам сервиса"
+        title='Схема компании',
+        description='Схема компании для ответов админам сервиса',
     )
 
 
@@ -201,12 +201,9 @@ class CompanyTypeFilterSchema(BaseModel):
     ] = Field(None, description=SORTING_DESCRIPTION)
 
     model_config = ConfigDict(
-        title = "Схема фильтрации компаний",
-        description = "Схема фильтрации списка компани1 с возможностью сортировки"
+        title='Схема фильтрации компаний',
+        description='Схема фильтрации списка компани1 с возможностью сортировки',
     )
-    class Config:
-        title = "Схема фильтрации компаний"
-        description = "Схема фильтрации списка компани1 с возможностью сортировки"
 
 
 class CompanyDepartmentUpdateSchema(BaseModel):
@@ -223,8 +220,8 @@ class CompanyDepartmentUpdateSchema(BaseModel):
     )
     model_config = ConfigDict(
         extra='forbid',
-        title = "Схема обновления отдела",
-        description = "Схема для обновления данных об отделе"
+        title='Схема обновления отдела',
+        description='Схема для обновления данных об отделе',
     )
 
 
@@ -243,9 +240,7 @@ class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
     )
 
     model_config = ConfigDict(
-        from_attributes=True,
-        title = "Схема создания отдела",
-        description = "Схема создания отдела"
+        from_attributes=True, title='Схема создания отдела', description='Схема создания отдела'
     )
 
 
@@ -265,8 +260,7 @@ class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
     company_id: int
 
     model_config = ConfigDict(
-        title = "Схема данных отдела",
-        description = "Схема для получения данных отдела"
+        title='Схема данных отдела', description='Схема для получения данных отдела'
     )
 
 
@@ -318,8 +312,8 @@ class UserCompanyUpdateSchema(BaseModel):
     )
 
     model_config = ConfigDict(
-        title = "Схема редактирования профиля",
-        description = "Схема для редактирования пользователем компании своего профиля"
+        title='Схема редактирования профиля',
+        description='Схема для редактирования пользователем компании своего профиля',
     )
 
     @model_validator(mode='after')

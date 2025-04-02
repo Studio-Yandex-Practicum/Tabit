@@ -83,8 +83,8 @@ class AdminCompanyResponseSchema(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема ответа админам",
-        description = "Схема компании для ответов админам сервиса"
+        title='Схема ответа админам',
+        description='Схема компании для ответов админам сервиса',
     )
 
 
@@ -190,8 +190,8 @@ class CompanyAdminReadSchema(BaseUser[UUID]):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема для админов",
-        description = "Схема для возврата данных админов от компаний"
+        title='Схема данных админов',
+        description='Схема для возврата данных админов от компаний',
     )
 
 
@@ -223,8 +223,8 @@ class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
     )
 
     model_config = ConfigDict(
-        title = "Схема PUT-запроса",
-        description = "Схема для PUT-запроса изменения данных админов от компаний"
+        title='Схема PUT-запроса к данным админов',
+        description='Схема для полного изменения данных админов от компаний',
     )
 
 
@@ -242,8 +242,7 @@ class CompanyAdminCreateSchema(CompanyAdminPutSchema):
     )
 
     model_config = ConfigDict(
-        title = "Схема создания админов",
-        description = "Схема для создания админов от компаний"
+        title='Схема создания админов', description='Схема для создания админов от компаний'
     )
 
 
@@ -275,6 +274,6 @@ class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
     )
 
     model_config = ConfigDict(
-        title = "Схема обновления данных",
-        description = "Схема для изменения данных админов от компаний"
+        title='Схема обновления данных',
+        description='Схема для частичного изменения данных админов от компаний',
     )

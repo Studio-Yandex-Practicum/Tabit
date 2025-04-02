@@ -20,8 +20,8 @@ class TagUserUpdateSchema(BaseModel):
     )
 
     model_config = ConfigDict(
-        title="Схема изменения тэгов",
-        description="Схема для частичного изменения тэгов пользователей"
+        title='Схема изменения тэгов',
+        description='Схема для частичного изменения тэгов пользователей',
     )
 
 
@@ -37,8 +37,7 @@ class TagUserCreateSchema(TagUserUpdateSchema):
     )
 
     model_config = ConfigDict(
-        title="Схема создания тэгов",
-        description="Схема для создания тэгов пользователей"
+        title='Схема создания тэгов', description='Схема для создания тэгов пользователей'
     )
 
 
@@ -60,6 +59,6 @@ class TagUserResponseSchema(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title="Схема тэгов",
-        description="Схема тэгов пользователей для ответов"
+        title='Схема тэгов',
+        description='Схема тэгов пользователей для ответов',
     )

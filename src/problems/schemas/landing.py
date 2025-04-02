@@ -34,8 +34,8 @@ class LandingPageBaseSchema(BaseModel):
     price_2: Optional[str]
 
     model_config = ConfigDict(
-        title = "Схема управления конетентом",
-        description = "Базовая схема для управления контентом лендинга"
+        title='Схема управления конетентом',
+        description='Базовая схема для управления контентом лендинга',
     )
 
     @field_validator('phone_number_1', 'phone_number_2', 'phone_number_3')
@@ -57,8 +57,7 @@ class LandingPageCreateSchema(LandingPageBaseSchema):
     """Схема для создания записи лендинга."""
 
     model_config = ConfigDict(
-        title = "Схема создания записи",
-        description = "Схема для создания записи лендинга"
+        title='Схема создания лендинга', description='Схема для создания записи лендинга'
     )
 
 
@@ -66,8 +65,7 @@ class LandingPageUpdateSchema(LandingPageBaseSchema):
     """Схема для обновления записи лендинга."""
 
     model_config = ConfigDict(
-        title = "Схема обновления записи",
-        description = "Схема для обновления записи лендинга"
+        title='Схема обновления лендинга', description='Схема для обновления записи лендинга'
     )
 
 
@@ -80,6 +78,5 @@ class LandingPageResponseSchema(LandingPageBaseSchema):
     id: int
 
     model_config = ConfigDict(
-        title = "Схема данных лендинга",
-        description = "Схема для отображения данных лендинга"
+        title='Схема данных лендинга', description='Схема для отображения данных лендинга'
     )

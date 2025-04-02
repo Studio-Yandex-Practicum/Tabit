@@ -22,7 +22,7 @@ def get_auth_info(session: AsyncSession = Depends(get_async_session)):
 
 
 @router.post(
-    '/auth/demo/', 
+    '/auth/demo/',
     response_model=dict,
     summary=Summary.LANDING_PAGE_DEMO,
     description=Description.LANDING_PAGE_DEMO,

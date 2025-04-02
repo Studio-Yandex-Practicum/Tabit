@@ -176,7 +176,7 @@ async def create_department(
     '/{company_slug}/departments/import',
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_IMPORT,
-    description= Description.TABIT_COMPANY_DEPARTMENTS_IMPORT,
+    description=Description.TABIT_COMPANY_DEPARTMENTS_IMPORT,
 )
 async def import_departments(
     company_slug: str,
@@ -209,7 +209,6 @@ async def import_departments(
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENT,
     description=Description.TABIT_COMPANY_DEPARTMENT,
-
 )
 async def get_department(
     company_slug: str,

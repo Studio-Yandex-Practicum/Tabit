@@ -18,8 +18,7 @@ class MeetingBaseSchema(BaseModel):
     # TODO: Надо реализовать добавление файлов в встречу
 
     model_config = ConfigDict(
-        title = "Схема для встреч",
-        description = "Определяет базовые полядля работы с данными встреч"
+        title='Схема для встреч', description='Определяет базовые полядля работы с данными встреч'
     )
 
 
@@ -56,8 +55,8 @@ class MeetingCreateSchema(MeetingSchemaMixin, MeetingBaseSchema):
     place: str
 
     model_config = ConfigDict(
-        title = "Схема для создания встреч",
-        description = "Используется для валидации данных при создании новой встречи"
+        title='Схема для создания встреч',
+        description='Используется для валидации данных при создании новой встречи',
     )
 
 
@@ -78,8 +77,8 @@ class MeetingUpdateSchema(MeetingSchemaMixin, MeetingBaseSchema):
     members: list[UUID] | None = []
 
     model_config = ConfigDict(
-        title = "Схема для обновления информации о встрече",
-        description = "Используется для валидации данных при обновлении информации о встрече"
+        title='Схема для обновления информации о встрече',
+        description='Используется для валидации данных при обновлении информации о встрече',
     )
 
 
@@ -93,8 +92,8 @@ class MemberResponseSchema(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема участника Встречи",
-        description = "Определяет структуру данных для ответа с информацией о участнике Встречи"
+        title='Схема участника Встречи',
+        description='Определяет структуру данных для ответа с информацией о участнике Встречи',
     )
 
 
@@ -128,8 +127,8 @@ class MeetingResponseSchema(MeetingBaseSchema):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема для данных о встрече из БД",
-        description = "Используется для сериализации данных о встрече при получении из БД"
+        title='Схема для данных о встрече из БД',
+        description='Используется для сериализации данных о встрече при получении из БД',
     )
 
 
@@ -148,8 +147,8 @@ class ResultMeetingBaseSchema(BaseModel):
     meeting_feedback: Optional[str]
 
     model_config = ConfigDict(
-        title = "Базовая схема для результатов встреч",
-        description = "Определяет базовые поля и их типы для работы с результатами встреч"
+        title='Базовая схема для результатов встреч',
+        description='Определяет базовые поля и их типы для работы с результатами встреч',
     )
 
 
@@ -166,8 +165,8 @@ class ResultMeetingCreateSchema(ResultMeetingBaseSchema):
     model_config = ConfigDict(
         extra='forbid',
         str_min_length=1,
-        title = "Схема для создания результатов встреч",
-        description = "Используется для валидации данных при создании результатов встречи"
+        title='Схема для создания результатов встреч',
+        description='Используется для валидации данных при создании результатов встречи',
     )
 
 
@@ -185,6 +184,8 @@ class ResultMeetingInDB(ResultMeetingBaseSchema):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема для данных о результатах встречи из БД",
-        description = "Используется для сериализации данных о результатах встречи при получении из БД"
+        title='Схема для данных о результатах встречи из БД',
+        description=(
+            'Используется для сериализации данных о результатах встречи при получении из БД'
+        ),
     )

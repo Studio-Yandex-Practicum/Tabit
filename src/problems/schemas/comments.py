@@ -22,8 +22,8 @@ class CommentCreate(CommentBase):
     text: str = Field(..., title=TITLE_COMMENTS_TEXT_CREATE)
 
     model_config = ConfigDict(
-        title = "Схема создания",
-        description = "Схема для создания нового комментария"
+        title='Схема создания коммента',
+        description='Схема для создания нового комментария'
     )
 
 
@@ -36,8 +36,8 @@ class CommentUpdate(CommentBase):
     text: str = Field(..., title=TITLE_COMMENTS_TEXT_UPDATE)
 
     model_config = ConfigDict(
-        title = "Схема обновления",
-        description = "Схема для обновления комментария"
+        title='Схема обновления коммента',
+        description='Схема для обновления комментария'
     )
 
 
@@ -61,6 +61,6 @@ class CommentRead(CommentBase):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема комментария",
-        description = "Схема комментария для ответов API"
+        title='Схема комментария',
+        description='Схема комментария для ответов API',
     )

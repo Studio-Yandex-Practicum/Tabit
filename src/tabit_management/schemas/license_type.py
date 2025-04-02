@@ -71,8 +71,8 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
     )
 
     model_config = ConfigDict(
-        title = "Схема лицензии",
-        description = "Схема для создания лицензии"
+        title='Схема создания лицензии',
+        description='Схема для создания лицензии'
     )
 
 
@@ -108,8 +108,8 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
 
     model_config = ConfigDict(
         extra='forbid',
-        title="Схема изменения лицензии",
-        description="Схема для частичного изменения лицензии"
+        title='Схема изменения лицензии',
+        description='Схема для частичного изменения лицензии',
     )
 
 
@@ -134,9 +134,7 @@ class LicenseTypeResponseSchema(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(
-        from_attributes=True,
-        title="Схема ответов",
-        description="Схема лицензии для ответов"
+        from_attributes=True, title='Схема лицензии', description='Схема лицензии для ответов'
     )
 
 
@@ -155,8 +153,7 @@ class LicenseTypeListResponseSchema(BaseModel):
     page_size: int
 
     model_config = ConfigDict(
-        title="Схема списка лицензий",
-        description="Схема ответа для списка лицензий с пагинацией"
+        title='Схема списка лицензий', description='Схема ответа для списка лицензий с пагинацией'
     )
 
 
@@ -181,6 +178,6 @@ class LicenseTypeFilterSchema(BaseModel):
     )
 
     model_config = ConfigDict(
-        title="Схема фильтрации списка лицензий",
-        description="Схема фильтрации списка лицензий с возможностью сортировки и пагинации"
+        title='Схема фильтрации списка лицензий',
+        description='Схема фильтрации списка лицензий с возможностью сортировки и пагинации',
     )

@@ -29,8 +29,7 @@ class MeetingBaseSchema(BaseModel):
     file: Optional[int]
 
     model_config = ConfigDict(
-        title = "Схема мероприятий",
-        description = "Базовая схема для мероприятий"
+        title='Схема мероприятий', description='Базовая схема для мероприятий'
     )
 
 
@@ -40,8 +39,7 @@ class MeetingCreateSchema(MeetingBaseSchema):
     """
 
     model_config = ConfigDict(
-        title = "Схема создания мероприятий",
-        description = "Схема для создания мероприятий"
+        title='Схема создания мероприятий', description='Схема для создания мероприятий'
     )
 
 
@@ -51,8 +49,8 @@ class MeetingUpdateSchema(MeetingBaseSchema):
     """
 
     model_config = ConfigDict(
-        title = "Схема изменения мероприятий",
-        description = "Схема для обновления информации о мероприятии"
+        title='Схема изменения мероприятий',
+        description='Схема для обновления информации о мероприятии',
     )
 
 
@@ -68,8 +66,8 @@ class MeetingSchema(MeetingBaseSchema):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема мероприятия",
-        description = "Схема для отображения информации о мероприятии"
+        title='Схема мероприятия',
+        description='Схема для отображения информации о мероприятии',
     )
 
 
@@ -84,9 +82,7 @@ class StatusMeetingSchema(BaseModel):
     name: str
 
     model_config = ConfigDict(
-        from_attributes=True,
-        title = "Схема статусов",
-        description = "Схема для статусов мероприятий"
+        from_attributes=True, title='Схема статусов', description='Схема для статусов мероприятий'
     )
 
 
@@ -102,6 +98,6 @@ class ResultMeetingSchema(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title = "Схема результатов",
-        description = "Схема для результатов мероприятий"
+        title='Схема результатов',
+        description='Схема для результатов мероприятий',
     )

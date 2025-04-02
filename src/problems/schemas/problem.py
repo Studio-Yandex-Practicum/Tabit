@@ -51,8 +51,8 @@ class MemberResponseSchema(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title="Схема участника Проблемы",
-        description="Определяет структуру данных для ответа с информацией о участнике Проблемы."
+        title='Схема участника Проблемы',
+        description='Определяет структуру данных для ответа с информацией о участнике Проблемы.',
     )
 
 
@@ -84,8 +84,8 @@ class ProblemResponseSchema(ProblemBaseSchema):
 
     model_config = ConfigDict(
         from_attributes=True,
-        title="Схема Проблемы для ответа",
-        description="Определяет структуру данных для ответа с информацией о проблеме"
+        title='Схема Проблемы для ответа',
+        description='Определяет структуру данных для ответа с информацией о проблеме',
     )
 
 
@@ -103,8 +103,8 @@ class ProblemCreateSchema(ProblemSchemaMixin, ProblemBaseSchema):
     type: TypeProblem
 
     model_config = ConfigDict(
-        title = "Схема для создания проблемы",
-        description = "Определяет структуру данных для создания новой проблемы"
+        title='Схема для создания проблемы',
+        description='Определяет структуру данных для создания новой проблемы',
     )
 
 
@@ -124,6 +124,6 @@ class ProblemUpdateSchema(ProblemSchemaMixin, ProblemBaseSchema):
     status: StatusProblem | None = None
 
     model_config = ConfigDict(
-        title = "Схема для обновления проблемы",
-        description = "Определяет структуру данных для обновления существующей проблемы"
+        title='Схема для обновления проблемы',
+        description='Определяет структуру данных для обновления существующей проблемы',
     )
