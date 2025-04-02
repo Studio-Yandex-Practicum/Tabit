@@ -415,9 +415,9 @@ class TestCreateCompany:
         second_company_slug = response_2.json()['slug']
 
         assert first_company_slug != second_company_slug, 'Слаг должен быть уникальным'
-        assert second_company_slug.startswith(
-            first_company_slug.split('-')[0]
-        ), 'Слаг должен базироваться на названии'
+        assert second_company_slug.startswith(first_company_slug.split('-')[0]), (
+            'Слаг должен базироваться на названии'
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -452,9 +452,9 @@ class TestCreateCompany:
         error_detail = response.json()
         assert 'detail' in error_detail, response.text
         assert message == error_detail['detail']
-        assert message == (
-            detail := error_detail['detail']
-        ), f'Ожидалось:\n{message}\nПолучили\n{detail}'
+        assert message == (detail := error_detail['detail']), (
+            f'Ожидалось:\n{message}\nПолучили\n{detail}'
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -603,11 +603,9 @@ class TestCreateCompany:
             headers=jwt_token,
         )
         assert response.status_code == 400, (
-            'Статус-код должен быть 400 '
-            'при попытки создать компанию '
-            'с несуществующей license'
+            'Статус-код должен быть 400 при попытки создать компанию с несуществующей license'
         )
-        assert response.json()['detail'] == f"Лицензия с id {payload['license_id']} не найдена."
+        assert response.json()['detail'] == f'Лицензия с id {payload["license_id"]} не найдена.'
 
     @pytest.mark.asyncio
     async def test_create_company_existent_license(
@@ -628,7 +626,7 @@ class TestCreateCompany:
             headers=superuser_token,
         )
         assert response.status_code == status.HTTP_201_CREATED, (
-            'Статус-код должен быть 201 ' 'при попытки создать компанию ' 'с существующей license'
+            'Статус-код должен быть 201 при попытки создать компанию с существующей license'
         )
         data = response.json()
         assert data['license_id'] == payload['license_id']
@@ -681,9 +679,9 @@ class TestGetCompany:
         }
 
         for company in companies:
-            assert expected_fields.issubset(
-                company.keys()
-            ), f'Компания должна содержать поля: {expected_fields}'
+            assert expected_fields.issubset(company.keys()), (
+                f'Компания должна содержать поля: {expected_fields}'
+            )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -844,17 +842,17 @@ class TestGetCompany:
         for key, value in update_data.items():
             if 'time' in key and value:
                 actual_time = datetime.fromisoformat(data[key]).isoformat()
-                assert (
-                    actual_time == value
-                ), f'Ожидалось значение {value} в поле {key}, но получено {actual_time}'
+                assert actual_time == value, (
+                    f'Ожидалось значение {value} в поле {key}, но получено {actual_time}'
+                )
             elif 'logo' == key:
-                assert data[key] == get_path_logo(
-                    company.slug, 'jpg'
-                ), f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                assert data[key] == get_path_logo(company.slug, 'jpg'), (
+                    f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                )
             else:
-                assert (
-                    data[key] == value
-                ), f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                assert data[key] == value, (
+                    f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                )
 
     @pytest.mark.asyncio
     async def test_patch_company_name_too_short(
@@ -1090,9 +1088,9 @@ class TestPatchCompanyValidation:
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()
         assert 'detail' in error_detail, response.text
-        assert message == (
-            detail := error_detail['detail']
-        ), f'Ожидалось:\n{message}\nПолучили\n{detail}'
+        assert message == (detail := error_detail['detail']), (
+            f'Ожидалось:\n{message}\nПолучили\n{detail}'
+        )
 
     @pytest.mark.asyncio
     async def test_patch_company_field_with_leading_or_trailing_spaces(
@@ -1183,9 +1181,9 @@ class TestPatchCompanyValidation:
         assert response.status_code == status.HTTP_200_OK, response.text
         data = response.json()
 
-        assert (
-            data['end_license_time'] is None
-        ), f'Ожидалось null в поле end_license_time, но получено {data["end_license_time"]}'
+        assert data['end_license_time'] is None, (
+            f'Ожидалось null в поле end_license_time, но получено {data["end_license_time"]}'
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize('license_term_days', [30, 60, 365])

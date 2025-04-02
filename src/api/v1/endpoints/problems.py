@@ -108,7 +108,7 @@ async def create_problem(
     """
     company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
     validate_user_from_company(user, company)  # type: ignore
-    await validate_field_members(session, problem_in.members)
+    await validate_field_members(session, problem_in.members, company.id)
     return await problem_crud.create_problem_with_members(
         session=session,
         problem_in=problem_in,
