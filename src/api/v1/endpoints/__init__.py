@@ -9,6 +9,7 @@ from .tabit_admin_auth import router as tabit_admin_auth_router
 from .tabit_management import router as tabit_management_router
 from .tabit_management_companies import router as companies_management_router
 from .tabit_management_licenses import router as licenses_router
+from .tags import router as tags_router
 from .tasks import router as task_router
 
 __all__ = [
@@ -19,6 +20,7 @@ __all__ = [
     'problems_router',
     'problem_feeds_router',
     'task_router',
+    'tags_router',
     'landing_page_router',
     'company_user_router',
     'meeting_router',

@@ -48,6 +48,10 @@ class URL:
     LIKE_URL: str = '/api/v1/Zorg/problems/1/{message_feed_id}/comments/1/like'
     UNLIKE_URL: str = '/api/v1/Zorg/problems/1/{message_feed_id}/comments/1/unlike'
 
+    # URLs для работы с тегами
+    TAGS_ENDPOINT: str = '/api/v1/{company_id}/tags'
+    TAG_DETAIL_ENDPOINT: str = '/api/v1/{company_id}/tags/{tag_id}'
+
 
 GOOD_PASSWORD: str = 'string123STRING'
 BAD_PASSWORD: tuple[str, ...] = (
@@ -208,6 +212,7 @@ INVALID_IMAGE: tuple[tuple[Any, Any], ...] = (
 
 # Константы для тестов problem_feeds.py
 COMPANY_DATA = {'name': 'Zorg', 'slug': 'Zorg', 'is_active': True}
+COMPANY_DATA_TWO = {'name': 'Org', 'slug': 'Org', 'is_active': True}
 MESSAGE_FEED_CREATE_NEW: tuple[tuple] = (
     ({'text': 'feed with important field', 'important': True}, True),
     ({'text': 'feed w/o important field'}, False),
@@ -230,4 +235,17 @@ COMMENT_UPDATE: dict[str] = {'text': 'updated comment'}
 COMMENT_UPDATE_BAD: tuple[tuple] = (
     ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
     ({'text': 'comment with extra field', 'rating': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+)
+# Константы для тестов tags.py
+TAG_UPDATE_DATA: dict[str] = {'name': 'Updated Test Tag'}
+TAG_BAD_CREATE_DATA: tuple[tuple] = (
+    ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'name': ''}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'name': '   '}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'name': 'A' * 256}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+)
+TAG_BAD_UPDATE_DATA: tuple[tuple] = (
+    ({'name': ''}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'name': '   '}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ({'name': 'A' * 256}, status.HTTP_422_UNPROCESSABLE_ENTITY),
 )
