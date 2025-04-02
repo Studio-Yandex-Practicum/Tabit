@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_admin_tabit
 from src.api.v1.auth.managers import get_user_manager
+from src.api.v1.constants import Description, Summary
 from src.api.v1.validators import (
     check_company_and_department,
     check_telegram_username_for_duplicates,
@@ -29,7 +30,8 @@ router = APIRouter()
     '/',
     response_model=list[AdminCompanyResponseSchema],
     dependencies=[Depends(current_admin_tabit)],
-    summary='Получить общую информацию по компаниям.',
+    summary=Summary.TABIT_MANAGEMENT,
+    description=Description.TABIT_MANAGEMENT,
 )
 async def get_all_info(
     session: AsyncSession = Depends(get_async_session),
@@ -52,7 +54,8 @@ async def get_all_info(
     '/staff',
     response_model=list[CompanyAdminReadSchema],
     dependencies=[Depends(current_admin_tabit)],
-    summary='Получить информацию по всем сотрудникам компаний.',
+    summary=Summary.TABIT_MANAGEMENT_LIST,
+    description=Description.TABIT_MANAGEMENT_LIST,
 )
 async def get_all_staff(
     session: AsyncSession = Depends(get_async_session),
@@ -74,7 +77,8 @@ async def get_all_staff(
 @router.post(
     '/staff',
     dependencies=[Depends(current_admin_tabit)],
-    summary='Создать нового сотрудника компании.',
+    summary=Summary.TABIT_MANAGEMENT_CREATE,
+    description=Description.TABIT_MANAGEMENT_CREATE,
     response_model=CompanyAdminReadSchema,
 )
 async def create_staff(
@@ -105,7 +109,8 @@ async def create_staff(
 
 @router.get(
     '/staff/{user_id}',
-    summary='Получить информацию об администраторе.',
+    summary=Summary.TABIT_MANAGEMENT_ADMIN,
+    description=Description.TABIT_MANAGEMENT_ADMIN,
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
 )
@@ -125,7 +130,8 @@ async def get_staff(
 
 @router.put(
     '/staff/{user_id}',
-    summary='Полностью изменить информацию об администраторе.',
+    summary=Summary.TABIT_MANAGEMENT_ADMIN_PUT,
+    description=Description.TABIT_MANAGEMENT_ADMIN_PUT,
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
 )
@@ -154,7 +160,8 @@ async def full_update_staff(
 
 @router.patch(
     '/staff/{user_id}',
-    summary='Частично изменить информацию об администраторе.',
+    summary=Summary.TABIT_MANAGEMENT_ADMIN_PATCH,
+    description=Description.TABIT_MANAGEMENT_ADMIN_PATCH,
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
 )
@@ -183,7 +190,8 @@ async def update_staff(
 
 @router.delete(
     '/staff/{user_id}',
-    summary='Удалить информацию об администраторе.',
+    summary=Summary.TABIT_MANAGEMENT_ADMIN_DELETE,
+    description=Description.TABIT_MANAGEMENT_ADMIN_DELETE,
     dependencies=[Depends(current_admin_tabit)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
@@ -207,7 +215,8 @@ async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(ge
 @router.post(
     '/staff/{user_id}/resetpassword',
     dependencies=[Depends(current_admin_tabit)],
-    summary='Сброс пароля администратора. Не работает',
+    summary=Summary.TABIT_MANAGEMENT_ADMIN_PASSWORD,
+    description=Description.TABIT_MANAGEMENT_ADMIN_PASSWORD,
 )
 async def reset_password_staff(
     user_id: UUID,

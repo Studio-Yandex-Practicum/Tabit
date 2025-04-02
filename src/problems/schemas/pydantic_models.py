@@ -8,7 +8,15 @@ from .enums import MeetingStatus
 
 class MeetingBaseSchema(BaseModel):
     """
-    Базовая Pydantic-схема для мероприятий.
+    Параметры:
+        title: Заголовок встречи.
+        description: Описание.
+        owner: Автор встречи.
+        date: Дата встречи.
+        status: Статус встречи.
+        place: Место встречи.
+        result: Результаты встречи.
+        file: К встречи могут быть прикреплены файлы.
     """
 
     title: str
@@ -20,13 +28,21 @@ class MeetingBaseSchema(BaseModel):
     result: Optional[int]
     file: Optional[int]
 
+    model_config = ConfigDict(
+        title = "Схема мероприятий",
+        description = "Базовая схема для мероприятий"
+    )
+
 
 class MeetingCreateSchema(MeetingBaseSchema):
     """
     Pydantic-схема для создания мероприятия.
     """
 
-    pass
+    model_config = ConfigDict(
+        title = "Схема создания мероприятий",
+        description = "Схема для создания мероприятий"
+    )
 
 
 class MeetingUpdateSchema(MeetingBaseSchema):
@@ -34,37 +50,58 @@ class MeetingUpdateSchema(MeetingBaseSchema):
     Pydantic-схема для обновления информации о мероприятии.
     """
 
-    pass
+    model_config = ConfigDict(
+        title = "Схема изменения мероприятий",
+        description = "Схема для обновления информации о мероприятии"
+    )
 
 
 class MeetingSchema(MeetingBaseSchema):
     """
-    Pydantic-схема для отображения информации о мероприятии.
+    Параметры:
+        id: идентефикатор.
+        members: участники встречи.
     """
 
     id: int
     members: List[int] = []
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема мероприятия",
+        description = "Схема для отображения информации о мероприятии"
+    )
 
 
 class StatusMeetingSchema(BaseModel):
     """
-    Pydantic-схема для статусов мероприятий.
+    Параметры:
+        id: идентефикатор.
+        name: название мероприятия.
     """
 
     id: int
     name: str
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема статусов",
+        description = "Схема для статусов мероприятий"
+    )
 
 
 class ResultMeetingSchema(BaseModel):
     """
-    Pydantic-схема для результатов мероприятий.
+    Параметры:
+        id: идентефикатор.
+        name: название мероприятия.
     """
 
     id: int
     name: str
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема результатов",
+        description = "Схема для результатов мероприятий"
+    )

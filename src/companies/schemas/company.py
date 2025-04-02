@@ -52,7 +52,6 @@ from src.users.schemas import UserUpdateSchema
 
 class CompanyUpdateForUserSchema(BaseModel):
     """
-    Схема для частичного изменения компании пользователем-админом.
     Параметры:
         description: новое описание компании (опционально).
         logo: логотип (опционально).
@@ -69,6 +68,11 @@ class CompanyUpdateForUserSchema(BaseModel):
         title=TITLE_LOGO_COMPANY,
     )
 
+    model_config = ConfigDict(
+        title = "Схема изменения компании",
+        description = "Схема для частичного изменения компании пользователем-админом"
+    )
+
     @field_validator('description', mode='after', check_fields=False)
     @classmethod
     def validate_description(cls, value: str):
@@ -78,7 +82,6 @@ class CompanyUpdateForUserSchema(BaseModel):
 
 class CompanyUpdateSchema(CompanyUpdateForUserSchema):
     """
-    Схема для частичного изменения компании админом сервиса.
     Параметры:
         name: новое название компании (опционально).
         license_id: номер лицензии (опционально).
@@ -100,6 +103,11 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         title=TITLE_START_LICENSE_TIME_COMPANY,
     )
     end_license_time: datetime | None = None
+    
+    model_config = ConfigDict(
+        title = "Схема изменения компании админом",
+        description = "Схема для частичного изменения компании админом сервиса"
+    )
 
     @field_validator('name', mode='after', check_fields=False)
     @classmethod
@@ -114,7 +122,11 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
 
 
 class CompanyCreateSchema(CompanyUpdateSchema):
-    """Схема для создания компании."""
+    """Схема для создания компании.
+    Параметры:
+        name: название создаваемой компании.
+        slug: короткая строка для пути к эндпоинту компании(опционально).
+    """
 
     name: str = Field(
         ...,
@@ -123,6 +135,11 @@ class CompanyCreateSchema(CompanyUpdateSchema):
         title=TITLE_NAME_COMPANY,
     )
     slug: Optional[str] = Field(None, title=TITLE_SLUG_COMPANY)
+
+    model_config = ConfigDict(
+        title = "Схема создания компании",
+        description = "Схема для создания новой компании, доступно только админу"
+    )
 
     @field_validator('slug')
     @classmethod
@@ -133,7 +150,6 @@ class CompanyCreateSchema(CompanyUpdateSchema):
 
 class CompanyResponseSchema(BaseModel):
     """
-    Схема компании для ответов админам сервиса.
     Параметры:
         id: идентификатор компании (обязательно).
         name: название компании (обязательно).
@@ -164,16 +180,18 @@ class CompanyResponseSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема компании",
+        description = "Схема компании для ответов админам сервиса"
+    )
 
 
 class CompanyTypeFilterSchema(BaseModel):
     """
-    Схема фильтрации списка компании с возможностью сортировки.
-
-    Attributes:
-        name (Optional[str]): Фильтр по названию компании.
-        ordering (Optional[Literal]): Сортировка (по полям name, created_at, updated_at).
+    Параметры:
+        name: Фильтр по названию компании(опционально).
+        ordering: Сортировка (по полям name, created_at, updated_at)(опционально).
     """
 
     name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
@@ -182,9 +200,20 @@ class CompanyTypeFilterSchema(BaseModel):
         Literal['name', '-name', 'created_at', '-created_at', 'updated_at', '-updated_at']
     ] = Field(None, description=SORTING_DESCRIPTION)
 
+    model_config = ConfigDict(
+        title = "Схема фильтрации компаний",
+        description = "Схема фильтрации списка компани1 с возможностью сортировки"
+    )
+    class Config:
+        title = "Схема фильтрации компаний"
+        description = "Схема фильтрации списка компани1 с возможностью сортировки"
+
 
 class CompanyDepartmentUpdateSchema(BaseModel):
-    """Схема для обновления данных об отделе."""
+    """
+    Параметры:
+        name: название отдела.
+    """
 
     name: str = Field(
         ...,
@@ -192,13 +221,17 @@ class CompanyDepartmentUpdateSchema(BaseModel):
         max_length=LENGTH_NAME_COMPANY,
         title=TITLE_NAME_DEPARTMENT,
     )
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(
+        extra='forbid',
+        title = "Схема обновления отдела",
+        description = "Схема для обновления данных об отделе"
+    )
 
 
 class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
     """
     Схема для создания отдела.
-     Параметры:
+    Параметры:
         name: название отдела (обязательно).
     """
 
@@ -209,7 +242,11 @@ class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
         title=TITLE_NAME_DEPARTMENT,
     )
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема создания отдела",
+        description = "Схема создания отдела"
+    )
 
 
 class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
@@ -227,6 +264,11 @@ class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
     slug: str
     company_id: int
 
+    model_config = ConfigDict(
+        title = "Схема данных отдела",
+        description = "Схема для получения данных отдела"
+    )
+
 
 class CompanyEmployeeUpdateSchema(UserUpdateSchema):
     """Схема для изменения данных сотрудника компании админом компании."""
@@ -242,8 +284,7 @@ class CompanyEmployeeUpdateSchema(UserUpdateSchema):
 
 class UserCompanyUpdateSchema(BaseModel):
     """
-    Схема для редактирования пользователем компании своего профиля.
-     Параметры:
+    Параметры:
         name: новое имя сотрудника (опционально).
         surname: новая фамилия сотрудника (опционально).
         phone_number: новый номер телефона сотрудника (опционально).
@@ -274,6 +315,11 @@ class UserCompanyUpdateSchema(BaseModel):
         None,
         max_length=LENGTH_TELEGRAM_USERNAME,
         title=title_telegram_username_user,
+    )
+
+    model_config = ConfigDict(
+        title = "Схема редактирования профиля",
+        description = "Схема для редактирования пользователем компании своего профиля"
     )
 
     @model_validator(mode='after')

@@ -12,16 +12,17 @@ from src.problems.validators.task_validators import (
 
 class TaskBaseSchema(BaseModel):
     """
-    Базовая Pydantic-схема для задач.
-
-    Назначение:
-        Определяет базовые поля и их типы для работы с данными задач.
     Параметры:
         description: Описание задачи (опционально).
     """
 
     description: str | None = None
     # TODO: Надо реализовать добавление файлов в встречу
+
+    model_config = ConfigDict(
+        title = "Схема для задач",
+        description = "Определяет базовые поля для работы с данными задач"
+    )
 
 
 class TaskSchemaMixin:
@@ -50,25 +51,26 @@ class TaskSchemaMixin:
 
 
 class ExecutorsResponseSchema(BaseModel):
-    """Схема исполнителя задачи.
-
-    Назначение:
-        Определяет структуру данных для ответа с информацией о исполнителе задачи.
+    """
     Параметры:
-        member_id: UUID исполнителя задачи.
+        executor_id: UUID исполнителя задачи.
     """
 
     executor_id: UUID = Field(validation_alias='left_id')
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема для исполнителя задач",
+        description = "Схема для ответа с информацией о исполнителе задачи"
+    )
+
+    class Config:
+        title = "Схема для исполнителя задач"
+        description = "Схема для ответа с информацией о исполнителе задачи"
 
 
 class TaskResponseSchema(BaseModel):
     """
-    Pydantic-схема для данных о задаче из БД.
-
-    Назначение:
-        Используется для сериализации данных о задаче при получении из БД.
     Параметры:
         id: Идентификатор задачи.
         name: Название задачи.
@@ -91,40 +93,42 @@ class TaskResponseSchema(BaseModel):
     status: StatusTask
     transfer_counter: int
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема для данных о задаче из БД",
+        description = "Схема для сериализации данных о задаче"
+    )
 
 
 class TaskCreateSchema(TaskSchemaMixin, TaskBaseSchema):
     """
-    Pydantic-схема для данных о задаче из БД.
-
-    Назначение:
-        Используется для сериализации данных о задаче при создании записи в БД.
     Параметры:
         name: Название задачи.
-        description: Описание задачи (опционально).
         date_completion: Дата выполнения задачи
-        executors: Список идентификаторов исполнителей.
     """
 
     name: str
     date_completion: date
 
+    model_config = ConfigDict(
+        title = "Схема создания задачи",
+        description = "Схема для сериализации данных при создании задачи"
+    )
+
 
 class TaskUpdateSchema(TaskSchemaMixin, TaskBaseSchema):
     """
-    Pydantic-схема для обновления задачи.
-
-    Назначение:
-        Используется для валидации данных при обновлении информации о задаче.
     Параметры:
         name: Название задачи (опционально).
-        description: Описание задачи (опционально).
         date_completion: Дата завершения задачи (опционально).
-        executors: Список идентификаторов исполнителей (опционально).
         status: Статус задачи (опционально).
     """
 
     name: str | None = None
     date_completion: date | None = None
     status: StatusTask | None = None
+
+    model_config = ConfigDict(
+        title = "Схема для обновления задачи",
+        description = "Схема для валидации обновленных данных о задаче"
+    )

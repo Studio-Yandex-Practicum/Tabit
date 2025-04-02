@@ -1,15 +1,9 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.constants import Description, Summary
 from src.api.v1.validators.tabit_management_licenses_validators import validate_license_name
 from src.database.db_depends import get_async_session
-from src.tabit_management.constants import (
-    SUMMARY_CREATE_LICENSE,
-    SUMMARY_DELETE_LICENSE,
-    SUMMARY_GET_LICENSE,
-    SUMMARY_GET_LICENSES,
-    SUMMARY_UPDATE_LICENSE,
-)
 from src.tabit_management.crud import license_type_crud
 from src.tabit_management.schemas import (
     LicenseTypeCreateSchema,
@@ -28,7 +22,8 @@ router = APIRouter()
     '/',
     response_model=LicenseTypeListResponseSchema,
     status_code=status.HTTP_200_OK,
-    summary=SUMMARY_GET_LICENSES,
+    summary=Summary.SUMMARY_GET_LICENSES,
+    description=Description.DESC_GET_LICENSES,
 )
 async def get_licenses(
     session: AsyncSession = Depends(get_async_session),
@@ -66,7 +61,8 @@ async def get_licenses(
     '/',
     response_model=LicenseTypeResponseSchema,
     status_code=status.HTTP_201_CREATED,
-    summary=SUMMARY_CREATE_LICENSE,
+    summary=Summary.SUMMARY_CREATE_LICENSE,
+    description=Description.DESC_CREATE_LICENSE,
 )
 async def create_license(
     license: LicenseTypeCreateSchema,
@@ -93,7 +89,8 @@ async def create_license(
     '/{license_id}',
     response_model=LicenseTypeResponseSchema,
     status_code=status.HTTP_200_OK,
-    summary=SUMMARY_GET_LICENSE,
+    summary=Summary.SUMMARY_GET_LICENSE,
+    description=Description.DESC_GET_LICENSE,
 )
 async def get_license(
     license_id: int, session: AsyncSession = Depends(get_async_session)
@@ -118,7 +115,8 @@ async def get_license(
     '/{license_id}',
     response_model=LicenseTypeResponseSchema,
     status_code=status.HTTP_200_OK,
-    summary=SUMMARY_UPDATE_LICENSE,
+    summary=Summary.SUMMARY_UPDATE_LICENSE,
+    description=Description.DESC_UPDATE_LICENSE,
 )
 async def update_license(
     license_id: int,
@@ -150,7 +148,8 @@ async def update_license(
 @router.delete(
     '/{license_id}',
     status_code=status.HTTP_204_NO_CONTENT,
-    summary=SUMMARY_DELETE_LICENSE,
+    summary=Summary.SUMMARY_DELETE_LICENSE,
+    description=Description.DESC_DELETE_LICENSE,
 )
 async def delete_license(
     license_id: int,

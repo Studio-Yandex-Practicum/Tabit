@@ -40,10 +40,7 @@ class ProblemSchemaMixin:
 
 
 class MemberResponseSchema(BaseModel):
-    """Схема участника Проблемы.
-
-    Назначение:
-        Определяет структуру данных для ответа с информацией о участнике Проблемы.
+    """
     Параметры:
         status: статус, отображающий участие пользователя в решении Проблемы.
         member_id: UUID участника Проблемы.
@@ -52,18 +49,18 @@ class MemberResponseSchema(BaseModel):
     status: bool | None
     member_id: UUID = Field(validation_alias='left_id')
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title="Схема участника Проблемы",
+        description="Определяет структуру данных для ответа с информацией о участнике Проблемы."
+    )
 
 
 class ProblemResponseSchema(ProblemBaseSchema):
-    """Схема Проблемы для ответа.
-
-    Назначение:
-        Определяет структуру данных для ответа с информацией о проблеме.
+    """
     Параметры:
         id: Уникальный идентификатор проблемы.
         name: Название проблемы.
-        description: Описание проблемы (опционально).
         color: Цвет проблемы из перечисления ColorProblem.
         type: Тип проблемы из перечисления TypeProblem.
         status: Статус проблемы из перечисления StatusProblem.
@@ -85,17 +82,17 @@ class ProblemResponseSchema(ProblemBaseSchema):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title="Схема Проблемы для ответа",
+        description="Определяет структуру данных для ответа с информацией о проблеме"
+    )
 
 
 class ProblemCreateSchema(ProblemSchemaMixin, ProblemBaseSchema):
-    """Схема для создания проблемы.
-
-    Назначение:
-        Определяет структуру данных для создания новой проблемы.
+    """
     Параметры:
         name: Название проблемы.
-        description: Описание проблемы (опционально).
         color: Цвет проблемы из перечисления ColorProblem.
         type: Тип проблемы из перечисления TypeProblem.
         members: список участников, из связной таблицы, оформленных через схему
@@ -105,15 +102,16 @@ class ProblemCreateSchema(ProblemSchemaMixin, ProblemBaseSchema):
     color: ColorProblem
     type: TypeProblem
 
+    model_config = ConfigDict(
+        title = "Схема для создания проблемы",
+        description = "Определяет структуру данных для создания новой проблемы"
+    )
+
 
 class ProblemUpdateSchema(ProblemSchemaMixin, ProblemBaseSchema):
-    """Схема для обновления проблемы.
-
-    Назначение:
-        Определяет структуру данных для обновления существующей проблемы.
+    """
     Параметры:
         name: Название проблемы (опционально).
-        description: Описание проблемы (опционально).
         color: Цвет проблемы из перечисления ColorProblem (опционально).
         type: Тип проблемы из перечисления TypeProblem (опционально).
         status: Статус проблемы из перечисления StatusProblem (опционально).
@@ -124,3 +122,8 @@ class ProblemUpdateSchema(ProblemSchemaMixin, ProblemBaseSchema):
     color: ColorProblem | None = None
     type: TypeProblem | None = None
     status: StatusProblem | None = None
+
+    model_config = ConfigDict(
+        title = "Схема для обновления проблемы",
+        description = "Определяет структуру данных для обновления существующей проблемы"
+    )

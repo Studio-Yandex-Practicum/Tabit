@@ -9,16 +9,18 @@ from src.problems.validators.meeting_validators import validate_date, validate_n
 
 
 class MeetingBaseSchema(BaseModel):
-    """Базовая Pydantic-схема для встреч.
-
-    Назначение:
-        Определяет базовые поля и их типы для работы с данными встреч.
+    """
     Параметры:
         description: Описание встречи (опционально).
     """
 
     description: str | None = None
     # TODO: Надо реализовать добавление файлов в встречу
+
+    model_config = ConfigDict(
+        title = "Схема для встреч",
+        description = "Определяет базовые полядля работы с данными встреч"
+    )
 
 
 class MeetingSchemaMixin:
@@ -42,13 +44,9 @@ class MeetingSchemaMixin:
 
 
 class MeetingCreateSchema(MeetingSchemaMixin, MeetingBaseSchema):
-    """Pydantic-схема для создания встреч.
-
-    Назначение:
-        Используется для валидации данных при создании новой встречи.
+    """
     Параметры:
         title: Название встречи.
-        description: Описание встречи (опционально).
         date_meeting: Дата проведения встречи.
         place: Место проведения встречи.
     """
@@ -57,15 +55,16 @@ class MeetingCreateSchema(MeetingSchemaMixin, MeetingBaseSchema):
     date_meeting: date
     place: str
 
+    model_config = ConfigDict(
+        title = "Схема для создания встреч",
+        description = "Используется для валидации данных при создании новой встречи"
+    )
+
 
 class MeetingUpdateSchema(MeetingSchemaMixin, MeetingBaseSchema):
-    """Pydantic-схема для обновления информации о встрече.
-
-    Назначение:
-        Используется для валидации данных при обновлении информации о встрече.
+    """
     Параметры:
         title: Название встречи (опционально).
-        description: Описание встречи (опционально).
         date_meeting: Дата проведения встречи (опционально).
         place: Место проведения встречи (опционально).
         status: Статус встречи (опционально).
@@ -78,30 +77,32 @@ class MeetingUpdateSchema(MeetingSchemaMixin, MeetingBaseSchema):
     status: StatusMeeting | None = None
     members: list[UUID] | None = []
 
+    model_config = ConfigDict(
+        title = "Схема для обновления информации о встрече",
+        description = "Используется для валидации данных при обновлении информации о встрече"
+    )
+
 
 class MemberResponseSchema(BaseModel):
-    """Схема участника Встречи.
-
-    Назначение:
-        Определяет структуру данных для ответа с информацией о участнике Встречи.
+    """
     Параметры:
         member_id: UUID участника Встречи.
     """
 
     member_id: UUID = Field(validation_alias='left_id')
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема участника Встречи",
+        description = "Определяет структуру данных для ответа с информацией о участнике Встречи"
+    )
 
 
 class MeetingResponseSchema(MeetingBaseSchema):
-    """Pydantic-схема для данных о встрече из БД.
-
-    Назначение:
-        Используется для сериализации данных о встрече при получении из БД.
+    """
     Параметры:
         id: Идентификатор встречи.
         title: Название встречи.
-        description: Описание встречи (опционально).
         problem_id: Идентификационный номер проблемы по которой назначена встреча.
         owner_id: Идентификационный номер пользователя, который создал встречу.
         date_meeting: Дата проведения встречи.
@@ -125,14 +126,15 @@ class MeetingResponseSchema(MeetingBaseSchema):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема для данных о встрече из БД",
+        description = "Используется для сериализации данных о встрече при получении из БД"
+    )
 
 
 class ResultMeetingBaseSchema(BaseModel):
-    """Базовая Pydantic-схема для результатов встреч.
-
-    Назначение:
-        Определяет базовые поля и их типы для работы с результатами встреч.
+    """
     Параметры:
         meeting_result: Результат встречи.
         participant_engagement: Участие в встрече.
@@ -145,12 +147,14 @@ class ResultMeetingBaseSchema(BaseModel):
     problem_solution: bool
     meeting_feedback: Optional[str]
 
+    model_config = ConfigDict(
+        title = "Базовая схема для результатов встреч",
+        description = "Определяет базовые поля и их типы для работы с результатами встреч"
+    )
+
 
 class ResultMeetingCreateSchema(ResultMeetingBaseSchema):
-    """Pydantic-схема для создания результатов встреч.
-
-    Назначение:
-        Используется для валидации данных при создании результатов встречи.
+    """
     Параметры:
         meeting_id: Идентификатор связанной встречи.
         owner_id: Идентификатор создателя результата.
@@ -159,14 +163,16 @@ class ResultMeetingCreateSchema(ResultMeetingBaseSchema):
     meeting_id: int
     owner_id: UUID
 
-    model_config = ConfigDict(extra='forbid', str_min_length=1)
+    model_config = ConfigDict(
+        extra='forbid',
+        str_min_length=1,
+        title = "Схема для создания результатов встреч",
+        description = "Используется для валидации данных при создании результатов встречи"
+    )
 
 
 class ResultMeetingInDB(ResultMeetingBaseSchema):
-    """Pydantic-схема для данных о результатах встречи из БД.
-
-    Назначение:
-        Используется для сериализации данных о результатах встречи при получении из БД.
+    """
     Параметры:
         id: Идентификатор результата.
         meeting_id: Идентификатор связанной встречи.
@@ -177,4 +183,8 @@ class ResultMeetingInDB(ResultMeetingBaseSchema):
     meeting_id: int
     owner_id: UUID
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема для данных о результатах встречи из БД",
+        description = "Используется для сериализации данных о результатах встречи при получении из БД"
+    )

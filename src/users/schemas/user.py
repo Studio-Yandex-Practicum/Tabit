@@ -97,7 +97,27 @@ class UserSchemaMixin:
 
 
 class UserReadSchema(BaseUser[UUID]):
-    """Схема пользователя сервиса для ответов."""
+    """
+    Параметры:
+        name: Имя пользователя.
+        surname: Фамилия пользователя.
+        patronymic: Отчество пользователя.
+        phone_number: Номер телефона пользователя.
+        birthday: День рождение пользователя.
+        is_active: bool - активен ли пользователь.
+        telegram_username: Имя пользователя в Telegram.
+        role: Роль пользователя компании.
+        start_date_employment: Дата начало работы сотрудника в компании.
+        end_date_employment: Дата конца работы сотрудника в компании.
+        avatar_link: Ссылка на аватар пользователя.
+        company_id: id компании, в которой работает пользователь.
+        current_department_id: id отдела, в котором работает пользователь.
+        last_department_id: id отдела, в котором работал пользователь до этого.
+        department_transition_date: Последняя дата перехода из одного отдела в другой.
+        employee_position: Позиция в коллективе, указывается админом компании.
+        created_at: Дата создания записи в таблице.
+        updated_at: Дата изменения записи в таблице.
+    """
 
     name: str = Field(..., title=title_name_user)
     surname: str = Field(..., title=title_surname_user)
@@ -119,11 +139,22 @@ class UserReadSchema(BaseUser[UUID]):
     employee_position: Optional[str] = Field(None, title=title_employee_position_user)
     created_at: Optional[datetime] = Field(None, title=title_created_at_user)
     updated_at: Optional[datetime] = Field(None, title=title_updated_at_user)
-    model_config = ConfigDict(from_attributes=True)
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        title="Схема пользователя",
+        description="Схема пользователя сервиса для ответов"
+    )
 
 
 class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
-    """Схема для создание пользователя сервиса."""
+    """
+    Параметры:
+        name: Имя пользователя.
+        surname: Фамилия пользователя.
+        role: Роль пользователя компании.
+        company_id: id компании, в которой работает пользователь.
+    """
 
     name: str = Field(
         ...,
@@ -146,9 +177,20 @@ class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
         title=title_company_id_user,
     )
 
+    model_config = ConfigDict(
+        title="Схема создания пользователя",
+        description="Схема для создание пользователя сервиса"
+    )
+
 
 class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
-    """Схема для изменение данных пользователя сервиса."""
+    """
+    Параметры:
+        name: Имя пользователя.
+        surname: Фамилия пользователя.
+        role: Роль пользователя компании.
+        company_id: id компании, в которой работает пользователь.
+    """
 
     name: Optional[str] = Field(
         None,
@@ -171,16 +213,38 @@ class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
         title=title_company_id_user,
     )
 
+    model_config = ConfigDict(
+        title="Схема изменения пользователя",
+        description="Схема для изменения данных пользователя сервиса"
+    )
+
 
 class ResetPasswordByAdmin(BaseModel):
-    """Схема для сброса пароля админа."""
+    """
+    password: Пароль.
+    """
 
     password: str
-    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+
+    model_config = ConfigDict(
+        extra='forbid',
+        str_strip_whitespace=True,
+        title="Схема пароля",
+        description="Схема для сброса пароля админа"
+    )
 
 
 class UserForUserUpdateSchema(BaseModel):
-    """Схема пользователя сервиса для ответов."""
+    """Схема пользователя сервиса для ответов.
+    Параметры:
+        name: Имя пользователя.
+        surname: Фамилия пользователя.
+        patronymic: Отчество пользователя.
+        phone_number: Номер телефона пользователя.
+        birthday: День рождение пользователя.
+        telegram_username: Имя пользователя в Telegram.
+        avatar_link: Ссылка на аватар пользователя.
+    """
 
     name: Optional[str] = Field(
         None,
@@ -219,4 +283,9 @@ class UserForUserUpdateSchema(BaseModel):
     )
     # TODO: добавить avatar_link
 
-    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    model_config = ConfigDict(
+        extra='forbid',
+        str_strip_whitespace=True,
+        title="Схема для ответов",
+        description="Схема пользователя сервиса для ответов"
+    )

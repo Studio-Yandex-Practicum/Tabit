@@ -33,7 +33,12 @@ class BaseAdminSchema:
         title=TITLE_PHONE_NUMBER_ADMIN,
     )
 
-    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    model_config = ConfigDict(
+        extra='forbid',
+        str_strip_whitespace=True,
+        title = "Базовая схема администратора",
+        description = "Базовая схема администратора сервиса"
+    )
 
 
 class AdminReadSchema(CreateUpdateDictModel):
@@ -48,7 +53,11 @@ class AdminReadSchema(CreateUpdateDictModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема администратора",
+        description = "Модель для отображения данных администратора сервиса"
+    )
 
 
 class AdminCreateSchema(CreateUpdateDictModel, BaseAdminSchema):
@@ -76,6 +85,11 @@ class AdminCreateSchema(CreateUpdateDictModel, BaseAdminSchema):
         title=TITLE_SURNAME_ADMIN,
     )
 
+    model_config = ConfigDict(
+        title = "Схема ответа админам",
+        description = "Схема компании для ответов админам сервиса"
+    )
+
 
 class AdminUpdateSchema(BaseAdminSchema, BaseModel):
     """Схема для изменение данных администратора сервиса."""
@@ -93,6 +107,11 @@ class AdminUpdateSchema(BaseAdminSchema, BaseModel):
         title=TITLE_SURNAME_ADMIN,
     )
 
+    model_config = ConfigDict(
+        title = "Схема ответа админам",
+        description = "Схема компании для ответов админам сервиса"
+    )
+
 
 class AdminCreateFirstSchema(AdminCreateSchema):
     """Схема для создание первого администратора-суперпользователя сервиса."""
@@ -100,4 +119,9 @@ class AdminCreateFirstSchema(AdminCreateSchema):
     is_superuser: bool = Field(
         True,
         title=TITLE_IS_SUPERUSER_ADMIN,
+    )
+
+    model_config = ConfigDict(
+        title = "Схема ответа админам",
+        description = "Схема компании для ответов админам сервиса"
     )

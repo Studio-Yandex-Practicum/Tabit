@@ -65,6 +65,38 @@ class Summary:
     TASK: str = 'Получить информацию о задаче'
     TASK_UPDATE: str = 'Обновить информацию о задаче'
     TASK_DELETE: str = 'Удалить задачу'
+    SUMMARY_GET_LICENSES: str = 'Получить список всех лицензий с фильтрацией и сортировкой'
+    SUMMARY_CREATE_LICENSE: str = 'Создать новую лицензию'
+    SUMMARY_GET_LICENSE: str = 'Получить данные лицензии'
+    SUMMARY_UPDATE_LICENSE: str = 'Обновить данные лицензии'
+    SUMMARY_DELETE_LICENSE: str = 'Удалить лицензию'
+    LANDING_PAGE: str = 'Информация для landing page'
+    LANDING_PAGE_DEMO: str = 'Отправить форму'
+    PROBLEM_FEEDS: str = 'Получить список тредов.'
+    PROBLEM_FEEDS_POST: str = 'Создать тред.'
+    PROBLEM_FEEDS_LIST: str = 'Получить список комментариев.'
+    PROBLEM_FEEDS_CREATE: str = 'Создать комментарий.'
+    PROBLEM_FEEDS_PATCH: str = 'Обновить комментарий.'
+    PROBLEM_FEEDS_DELETE: str = 'Удалить комментарий'
+    PROBLEM_FEEDS_LIKE: str = 'Поставить лайк.'
+    PROBLEM_FEEDS_DELETE_LIKE: str = 'Убрать свой лайк'
+    SURVEYS_LIST: str = 'Получить список опросов'
+    SURVEYS_CREATE: str = 'Создать опрос'
+    SURVEYS_EMPLOYEE: str = 'Получить историю опросов'
+    SURVEY_EMPLOYEE: str = 'Получить информацию об опросе'
+    SURVEYS_RESULT: str = 'Получить результат опросов'
+    SURVEYS_RESULT_PERSONALIZED: str = 'Получить персонализированный результат'
+    SURVEYS_RESULT_DYNAMICS: str = 'Получить динамику результатов'
+    SURVEYS_MANAGE: str = 'Управление опросами компании'
+    SURVEYS_DELETE: str = 'Удалить опросы компании'
+    TABIT_MANAGEMENT: str = 'Получить общую информацию по компаниям.'
+    TABIT_MANAGEMENT_LIST: str = 'Получить информацию по всем сотрудникам компаний.'
+    TABIT_MANAGEMENT_CREATE: str = 'Создать нового сотрудника компании.'
+    TABIT_MANAGEMENT_ADMIN: str = 'Получить информацию об администраторе.'
+    TABIT_MANAGEMENT_ADMIN_PUT: str = 'Полностью изменить информацию об администраторе.'
+    TABIT_MANAGEMENT_ADMIN_PATCH: str = 'Частично изменить информацию об администраторе.'
+    TABIT_MANAGEMENT_ADMIN_DELETE: str = 'Удалить информацию об администраторе.'
+    TABIT_MANAGEMENT_ADMIN_PASSWORD: str = 'Сброс пароля администратора.'
 
 
 @dataclass
@@ -103,7 +135,9 @@ class Description:
     )
     TABIT_ADMIN_AUTH_LOGIN: str = 'Авторизация администраторов сервиса.'
     TABIT_ADMIN_AUTH_LOGOUT: str = 'Выход из системы администраторов сервиса.'
-
+    TABIT_COMPANY_DEPARTMENTS_LIST: str = (
+        'Проверяет существует ли компания и после, по id компании фильтрует отделы.'
+    )
     TABIT_MANAGEMENT_COMPANY_LIST: str = (
         'Возвращает список всех компаний. Доступно только администраторам сервиса.'
     )
@@ -208,6 +242,80 @@ class Description:
     TASK_DELETE: str = (
         'Удаляет задачу.' 'Доступно пользователям от компании, который является автором задачи.'
     )
+
+    TABIT_COMPANY: str = (
+        'Получить данные о компании.'
+        'Доступно только пользователю-админу компании.'
+        'В пути принимает "company_slug" - значение "slug" компании.'
+    )
+    TABIT_COMPANY_DEPARTMENTS_CREATE: str = (
+        'Проверяет существует ли компания и после, передает id компании в данные для создания отдела.'
+    )
+    TABIT_COMPANY_DEPARTMENTS_IMPORT: str = (
+        'Проверяет существует ли компания и после, передает id компании для фильтрации списка.'
+    )
+    TABIT_COMPANY_DEPARTMENT: str = (
+        'Проверяет существует ли компания и после, по id отдела получает данные'
+    )
+    TABIT_COMPANY_DEPARTMENTS_UPDATE: str = (
+        'Проверяет существует ли компания и после, передает id компании и имя отдела '
+        'введенное пользователем для проверки на уникальность, если уникальность не соблюдена '
+        'вернется ответ со статусом 400. Далее получает объект отдела и передает с данными '
+        'для обновления.'
+    )
+    TABIT_COMPANY_DEPARTMENTS_DELETE: str = (
+        'Проверяет существует ли компания и отдел, и после передает объект отдела для удаления.'
+    )
+    TABIT_COMPANY_EMPLOYEES_LIST: str = (
+        'Проверяет существует ли компания и после, по id компании фильтрует сотрудников.'
+    )
+    TABIT_COMPANY_EMPLOYEES_CREATE: str = (
+        'Проверяет существует ли компания. Если нет, вернется ответ со статусом 404.'
+    )
+    TABIT_COMPANY_EMPLOYEES_IMPORT: str = (
+        'Проверяет существует ли компания и после, передает id компании для фильтрации списка.'
+    )
+    TABIT_COMPANY_EMPLOYEE: str = (
+        'Проверяет существует ли компания и после, по uuid сотрудника получает данные.'
+    )
+    TABIT_COMPANY_EMPLOYEES_UPDATE: str = (
+        'Проверяет существует ли компания и по uuid получает объект пользователя.'
+    )
+    TABIT_COMPANY_EMPLOYEES_DELETE: str = (
+        'Проверяет существует ли компания и сотрудник, и после передает объект для удаления.'
+    )
+    LANDING_PAGE: str = 'Получение цены, контактов и т.д. для landing page'
+    LANDING_PAGE_DEMO: str = 'Получение демо из формы landing page.'
+    PROBLEM_FEEDS: str = 'Получение списка всех тредов по проблеме.'
+    PROBLEM_FEEDS_POST: str = 'Создает тред по проблеме.'
+    PROBLEM_FEEDS_LIST: str = 'Получить все комментарии треда в виде списка.'
+    PROBLEM_FEEDS_CREATE: str = 'Создает комментарий в треде.'
+    PROBLEM_FEEDS_PATCH: str = 'Обновляет комментарий в треде.'
+    PROBLEM_FEEDS_DELETE: str = 'Удаляет комментарий в треде.'
+    PROBLEM_FEEDS_LIKE: str = 'Поставить лайк комментарию в треде.'
+    PROBLEM_FEEDS_DELETE_LIKE: str = 'Убрать свой лайк комментарию в треде.'
+    SURVEYS_LIST: str = 'Получает список всех опросов компании'
+    SURVEYS_CREATE: str = 'Создает новый опрос для компании'
+    SURVEYS_EMPLOYEE: str = 'Получает историю опросов сотрудника компании'
+    SURVEY_EMPLOYEE: str = 'Получает информацию об опросе сотрудника компании'
+    SURVEYS_RESULT: str = 'Получает общий результат опросов компании'
+    SURVEYS_RESULT_PERSONALIZED: str = 'Получает персонализированный результат опросов компании'
+    SURVEYS_RESULT_DYNAMICS: str = 'Получает динамику результатов опросов компании'
+    SURVEYS_MANAGE: str = 'Управление опросами компании'
+    SURVEYS_DELETE: str = 'Удалить опросы компании'
+    DESC_GET_LICENSES: str = 'Получает список лицензий с возможностью фильтрации, сортировки и пагинации.'
+    DESC_CREATE_LICENSE: str = 'Создаёт новую лицензию в системе.'
+    DESC_GET_LICENSE: str = 'Получает данные лицензии по её идентификатору.'
+    DESC_UPDATE_LICENSE: str = 'Обновляет данные лицензии по её идентификатору.'
+    DESC_DELETE_LICENSE: str = 'Удаляет лицензию по её идентификатору.'
+    TABIT_MANAGEMENT: str = 'Получает список компаний с фильтрацией, пагинацией и сортировкой.'
+    TABIT_MANAGEMENT_LIST: str = 'Получает список сотрудников компаний с фильтрацией, пагинацией и сортировкой.'
+    TABIT_MANAGEMENT_CREATE: str = 'Создает нового пользователя-админа компании.'
+    TABIT_MANAGEMENT_ADMIN: str = 'Получает информацию об администраторе с указанным UUID или возвращает HTTP 404.'
+    TABIT_MANAGEMENT_ADMIN_PUT: str = 'Полностью изменяет информацию об администраторе с указанным UUID.'
+    TABIT_MANAGEMENT_ADMIN_PATCH: str = 'Частично изменяет информацию об администраторе с указанным UUID.'
+    TABIT_MANAGEMENT_ADMIN_DELETE: str = 'Удаляет информацию об администраторе с указанным UUID.'
+    TABIT_MANAGEMENT_ADMIN_PASSWORD: str = 'Сброс пароля администратора.'
 
 
 @dataclass

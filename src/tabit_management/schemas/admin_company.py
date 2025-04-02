@@ -50,7 +50,22 @@ url_to_string = Annotated[HttpUrl, AfterValidator(str)]
 
 
 class AdminCompanyResponseSchema(BaseModel):
-    """Схема компании для ответов админам сервиса."""
+    """
+    Параметры:
+        id: Идентификатор компании.
+        name: Название.
+        description: Описание (опционально).
+        logo: Логотип (опционально).
+        license_id: Ссылка на тип лицензии (опционально).
+        max_admins_count: Максимальное кол-во администраторов.
+        max_employees_count: Максимальное кол-во сотрудников.
+        start_license_time: Дата начала действия лицензии (опционально).
+        end_license_time: Дата окончания действия лицензии (опционально).
+        is_active: активна ли лицензия.
+        slug: Короткая строка для пути к эндпоинту.
+        created_at: Дата создания.
+        updated_at: Дата изменения.
+    """
 
     id: int
     name: str
@@ -66,7 +81,11 @@ class AdminCompanyResponseSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема ответа админам",
+        description = "Схема компании для ответов админам сервиса"
+    )
 
 
 class CompanyAdminSchemaMixin:
@@ -101,6 +120,7 @@ class CompanyAdminSchemaMixin:
         None,
         title=title_employee_position_user,
     )
+
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
     @field_validator('phone_number')
@@ -127,7 +147,27 @@ class CompanyAdminSchemaMixin:
 
 
 class CompanyAdminReadSchema(BaseUser[UUID]):
-    """Схема для возврата данных админов от компаний при работе с ними."""
+    """
+    Параметры:
+        name: Имя пользователя сервиса.
+        surname: Фамилия пользователя сервиса.
+        patronymic: Отчество пользователя сервиса(опционально).
+        phone_number: Контактный телефон пользователя сервиса(опционально).
+        is_active: Активен ли пользователь.
+        birthday: День рождение пользователя(опционально).
+        telegram_username: Имя пользователя в Telegram.
+        role: Роль пользователя.
+        start_date_employment: Дата начала работы сотрудника(опционально).
+        end_date_employment: Дата окончания работы сотрудника(опционально).
+        avatar_link: Ссылка на аватар пользователя(опционально).
+        company_id: Идентефикатор компании пользователя.
+        current_department_id: Идентефикатор отдела пользователя(опционально).
+        last_department_id: Идентефикатор предыдущего отдела пользователя(опционально).
+        department_transition_date: Дата последнего перехода между отделами(опционально).
+        employee_position: Позиция в коллективе(опционально).
+        created_at: Дата создания профиля пользователя.
+        updated_at: Дата обновления профиля пользователя.
+    """
 
     name: str
     surname: str
@@ -147,11 +187,22 @@ class CompanyAdminReadSchema(BaseUser[UUID]):
     employee_position: Optional[str]
     created_at: datetime
     updated_at: datetime
-    model_config = ConfigDict(from_attributes=True)
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        title = "Схема для админов",
+        description = "Схема для возврата данных админов от компаний"
+    )
 
 
 class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
-    """Схема для PUT-запроса изменения данных админов от компаний."""
+    """
+    Параметры:
+        name: Имя пользователя сервиса.
+        surname: Фамилия пользователя сервиса.
+        role: Роль пользователя.
+        current_department_id: Идентефикатор отдела пользователя(опционально).
+    """
 
     name: str = Field(
         ...,
@@ -171,9 +222,18 @@ class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
         title=title_current_department_id_user,
     )
 
+    model_config = ConfigDict(
+        title = "Схема PUT-запроса",
+        description = "Схема для PUT-запроса изменения данных админов от компаний"
+    )
+
 
 class CompanyAdminCreateSchema(CompanyAdminPutSchema):
-    """Схема для создания админов от компаний."""
+    """
+    Параметры:
+        role: Роль пользователя.
+        company_id: Идентефикатор компании пользователя.
+    """
 
     role: Literal[RoleUserTabit.ADMIN]
     company_id: int = Field(
@@ -181,9 +241,20 @@ class CompanyAdminCreateSchema(CompanyAdminPutSchema):
         title=title_company_id_user,
     )
 
+    model_config = ConfigDict(
+        title = "Схема создания админов",
+        description = "Схема для создания админов от компаний"
+    )
+
 
 class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
-    """Схема для PATCH-запроса изменения данных админов от компаний."""
+    """
+    Параметры:
+        name: Имя пользователя сервиса.
+        surname: Фамилия пользователя сервиса.
+        role: Роль пользователя.
+        current_department_id: Идентефикатор отдела пользователя(опционально).
+    """
 
     name: Optional[str] = Field(
         None,
@@ -201,4 +272,9 @@ class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
     current_department_id: Optional[int] = Field(
         None,
         title=title_current_department_id_user,
+    )
+
+    model_config = ConfigDict(
+        title = "Схема обновления данных",
+        description = "Схема для изменения данных админов от компаний"
     )
