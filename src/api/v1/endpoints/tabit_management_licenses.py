@@ -23,7 +23,6 @@ from src.tabit_management.schemas.license_type import (
 )
 
 router = APIRouter(dependencies=[Depends(current_admin_tabit)])
-# router = APIRouter()
 
 
 @router.get(
@@ -38,6 +37,7 @@ async def get_licenses(
 ) -> LicenseTypeListResponseSchema:
     """
     Получает список лицензий с возможностью фильтрации, сортировки и пагинации.
+    Доступно только администраторам сервиса.
 
     Args:
         session (AsyncSession): Асинхронная сессия базы данных.
@@ -76,6 +76,7 @@ async def create_license(
 ) -> LicenseTypeResponseSchema:
     """
     Создаёт новую лицензию в системе.
+    Доступно только администраторам сервиса.
 
     Args:
         license (LicenseTypeCreateSchema): Данные для создания новой лицензии.
@@ -102,6 +103,7 @@ async def get_license(
 ) -> LicenseTypeResponseSchema:
     """
     Получает данные лицензии по её идентификатору.
+    Доступно только администраторам сервиса.
 
     Args:
         license_id (int): Уникальный идентификатор лицензии.
@@ -129,6 +131,7 @@ async def update_license(
 ) -> LicenseTypeResponseSchema:
     """
     Обновляет данные лицензии по её идентификатору.
+    Доступно только администраторам сервиса.
 
     Args:
         license_id (int): Уникальный идентификатор лицензии.
@@ -160,6 +163,7 @@ async def delete_license(
 ) -> None:
     """
     Удаляет лицензию по её идентификатору.
+    Доступно только администраторам сервиса.
 
     Args:
         license_id (int): Уникальный идентификатор лицензии.
