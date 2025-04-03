@@ -5,6 +5,7 @@ from fastapi_pagination import add_pagination
 from src.api.v1.routers import main_router
 from src.config import settings
 from src.logger import LoggingMiddleware
+from src.openapi import get_tabit_openapi
 from src.scripts import application_management
 
 app_v1 = FastAPI(
@@ -18,7 +19,7 @@ app_v1.include_router(main_router)
 settings.media_folder.mkdir(parents=True, exist_ok=True)
 app_v1.mount(settings.media_url, StaticFiles(directory=settings.media_folder, html=True))
 add_pagination(app_v1)
-
+app_v1.openapi = get_tabit_openapi(app_v1, settings)
 
 
 def main():
