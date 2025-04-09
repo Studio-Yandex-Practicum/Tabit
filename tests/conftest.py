@@ -23,6 +23,7 @@ from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
 from src.tabit_management.models import LicenseType, TabitAdminUser
 from src.users.models import UserTabit
 from src.users.models.enum import RoleUserTabit
+from src.users.models.models import AssociationUserTags, TagUser
 from tests.constants import GOOD_PASSWORD, TEST_DATABASE_URL, URL
 
 
@@ -910,3 +911,42 @@ async def department_for_test(async_session: AsyncSession, company_for_test):
         return department
 
     return _create_department
+
+
+@pytest_asyncio.fixture
+async def tag_for_test_with_user(async_session: AsyncSession):
+    """Фикстура для создания тестового тега и привязки его к пользователю."""
+
+    async def _create_tag(company, user, tag_data=None):
+        """Создаёт тег и привязывает его к пользователю."""
+        tag_data = tag_data or {}
+        default_data = {
+            'name': f'Test Tag {uuid.uuid4().hex[:4]}',
+            'company_id': company.id,
+        }
+        default_data.update(tag_data)
+        tag = await make_entry_in_table(async_session, default_data, TagUser)
+        association_data = {
+            'left_id': user.id,
+            'right_id': tag.id,
+        }
+        await make_entry_in_table(async_session, association_data, AssociationUserTags)
+        return tag
+
+    return _create_tag
+
+
+@pytest_asyncio.fixture
+async def admin_of_company(employee_of_company):
+    """
+    Фикстура для создания администратора компании.
+    Аналогична moderator_of_company, но с более понятным названием.
+    """
+
+    async def _create_admin(admin_data=None):
+        """Функция-обёртка для администратора компании с изменяемыми параметрами."""
+        default = admin_data or {}
+        default['role'] = RoleUserTabit.ADMIN
+        return await employee_of_company(default)
+
+    return _create_admin

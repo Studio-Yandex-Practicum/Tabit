@@ -20,3 +20,15 @@ title_updated_at_user: str = 'Дата обновления профиля по�
 
 title_name_tag: str = 'Имя тэга'
 title_company_id_tag: str = 'id компании, в которой используется тэг'
+
+
+# Константы к валидаторам (Tags)
+ERROR_COMPANY_BY_ID_NOT_FOUND = 'Компания не найдена'
+ERROR_TAGS_NOT_FOUND = 'В компании у пользователей еще нет тегов.'
+ERROR_TAG_IS_ALREADY_USE = 'Пользователь уже имеет тэг в данной компании.'
+ERROR_NO_SUCH_USER_IN_THE_COMPANY = 'Пользователь не принадлежит данной компании.'
+ERROR_TAG_IS_USED_IN_THIS_COMPANY = (
+    'Этот тэг уже используется другим пользователем в этой компании.'
+)
+ERROR_TAG_NAME_EMPTY = 'Название тэга не может быть пустым.'
+ERROR_USER_MUST_BE_UUID_FORMAT = 'Пользователь должен быть в формате UUID.'

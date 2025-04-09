@@ -143,15 +143,13 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_usertabit_email'), 'usertabit', ['email'], unique=True)
     op.create_table('associationusertags',
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ),
     sa.ForeignKeyConstraint(['right_id'], ['taguser.id'], ),
-    sa.PrimaryKeyConstraint('id', 'left_id', 'right_id'),
-    sa.UniqueConstraint('id')
+    sa.PrimaryKeyConstraint('left_id', 'right_id'),
     )
     op.create_table('problem',
     sa.Column('id', sa.Integer(), nullable=False),

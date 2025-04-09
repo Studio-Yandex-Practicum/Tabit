@@ -12,6 +12,7 @@ from src.api.v1.endpoints import (
     surveys_router,
     tabit_admin_auth_router,
     tabit_management_router,
+    tags_router,
     task_router,
 )
 from src.utils.email_service import email_router
@@ -34,7 +35,8 @@ main_router.include_router(
     licenses_router, prefix='/admin/licenses', tags=[' Tabit Management - licenses']
 )
 main_router.include_router(auth_employees, prefix='/auth', tags=['Company User Auth (Employees)'])
-# TODO: Дописать Companies Endpoints
+# TODO Дописать Companies Endpoints
+main_router.include_router(tags_router, tags=['Tags'])
 main_router.include_router(companies_router, tags=['Companies'])
 main_router.include_router(problems_router, tags=['Problems'])
 main_router.include_router(meeting_router, prefix='', tags=['Meetings'])
