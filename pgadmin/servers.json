@@ -7,7 +7,7 @@
             "Host": "postgres_local",
             "SSLMode": "prefer",
             "MaintenanceDB": "tabit",
-            "Username": "warlock",
+            "Username": "tabit",
             "PassFile": "/.pgpass"
         }
     }
