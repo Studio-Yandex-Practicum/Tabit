@@ -8,7 +8,6 @@
 
 ## Основные ресурсы для командной работы
 
-- **Общая информация**: [Общие сведения о проекте](https://app.pachca.com/chats/17645724?message=427153532)
 - **Командный чат**: [Информация о каналах связи](https://app.pachca.com/chats/17645724)
 - **GitHub репозиторий**: [URL репозитория](https://github.com/Studio-Yandex-Practicum/Tabit)
 - **Архитектура проекта**: [Актуальная ERD диаграмма](https://app.erdlab.io/designer/schema/1736745715-tabit)
