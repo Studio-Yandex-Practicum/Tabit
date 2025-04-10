@@ -6,7 +6,8 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from tests.constants import URL
+from src.core.constants import Directory
+from tests.constants import IMAGE_BASE64_JPG, IMAGE_BASE64_PNG, INVALID_IMAGE, ONE, URL
 
 
 def generate_company_data(all_fields=False, license_id=None):
@@ -22,7 +23,7 @@ def generate_company_data(all_fields=False, license_id=None):
         data.update(
             {
                 'description': f'Описание компании {random_string(15)}',
-                'logo': f'https://example.com/logo_{random_string(6)}.png',
+                'logo': IMAGE_BASE64_PNG,
                 'license_id': license_id,
                 'start_license_time': '2025-02-15T07:57:45.058Z',
                 'slug': f'company-{random_string(8).lower()}',
@@ -30,6 +31,11 @@ def generate_company_data(all_fields=False, license_id=None):
         )
 
     return data
+
+
+def get_path_logo(slug: str, expansion: str = 'png') -> str:
+    """Генерирует путь логотипа по переданному слагу."""
+    return f'{Directory.MEDIA}/{Directory.LOGO}/{slug}.{expansion}'
 
 
 class TestCreateCompany:
@@ -82,7 +88,7 @@ class TestCreateCompany:
         assert data['name'] == payload['name']
         assert data['slug'] == payload['slug']
         assert data['description'] == payload['description']
-        assert data['logo'] == payload['logo']
+        assert data['logo'] == get_path_logo(payload['slug'])
 
     @pytest.mark.asyncio
     async def test_create_company_duplicate_slug(
@@ -97,19 +103,17 @@ class TestCreateCompany:
         new_license = await license_for_test()
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
 
-        jwt_token = superuser_token
-
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
             json=payload,
-            headers=jwt_token,
+            headers=superuser_token,
         )
         assert response.status_code == status.HTTP_201_CREATED, response.text
 
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
             json=payload,
-            headers=jwt_token,
+            headers=superuser_token,
         )
         assert response.status_code == 400, response.text
         assert (
@@ -416,18 +420,27 @@ class TestCreateCompany:
         )
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        'invalid_value, message',
+        INVALID_IMAGE,
+    )
     async def test_create_company_invalid_logo_url(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self,
+        client: AsyncClient,
+        superuser_token: str,
+        license_for_test,
+        invalid_value,
+        message,
     ):
         """
-        Тест ошибки 422 при передаче некорректного URL в поле 'logo'.
+        Тест ошибки при передаче некорректной строки в 'logo'.
 
         Проверяет, что API не позволяет создать компанию,
-        если поле 'logo' передано не в формате корректного URL.
+        если поле 'logo' передано не в формате строки Base64.
         """
         new_license = await license_for_test()
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
-        payload['logo'] = 'string'
+        payload['logo'] = invalid_value
 
         response = await client.post(
             URL.COMPANIES_ENDPOINT,
@@ -436,12 +449,12 @@ class TestCreateCompany:
         )
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
-        error_detail = response.json()['detail']
-        assert any(
-            error['loc'] == ['body', 'logo']
-            and error['msg'] == 'Value error, Логотип должен быть валидным URL-адресом.'
-            for error in error_detail
-        ), response.text
+        error_detail = response.json()
+        assert 'detail' in error_detail, response.text
+        assert message == error_detail['detail']
+        assert message == (detail := error_detail['detail']), (
+            f'Ожидалось:\n{message}\nПолучили\n{detail}'
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -568,6 +581,55 @@ class TestCreateCompany:
             )
             for error in error_detail
         ), response.text
+
+    @pytest.mark.asyncio
+    async def test_create_company_non_existent_license(
+        self, client: AsyncClient, superuser_token: str, license_for_test
+    ):
+        """
+        Тест ошибки 400 при создании компании с несуществующей license.
+
+        Проверяет, что API не позволяет создать компанию с несуществующей license.
+        Убедимся, что ответ содержит правильное сообщение об ошибке и статус-код 400.
+        """
+        new_license = await license_for_test()
+        payload = generate_company_data(all_fields=True, license_id=new_license.id + ONE)
+
+        jwt_token = superuser_token
+
+        response = await client.post(
+            URL.COMPANIES_ENDPOINT,
+            json=payload,
+            headers=jwt_token,
+        )
+        assert response.status_code == 400, (
+            'Статус-код должен быть 400 при попытки создать компанию с несуществующей license'
+        )
+        assert response.json()['detail'] == f'Лицензия с id {payload["license_id"]} не найдена.'
+
+    @pytest.mark.asyncio
+    async def test_create_company_existent_license(
+        self, client: AsyncClient, superuser_token: str, license_for_test
+    ):
+        """
+        Тест успешного создания компании с существующей license.
+
+        Проверяет, что API позволяет создать компанию с существующей license.
+        Убедимся, что ответ содержит правильные значения и API возвращает 201
+        """
+        new_license = await license_for_test()
+        payload = generate_company_data(all_fields=True, license_id=new_license.id)
+
+        response = await client.post(
+            URL.COMPANIES_ENDPOINT,
+            json=payload,
+            headers=superuser_token,
+        )
+        assert response.status_code == status.HTTP_201_CREATED, (
+            'Статус-код должен быть 201 при попытки создать компанию с существующей license'
+        )
+        data = response.json()
+        assert data['license_id'] == payload['license_id']
 
 
 class TestGetCompany:
@@ -706,11 +768,7 @@ class TestGetCompany:
         'update_data, expected_field, expected_value',
         [
             ({'description': 'Новое описание'}, 'description', 'Новое описание'),
-            (
-                {'logo': 'https://example.com/new_logo.png'},
-                'logo',
-                'https://example.com/new_logo.png',
-            ),
+            ({'logo': IMAGE_BASE64_JPG}, 'logo', ''),
             ({'name': 'Новое имя'}, 'name', 'Новое имя'),
             ({'license_id': 1, 'start_license_time': datetime.now().isoformat()}, 'license_id', 1),
         ],
@@ -723,6 +781,7 @@ class TestGetCompany:
         update_data,
         expected_field,
         expected_value,
+        license_for_test,
     ):
         """
         Тест успешного обновления одного поля компании через PATCH запрос.
@@ -730,7 +789,7 @@ class TestGetCompany:
         Проверяет, что API корректно обновляет указанное поле компании и возвращает
         ожидаемое значение. Используется параметризация для проверки разных полей.
         """
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         response = await client.patch(
             f'{URL.COMPANIES_ENDPOINT}{company.slug}',
@@ -740,6 +799,8 @@ class TestGetCompany:
 
         assert response.status_code == status.HTTP_200_OK, response.text
         data = response.json()
+        if expected_field == 'logo':
+            expected_value = get_path_logo(company.slug, 'jpg')
         assert data[expected_field] == expected_value, (
             f'Ожидалось значение {expected_value} в поле {expected_field}, '
             f'но получено {data[expected_field]}'
@@ -759,11 +820,11 @@ class TestGetCompany:
         Проверяет, что API корректно обновляет все поля компании и возвращает ожидаемые значения.
         """
         new_license = await license_for_test()
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         update_data = {
             'description': 'Обновленное описание',
-            'logo': 'https://example.com/updated_logo.png',
+            'logo': IMAGE_BASE64_JPG,
             'name': 'Обновленное имя',
             'license_id': new_license.id,
             'start_license_time': datetime.now(timezone.utc).isoformat(),
@@ -784,6 +845,10 @@ class TestGetCompany:
                 assert actual_time == value, (
                     f'Ожидалось значение {value} в поле {key}, но получено {actual_time}'
                 )
+            elif 'logo' == key:
+                assert data[key] == get_path_logo(company.slug, 'jpg'), (
+                    f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                )
             else:
                 assert data[key] == value, (
                     f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
@@ -799,7 +864,7 @@ class TestGetCompany:
         Проверяет, что API не позволяет обновить компанию, если поле name содержит менее 2 символов
         Убедимся, что ответ содержит правильное сообщение об ошибке и статус-код 422.
         """
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         update_data = {'name': 'A'}
 
@@ -828,7 +893,7 @@ class TestGetCompany:
         если поле name содержит более 255 символов.
         Убедимся, что ответ содержит правильное сообщение об ошибке и статус-код 422.
         """
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         update_data = {'name': 's' * 256}
 
@@ -858,7 +923,7 @@ class TestGetCompany:
         Проверяет, что API не позволяет обновить компанию без авторизации.
         Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
         """
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'name': 'Новое имя'}
 
         response = await client.patch(
@@ -877,7 +942,7 @@ class TestGetCompany:
         Проверяет, что API не позволяет обновить компанию с недействительным токеном.
         Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
         """
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         update_data = {'name': 'Новое имя'}
 
@@ -901,7 +966,7 @@ class TestPatchCompanyValidation:
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """Тест ошибки 422 при передаче числа в поле 'description'."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'description': 1}
 
         response = await client.patch(
@@ -917,7 +982,7 @@ class TestPatchCompanyValidation:
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """Тест ошибки 422 при передаче массива в поле 'logo'."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'logo': ['invalid_logo_url']}
 
         response = await client.patch(
@@ -933,7 +998,7 @@ class TestPatchCompanyValidation:
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """Тест ошибки 422 при передаче строки в поле 'license_id'."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'license_id': 'invalid_id'}
 
         response = await client.patch(
@@ -949,7 +1014,7 @@ class TestPatchCompanyValidation:
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """Тест ошибки 422 при некорректном формате 'start_license_time'."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'start_license_time': 'invalid_date'}
 
         response = await client.patch(
@@ -965,7 +1030,7 @@ class TestPatchCompanyValidation:
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """Тест ошибки 422 при 'description' менее 2 символов."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'description': 'A'}
 
         response = await client.patch(
@@ -981,7 +1046,7 @@ class TestPatchCompanyValidation:
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """Тест ошибки 422 при 'description' более 255 символов."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'description': 'A' * 256}
 
         response = await client.patch(
@@ -993,12 +1058,26 @@ class TestPatchCompanyValidation:
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        'invalid_value, message',
+        INVALID_IMAGE,
+    )
     async def test_patch_company_invalid_logo_url(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self,
+        client: AsyncClient,
+        superuser_token: str,
+        company_for_test,
+        invalid_value,
+        message,
     ):
-        """Тест ошибки 422 при некорректном URL в поле 'logo'."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
-        update_data = {'logo': 'invalid_url'}
+        """
+        Тест ошибки при передаче некорректной строки в 'logo'.
+
+        Проверяет, что API не позволяет создать компанию,
+        если поле 'logo' передано не в формате строки Base64.
+        """
+        company = await company_for_test()
+        update_data = {'logo': invalid_value}
 
         response = await client.patch(
             f'{URL.COMPANIES_ENDPOINT}{company.slug}',
@@ -1007,13 +1086,18 @@ class TestPatchCompanyValidation:
         )
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
+        error_detail = response.json()
+        assert 'detail' in error_detail, response.text
+        assert message == (detail := error_detail['detail']), (
+            f'Ожидалось:\n{message}\nПолучили\n{detail}'
+        )
 
     @pytest.mark.asyncio
     async def test_patch_company_field_with_leading_or_trailing_spaces(
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """Тест ошибки 422 при полях с пробелами в начале или в конце."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'name': ' Company'}
 
         response = await client.patch(
@@ -1029,7 +1113,7 @@ class TestPatchCompanyValidation:
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """Тест ошибки 400 при несуществующем 'license_id'."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'license_id': 99999}
 
         response = await client.patch(
@@ -1045,7 +1129,7 @@ class TestPatchCompanyValidation:
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """Тест ошибки 422 при передаче только 'license_id' без 'start_license_time'."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'license_id': 1}
 
         response = await client.patch(
@@ -1061,7 +1145,7 @@ class TestPatchCompanyValidation:
         self, client: AsyncClient, superuser_token: str, company_for_test
     ):
         """Тест ошибки 422 при передаче только 'start_license_time' без 'license_id'."""
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
         update_data = {'start_license_time': '2025-02-15T07:57:45.058Z'}
 
         response = await client.patch(
@@ -1082,7 +1166,7 @@ class TestPatchCompanyValidation:
         Проверяет, что если не переданы 'license_id' и 'start_license_time',
         поле 'end_license_time' остается 'null'.
         """
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         update_data = {
             'description': 'Обновление без лицензии',
@@ -1118,7 +1202,7 @@ class TestPatchCompanyValidation:
         от значения 'license_term' лицензии.
         """
         new_license = await license_for_test({'license_term': timedelta(days=license_term_days)})
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         start_time = datetime.now(timezone.utc).isoformat()
         expected_end_time = (
@@ -1156,7 +1240,7 @@ class TestDeleteCompany:
 
         Проверяет, что API корректно удаляет компанию по slug и возвращает статус-код 204.
         """
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         response = await client.delete(
             f'{URL.COMPANIES_ENDPOINT}{company.slug}',
@@ -1175,13 +1259,16 @@ class TestDeleteCompany:
         если компания с указанным slug не существует.
         """
 
+        nonexistent_slug = 'nonexistent-slug'
         response = await client.delete(
-            f'{URL.COMPANIES_ENDPOINT}nonexistent-slug',
+            f'{URL.COMPANIES_ENDPOINT}{nonexistent_slug}',
             headers=superuser_token,
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
-        assert response.json()['detail'] == 'Объект не найден'
+        assert (response_json := response.json()['detail']) == (
+            f'Не найден объект Company по данному slug: {nonexistent_slug}'
+        ), response_json
 
     @pytest.mark.asyncio
     async def test_delete_company_already_deleted(
@@ -1193,7 +1280,7 @@ class TestDeleteCompany:
         Проверяет, что API возвращает статус-код 404 и сообщение 'Объект не найден',
         если попытаться удалить уже удалённую компанию.
         """
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         # Первое удаление - успешно
         response = await client.delete(
@@ -1208,7 +1295,9 @@ class TestDeleteCompany:
             headers=superuser_token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
-        assert response.json()['detail'] == 'Объект не найден'
+        assert (response_json := response.json()['detail']) == (
+            f'Не найден объект Company по данному slug: {company.slug}'
+        ), response_json
 
     @pytest.mark.asyncio
     async def test_delete_company_without_token(self, client: AsyncClient, company_for_test):
@@ -1218,7 +1307,7 @@ class TestDeleteCompany:
         Проверяет, что API не позволяет удалить компанию без авторизации.
         Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
         """
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         response = await client.delete(
             f'{URL.COMPANIES_ENDPOINT}{company.slug}',
@@ -1235,7 +1324,7 @@ class TestDeleteCompany:
         Проверяет, что API не позволяет удалить компанию с недействительным токеном.
         Убедимся, что ответ содержит сообщение 'Unauthorized' и статус-код 401.
         """
-        company = await company_for_test({'name': 'Компания 1', 'slug': 'slug1'})
+        company = await company_for_test()
 
         invalid_token = {'Authorization': 'Bearer invalid_token_123'}
 

@@ -31,7 +31,6 @@ from src.schemas.constants import (
     TITLE_NAME_USER,
     TITLE_PHONE_NUMBER_USER,
     TITLE_SLUG_COMPANY,
-    TITLE_SLUG_DEPARTMENT,
     TITLE_START_LICENSE_TIME_COMPANY,
     TITLE_SURNAME_USER,
     TITLE_TELEGRAM_USERNAME_USER,
@@ -39,7 +38,6 @@ from src.schemas.constants import (
 from src.schemas.user import UserUpdateSchema
 from src.schemas.validators.company import (
     check_license_fields_none,
-    validate_logo,
     validate_name_characters,
     validate_name_surname_unique,
     validate_slug,
@@ -66,12 +64,6 @@ class CompanyUpdateForUserSchema(BaseModel):
         None,
         title=TITLE_LOGO_COMPANY,
     )
-
-    @field_validator('logo')
-    @classmethod
-    def validate_logo_field(cls, logo: Optional[str]) -> Optional[str]:
-        """Проверяет, что logo является корректным URL-адресом."""
-        return validate_logo(logo)
 
     @field_validator('description', mode='after', check_fields=False)
     @classmethod
@@ -190,14 +182,12 @@ class CompanyTypeFilterSchema(BaseModel):
 class CompanyDepartmentUpdateSchema(BaseModel):
     """Схема для обновления данных об отделе."""
 
-    name: Optional[str] = Field(
-        None,
+    name: str = Field(
+        ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_COMPANY,
         title=TITLE_NAME_DEPARTMENT,
     )
-    slug: Optional[str] = Field(None, title=TITLE_SLUG_DEPARTMENT)
-
     model_config = ConfigDict(extra='forbid')
 
 

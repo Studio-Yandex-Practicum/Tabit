@@ -26,10 +26,10 @@ from src.schemas.constants import (
     TITLE_CURRENT_DEPARTMENT_ID_USER,
     TITLE_EMPLOYEE_POSITION_USER,
     TITLE_END_DATE_EMPLOYMENT_USER,
-    TITLE_LAST_DEPARTMENT_ID_USER,
     TITLE_NAME_USER,
     TITLE_PATRONYMIC_USER,
     TITLE_PHONE_NUMBER_USER,
+    TITLE_PREVIOUS_DEPARTMENT_ID_USER,
     TITLE_START_DATE_EMPLOYMENT_USER,
     TITLE_SURNAME_USER,
     TITLE_TELEGRAM_USERNAME_USER,
@@ -90,13 +90,9 @@ class CompanyAdminSchemaMixin:
     avatar_link: Annotated[
         url_to_string, Field(None, max_length=LENGTH_FILE_LINK, title=TITLE_AVATAR_LINK_USER)
     ]
-    current_department_id: Optional[int] = Field(
+    previous_department_id: Optional[int] = Field(
         None,
-        title=TITLE_CURRENT_DEPARTMENT_ID_USER,
-    )
-    last_department_id: Optional[int] = Field(
-        None,
-        title=TITLE_LAST_DEPARTMENT_ID_USER,
+        title=TITLE_PREVIOUS_DEPARTMENT_ID_USER,
     )
     employee_position: Optional[str] = Field(
         None,
@@ -143,7 +139,7 @@ class CompanyAdminReadSchema(BaseUser[UUID]):
     avatar_link: Optional[str]
     company_id: int
     current_department_id: Optional[int]
-    last_department_id: Optional[int]
+    previous_department_id: Optional[int]
     department_transition_date: Optional[date]
     employee_position: Optional[str]
     created_at: datetime
@@ -151,8 +147,8 @@ class CompanyAdminReadSchema(BaseUser[UUID]):
     model_config = ConfigDict(from_attributes=True)
 
 
-class CompanyAdminCreateSchema(CompanyAdminSchemaMixin, BaseUserCreate):
-    """Схема для создания админов от компаний."""
+class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
+    """Схема для PUT-запроса изменения данных админов от компаний."""
 
     name: str = Field(
         ...,
@@ -166,6 +162,16 @@ class CompanyAdminCreateSchema(CompanyAdminSchemaMixin, BaseUserCreate):
         max_length=LENGTH_NAME_USER,
         title=TITLE_SURNAME_USER,
     )
+    role: RoleUserTabit
+    current_department_id: int = Field(
+        ...,
+        title=TITLE_CURRENT_DEPARTMENT_ID_USER,
+    )
+
+
+class CompanyAdminCreateSchema(CompanyAdminPutSchema):
+    """Схема для создания админов от компаний."""
+
     role: Literal[RoleUserTabit.ADMIN]
     company_id: int = Field(
         ...,
@@ -173,8 +179,8 @@ class CompanyAdminCreateSchema(CompanyAdminSchemaMixin, BaseUserCreate):
     )
 
 
-class CompanyAdminUpdateSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
-    """Схема для изменения данных админов от компаний."""
+class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
+    """Схема для PATCH-запроса изменения данных админов от компаний."""
 
     name: Optional[str] = Field(
         None,
@@ -189,7 +195,7 @@ class CompanyAdminUpdateSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
         title=TITLE_SURNAME_USER,
     )
     role: Optional[RoleUserTabit] = None
-    company_id: Optional[int] = Field(
+    current_department_id: Optional[int] = Field(
         None,
-        title=TITLE_COMPANY_ID_USER,
+        title=TITLE_CURRENT_DEPARTMENT_ID_USER,
     )

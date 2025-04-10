@@ -9,6 +9,7 @@ from src.schemas.validators.constants import (
 )
 
 
+# TODO: смотри meeting_validators.py -> validate_date
 def validate_date_in_future(value: date) -> date:
     """Валидирует дату встречи.
 
@@ -29,6 +30,7 @@ def validate_date_in_future(value: date) -> date:
     return value
 
 
+# TODO: смотри meeting_validators.py -> validate_not_empty
 def validate_name(value: str) -> str:
     """Валидирует название задачи.
 

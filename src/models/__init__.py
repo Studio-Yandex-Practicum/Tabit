@@ -7,7 +7,9 @@ from .base import BaseFileLink, BaseTabitModel, BaseTag, BaseUser
 from .company import Company, Department
 from .enum import (
     ColorProblem,
-    ResultMeetingEnum,
+    MeetingResultEngagementEnum,
+    MeetingResultEnum,
+    MeetingResultSolutionEnum,
     RoleUserTabit,
     StatusMeeting,
     StatusProblem,
@@ -18,10 +20,10 @@ from .file import FileMeeting, FileMessage, FileProblem, FileTask
 from .landing_page import LandingPage
 from .license_type import LicenseType
 from .problem import Problem
-from .problem_meeting import Meeting, ResultMeeting
-from .problem_message import CommentFeed, MessageFeed, VotingByUser, VotingFeed
+from .problem_discussion import CommentFeed, MessageFeed, VotingByUser, VotingFeed
+from .problem_meeting import Meeting, MeetingResult
 from .tag import TagUser
-from .task import Task
+from .problem_task import Task
 from .user import TabitAdminUser, UserTabit
 from .association_models import (
     AssociationUserComment,
@@ -39,7 +41,9 @@ __all__ = [
     'Company',
     'Department',
     'ColorProblem',
-    'ResultMeetingEnum',
+    'MeetingResultEngagementEnum',
+    'MeetingResultEnum',
+    'MeetingResultSolutionEnum',
     'RoleUserTabit',
     'StatusMeeting',
     'StatusProblem',
@@ -52,12 +56,12 @@ __all__ = [
     'LandingPage',
     'LicenseType',
     'Problem',
-    'Meeting',
-    'ResultMeeting',
     'CommentFeed',
     'MessageFeed',
     'VotingByUser',
     'VotingFeed',
+    'Meeting',
+    'MeetingResult',
     'TagUser',
     'Task',
     'TabitAdminUser',

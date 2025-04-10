@@ -3,15 +3,33 @@
 from datetime import date
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import Enum, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.models import BaseTabitModel, ResultMeetingEnum, StatusMeeting
-from src.models.annotations import description, int_pk, int_zero, name_problem, owner
+from src.models import (
+    BaseTabitModel,
+    MeetingResultEngagementEnum,
+    MeetingResultEnum,
+    MeetingResultSolutionEnum,
+    StatusMeeting,
+)
+from src.models.annotations import (
+    description,
+    int_pk,
+    int_pk_autoincrement,
+    int_zero,
+    name_problem,
+    owner,
+)
 from src.models.constants import LENGTH_NAME_MEETING_PLACE
 
 if TYPE_CHECKING:
-    from src.models import AssociationUserMeeting, FileMeeting, Problem, ResultMeeting, UserTabit
+    from src.models import (
+        AssociationUserMeeting,
+        FileMeeting,
+        Problem,
+        UserTabit,
+    )
 
 
 class Meeting(BaseTabitModel):
@@ -38,7 +56,7 @@ class Meeting(BaseTabitModel):
         problem - Problem;
         owner - UserTabit;
         members - AssociationUserMeeting -> UserTabit: участники встречи;
-        result - ResultMeeting: связь к анкетам, которые заполняются по завершению встречи;
+        result - MeetingResult: связь к анкетам, которые заполняются по завершению встречи;
         file - FileMeeting: к встречи могут быть прикреплены файлы.
     """
 
@@ -53,9 +71,12 @@ class Meeting(BaseTabitModel):
     status: Mapped['StatusMeeting']
     place: Mapped[str] = mapped_column(String(LENGTH_NAME_MEETING_PLACE), nullable=False)
     members: Mapped[List['AssociationUserMeeting']] = relationship(
-        back_populates='meeting', cascade='all, delete-orphan'
+        back_populates='meeting',
+        cascade='all, delete-orphan',
+        viewonly=True,
+        lazy='joined',
     )
-    result: Mapped['ResultMeeting'] = relationship(
+    result: Mapped['MeetingResult'] = relationship(
         back_populates='meeting', cascade='all, delete-orphan'
     )
     transfer_counter: Mapped[int_zero]
@@ -73,7 +94,7 @@ class Meeting(BaseTabitModel):
         )
 
 
-class ResultMeeting(BaseTabitModel):
+class MeetingResult(BaseTabitModel):
     """
     Модель результатов встреч.
 
@@ -85,8 +106,8 @@ class ResultMeeting(BaseTabitModel):
         meeting_id: Идентификатор встречи, к которой относится анкета.
         owner_id: Автор встречи. Внешний ключ.
         meeting_result: Как прошла встреча.
-        participant_engagement: bool - Заинтересовала ли встреча.
-        problem_solution: bool - Удалось ли решить проблему.
+        participant_engagement: Заинтересованность участников.
+        problem_solution: Удалось ли решить проблему.
         meeting_feedback: Комментарий к встрече.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
@@ -96,14 +117,18 @@ class ResultMeeting(BaseTabitModel):
         owner - UserTabit.
     """
 
-    id: Mapped[int_pk]
+    id: Mapped[int_pk_autoincrement]
     meeting_id: Mapped[int] = mapped_column(ForeignKey('meeting.id'), primary_key=True)
-    meeting: Mapped['Meeting'] = relationship(back_populates='result')
+    meeting: Mapped['Meeting'] = relationship(back_populates='result', lazy='joined')
     owner_id: Mapped[owner]
     owner: Mapped['UserTabit'] = relationship(back_populates='meeting_result')
-    meeting_result: Mapped['ResultMeetingEnum']
-    participant_engagement: Mapped[bool] = mapped_column(nullable=False)
-    problem_solution: Mapped[bool] = mapped_column(nullable=False)
+    meeting_result: Mapped['MeetingResultEnum']
+    participant_engagement: Mapped['MeetingResultEngagementEnum'] = mapped_column(
+        Enum(MeetingResultEngagementEnum, name='resultmeetingengagementenum'),
+    )
+    problem_solution: Mapped['MeetingResultSolutionEnum'] = mapped_column(
+        Enum(MeetingResultSolutionEnum, name='resultmeetingsolutionenum'),
+    )
     meeting_feedback: Mapped[str] = mapped_column(Text, nullable=True)
 
     def __repr__(self):

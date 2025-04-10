@@ -17,7 +17,7 @@ from src.models.annotations import (
 from src.models.constants import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
 
 if TYPE_CHECKING:
-    from src.models import Department, LicenseType, TagUser, UserTabit
+    from src.models import Department, LicenseType, Problem, TagUser, UserTabit
 
 
 class Company(BaseTabitModel):
@@ -48,6 +48,7 @@ class Company(BaseTabitModel):
         employees - UserTabit;
         license - LicenseType;
         tags_users - TagUser: админ от компании может придумывать свои тэги для пользователей.
+        problems - Problem: связь к созданным проблемам, определенной компании;
     """
 
     id: Mapped[int_pk]
@@ -59,6 +60,9 @@ class Company(BaseTabitModel):
     )
     employees: Mapped[List['UserTabit']] = relationship(
         back_populates='company', cascade='all, delete', lazy='selectin'
+    )
+    problems: Mapped[List['Problem']] = relationship(
+        back_populates='company', cascade='all, delete-orphan'
     )
     license_id: Mapped[Optional[int]] = mapped_column(ForeignKey('licensetype.id'), nullable=True)
     license: Mapped[Optional['LicenseType']] = relationship(back_populates='companies')
@@ -106,7 +110,8 @@ class Department(BaseTabitModel):
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'), nullable=False)
     company: Mapped['Company'] = relationship(back_populates='departments')
     # employees: Mapped[List['UserTabit']] = relationship(back_populates='current_department')
-    # employees_lost: Mapped[List['UserTabit']] = relationship(back_populates='last_department')
+    # employees_lost: Mapped[List['UserTabit']]
+    #  = relationship(back_populates='last_department')
     slug: Mapped[slug]
 
     __table_args__ = (UniqueConstraint('company_id', 'name', name='uq_company_department_name'),)

@@ -21,10 +21,10 @@ from src.schemas.constants import (
     TITLE_EMPLOYEE_POSITION_USER,
     TITLE_END_DATE_EMPLOYMENT_USER,
     TITLE_IS_ACTIVE_USER,
-    TITLE_LAST_DEPARTMENT_ID_USER,
     TITLE_NAME_USER,
     TITLE_PATRONYMIC_USER,
     TITLE_PHONE_NUMBER_USER,
+    TITLE_PREVIOUS_DEPARTMENT_ID_USER,
     TITLE_ROLE_USER,
     TITLE_START_DATE_EMPLOYMENT_USER,
     TITLE_SURNAME_USER,
@@ -49,7 +49,7 @@ class UserReadSchema(BaseUser[UUID]):
     avatar_link: Optional[str] = Field(None, title=TITLE_AVATAR_LINK_USER)
     company_id: int = Field(..., title=TITLE_COMPANY_ID_USER)
     current_department_id: Optional[int] = Field(None, title=TITLE_CURRENT_DEPARTMENT_ID_USER)
-    last_department_id: Optional[int] = Field(None, title=TITLE_LAST_DEPARTMENT_ID_USER)
+    previous_department_id: Optional[int] = Field(None, title=TITLE_PREVIOUS_DEPARTMENT_ID_USER)
     department_transition_date: Optional[date] = Field(
         None, title=TITLE_DEPARTMENT_TRANSITION_DATE_USER
     )

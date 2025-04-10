@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # Проверка на наличие переменной PGADMIN_DEFAULT_EMAIL в .env
-if [ -z ${PGADMIN_DEFAULT_EMAIL} ]
+if [[ -z ${PGADMIN_DEFAULT_EMAIL} ]];
 then
-    echo "Отсутствует переменная PGADMIN_DEFAULT_EMAIL в .env."
-    exit
+    echo "Отсутствует переменная PGADMIN_DEFAULT_EMAIL в .env.";
+    exit;
 fi
 
 # Создаём из PGADMIN_DEFAULT_EMAIL название директории в формате <имя>_<домен>
@@ -15,6 +15,8 @@ FOLDER_NAME="${EMAIL_NAME}_${EMAIL_DOMAIN}"
 # Содаём нужную папку, присваиваем .pgpass определённые права
 mkdir -p /var/lib/pgadmin/storage/${FOLDER_NAME};
 cp -f /pgadmin4/.pgpass /var/lib/pgadmin/storage/${FOLDER_NAME}/.pgpass;
+chown pgadmin:pgadmin /pgadmin4/.pgpass
+chown -R pgadmin:pgadmin /var/lib/pgadmin/storage/${FOLDER_NAME}/
 chmod 600 /var/lib/pgadmin/storage/${FOLDER_NAME}/.pgpass;
 
 # Запускаем родной entrypoint.sh контейнера

@@ -6,6 +6,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+media/*
+
 # C extensions
 *.so
 
@@ -190,3 +192,4 @@ cython_debug/
 #others
 departments_list.txt
 employees_list.txt
+media/

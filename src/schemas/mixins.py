@@ -16,9 +16,9 @@ from src.schemas.constants import (
     TITLE_DEPARTMENT_TRANSITION_DATE_USER,
     TITLE_EMPLOYEE_POSITION_USER,
     TITLE_END_DATE_EMPLOYMENT_USER,
-    TITLE_LAST_DEPARTMENT_ID_USER,
     TITLE_PATRONYMIC_USER,
     TITLE_PHONE_NUMBER_USER,
+    TITLE_PREVIOUS_DEPARTMENT_ID_USER,
     TITLE_START_DATE_EMPLOYMENT_USER,
     TITLE_TELEGRAM_USERNAME_USER,
 )
@@ -83,9 +83,9 @@ class UserSchemaMixin:
         None,
         title=TITLE_CURRENT_DEPARTMENT_ID_USER,
     )
-    last_department_id: Optional[int] = Field(
+    previous_department_id: Optional[int] = Field(
         None,
-        title=TITLE_LAST_DEPARTMENT_ID_USER,
+        title=TITLE_PREVIOUS_DEPARTMENT_ID_USER,
     )
     department_transition_date: Optional[date] = Field(
         None,

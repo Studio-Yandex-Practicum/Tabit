@@ -55,8 +55,8 @@ class StatusMeeting(StrEnum):
     SUSPENDED = 'Приостановлена'
 
 
-class ResultMeetingEnum(StrEnum):
-    """Варианты значений поля result модели ResultMeeting."""
+class MeetingResultEnum(StrEnum):
+    """Варианты значений поля result модели MeetingResult."""
 
     EXCELLENT = 'Отлично'
     GOOD = 'Хорошо'
@@ -78,3 +78,21 @@ class RoleUserTabit(StrEnum):
 
     ADMIN = 'Админ'
     EMPLOYEE = 'Сотрудник'
+
+
+class MeetingResultEngagementEnum(StrEnum):
+    """Варианты значений поля participant_engagement модели MeetingResult."""
+
+    YES = 'Да'
+    MORE_THAN_HALF = 'Больше половины'
+    LESS_THAN_HALF = 'Меньше половины'
+    NOBODY = 'Никто'
+
+
+class MeetingResultSolutionEnum(StrEnum):
+    """Варианты значений поля meeting_feedback модели MeetingResult."""
+
+    YES = 'Да'
+    MORE_YES = 'Скорее да, чем нет'
+    MORE_NO = 'Скорее нет, чем да'
+    NO = 'Нет'

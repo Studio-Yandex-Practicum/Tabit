@@ -3,8 +3,8 @@ import random
 from slugify import slugify
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.crud import company_crud
 from src.utils.constants import GENERATED_SLUG_SUFFIX_RANGE, SHORT_SYMBOLS
-from src.utils.crud_company import company_crud
 
 
 def generate_unique_slug(base_slug: str) -> str:

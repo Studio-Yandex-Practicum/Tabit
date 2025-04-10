@@ -22,9 +22,9 @@ if TYPE_CHECKING:
         Company,
         Department,
         Meeting,
+        MeetingResult,
         MessageFeed,
         Problem,
-        ResultMeeting,
         Task,
         VotingByUser,
     )
@@ -57,7 +57,7 @@ class UserTabit(BaseUser):
         company_id: id компании, в которой работает пользователь.
         supervisor: начальник отдела, за которым закреплен (может быть True или None);
         current_department_id: id отдела, в котором работает пользователь.
-        last_department_id: id отдела, в котором работал пользователь до этого.
+        previous_department_id: id отдела, в котором работал пользователь до этого.
         department_transition_date: Последняя дата перехода из одного отдела в другой.
         employee_position: Позиция в коллективе, указывается админом компании.
         created_at: Дата создания записи в таблице. Автозаполнение.
@@ -67,12 +67,12 @@ class UserTabit(BaseUser):
         tags - AssociationUserTags -> TagUser;
         company - Company;
         current_department - Department;
-        last_department - Department;
+        previous_department - Department;
         problem_owner - Problem: автором каких проблем является;
         problems - AssociationUserProblem -> Problem: участником решения каких проблем является;
         meeting_owner - Meeting: инициатором каких встреч является;
         meetings - AssociationUserMeeting -> Meeting: в каких встречах участвует;
-        meeting_result - ResultMeeting: после встречи можно заполнить анкету - автор какой анкеты;
+        meeting_result - MeetingResult: после встречи можно заполнить анкету - автор какой анкеты;
         task_owner - Task: автором какой задачи является;
         tasks - AssociationUserTask -> Task: ответственным за решения каких задач является;
         messages - MessageFeed: автором каких сообщений является;
@@ -95,25 +95,27 @@ class UserTabit(BaseUser):
     supervisor: Mapped[Optional[bool]] = mapped_column(default=None)
 
     current_department_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('department.id'), nullable=True
+        ForeignKey('department.id', ondelete='SET NULL'), nullable=True
     )
     current_department: Mapped[Optional['Department']] = relationship(
         # back_populates='employees',
         foreign_keys=[current_department_id],
+        passive_deletes=True,
     )
-    last_department_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('department.id'), nullable=True
+    previous_department_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey('department.id', ondelete='SET NULL'), nullable=True
     )
-    last_department: Mapped[Optional['Department']] = relationship(
+    previous_department: Mapped[Optional['Department']] = relationship(
         # back_populates='employees_lost',
-        foreign_keys=[last_department_id],
+        foreign_keys=[previous_department_id],
+        passive_deletes=True,
     )
 
     problem_owner: Mapped[List['Problem']] = relationship(back_populates='owner')
     problems: Mapped[List['AssociationUserProblem']] = relationship(back_populates='user')
     meeting_owner: Mapped[List['Meeting']] = relationship(back_populates='owner')
     meetings: Mapped[List['AssociationUserMeeting']] = relationship(back_populates='user')
-    meeting_result: Mapped['ResultMeeting'] = relationship(back_populates='owner')
+    meeting_result: Mapped['MeetingResult'] = relationship(back_populates='owner')
     task_owner: Mapped['Task'] = relationship(back_populates='owner')
     tasks: Mapped[List['AssociationUserTask']] = relationship(
         back_populates='user', cascade='all, delete-orphan'

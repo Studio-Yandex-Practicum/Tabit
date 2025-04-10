@@ -8,7 +8,8 @@ from .admin_company import (
     CompanyAdminCreateSchema,
     CompanyAdminReadSchema,
     CompanyAdminSchemaMixin,
-    CompanyAdminUpdateSchema,
+    CompanyAdminPatchSchema,
+    CompanyAdminPutSchema,
 )
 from .admin_user import (
     AdminCreateFirstSchema,
@@ -63,14 +64,18 @@ from .problem import (
     ProblemResponseSchema,
     ProblemUpdateSchema,
 )
-from .problem_meeting import (
+from .meeting import (
     MeetingBaseSchema,
     MeetingCreateSchema,
     MeetingResponseSchema,
     MeetingUpdateSchema,
-    ResultMeetingBaseSchema,
-    ResultMeetingCreateSchema,
-    ResultMeetingInDB,
+)
+from .meeting_result import (
+    MeetingResultBaseSchema,
+    MeetingResultCreateSchema,
+    MeetingResultResponseSchema,
+    MeetingResultUpdateSchema,
+    MeetingResultSchema
 )
 from .query_params import (
     BaseFilterSchema,
@@ -108,7 +113,8 @@ __all__ = [
     'CompanyAdminCreateSchema',
     'CompanyAdminReadSchema',
     'CompanyAdminSchemaMixin',
-    'CompanyAdminUpdateSchema',
+    'CompanyAdminPatchSchema',
+    'CompanyAdminPutSchema',
     'AdminCreateFirstSchema',
     'AdminCreateSchema',
     'AdminReadSchema',
@@ -157,9 +163,11 @@ __all__ = [
     'MeetingCreateSchema',
     'MeetingResponseSchema',
     'MeetingUpdateSchema',
-    'ResultMeetingBaseSchema',
-    'ResultMeetingCreateSchema',
-    'ResultMeetingInDB',
+    'MeetingResultBaseSchema',
+    'MeetingResultCreateSchema',
+    'MeetingResultResponseSchema',
+    'MeetingResultUpdateSchema',
+    'MeetingResultSchema',
     'BaseFilterSchema',
     'CompanyFilterSchema',
     'FeedsFilterSchema',

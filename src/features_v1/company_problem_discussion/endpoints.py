@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.dependencies import current_user_tabit
 from src.core.database.db_depends import get_async_session
-from src.features_v1.company_problem_discussion.crud_comment import comment_crud
-from src.features_v1.company_problem_discussion.crud_message_feed import message_feed_crud
-from src.features_v1.company_problem_discussion.validators import (
+from src.crud.crud_comment import comment_crud
+from src.crud.crud_message_feed import message_feed_crud
+from src.features_v1.validators import (
     check_comment_and_message_feed,
     check_comment_has_likes_from_user,
     check_comment_owner,
@@ -211,7 +211,7 @@ async def delete_thread_comment(
     await comment_crud.remove(session, comment)
 
 
-@router.get(
+@router.post(
     '/{thread_id}/comments/{comment_id}/like',
     summary='Поставить лайк комментарию в треде.',
     status_code=status.HTTP_200_OK,
@@ -243,7 +243,7 @@ async def like_a_comment(
     await comment_crud.like(comment, user.id, session)
 
 
-@router.get(
+@router.post(
     '/{thread_id}/comments/{comment_id}/unlike',
     summary='Убрать свой лайк комментарию в треде.',
     status_code=status.HTTP_200_OK,

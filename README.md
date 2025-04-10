@@ -1,30 +1,33 @@
 # Tabit
 
 ## Оглавление
-1. [О проекте](#о-проекте)
-2. [Начало работы](#начало-работы)
-   - [Poetry](#poetry)
-   - [Pre-commit](#pre-commit)
-   - [Установка на Windows](#установка-на-windows)
-3. [Работа с базой данных](#работа-с-базой-данных)
-   - [ERD модель данных](#erd-модель-данных)
-   - [DBeaver](#dbeaver)
-   - [pgAdmin](#pgadmin)
-4. [Разработка](#разработка)
-   - [Правила работы с git](#правила-работы-с-git)
-   - [Логирование](#логирование)
-   - [Линтеры](#линтеры)
-5. [CI/CD и деплой](#cicd-и-деплой)
-   - [GitHub Actions Workflows](#github-actions-workflows)
-   - [Инфраструктура Docker](#инфраструктура-docker)
-   - [Деплой на Stage](#деплой-на-stage)
-6. [Запуск приложения](#запуск-приложения)
-   - [Из командной строки](#запуск-приложения-из-командной-строки)
-   - [Создание суперпользователя](#создать-автоматически-суперпользователя)
-   - [Отладка CI/CD](#запуск-контейнеров-локально-для-отладки-cicd)
-7. [Справочник команд Makefile](#makefile-команды)
 
-## О проекте
+1. [📌 О проекте](#о-проекте)
+2. [🚀 Начало работы](#начало-работы)
+   - [📦 Poetry](#poetry)
+   - [🔄 Pre-commit](#pre-commit)
+   - [🪟 Установка на Windows](#установка-на-windows)
+3. [💾 Работа с базой данных](#работа-с-базой-данных)
+   - [📊 ERD модель данных](#erd-модель-данных)
+   - [🔍 DBeaver](#dbeaver)
+   - [🔍 pgAdmin](#pgadmin)
+4. [👨‍💻 Разработка](#разработка)
+   - [🔄 Правила работы с git](#правила-работы-с-git)
+   - [📝 Логирование](#логирование)
+   - [🧹 Линтеры](#линтеры)
+5. [🔄 CI/CD и деплой](#cicd-и-деплой)
+   - [⚙️ GitHub Actions Workflows](#github-actions-workflows)
+   - [🐳 Инфраструктура Docker](#инфраструктура-docker)
+   - [🚀 Деплой на Stage](#деплой-на-stage)
+6. [▶️ Запуск приложения](#запуск-приложения)
+   - [💻 Из командной строки](#запуск-приложения-из-командной-строки)
+   - [👤 Создание суперпользователя](#создать-автоматически-суперпользователя)
+   - [🐞 Отладка CI/CD](#запуск-контейнеров-локально-для-отладки-cicd)
+7. [📋 Справочник команд Makefile](#makefile-команды)
+8. [🧪 Тестирование](#тестирование)
+9. [❓ Часто встречающиеся ошибки](#часто-встречающиеся-ошибки)
+
+## 📌 О проекте
 
 **Tabit** — онлайн-сервис для HR-специалистов и собственников компаний, который помогает:
 - 📊 Измерять эмоциональный климат в компании
@@ -34,9 +37,9 @@
 
 > **Требования к окружению:** Python 3.12 или выше.
 
-## Начало работы
+## 🚀 Начало работы
 
-### Poetry
+### 📦 Poetry
 
 Poetry — это инструмент для управления зависимостями и виртуальными окружениями Python. В проекте Poetry является **обязательным** для разработки.
 
@@ -146,7 +149,7 @@ poetry update
 
 </details>
 
-### Pre-commit
+### 🔄 Pre-commit
 
 <details>
 <summary><strong>🔽 Настройка pre-commit</strong></summary>
@@ -165,7 +168,7 @@ poetry update
 
 </details>
 
-### Установка на Windows
+### 🪟 Установка на Windows
 
 <details>
 <summary><strong>🔽 Способ 1: Установка с использованием WSL (рекомендуется)</strong></summary>
@@ -200,6 +203,30 @@ poetry update
    curl -sSL https://install.python-poetry.org | python3 - --version 1.7.1
    ```
 
+   **Альтернативные способы установки Poetry:**
+
+   **Через pip:**
+   ```bash
+   pip install poetry==1.7.1
+   ```
+
+   **Через apt (если pip недоступен):**
+   ```bash
+   sudo apt update
+   sudo apt install python3-pip
+   pip install poetry==1.7.1
+   ```
+
+   **Проверка установки:**
+   ```bash
+   poetry --version
+   ```
+
+   **Настройка Poetry:**
+   ```bash
+   poetry config virtualenvs.in-project true
+   ```
+
 #### 3. Клонирование и настройка проекта
 1. Клонируйте репозиторий:
    ```bash
@@ -226,10 +253,10 @@ poetry update
    make up                 # Запуск контейнера с БД
 
    # Если миграции уже существуют:
-   make apply-migrations   # Применение существующих миграций
+   make migration-apply    # Применение существующих миграций
 
    # Если это первая инициализация:
-   make init-db            # Создание и применение начальных миграций
+   make db-init            # Создание и применение начальных миграций
 
    make create-superuser   # Создание суперпользователя
    make fill-db            # Заполнение тестовыми данными
@@ -265,6 +292,29 @@ poetry update
    https://www.python.org/downloads/
    ```
 
+5. Установите Poetry:
+   Выберите один из способов:
+
+   **Через pip:**
+   ```powershell
+   pip install poetry==1.7.1
+   ```
+
+   **Через PowerShell:**
+   ```powershell
+   (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python - --version 1.7.1
+   ```
+
+   **Проверка установки:**
+   ```bash
+   poetry --version
+   ```
+
+   **Настройка Poetry:**
+   ```bash
+   poetry config virtualenvs.in-project true
+   ```
+
 #### 2. Клонирование и настройка проекта
 1. Клонируйте репозиторий:
    ```powershell
@@ -272,9 +322,8 @@ poetry update
    cd Tabit
    ```
 
-2. Установите и настройте Poetry:
+2. Настройте Poetry:
    ```powershell
-   pip install poetry==1.7.1
    poetry config virtualenvs.in-project true
    poetry install
    ```
@@ -291,10 +340,10 @@ poetry update
    make up                 # Запуск контейнера с БД
 
    # Если миграции уже существуют:
-   make apply-migrations   # Применение существующих миграций
+   make migration-apply    # Применение существующих миграций
 
    # Если это первая инициализация:
-   make init-db            # Создание и применение начальных миграций
+   make db-init            # Создание и применение начальных миграций
 
    make create-superuser   # Создание суперпользователя
    make fill-db            # Заполнение тестовыми данными
@@ -304,7 +353,7 @@ poetry update
 > ⚠️ **Примечание:** На чистом Windows могут возникнуть проблемы совместимости. Если столкнетесь с ошибками, рекомендуется перейти на WSL.
 </details>
 
-## Работа с базой данных
+## 💾 Работа с базой данных
 
 ### Настройка окружения
 
@@ -318,16 +367,16 @@ poetry update
 POSTGRES_USER=warlock                     # Имя пользователя БД
 POSTGRES_PASSWORD=zTudS8LBSquBMwvS3ky5    # Пароль к БД
 POSTGRES_DB=tabit                         # Название БД
-PORT_BD_POSTGRES=5432                     # Порт для подключения к БД
+DB_PORT=5432                              # Порт для подключения к БД
 DB_TYPE=postgresql                        # Тип базы данных
 DB_API=asyncpg                            # API для работы с БД
 DB_HOST=localhost                         # Хост для подключения к БД
 ```
 
-### ERD модель данных
+### 📊 ERD модель данных
 Актуальная ER-диаграмма базы данных доступна [по ссылке](https://app.erdlab.io/designer/schema/1736745715-tabit)
 
-### DBeaver
+### 🔍 DBeaver
 
 <details>
 <summary><strong>🔽 Подключение к БД через DBeaver</strong></summary>
@@ -345,7 +394,7 @@ DB_HOST=localhost                         # Хост для подключени
 
 </details>
 
-### pgAdmin
+### 🔍 pgAdmin
 
 <details>
 <summary><strong>🔽 Работа с pgAdmin</strong></summary>
@@ -366,7 +415,7 @@ pgAdmin — веб-интерфейс для управления PostgreSQL. В
    ```
    или
    ```bash
-   docker compose -f infra/docker-compose.local-with-pgadmin.yaml up -d
+   docker compose -f infra/local/docker-compose.local.yaml --profile pgadmin up -d
    ```
 
 3. Откройте в браузере http://localhost:5600/
@@ -379,17 +428,44 @@ pgAdmin — веб-интерфейс для управления PostgreSQL. В
 ```bash
 make down-pgadmin
 ```
+или
+   ```bash
+   docker compose -f infra/local/docker-compose.local.yaml --profile '*' down
+   ```
 
 **Удаление контейнеров и томов:**
 ```bash
 make down-pgadmin-volumes
 ```
+или
+```bash
+docker compose -f infra/local/docker-compose.local.yaml --profile '*' down -v
+```
+
+#### Дополнительные сведения о pgAdmin
+
+Инструмент для взаимодействия с БД PostgreSQL, альтернатива DBeaver. Вариация в данном проекте работает через Docker-контейнер и доступна в браузере по ссылке http://localhost:5600/ или http://127.0.0.1:5600/.
+Полная документация доступна по ссылке: https://www.pgadmin.org/docs/pgadmin4/8.14/index.html
+
+В контейнер монтируются:
+- `servers.json` - файл с данными для подключения к БД;
+- `config_local.py` - настройки для pgAdmin. Заменяют параметры, описанные в `config.py` внутри контейнера (подробнее: https://www.pgadmin.org/docs/pgadmin4/latest/config_py.html#config-py);
+- `.pgpass` - файл-пароль для подключения к БД;
+- `create-admin-folder.sh` - bash-скрипт для создания внутри контейнера необходимой папки и переноса туда `.pgpass`.
+
+#### Подготовка к запуску
+Достаточно в файл с переменными окружения .env добавить две переменных: `PGADMIN_DEFAULT_EMAIL` и `PGADMIN_DEFAULT_PASSWORD`, почта и пароль автоматически создаваемого админа соответственно (см. `.env.example`).
+
+#### Особенности работы с pgAdmin
+- Полная инициализация pgAdmin может занимать много времени. На ноутбуке с HDD процесс занимал 8 минут. С SSD должно быть быстрее.
+- В процессе инициализации для первого админа создаётся автоматическое подключение к БД, данные для подключения описаны в файле `servers.json`. Благодаря файлу `.pgpass` пропадает необходимость вводить пароль для подключения.
+- Первый админ может создавать других пользователей с помощью User Management (меню в правом верхнем углу). Однако для таких пользователей подключение к БД нужно настраивать отдельно уже в интерфейсе системы.
 
 </details>
 
-## Разработка
+## 👨‍💻 Разработка
 
-### Правила работы с git
+### 🔄 Правила работы с git
 
 <details>
 <summary><strong>🔽 Git-процесс в проекте</strong></summary>
@@ -413,7 +489,7 @@ make down-pgadmin-volumes
 
 </details>
 
-### Логирование
+### 📝 Логирование
 
 <details>
 <summary><strong>🔽 Система логирования</strong></summary>
@@ -426,7 +502,7 @@ make down-pgadmin-volumes
 
 1. Импортируйте логгер:
    ```python
-   from src.logger import logger
+   from src.core.config.logging import logger
    ```
 
 2. Добавьте логи нужного уровня:
@@ -453,7 +529,7 @@ make down-pgadmin-volumes
 
 </details>
 
-### Линтеры
+### 🧹 Линтеры
 
 <details>
 <summary><strong>🔽 Проверка качества кода</strong></summary>
@@ -482,9 +558,9 @@ poetry run ruff format .
 
 </details>
 
-## CI/CD и деплой
+## 🔄 CI/CD и деплой
 
-### GitHub Actions Workflows
+### ⚙️ GitHub Actions Workflows
 
 В проекте настроены следующие автоматизированные процессы:
 
@@ -495,7 +571,7 @@ poetry run ruff format .
 | **ruff.yml**             | Проверка кода линтерами               | Push, Pull Request          |
 | **stage_deploy.yaml**    | Деплой на Stage-окружение             | Push в определенную ветку   |
 
-### Инфраструктура Docker
+### 🐳 Инфраструктура Docker
 
 <details>
 <summary><strong>🔽 Конфигурации Docker</strong></summary>
@@ -504,21 +580,24 @@ poetry run ruff format .
 
 1. **Только база данных**
    ```bash
-   make up     # Запуск
-   make down   # Остановка
+   make up              # Запуск
    ```
 
 2. **База данных с pgAdmin**
    ```bash
-   make up-pgadmin         # Запуск
-   make down-pgadmin       # Остановка
+   make up-pgadmin      # Запуск
    ```
 
 3. **Полное окружение**
    ```bash
-   make up-dc              # Запуск
-   make down-dc            # Остановка
-   make logs-dc            # Просмотр логов
+   make up-dc           # Запуск
+   ```
+
+4. **Общие команды**
+   ```bash
+   make logs            # Просмотр логов
+   make down            # Остановка
+   make clean-volumes   # Остановка и полный сброс данных
    ```
 
 #### Stage окружение
@@ -530,7 +609,7 @@ poetry run ruff format .
 
 </details>
 
-### Деплой на Stage
+### 🚀 Деплой на Stage
 
 <details>
 <summary><strong>🔽 Процесс деплоя</strong></summary>
@@ -553,9 +632,9 @@ poetry run ruff format .
 
 </details>
 
-## Запуск приложения
+## ▶️ Запуск приложения
 
-### Запуск приложения из командной строки
+### 💻 Запуск приложения из командной строки
 
 ```bash
 python src/main.py [опции]
@@ -572,12 +651,12 @@ python src/main.py [опции]
 python src/main.py -r -h 127.0.0.1 -p 1234
 ```
 
-### Создать автоматически суперпользователя
+### 👤 Создать автоматически суперпользователя
 
 1. Заполните `.env` параметрами (примеры из .env.example):
 ```ini
 FIRST_SUPERUSER_EMAIL=yandex@yandex.ru    # Почта
-FIRST_SUPERUSER_PASSWORD=Password123      # Пароль (мин. 8 символов)
+FIRST_SUPERUSER_PASSWORD=Password123      # Пароль (Латинские символов в обоих регистрах, числа, минимальная длина 8 символов)
 FIRST_SUPERUSER_NAME=Ип                   # Имя
 FIRST_SUPERUSER_SURNAME=Ман               # Фамилия
 ```
@@ -591,7 +670,7 @@ python src/main.py -c
 make create-superuser
 ```
 
-### Запуск контейнеров локально для отладки CI/CD
+### 🐞 Запуск контейнеров локально для отладки CI/CD
 
 <details>
 <summary><strong>🔽 Локальное тестирование CI/CD</strong></summary>
@@ -606,37 +685,40 @@ make up-dc
 
 #### 3. Проверка логов
 ```bash
-make logs-dc
+make logs
 ```
 
 #### 4. Применение миграций
 ```bash
-make migrate-dc
+make migration-apply-dc
 ```
 
 #### 5. Остановка контейнеров
 ```bash
-make down-dc
+make down
 ```
+
+#### Особенности отладки CI/CD
+- Корректно завершает работу всех сервисов.
+- Очищает используемые контейнеры, но сохраняет данные в volume-ах.
+
+После этих шагов можно быть уверенным, что CI/CD собирает проект корректно.
 
 </details>
 
-## Makefile команды
+## 📋 Makefile команды
 
 <details>
 <summary><strong>🔽 Docker Compose команды</strong></summary>
 
 | Команда                          | Описание                                     |
 |----------------------------------|----------------------------------------------|
-| `make up`                        | Запуск контейнеров в фоновом режиме          |
-| `make down`                      | Остановка и удаление контейнеров             |
+| `make up`                        | Запуск контейнера с БД                       |
+| `make up-pgadmin`                | Запуск контейнеров с БД и pgAdmin            |
+| `make up-dc`                     | Запуск полного окружения в контейнерах       |
 | `make logs`                      | Вывод логов всех контейнеров                 |
-| `make up-pgadmin`                | Запуск контейнеров с pgAdmin                 |
-| `make down-pgadmin`              | Остановка контейнеров с pgAdmin              |
-| `make down-pgadmin-volumes`      | Остановка и удаление volumes                 |
-| `make up-dc`                     | Запуск полного окружения                     |
-| `make down-dc`                   | Остановка полного окружения                  |
-| `make logs-dc`                   | Просмотр логов полного окружения             |
+| `make down`                      | Остановка и удаление контейнеров             |
+| `make clean-volumes`             | Остановка контейнеров и удаление томов       |
 
 </details>
 
@@ -645,14 +727,14 @@ make down-dc
 
 | Команда                          | Описание                                     |
 |----------------------------------|----------------------------------------------|
-| `make init-migrations`           | Создание новой миграции с автогенерацией     |
-| `make auto-migration m='commit'` | Создание миграции с указанным именем         |
-| `make empty-migration m='commit'`| Создание пустой миграции                     |
-| `make apply-migrations`          | Применение всех миграций                     |
-| `make migrate-dc`                | Выполнение миграций в контейнере             |
-| `make clean-volumes`             | Удаление Docker volumes                      |
-| `make reset-db`                  | Сброс базы и применение миграций             |
-| `make init-db`                   | Запуск контейнеров и создание структуры БД   |
+| `make migration-init`            | Создание первичной миграции с автогенерацией |
+| `make migration-auto m='commit'` | Создание миграции с указанным именем         |
+| `make migration-empty m='commit'`| Создание пустой миграции                     |
+| `make migration-apply`           | Применение всех миграций                     |
+| `make migration-apply-dc`        | Выполнение миграций в контейнере             |
+| `make migration-rollback`        | Откат последней миграции                     |
+| `make db-reset`                  | Сброс базы и применение миграций             |
+| `make db-init`                   | Запуск контейнеров и создание структуры БД   |
 
 </details>
 
@@ -663,80 +745,29 @@ make down-dc
 |----------------------------------|----------------------------------------------|
 | `make run`                       | Запуск приложения с Uvicorn на порту 8000    |
 | `make create-superuser`          | Создание суперпользователя                   |
-| `make fill-db`                   | Заполнение БД фейковыми данными              |
-| `make fill-companies`            | Создание 5 фейковых компаний                 |
-| `make fill-company-users`        | Создание 5 фейковых сотрудников компаний     |
-| `make fill-tabit-admin-users`    | Создание 5 фейковых сотрудников платформы    |
-| `make fill-company-departments`  | Создание компании с 5 департаментами         |
-| `make fill-license-type`         | Создание 5 лицензий для компаний             |
+| `make fill-db`                   | Заполнение БД всеми тестовыми данными        |
+| `make fill-companies`            | Создание тестовых компаний                   |
+| `make fill-company-users`        | Создание тестовых пользователей компаний     |
+| `make fill-tabit-admin-users`    | Создание тестовых администраторов            |
+| `make fill-company-departments`  | Создание тестовых отделов                    |
+| `make fill-license-type`         | Создание тестовых типов лицензий             |
+| `make fill-problems`             | Создание тестовых проблем                    |
+| `make fill-message-feeds`        | Создание тестовых лент сообщений             |
+| `make fill-voting-feeds`         | Создание тестовых вариантов голосования      |
+| `make fill-voting-by-user`       | Создание тестовых голосований                |
+| `make fill-tasks`                | Создание тестовых задач                      |
+| `make fill-comments`             | Создание тестовых комментариев               |
+| `make fill-tags`                 | Создание тестовых тэгов                      |
 
 </details>
-- Корректно завершает работу всех сервисов.
-- Очищает используемые контейнеры, но сохраняет данные в volume-ах.
 
-После этих шагов можно быть уверенным, что CI/CD собирает проект корректно.
-
-
-## pgAdmin
-
-Инструмент для взаимодействия с БД PostgreSQL, альтернатива DBeaver. Вариация в данном проекте работает через Docker-контейнер и доступна в бразуере по ссылке http://localhost:5600/ или http://127.0.0.1:5600/.
-Полная документация доступна по ссылке: https://www.pgadmin.org/docs/pgadmin4/8.14/index.html
-
-В контейнер монтируются:
-- `servers.json` - файл с данными для подключения к БД;
-- `config_local.py` - настройки для pgAdmin. Заменяют параметры, описанные в `config.py` внутри контейнера (подробнее: https://www.pgadmin.org/docs/pgadmin4/latest/config_py.html#config-py);
-- `.pgpass` - файл-пароль для подключения к БД;
-- `create-admin-folder.sh` - bash-скрипт для создания внутри контейнера необходимой папки и переноса туда `.pgpass`.
-
-### 1. Подготовка к запуску
-Достаточно в файл с переменными окружения .env добавить две переменных: `PGADMIN_DEFAULT_EMAIL` и `PGADMIN_DEFAULT_PASSWORD`, почта и пароль автоматически создаваемого админа соответственно (см. `.env.example`).
-
-### 2. Запуск
-Выполнить одну из двух комманд:
-
-1) Для тех у кого работают make-команды:
-```
-make up-pgadmin
-```
-2) Для всех остальных:
-```
-docker compose -f infra/docker-compose.local-with-pgadmin.yaml up -d
-```
-- Полная инициализация pgAdmin может занимать много времени. На ноутбуке с HDD процесс занимал 8 минут. С SSD должно быть быстрее.
-- В процессе инициализации для первого админа создаётся автоматическое подключение к БД, данные для подключения описаны в файле `servers.json`. Благодаря файлу `.pgpass` пропадает необходимость вводить пароль для подключения.
-- Первый админ может создавать других пользователей с помощью User Management (меню в правом верхнем углу). Однако для таких пользователей подключение к БД нужно настраивать отдельно уже в интерфейсе системы.
-
-### 3. Остановить контейнеры
-Выполнить одну из двух комманд:
-
-1) Для тех у кого работают make-команды:
-```
-make down-pgadmin
-```
-2) Для всех остальных:
-```
-docker compose -f infra/docker-compose.local-with-pgadmin.yaml down
-```
-
-### 4. Удаление volumes
-Останавливает контейнеры и удаляет все volumes, связанные с конфигурацией (и pgAdmin, и PostgreSQL)
-Выполнить одну из двух комманд:
-
-1) Для тех у кого работают make-команды:
-```
-make down-pgadmin-volumes
-```
-2) Для всех остальных:
-```
-docker compose -f infra/docker-compose.local-with-pgadmin.yaml down -v
-```
-
-
-## Тестирование
+## 🧪 Тестирование
 
 Тесты используют базу данных PostgreSQL, которая **автоматически** разворачивается в контейнере перед запуском тестов и удаляется после их выполнения. **Не нужно запускать контейнер вручную — `pytest` сделает это сам!**
 
-### 🔹 Как запустить тесты?
+<details>
+<summary><strong>🔽 Как запустить тесты?</strong></summary>
+
 1. **Добавьте переменные тестовой базы данных в `.env` (если их нет)**:
    ```ini
    TEST_POSTGRES_USER=test_user
@@ -771,14 +802,22 @@ docker compose -f infra/docker-compose.local-with-pgadmin.yaml down -v
    ```
    📌 Эта команда запустит тесты **в том же порядке, что и в предыдущем запуске**, начиная с упавших.
 
-### 🔹 Что делать, если контейнер завис?
+</details>
+
+<details>
+<summary><strong>🔽 Что делать, если контейнер завис?</strong></summary>
+
 Если тесты не запускаются из-за проблем с контейнером, удалите его вручную:
 ```bash
 docker-compose -f infra/docker-compose.test-db.yaml down -v
 ```
 Эта команда **остановит и полностью удалит контейнер с тестовой базой, включая все его данные**. После этого можно запустить тесты заново.
 
-### 🔹 Как работают тесты?
+</details>
+
+<details>
+<summary><strong>🔽 Как работают тесты?</strong></summary>
+
 1. **Перед запуском тестов `pytest` сам поднимает контейнер с PostgreSQL**:
    - Контейнер создаёт отдельную тестовую БД, чтобы не затронуть основную.
    - После поднятия контейнера происходит ожидание готовности БД.
@@ -787,7 +826,95 @@ docker-compose -f infra/docker-compose.test-db.yaml down -v
 
 3. **После завершения тестов контейнер с БД автоматически удаляется**.
 
-
-
-📌 **Важно**: тестовая БД создаётся в отдельном контейнере и не влияет на основную базу данных.  
+📌 **Важно**: тестовая БД создаётся в отдельном контейнере и не влияет на основную базу данных.
 Теперь тесты полностью автоматизированы и изолированы! 🚀
+
+</details>
+
+## ❓ Часто встречающиеся ошибки
+
+<details>
+<summary><strong>🔽 Конфликт портов PostgreSQL в WSL и Docker</strong></summary>
+
+При использовании PostgreSQL одновременно в WSL и Docker-контейнерах может возникнуть конфликт портов, если оба сервиса пытаются использовать порт 5432 (по умолчанию для PostgreSQL).
+
+#### Симптомы:
+- Ошибка при запуске контейнера: `Bind for 0.0.0.0:5432 failed: port is already allocated`
+- Невозможно подключиться к базе данных
+- Невозможно применить миграции в контейнере с БД
+- Сервис PostgreSQL в WSL или Docker не запускается
+
+#### Решение:
+
+1. **Проверка занятых портов:**
+   ```bash
+   sudo netstat -tuln | grep 5432
+   ```
+
+2. **Вариант 1: Остановить PostgreSQL в WSL**
+   Если PostgreSQL в WSL не нужен, остановите его:
+   ```bash
+   sudo service postgresql stop
+   ```
+
+3. **Вариант 2: Изменить порт в Docker**
+   Если нужно использовать оба сервиса, измените порт для Docker-контейнера:
+   - В файле `.env` измените значение `DB_PORT` на свободный порт (например, 5433)
+   - Перезапустите контейнеры
+
+4. **Вариант 3: Изменить порт в WSL**
+   Если нужно использовать PostgreSQL в WSL, измените его порт:
+   - Откройте конфигурационный файл PostgreSQL:
+     ```bash
+     sudo nano /etc/postgresql/<версия>/main/postgresql.conf
+     ```
+   - Найдите строку `port = 5432` и измените на свободный порт
+   - Перезапустите PostgreSQL:
+     ```bash
+     sudo service postgresql restart
+     ```
+
+#### Профилактика:
+- Всегда проверяйте занятые порты перед запуском контейнеров
+- Используйте разные порты для WSL и Docker, если оба сервиса нужны одновременно
+- Убедитесь, что в `.env` указан правильный порт для подключения к базе данных
+
+</details>
+
+<details>
+<summary><strong>🔽 Конфликт имён контейнеров Docker</strong></summary>
+
+При обновлени репозитория или работе с несколькими его копиями может возникнуть пересечение имён контейнеров при запуске
+
+#### Симптомы:
+Сообщение в консоли:
+
+```bash
+Error response from daemon: Conflict. The container name "/postgres_local" is already in use by container...
+```
+
+#### Решение:
+1. **Прорерить запущенные контейнеры**
+
+```bash
+docker ps
+```
+
+2. **Если обнаружены лишние контейнеры - остановить и удалить их вручную**
+Пример:
+```bash
+docker stop postgres_local
+docker remove  postgres_local
+```
+
+3.  **Если обнаруженные контейнеры нужны - изменить название контейнеров в текущем локальном запуске чепез .env**
+Пример:
+```ini
+APP_CONTAINER_NAME=tabit_new
+DB_CONTAINER_NAME=postgres_new
+PGADMIN_CONTAINER_NAME=pgadmin_new
+```
+
+4. **Предпринять новую попытку запуска**
+
+</details>

@@ -10,13 +10,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_company_admin, current_user_tabit
 from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
-from src.features_v1.company_moderator_management.constants import Summary
-from src.features_v1.company_moderator_management.crud_company import company_crud
-from src.features_v1.company_moderator_management.crud_department import department_crud
-from src.features_v1.company_moderator_management.crud_moderator import moderator_crud
-from src.features_v1.company_moderator_management.validators import (
+from src.crud import company_crud, department_crud, moderator_crud
+from src.features_v1.constants import Summary
+from src.features_v1.validators import (
     check_department_name_duplicate,
     check_slug_duplicate,
+    check_telegram_username_for_duplicates,
     validate_password,
     validate_user_not_exists,
     validator_check_object_exists,
@@ -195,29 +194,29 @@ async def import_departments(
 
 
 @router.get(
-    '/departments/{department_id}',
+    '/departments/{department_slug}',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENT,
 )
 async def get_department(
     company_slug: str,
-    department_id: int,
+    department_slug: str,
     session: AsyncSession = Depends(get_async_session),
 ) -> CompanyDepartmentResponseSchema:
     """
     Получает информацию об отделе компании.
     Доступно только пользователю-админу компании.
     Проверяет существует ли компания и после, по id отдела получает данные.
-    В пути принимает 'company_slug' - значение `slug` компании и 'department_id'
-     - значение `id` отдела.
+    В пути принимает 'company_slug' - значение `slug` компании и 'department_slug'
+     - значение `slug` отдела.
     Параметры декоратора:
         path: URL-адрес, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
         company_slug: значение `slug` компании.
-        department_id: значение `id` отдела.
+        department_id: значение `slug` отдела.
         session: асинхронная сессия.
     При успешной транзакции вернет JSON, пример:
       {
@@ -229,18 +228,22 @@ async def get_department(
     Если отдела нет вернет ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    return await department_crud.get_or_404(session=session, obj_id=department_id)
+    return await department_crud.get_by_slug(
+        session=session,
+        obj_slug=department_slug,
+        raise_404=True,
+    )
 
 
 @router.patch(
-    '/departments/{department_id}',
+    '/departments/{department_slug}',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_UPDATE,
 )
 async def update_department(
     company_slug: str,
-    department_id: int,
+    department_slug: str,
     object_in: CompanyDepartmentUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
 ) -> CompanyDepartmentResponseSchema:
@@ -251,15 +254,15 @@ async def update_department(
     введенное пользователем для проверки на уникальность, если уникальность не соблюдена
     вернется ответ со статусом 400. Далее получает объект отдела и передает с данными
      для обновления.
-    В пути принимает 'company_slug' - значение `slug` компании и 'department_id'
-     - значение `id` отдела.
+    В пути принимает 'company_slug' - значение `slug` компании и 'department_slug'
+     - значение `slug` отдела.
     Параметры декоратора:
         path: URL-адрес, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
         company_slug: значение `slug` компании.
-        department_id: значение `id` отдела.
+        department_slug: значение `slug` отдела.
         object_in: данные введенные пользователем в соответствии со схемой.
         session: асинхронная сессия.
     При успешной транзакции вернет JSON, пример:
@@ -276,7 +279,9 @@ async def update_department(
     await check_department_name_duplicate(
         company_id=company.id, department_name=object_name, session=session
     )
-    db_object = await department_crud.get_or_404(session, obj_id=department_id)
+    db_object = await department_crud.get_by_slug(
+        session, obj_slug=department_slug, raise_404=True
+    )
     update_obj = await department_crud.update(
         session, db_obj=db_object, obj_in=object_in, auto_commit=False
     )
@@ -290,39 +295,37 @@ async def update_department(
 
 
 @router.delete(
-    '/departments/{department_id}',
+    '/departments/{department_slug}',
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_DELETE,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_department(
     company_slug: str,
-    department_id: int,
+    department_slug: str,
     session: AsyncSession = Depends(get_async_session),
 ):
     """
     Удаляет отдел компании.
     Доступно только пользователю-админу компании.
     Проверяет существует ли компания и отдел, и после передает объект отдела для удаления.
-    В пути принимает 'company_slug' - значение `slug` компании и 'department_id'
-     - значение `id` отдела.
+    В пути принимает 'company_slug' - значение `slug` компании и 'department_slug'
+     - значение `slug` отдела.
     Параметры декоратора:
         path: URL-адрес, который будет использоваться для этой операции.
         summary: краткое описание.
         status_code: код статуса ответа.
     Параметры функции:
         company_slug: значение `slug` компании.
-        department_id: значение `id` отдела.
+        department_slug: значение `slug` отдела.
         session: асинхронная сессия.
     При успешной транзакции вернет ответ со статусом 204.
     Если компания или отдел не найдены ответ со статусом 404.
     """
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     department = await validator_check_object_exists(
-        session, department_crud, object_id=department_id
+        session, department_crud, object_slug=department_slug
     )
     await department_crud.remove(session, db_object=department)
-
-    return status.HTTP_204_NO_CONTENT
 
 
 @router.get(
@@ -367,7 +370,7 @@ async def get_all_employees(
         "avatar_link": "string",
         "company_id": 0,
         "current_department_id": 0,
-        "last_department_id": 0,
+        "previous_department_id": 0,
         "department_transition_date": "2025-02-18",
         "employee_position": "string",
         "created_at": "2025-02-18T14:58:43.453Z",
@@ -425,7 +428,7 @@ async def create_company_employee(
       "avatar_link": "string",
       "company_id": 0,
       "current_department_id": 0,
-      "last_department_id": 0,
+      "previous_department_id": 0,
       "department_transition_date": "2025-02-18",
       "employee_position": "string",
       "created_at": "2025-02-18T16:16:09.210Z",
@@ -436,6 +439,7 @@ async def create_company_employee(
     await validator_check_object_exists(session, company_crud, object_slug=company_slug)
     await validate_user_not_exists(create_data, user_manager)
     await validate_password(create_data, user_manager)
+    await check_telegram_username_for_duplicates(create_data.telegram_username, session)
     created_user = await user_manager.create(create_data)
     return created_user
 
@@ -511,7 +515,7 @@ async def get_employee(
       "avatar_link": "string",
       "company_id": 0,
       "current_department_id": 0,
-      "last_department_id": 0,
+      "previous_department_id": 0,
       "department_transition_date": "2025-02-18",
       "employee_position": "string",
       "created_at": "2025-02-18T16:16:09.210Z",
@@ -571,7 +575,7 @@ async def update_company_employee(
       "avatar_link": "string",
       "company_id": 0,
       "current_department_id": 0,
-      "last_department_id": 0,
+      "previous_department_id": 0,
       "department_transition_date": "2025-02-18",
       "employee_position": "string",
       "created_at": "2025-02-18T16:16:09.210Z",
@@ -583,6 +587,7 @@ async def update_company_employee(
     await validator_check_object_exists(session, moderator_crud, object_id=uuid)
     await validate_user_not_exists(user_data=object_in, user_manager=user_manager)
     await validate_password(user_data=object_in, user_manager=user_manager)
+    await check_telegram_username_for_duplicates(object_in.telegram_username, session)
     user = await user_manager.get(uuid)
     user_manager.parse_id
     user = await user_manager.update(object_in, user)
@@ -639,4 +644,4 @@ async def post_feedback(
     Задать вопрос в разделе 'Помощь'.
     """
     # TODO: Подключить почту.
-    return {'message': 'Обратная связь отправлена для компании'}
+    return {'message': f'Обратная связь отправлена для компании {company_slug}'}

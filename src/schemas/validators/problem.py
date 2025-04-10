@@ -15,6 +15,6 @@ def validate_not_empty(value: str) -> str:
     Исключения:
         ValueError: Если значение пустое или состоит только из пробелов.
     """
-    if not value.strip():
+    if not (result := value.strip()):
         raise ValueError(ERROR_PROBLEM_NAME_EMPTY)
-    return value.strip()
+    return result

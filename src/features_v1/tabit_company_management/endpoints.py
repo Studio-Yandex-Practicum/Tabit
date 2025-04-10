@@ -9,9 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.database.db_depends import get_async_session
-from src.features_v1.tabit_company_management.constants import Description, Summary
-from src.features_v1.tabit_company_management.crud_company import company_crud
-from src.features_v1.tabit_company_management.validators import (
+from src.crud.crud_company import company_crud
+from src.features_v1.constants import OPENAPI_EXTRA_ADMIN_AUTH, Description, Summary
+from src.features_v1.validators import (
     validate_company_slug,
     validate_license_exists,
     validator_check_object_exists,
@@ -33,6 +33,7 @@ router = APIRouter()
     dependencies=[Depends(current_admin_tabit)],
     summary=Summary.TABIT_MANAGEMENT_COMPANY_LIST,
     description=Description.TABIT_MANAGEMENT_COMPANY_LIST,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_companies(
     session: AsyncSession = Depends(get_async_session),
@@ -64,6 +65,7 @@ async def get_companies(
     status_code=HTTPStatus.CREATED,
     summary=Summary.TABIT_MANAGEMENT_COMPANY_CREATE,
     description=Description.TABIT_MANAGEMENT_COMPANY_CREATE,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def create_company(
     company: CompanyCreateSchema,
@@ -83,7 +85,8 @@ async def create_company(
         company: схема для создания компании.
         session: асинхронная сессия через зависимость.
     """
-
+    if company.license_id:
+        await validate_license_exists(session, company.license_id)
     if company.slug:
         await validate_company_slug(session, company.slug)
     else:
@@ -98,6 +101,7 @@ async def create_company(
     dependencies=[Depends(current_admin_tabit)],
     summary=Summary.TABIT_MANAGEMENT_COMPANY_UPDATE,
     description=Description.TABIT_MANAGEMENT_COMPANY_UPDATE,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_company(
     company_slug: str,
@@ -136,6 +140,7 @@ async def update_company(
     status_code=HTTPStatus.NO_CONTENT,
     summary=Summary.TABIT_MANAGEMENT_COMPANY_DELETE,
     description=Description.TABIT_MANAGEMENT_COMPANY_DELETE,
+    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def delete_company(
     company_slug: str,

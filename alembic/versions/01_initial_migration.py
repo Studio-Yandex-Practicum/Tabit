@@ -118,7 +118,7 @@ def upgrade() -> None:
     sa.Column('company_id', sa.Integer(), nullable=False),
     sa.Column('supervisor', sa.Boolean(), nullable=True),
     sa.Column('current_department_id', sa.Integer(), nullable=True),
-    sa.Column('last_department_id', sa.Integer(), nullable=True),
+    sa.Column('previous_department_id', sa.Integer(), nullable=True),
     sa.Column('department_transition_date', sa.Date(), nullable=True),
     sa.Column('employee_position', sa.String(), nullable=True),
     sa.Column('avatar_link', sa.String(length=2048), nullable=True),
@@ -136,7 +136,7 @@ def upgrade() -> None:
     sa.Column('is_verified', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['company_id'], ['company.id'], ),
     sa.ForeignKeyConstraint(['current_department_id'], ['department.id'], ),
-    sa.ForeignKeyConstraint(['last_department_id'], ['department.id'], ),
+    sa.ForeignKeyConstraint(['previous_department_id'], ['department.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('supervisor', 'current_department_id', name='unique_supervisor'),
     sa.UniqueConstraint('telegram_username')
@@ -157,20 +157,19 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
-    sa.Column('company_id', sa.Integer(), nullable=False),
+    sa.Column('company_slug', sa.String(length=25), nullable=False),
     sa.Column('color', sa.Enum('RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'DARK_BLUE', 'VIOLET', 'BROWN', 'GRAY', 'BLACK', 'WHITE', 'PINK', 'BEIGE', 'VINOUS', 'PURPLE', name='colorproblem'), nullable=False),
     sa.Column('type', sa.Enum('A', 'B', 'C', 'D', 'E', 'F', 'G', name='typeproblem'), nullable=False),
     sa.Column('status', sa.Enum('NEW', 'IN_PROGRESS', 'SUSPENDED', 'COMPLETED', name='statusproblem'), nullable=False),
     sa.Column('owner_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['company_id'], ['company.id'], ),
+    sa.ForeignKeyConstraint(['company_slug'], ['company.slug'], ),
     sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id')
+    sa.UniqueConstraint('id'),
     )
     op.create_table('associationuserproblem',
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('status', sa.Boolean(), nullable=False),
@@ -178,8 +177,7 @@ def upgrade() -> None:
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ),
     sa.ForeignKeyConstraint(['right_id'], ['problem.id'], ),
-    sa.PrimaryKeyConstraint('id', 'left_id', 'right_id'),
-    sa.UniqueConstraint('id')
+    sa.PrimaryKeyConstraint('left_id', 'right_id')
     )
     op.create_table('fileproblem',
     sa.Column('problem_id', sa.Integer(), nullable=False),

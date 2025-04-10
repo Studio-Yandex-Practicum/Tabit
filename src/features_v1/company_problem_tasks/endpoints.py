@@ -1,15 +1,19 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.auth.dependencies import current_user_tabit
 from src.core.database.db_depends import get_async_session
-from src.features_v1.company_problem_tasks.crud_task import task_crud
-from src.features_v1.company_problem_tasks.validators import (
-    check_company_exists,
-    check_problem_exists,
-    check_task_exists,
-    check_tasks_for_company_problem_exist,
+from src.crud import company_crud, problem_crud, task_crud
+from src.features_v1.constants import Description, Summary
+from src.features_v1.validators import (
+    validate_close_problem,
+    validate_field_members,
+    validate_is_member_problem,
+    validate_owner_object,
+    validate_task_completed,
+    validate_user_from_company,
 )
-from src.models import StatusTask
+from src.models import UserTabit
 from src.schemas import (
     TaskCreateSchema,
     TaskResponseSchema,
@@ -23,108 +27,157 @@ router = APIRouter()
     '/',
     response_model=list[TaskResponseSchema],
     response_model_exclude_none=True,
-    summary='Получить информацию о всех задачах проблемы',
+    summary=Summary.TASK_LIST,
+    description=Description.TASK_LIST,
     status_code=status.HTTP_200_OK,
 )
-async def get_tasks(
+async def get_tasks_for_user(
     company_slug: str,
     problem_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> list[TaskResponseSchema]:
     """
     Возвращает информацию о всех задачах проблемы.
 
-    Args:
-        company_slug: Уникальный идентификатор компании
-        problem_id: Идентификатор проблемы
-        session: Сессия базы данных
+    Назначение:
+        Для получения списка всех для указанной проблемы, для конкретного пользователя.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        response_model_exclude_none: позволяет исключить из ответа неустановленные значения.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        company_slug: слаг компании, полученный из пути.
+        problem_id: идентификатор проблемы, полученный из пути.
+        user: получение пользователя через зависимости.
+        session: асинхронная сессия через зависимость.
     Возвращаемое значение:
-        Объект TaskResponseSchema.
+        Список объектов TaskResponseSchema.
+
+    Проверки:
+        - существует ли компания с таким slug;
+        - пользователь, сделавший запрос, из этой компании;
+        - существует ли проблема с данным id.
     """
-    await check_company_exists(company_slug, session)
-    await check_problem_exists(problem_id, session)
-    await check_tasks_for_company_problem_exist(company_slug, problem_id, session)
-    return await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    await problem_crud.get_or_404(session, problem_id)
+    return await task_crud.get_multi(
+        session,
+        filters={'problem_id': problem_id},
+        unique_filter_rows=True,
+    )
 
 
 @router.post(
     '/',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
-    summary='Создать новую задачу',
+    summary=Summary.TASK_CREATE,
+    description=Description.TASK_CREATE,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_task(
-    task: TaskCreateSchema,
+    task_in: TaskCreateSchema,
     company_slug: str,
     problem_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskResponseSchema:
     """Создание задачи.
 
     Назначение:
         Создаёт задачу.
-    Args:
-        problem_id: ID проблемы.
-        company_slug: Уникальный идентификатор компании.
-        session: Асинхронная сессия SQLAlchemy.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        response_model_exclude_none: позволяет исключить из ответа неустановленные значения.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        task_in: данные в виде схемы, для создания новой записи в БД.
+        company_slug: слаг компании, полученный из пути.
+        problem_id: идентификатор проблемы, полученный из пути.
+        user: получение пользователя через зависимости.
+        session: асинхронная сессия через зависимость.
     Возвращаемое значение:
         Объект TaskResponseSchema.
-    TODO:
-        1. Заменить фиктивного пользователя на реального:
-           - Использовать `current_user: UserTabit = Depends(get_current_user)`.
-           - Убедиться, что пользователь авторизован и имеет права на создание задачи.
-        2. Добавить проверку прав доступа:
-           - Убедиться, что пользователь имеет доступ к компании и проблеме.
-           - Проверить, что пользователь может создавать задачи в данной компании.
+
+    Проверки:
+        - существует ли компания с таким slug;
+        - пользователь, сделавший запрос, из этой компании;
+        - существует ли проблема с данным id;
+        - не решена ли эта проблема;
+        - участник ли пользователь в данной проблеме;
+        - проверит, что переданные UUID в поле members корректны
+          и принадлежат сотрудникам данной компании.
     """
-    await check_company_exists(company_slug, session)
-    await check_problem_exists(problem_id, session)
-    task_data = task.model_dump()
-    task_data['owner_id'] = (
-        '3fa85f64-5717-4562-b3fc-2c963f66af66'  # TODO: Заменить на реального пользователя
-    )
-    task_data['status'] = StatusTask.NEW
-    task_data['problem_id'] = problem_id
-    return await task_crud.create(session, TaskCreateSchema(**task_data))
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    problem = await problem_crud.get_or_404(session, problem_id)
+    validate_close_problem(problem)
+    validate_is_member_problem(user, problem)
+    await validate_field_members(session, task_in.executors, company.id)
+    return await task_crud.create_task_with_executors(session, task_in, user, problem)
 
 
 @router.get(
     '/{task_id}',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
-    summary='Получить информацию о задаче',
+    summary=Summary.TASK,
+    description=Description.TASK,
     status_code=status.HTTP_200_OK,
 )
 async def get_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskResponseSchema:
     """
     Получает информацию о задаче.
 
-    Args:
-        company_slug: Уникальный идентификатор компании
-        problem_id: Идентификатор проблемы
-        task_id: Идентификатор задачи
-        session: Сессия базы данных
+    Назначение:
+        Для получения информации по конкретной задаче.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        response_model_exclude_none: позволяет исключить из ответа неустановленные значения.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        company_slug: слаг компании, полученный из пути.
+        problem_id: идентификатор проблемы, полученный из пути.
+        task_id: идентификатор задачи, полученный из пути.
+        user: получение пользователя через зависимости.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        Объект MeetingResponseSchema.
 
-    Raises:
-        HTTPException: Если задача не найдена
+    Проверки:
+        - существует ли компания с таким slug;
+        - пользователь, сделавший запрос, из этой компании;
+        - существует ли проблема с данным id.
     """
-    await check_company_exists(company_slug, session)
-    await check_task_exists(task_id, session)
-    await check_problem_exists(problem_id, session)
-    return await task_crud.get_task_by_id(session, company_slug, problem_id, task_id)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    await problem_crud.get_or_404(session, problem_id)
+    return await task_crud.get_or_404(session, task_id)
 
 
 @router.patch(
     '/{task_id}',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
-    summary='Обновить информацию о задаче',
+    summary=Summary.TASK_UPDATE,
+    description=Description.TASK_UPDATE,
     status_code=status.HTTP_200_OK,
 )
 async def update_task(
@@ -132,44 +185,96 @@ async def update_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskResponseSchema:
     """
     Обновляет информацию задачи.
 
-    Args:
-        task_update: Данные для обновления
-        company_slug: Уникальный идентификатор компании
-        problem_id: Идентификатор проблемы
-        task_id: Идентификатор задачи
-        session: Сессия базы данных
-        as_object: Если True — возвращает объект Task, иначе TaskResponseSchema
+    Назначение:
+        Для изменения указанной встречу.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        response_model_exclude_none: позволяет исключить из ответа неустановленные значения.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        task_update: данные в виде схемы, для создания новой записи в БД.
+        company_slug: слаг компании, полученный из пути.
+        problem_id: идентификатор проблемы, полученный из пути.
+        task_id: идентификатор задачи, полученный из пути.
+        user: получение пользователя через зависимости.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        Объект MeetingResponseSchema.
 
-    Returns:
-        Task или TaskResponseSchema (в зависимости от параметра `as_object`)
-
-    Raises:
-        HTTPException: Если задача не найдена
+    Проверки:
+        - существует ли компания с таким slug;
+        - пользователь, сделавший запрос, из этой компании;
+        - существует ли проблема с данным id;
+        - не решена ли эта проблема;
+        - существует ли задача с данным id;
+        - является ли пользователь автором данной задачи;
+        - не выполнена ли уже задача;
+        - проверит, что переданные UUID в поле members корректны
+          и принадлежат сотрудникам данной компании.
     """
-    await check_company_exists(company_slug, session)
-    await check_task_exists(task_id, session)
-    await check_problem_exists(problem_id, session)
-    return await task_crud.update(session, task_id, task_update, company_slug, problem_id)
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    problem = await problem_crud.get_or_404(session, problem_id)
+    validate_close_problem(problem)
+    task = await task_crud.get_or_404(session, task_id)
+    validate_owner_object(user, task)
+    validate_task_completed(task)
+    await validate_field_members(session, task_update.executors, company.id)
+    return await task_crud.update_task(session, task, task_update)
 
 
 @router.delete(
     '/{task_id}',
-    summary='Удалить задачу',
+    summary=Summary.TASK_DELETE,
+    description=Description.TASK_DELETE,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
+    user: UserTabit = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
-    """Удаляет задачу."""
-    await check_company_exists(company_slug, session)
-    await check_task_exists(task_id, session)
-    await check_problem_exists(problem_id, session)
-    await task_crud.delete_task(session, task_id)
+    """Удаляет задачу.
+
+    Назначение:
+        Удаляет конкретную задачи.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        company_slug: слаг компании, полученный из пути.
+        problem_id: идентификатор проблемы, полученный из пути.
+        task_id: идентификатор задачи, полученный из пути.
+        user: получение пользователя через зависимости.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        None.
+
+    Проверки:
+        - существует ли компания с таким slug;
+        - пользователь, сделавший запрос, из этой компании;
+        - существует ли проблема с данным id;
+        - существует ли задача с данным id;
+        - является ли пользователь автором данной задачи;
+        - не решена ли уже задача.
+    """
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    validate_user_from_company(user, company)
+    await problem_crud.get_or_404(session, problem_id)
+    task = await task_crud.get_or_404(session, task_id)
+    validate_owner_object(user, task)
+    validate_task_completed(task)
+    await task_crud.remove(session, task)
