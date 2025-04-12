@@ -21,15 +21,15 @@ from .landing_page import LandingPage
 from .license_type import LicenseType
 from .problem import Problem
 from .problem_discussion import CommentFeed, MessageFeed, VotingByUser, VotingFeed
-from .problem_meeting import Meeting, MeetingResult
+from .meeting import Meeting, MeetingResult
 from .tag import TagUser
-from .problem_task import Task
+from .task import Task
 from .user import TabitAdminUser, UserTabit
 from .association_models import (
     AssociationUserComment,
     AssociationUserMeeting,
     AssociationUserProblem,
-    AssociationUserTags,
+    AssociationUserTag,
     AssociationUserTask,
 )
 
@@ -69,6 +69,6 @@ __all__ = [
     'AssociationUserComment',
     'AssociationUserMeeting',
     'AssociationUserProblem',
-    'AssociationUserTags',
+    'AssociationUserTag',
     'AssociationUserTask',
 ]

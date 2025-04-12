@@ -5,7 +5,7 @@ from src.crud import CRUDBase, UserCreateMixin
 from src.models import UserTabit
 
 
-class CRUDAdminUser(UserCreateMixin, CRUDBase):
+class CRUDModeratorUser(UserCreateMixin, CRUDBase):
     """CRUD операций для моделей администраторов сервиса Табит."""
 
     async def get_by_telegram_username(
@@ -25,4 +25,4 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
         return user.scalars().first()
 
 
-moderator_crud = CRUDAdminUser(UserTabit)
+moderator_crud = CRUDModeratorUser(UserTabit)

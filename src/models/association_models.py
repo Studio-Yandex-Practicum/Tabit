@@ -143,7 +143,7 @@ class AssociationUserComment(BaseTabitModel):
         )
 
 
-class AssociationUserTags(BaseTabitModel):
+class AssociationUserTag(BaseTabitModel):
     """
     Связная таблица UserTabit и Tag.
 

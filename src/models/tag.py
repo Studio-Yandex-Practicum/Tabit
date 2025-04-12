@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.models import BaseTag
 
 if TYPE_CHECKING:
-    from src.models import AssociationUserTags, Company
+    from src.models import AssociationUserTag, Company
 
 
 class TagUser(BaseTag):
@@ -26,10 +26,10 @@ class TagUser(BaseTag):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
-        user - AssociationUserTags -> UserTabit;
+        user - AssociationUserTag -> UserTabit;
         company - Company.
     """
 
-    user: Mapped[List['AssociationUserTags']] = relationship(back_populates='tag')
+    user: Mapped[List['AssociationUserTag']] = relationship(back_populates='tag')
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
     company: Mapped['Company'] = relationship(back_populates='tags_users')

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
         AssociationUserComment,
         AssociationUserMeeting,
         AssociationUserProblem,
-        AssociationUserTags,
+        AssociationUserTag,
         AssociationUserTask,
         CommentFeed,
         Company,
@@ -64,7 +64,7 @@ class UserTabit(BaseUser):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
-        tags - AssociationUserTags -> TagUser;
+        tags - AssociationUserTag -> TagUser;
         company - Company;
         current_department - Department;
         previous_department - Department;
@@ -87,7 +87,7 @@ class UserTabit(BaseUser):
     role: Mapped['RoleUserTabit']
     start_date_employment: Mapped[Optional[date]]
     end_date_employment: Mapped[Optional[date]]
-    tags: Mapped[List['AssociationUserTags']] = relationship(back_populates='user')
+    tags: Mapped[List['AssociationUserTag']] = relationship(back_populates='user')
 
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'))
     company: Mapped['Company'] = relationship(back_populates='employees')

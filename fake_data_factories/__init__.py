@@ -7,7 +7,7 @@ from .association_user_problem_factory import (
     AssociationUserProblemFactory,
     create_user_problem_associations,
 )
-from .association_user_tags_factory import AssociationUserTagsFactory, create_user_tag_associations
+from .association_user_tags_factory import AssociationUserTagFactory, create_user_tag_associations
 from .association_user_task_factory import (
     AssociationUserTaskFactory,
     create_user_task_associations,
@@ -53,7 +53,7 @@ __all__ = [
     'create_user_comment_associations',
     'AssociationUserProblemFactory',
     'create_user_problem_associations',
-    'AssociationUserTagsFactory',
+    'AssociationUserTagFactory',
     'create_user_tag_associations',
     'AssociationUserTaskFactory',
     'create_user_task_associations',

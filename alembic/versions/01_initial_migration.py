@@ -142,7 +142,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('telegram_username')
     )
     op.create_index(op.f('ix_usertabit_email'), 'usertabit', ['email'], unique=True)
-    op.create_table('associationusertags',
+    op.create_table('associationusertag',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
@@ -369,7 +369,7 @@ def downgrade() -> None:
     op.drop_table('fileproblem')
     op.drop_table('associationuserproblem')
     op.drop_table('problem')
-    op.drop_table('associationusertags')
+    op.drop_table('associationusertag')
     op.drop_index(op.f('ix_usertabit_email'), table_name='usertabit')
     op.drop_table('usertabit')
     op.drop_table('taguser')
