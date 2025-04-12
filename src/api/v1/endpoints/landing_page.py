@@ -1,12 +1,18 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.constants import Description, Summary
 from src.database.db_depends import get_async_session
 
 router = APIRouter()
 
 
-@router.get('/auth/info/', response_model=dict)
+@router.get(
+    '/auth/info/',
+    response_model=dict,
+    summary=Summary.LANDING_PAGE,
+    description=Description.LANDING_PAGE,
+)
 def get_auth_info(session: AsyncSession = Depends(get_async_session)):
     """
     Получение цены, контактов и т.д. для landing page.
@@ -15,7 +21,12 @@ def get_auth_info(session: AsyncSession = Depends(get_async_session)):
     return {'message': 'Информация для landing page'}
 
 
-@router.post('/auth/demo/', response_model=dict)
+@router.post(
+    '/auth/demo/',
+    response_model=dict,
+    summary=Summary.LANDING_PAGE_DEMO,
+    description=Description.LANDING_PAGE_DEMO,
+)
 def post_auth_demo(session: AsyncSession = Depends(get_async_session)):
     """
     Получить демо из формы landing page.

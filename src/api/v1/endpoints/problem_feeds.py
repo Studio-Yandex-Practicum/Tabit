@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.auth.dependencies import current_user_tabit
+from src.api.v1.constants import Description, Summary
 from src.api.v1.validators import (
     check_comment_and_message_feed,
     check_comment_has_likes_from_user,
@@ -26,7 +27,8 @@ router = APIRouter()
 
 @router.get(
     '/thread',
-    summary='Получить список всех тредов по проблеме.',
+    summary=Summary.PROBLEM_FEEDS,
+    description=Description.PROBLEM_FEEDS,
     response_model=list[MessageFeedRead],
     status_code=status.HTTP_200_OK,
 )
@@ -56,7 +58,8 @@ async def get_all_threads(
 
 @router.post(
     '/thread',
-    summary='Создать тред по проблеме.',
+    summary=Summary.PROBLEM_FEEDS_POST,
+    description=Description.PROBLEM_FEEDS_POST,
     response_model=MessageFeedRead,
     status_code=status.HTTP_201_CREATED,
 )
@@ -85,7 +88,8 @@ async def create_problem_thread(
 
 @router.get(
     '/{thread_id}/comments',
-    summary='Получить все комментарии треда.',
+    summary=Summary.PROBLEM_FEEDS_LIST,
+    description=Description.PROBLEM_FEEDS_LIST,
     response_model=list[CommentRead],
     status_code=status.HTTP_200_OK,
 )
@@ -117,7 +121,8 @@ async def get_thread_comments(
 
 @router.post(
     '/{thread_id}/comments',
-    summary='Создать комментарий в треде.',
+    summary=Summary.PROBLEM_FEEDS_CREATE,
+    description=Description.PROBLEM_FEEDS_CREATE,
     response_model=CommentRead,
     status_code=status.HTTP_201_CREATED,
 )
@@ -147,7 +152,8 @@ async def create_thread_comment(
 
 @router.patch(
     '/{thread_id}/comments/{comment_id}',
-    summary='Обновить комментарий в треде.',
+    summary=Summary.PROBLEM_FEEDS_PATCH,
+    description=Description.PROBLEM_FEEDS_PATCH,
     response_model=CommentRead,
     status_code=status.HTTP_200_OK,
 )
@@ -181,7 +187,8 @@ async def update_thread_comment(
 
 @router.delete(
     '/{thread_id}/comments/{comment_id}',
-    summary='Удалить комментарий в треде.',
+    summary=Summary.PROBLEM_FEEDS_DELETE,
+    description=Description.PROBLEM_FEEDS_DELETE,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_thread_comment(
@@ -212,7 +219,8 @@ async def delete_thread_comment(
 
 @router.post(
     '/{thread_id}/comments/{comment_id}/like',
-    summary='Поставить лайк комментарию в треде.',
+    summary=Summary.PROBLEM_FEEDS_LIKE,
+    description=Description.PROBLEM_FEEDS_LIKE,
     status_code=status.HTTP_200_OK,
 )
 async def like_a_comment(
@@ -244,7 +252,8 @@ async def like_a_comment(
 
 @router.post(
     '/{thread_id}/comments/{comment_id}/unlike',
-    summary='Убрать свой лайк комментарию в треде.',
+    summary=Summary.PROBLEM_FEEDS_DELETE_LIKE,
+    description=Description.PROBLEM_FEEDS_DELETE_LIKE,
     status_code=status.HTTP_200_OK,
 )
 async def unlike_a_comment(

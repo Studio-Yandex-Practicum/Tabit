@@ -51,13 +51,6 @@ PAGE_DESCRIPTION = 'Текущая страница'
 PAGE_SIZE_DESCRIPTION = 'Количество записей на странице'
 ITEMS_DESCRIPTION = 'Список лицензий'
 
-# Константы для summary в эндпоинтах лицензий
-SUMMARY_GET_LICENSES = 'Получить список всех лицензий с фильтрацией и сортировкой'
-SUMMARY_CREATE_LICENSE = 'Создать новую лицензию'
-SUMMARY_GET_LICENSE = 'Получить данные лицензии'
-SUMMARY_UPDATE_LICENSE = 'Обновить данные лицензии'
-SUMMARY_DELETE_LICENSE = 'Удалить лицензию'
-
 # Константы для валидаторов
 VALID_PHONE_NUMBER_PATTERN = r'^7\d{10}'
 VALID_TELEGRAM_USERNAME_PATTERN = r'\w+'

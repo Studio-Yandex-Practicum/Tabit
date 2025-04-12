@@ -11,7 +11,7 @@ from src.api.v1.auth.dependencies import current_company_admin, current_user_tab
 from src.api.v1.auth.managers import get_user_manager
 
 # from src.api.v1.permissions import company_permissions
-from src.api.v1.constants import Summary
+from src.api.v1.constants import Description, Summary
 from src.api.v1.validator import validator_check_object_exists
 from src.api.v1.validators import (
     check_department_name_duplicate,
@@ -39,6 +39,7 @@ router = APIRouter(dependencies=[Depends(current_user_tabit), Depends(current_co
 @router.get(
     '/{company_slug}',
     summary=Summary.TABIT_COMPANY,
+    description=Description.TABIT_COMPANY,
     status_code=status.HTTP_200_OK,
     response_model=CompanyResponseSchema,
 )
@@ -83,6 +84,7 @@ async def get_company(
     response_model=List[CompanyDepartmentResponseSchema],
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_LIST,
+    description=Description.TABIT_COMPANY_DEPARTMENTS_LIST,
 )
 async def get_all_departments(
     company_slug: str,
@@ -122,6 +124,7 @@ async def get_all_departments(
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_201_CREATED,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_CREATE,
+    description=Description.TABIT_COMPANY_DEPARTMENTS_CREATE,
 )
 async def create_department(
     company_slug: str,
@@ -173,6 +176,7 @@ async def create_department(
     '/{company_slug}/departments/import',
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_IMPORT,
+    description=Description.TABIT_COMPANY_DEPARTMENTS_IMPORT,
 )
 async def import_departments(
     company_slug: str,
@@ -204,6 +208,7 @@ async def import_departments(
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENT,
+    description=Description.TABIT_COMPANY_DEPARTMENT,
 )
 async def get_department(
     company_slug: str,
@@ -246,6 +251,7 @@ async def get_department(
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_UPDATE,
+    description=Description.TABIT_COMPANY_DEPARTMENTS_UPDATE,
 )
 async def update_department(
     company_slug: str,
@@ -259,7 +265,7 @@ async def update_department(
     Проверяет существует ли компания и после, передает id компании и имя отдела
     введенное пользователем для проверки на уникальность, если уникальность не соблюдена
     вернется ответ со статусом 400. Далее получает объект отдела и передает с данными
-     для обновления.
+    для обновления.
     В пути принимает 'company_slug' - значение `slug` компании и 'department_slug'
      - значение `slug` отдела.
     Параметры декоратора:
@@ -303,6 +309,7 @@ async def update_department(
 @router.delete(
     '/{company_slug}/departments/{department_slug}',
     summary=Summary.TABIT_COMPANY_DEPARTMENTS_DELETE,
+    description=Description.TABIT_COMPANY_DEPARTMENTS_DELETE,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_department(
@@ -339,6 +346,7 @@ async def delete_department(
     response_model=List[UserReadSchema],
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_LIST,
+    description=Description.TABIT_COMPANY_EMPLOYEES_LIST,
 )
 async def get_all_employees(
     company_slug: str,
@@ -394,6 +402,7 @@ async def get_all_employees(
     response_model=UserReadSchema,
     status_code=status.HTTP_201_CREATED,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_CREATE,
+    description=Description.TABIT_COMPANY_EMPLOYEES_CREATE,
 )
 async def create_company_employee(
     company_slug: str,
@@ -454,6 +463,7 @@ async def create_company_employee(
     '/{company_slug}/employees/import',
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_IMPORT,
+    description=Description.TABIT_COMPANY_EMPLOYEES_IMPORT,
 )
 async def import_employees(
     company_slug: str,
@@ -482,6 +492,7 @@ async def import_employees(
     response_model=UserReadSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_EMPLOYEE,
+    description=Description.TABIT_COMPANY_EMPLOYEE,
 )
 async def get_employee(
     company_slug: str,
@@ -491,7 +502,7 @@ async def get_employee(
     """
     Получает информацию о сотруднике компании.
     Доступно только пользователю-админу компании.
-    Проверяет существует ли компания и после, по uuid ссотрудника получает данные.
+    Проверяет существует ли компания и после, по uuid сотрудника получает данные.
     В пути принимает 'company_slug' - значение `slug` компании и 'uuid'
      - значение `uuid` сотрудника.
     Параметры декоратора:
@@ -538,6 +549,7 @@ async def get_employee(
     response_model=UserReadSchema,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_UPDATE,
+    description=Description.TABIT_COMPANY_EMPLOYEES_UPDATE,
 )
 async def update_company_employee(
     company_slug: str,
@@ -604,6 +616,7 @@ async def update_company_employee(
     '/{company_slug}/employees/{uuid}',
     status_code=status.HTTP_204_NO_CONTENT,
     summary=Summary.TABIT_COMPANY_EMPLOYEES_DELETE,
+    description=Description.TABIT_COMPANY_EMPLOYEES_DELETE,
 )
 async def delete_company_employee(
     company_slug: str,
@@ -639,6 +652,7 @@ async def delete_company_employee(
 @router.post(
     '/{company_slug}/feedback/',
     summary='Задать вопрос для обратной связи',
+    description='Задать вопрос для обратной связи',
     response_model=dict[str, str],
 )
 async def post_feedback(

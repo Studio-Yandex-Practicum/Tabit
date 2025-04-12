@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.v1.constants import Description, Summary
 from src.database.db_depends import get_async_session
 
 router = APIRouter()
@@ -10,7 +11,8 @@ router = APIRouter()
 
 @router.get(
     '/{company_slug}/surveys',
-    summary='Получить список всех опросов компании',
+    summary=Summary.SURVEYS_LIST,
+    description=Description.SURVEYS_LIST,
     dependencies=[Depends(get_async_session)],
 )
 async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_async_session)):
@@ -21,7 +23,8 @@ async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_asy
 
 @router.post(
     '/{company_slug}/surveys',
-    summary='Создать новый опрос для компании',
+    summary=Summary.SURVEYS_CREATE,
+    description=Description.SURVEYS_CREATE,
     dependencies=[Depends(get_async_session)],
 )
 async def create_survey(company_slug: str, session: AsyncSession = Depends(get_async_session)):
@@ -32,7 +35,8 @@ async def create_survey(company_slug: str, session: AsyncSession = Depends(get_a
 
 @router.get(
     '/{company_slug}/surveys/{uuid}',
-    summary='Получить историю опросов сотрудника компании',
+    summary=Summary.SURVEYS_EMPLOYEE,
+    description=Description.SURVEYS_EMPLOYEE,
     dependencies=[Depends(get_async_session)],
 )
 async def get_employee_survey_history(
@@ -46,7 +50,8 @@ async def get_employee_survey_history(
 
 @router.get(
     '/{company_slug}/surveys/{uuid}/{survey_id}',
-    summary='Получить информацию об опросе сотрудника компании',
+    summary=Summary.SURVEY_EMPLOYEE,
+    description=Description.SURVEY_EMPLOYEE,
     dependencies=[Depends(get_async_session)],
 )
 async def get_employee_survey_info(
@@ -64,7 +69,8 @@ async def get_employee_survey_info(
 
 @router.get(
     '/{company_slug}/surveys/results/general',
-    summary='Получить общий результат опросов компании',
+    summary=Summary.SURVEYS_RESULT,
+    description=Description.SURVEYS_RESULT,
     dependencies=[Depends(get_async_session)],
 )
 async def get_general_survey_results(
@@ -77,7 +83,8 @@ async def get_general_survey_results(
 
 @router.get(
     '/{company_slug}/surveys/results/personalized',
-    summary='Получить персонализированный результат опросов компании',
+    summary=Summary.SURVEYS_RESULT_PERSONALIZED,
+    description=Description.SURVEYS_RESULT_PERSONALIZED,
     dependencies=[Depends(get_async_session)],
 )
 async def get_personalized_survey_results(
@@ -90,7 +97,8 @@ async def get_personalized_survey_results(
 
 @router.get(
     '/{company_slug}/surveys/results/dynamics',
-    summary='Получить динамику результатов опросов компании',
+    summary=Summary.SURVEYS_RESULT_DYNAMICS,
+    description=Description.SURVEYS_RESULT_DYNAMICS,
     dependencies=[Depends(get_async_session)],
 )
 async def get_dynamics_survey_results_company(
@@ -103,7 +111,8 @@ async def get_dynamics_survey_results_company(
 
 @router.post(
     '/{company_slug}/surveys/manage',
-    summary='Управление опросами компании',
+    summary=Summary.SURVEYS_MANAGE,
+    description=Description.SURVEYS_MANAGE,
     dependencies=[Depends(get_async_session)],
 )
 async def manage_surveys_company(
@@ -116,7 +125,8 @@ async def manage_surveys_company(
 
 @router.delete(
     '/{company_slug}/surveys/manage/',
-    summary='Удалить опросы компании',
+    summary=Summary.SURVEYS_DELETE,
+    description=Description.SURVEYS_DELETE,
     dependencies=[Depends(get_async_session)],
 )
 async def delete_surveys_company(

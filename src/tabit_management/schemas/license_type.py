@@ -40,7 +40,13 @@ class LicenseTypeBaseSchema(BaseModel):
 
 
 class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
-    """Схема для создания лицензии."""
+    """
+    Параметры:
+        name: Название.
+        license_term: Срок действия лицензии в днях.
+        max_admins_count: Максимально допустимое количество админов у компании.
+        max_employees_count: Максимально допустимое количество сотрудников у компании.
+    """
 
     name: str = Field(
         ...,
@@ -64,9 +70,20 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
         title=TITLE_MAX_EMPLOYEES_COUNT,
     )
 
+    model_config = ConfigDict(
+        title='Схема создания лицензии',
+        description='Схема для создания лицензии'
+    )
+
 
 class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
-    """Схема для частичного изменения лицензии."""
+    """
+    Параметры:
+        name: Название.
+        license_term: Срок действия лицензии в днях.
+        max_admins_count: Максимально допустимое количество админов у компании.
+        max_employees_count: Максимально допустимое количество сотрудников у компании.
+    """
 
     name: Optional[str] = Field(
         None,
@@ -89,11 +106,24 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
         title=TITLE_MAX_EMPLOYEES_COUNT,
     )
 
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(
+        extra='forbid',
+        title='Схема изменения лицензии',
+        description='Схема для частичного изменения лицензии',
+    )
 
 
 class LicenseTypeResponseSchema(BaseModel):
-    """Схема лицензии для ответов."""
+    """
+    Параметры:
+        id: Идентификатор компании.
+        name: Название.
+        license_term: Срок действия лицензии в днях.
+        max_admins_count: Максимально допустимое количество админов у компании.
+        max_employees_count: Максимально допустимое количество сотрудников у компании.
+        created_at: Дата создания записи в таблице.
+        updated_at: Дата изменения записи в таблице.
+    """
 
     id: int
     name: str
@@ -103,14 +133,14 @@ class LicenseTypeResponseSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True, title='Схема лицензии', description='Схема лицензии для ответов'
+    )
 
 
 class LicenseTypeListResponseSchema(BaseModel):
     """
-    Схема ответа для списка лицензий с пагинацией.
-
-    Attributes:
+    Параметры:
         items (List[LicenseTypeResponseSchema]): Список лицензий.
         total (int): Общее количество записей.
         page (int): Текущая страница.
@@ -122,12 +152,14 @@ class LicenseTypeListResponseSchema(BaseModel):
     page: int
     page_size: int
 
+    model_config = ConfigDict(
+        title='Схема списка лицензий', description='Схема ответа для списка лицензий с пагинацией'
+    )
+
 
 class LicenseTypeFilterSchema(BaseModel):
     """
-    Схема фильтрации списка лицензий с возможностью сортировки и пагинации.
-
-    Attributes:
+    Параметры:
         name (Optional[str]): Фильтр по названию лицензии.
         ordering (Optional[Literal]): Сортировка (по полям name, created_at, updated_at).
         page (Optional[int]): Номер страницы.
@@ -143,4 +175,9 @@ class LicenseTypeFilterSchema(BaseModel):
     page: Optional[int] = Field(DEFAULT_PAGE, ge=MIN_PAGE_SIZE, description=PAGE_DESCRIPTION)
     page_size: Optional[int] = Field(
         DEFAULT_PAGE_SIZE, ge=MIN_PAGE_SIZE, le=MAX_PAGE_SIZE, description=PAGE_SIZE_DESCRIPTION
+    )
+
+    model_config = ConfigDict(
+        title='Схема фильтрации списка лицензий',
+        description='Схема фильтрации списка лицензий с возможностью сортировки и пагинации',
     )

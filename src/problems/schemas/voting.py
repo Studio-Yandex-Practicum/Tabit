@@ -1,35 +1,68 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class VotingBase(BaseModel):
-    """Базовая модель для голосования."""
+    """
+    Параметры:
+        text: текст голосования.
+        message_id: идентефикатор треда.
+    """
 
     text: str
     message_id: int
+
+    model_config = ConfigDict(
+        title='Базовая схема голосования', description='Базовая схема для голосования'
+    )
 
 
 class VotingCreate(VotingBase):
     """Модель для создания голосования."""
 
-    pass
+    model_config = ConfigDict(
+        title='Схема создания голосования', description='Схема для создания голосования'
+    )
 
 
 class VotingInDB(VotingBase):
-    """Модель голосования в базе данных с ID."""
+    """
+    Параметры:
+        id: идентефикатор.
+    """
 
     id: int
 
+    model_config = ConfigDict(
+        title='Схема голосования для бд', description='Модель голосования в базе данных с ID.'
+    )
+
 
 class VotingByUserCreate(BaseModel):
-    """Модель для голосования пользователя."""
+    """
+    Параметры:
+        user_id: id голосовавшего пользователя.
+        voting_id: идентификатор варианта голосования.
+    """
 
     user_id: UUID
     voting_id: int
 
+    model_config = ConfigDict(
+        title='Схема голосования', description='Схема для голосования пользователя'
+    )
+
 
 class VotingByUserInDB(VotingByUserCreate):
-    """Модель голосования пользователя в базе данных с ID."""
+    """
+    Параметры:
+        id: идентефикатор.
+    """
 
     id: int
+
+    model_config = ConfigDict(
+        title='Схема для голосования пользователя',
+        description='Модель голосования пользователя в базе данных с ID.',
+    )

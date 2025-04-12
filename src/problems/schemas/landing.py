@@ -1,14 +1,26 @@
 import re
 from typing import Optional
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 PHONE_REGEX = r'^\+7\d{10}$'
 EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 
 class LandingPageBaseSchema(BaseModel):
-    """Базовая схема для управления контентом лендинга."""
+    """
+    Параметры:
+        phone_number_1: Телефонный номер представителя сервиса(опционально).
+        phone_number_2: Телефонный номер представителя сервиса(опционально).
+        phone_number_3: Телефонный номер представителя сервиса(опционально).
+        address: Адрес офиса представителей сервиса(опционально).
+        email: Электронный адрес представителей сервиса(опционально).
+        whatsapp: Whatsapp контакт представителей сервиса(опционально).
+        telegram: Telegram контакт представителей сервиса(опционально).
+        vk: ВКонтакте контакт представителей сервиса(опционально).
+        price_1: Цена услуги(опционально).
+        price_2: Цена услуги(опционально).
+    """
 
     phone_number_1: Optional[str]
     phone_number_2: Optional[str]
@@ -20,6 +32,11 @@ class LandingPageBaseSchema(BaseModel):
     vk: Optional[str]
     price_1: Optional[str]
     price_2: Optional[str]
+
+    model_config = ConfigDict(
+        title='Схема управления конетентом',
+        description='Базовая схема для управления контентом лендинга',
+    )
 
     @field_validator('phone_number_1', 'phone_number_2', 'phone_number_3')
     def validate_phone_number(cls, v: Optional[str]) -> Optional[str]:
@@ -39,16 +56,27 @@ class LandingPageBaseSchema(BaseModel):
 class LandingPageCreateSchema(LandingPageBaseSchema):
     """Схема для создания записи лендинга."""
 
-    pass
+    model_config = ConfigDict(
+        title='Схема создания лендинга', description='Схема для создания записи лендинга'
+    )
 
 
 class LandingPageUpdateSchema(LandingPageBaseSchema):
     """Схема для обновления записи лендинга."""
 
-    pass
+    model_config = ConfigDict(
+        title='Схема обновления лендинга', description='Схема для обновления записи лендинга'
+    )
 
 
 class LandingPageResponseSchema(LandingPageBaseSchema):
-    """Схема для отображения данных лендинга."""
+    """
+    Параметры:
+        id: Идентефикатор.
+    """
 
     id: int
+
+    model_config = ConfigDict(
+        title='Схема данных лендинга', description='Схема для отображения данных лендинга'
+    )
