@@ -32,7 +32,6 @@ from src.users.constants import (
     title_telegram_username_user,
     title_updated_at_user,
 )
-from src.users.models.enum import RoleUserTabit
 
 
 class UserSchemaMixin:
@@ -137,10 +136,6 @@ class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
         max_length=LENGTH_NAME_USER,
         title=title_surname_user,
     )
-    role: RoleUserTabit = Field(
-        RoleUserTabit.EMPLOYEE,
-        title=title_role_user,
-    )
     company_id: int = Field(
         ...,
         title=title_company_id_user,
@@ -161,10 +156,6 @@ class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
         title=title_surname_user,
-    )
-    role: Optional[RoleUserTabit] = Field(
-        None,
-        title=title_role_user,
     )
     company_id: Optional[int] = Field(
         None,
