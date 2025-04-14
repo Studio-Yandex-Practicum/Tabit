@@ -2,7 +2,7 @@
 
 Revision ID: 01
 Revises:
-Create Date: 2025-04-14 23:42:45.498839
+Create Date: 2025-04-15 00:25:03.809467
 
 """
 from typing import Sequence, Union
@@ -112,7 +112,7 @@ def upgrade() -> None:
     op.create_table('companyuser',
     sa.Column('birthday', sa.Date(), nullable=True),
     sa.Column('telegram_username', sa.String(length=100), nullable=True),
-    sa.Column('role', sa.Enum('MODERATOR', 'EMPLOYEE', name='rolecompanyuser'), nullable=False),
+    sa.Column('role', sa.Enum('MODERATOR', 'EMPLOYEE', name='companyuserrole'), nullable=False),
     sa.Column('start_date_employment', sa.Date(), nullable=True),
     sa.Column('end_date_employment', sa.Date(), nullable=True),
     sa.Column('company_id', sa.Integer(), nullable=False),
@@ -156,9 +156,9 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('company_id', sa.Integer(), nullable=False),
-    sa.Column('color', sa.Enum('RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'DARK_BLUE', 'VIOLET', 'BROWN', 'GRAY', 'BLACK', 'WHITE', 'PINK', 'BEIGE', 'VINOUS', 'PURPLE', name='colorproblem'), nullable=False),
-    sa.Column('type', sa.Enum('A', 'B', 'C', 'D', 'E', 'F', 'G', name='typeproblem'), nullable=False),
-    sa.Column('status', sa.Enum('NEW', 'IN_PROGRESS', 'SUSPENDED', 'COMPLETED', name='statusproblem'), nullable=False),
+    sa.Column('color', sa.Enum('RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'DARK_BLUE', 'VIOLET', 'BROWN', 'GRAY', 'BLACK', 'WHITE', 'PINK', 'BEIGE', 'VINOUS', 'PURPLE', name='problemcolor'), nullable=False),
+    sa.Column('type', sa.Enum('A', 'B', 'C', 'D', 'E', 'F', 'G', name='problemtype'), nullable=False),
+    sa.Column('status', sa.Enum('NEW', 'IN_PROGRESS', 'SUSPENDED', 'COMPLETED', name='problemstatus'), nullable=False),
     sa.Column('owner_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -194,7 +194,7 @@ def upgrade() -> None:
     sa.Column('problem_id', sa.Integer(), nullable=False),
     sa.Column('owner_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('date_meeting', sa.Date(), nullable=False),
-    sa.Column('status', sa.Enum('NEW', 'NOT_HELD', 'HELD', 'SUSPENDED', name='statusmeeting'), nullable=False),
+    sa.Column('status', sa.Enum('NEW', 'NOT_HELD', 'HELD', 'SUSPENDED', name='meetingstatus'), nullable=False),
     sa.Column('place', sa.String(length=255), nullable=False),
     sa.Column('transfer_counter', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -224,7 +224,7 @@ def upgrade() -> None:
     sa.Column('date_completion', sa.Date(), nullable=False),
     sa.Column('owner_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('problem_id', sa.Integer(), nullable=False),
-    sa.Column('status', sa.Enum('NEW', 'IN_PROGRESS', 'NOT_ACCEPTED', 'COMPLETED', name='statustask'), nullable=False),
+    sa.Column('status', sa.Enum('NEW', 'IN_PROGRESS', 'NOT_ACCEPTED', 'COMPLETED', name='taskstatus'), nullable=False),
     sa.Column('transfer_counter', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
