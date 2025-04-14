@@ -15,7 +15,7 @@ FAKER_COMMENT_WORDS_COUNT: int = 7  # Количество слов в комм�
 FAKER_MIN_COMMENT_RATING: int = 0  # Минимальный рейтинг комментария
 FAKER_MAX_COMMENT_RATING: int = 5  # Максимальный рейтинг комментария
 FAKER_USER_TAGS_COUNT: int = 3  # Число тэгов для генерации
-AMOUNT_OF_ADMIN = 1  # Количество админов создаваемых для компании за 1 запуск скрипта
+AMOUNT_OF_MODERATORS = 1  # Количество модераторов создаваемых для компании за 1 запуск скрипта
 
 # Параметры лицензий
 LICENSE_TYPE_COUNT = 5

@@ -383,12 +383,12 @@ DEFAULT_LICENSE_TERM: dict[str, int] = {'days': 1}
 
 TITLE_NAME_LICENSE: str = 'Название лицензии'
 TITLE_LICENSE_TERM: str = 'Срок действия лицензии в днях'
-TITLE_MAX_ADMINS_COUNT: str = 'Максимальное количество админов'
+TITLE_MAX_MODERATORS_COUNT: str = 'Максимальное количество модераторов'
 TITLE_MAX_EMPLOYEES_COUNT: str = 'Максимальное количество сотрудников'
-TITLE_NAME_ADMIN: str = 'Имя админа сервиса'
-TITLE_SURNAME_ADMIN: str = 'Фамилия админа сервиса'
-TITLE_PATRONYMIC_ADMIN: str = 'Отчество админа сервиса'
-TITLE_PHONE_NUMBER_ADMIN: str = 'Контактный телефон админа сервиса'
+TITLE_NAME_MODERATOR: str = 'Имя модератора сервиса'
+TITLE_SURNAME_MODERATOR: str = 'Фамилия модератора сервиса'
+TITLE_PATRONYMIC_MODERATOR: str = 'Отчество модератора сервиса'
+TITLE_PHONE_NUMBER_MODERATOR: str = 'Контактный телефон модератора сервиса'
 TITLE_EMAIL: str = 'Электронная почта пользователя'
 TITLE_PASSWORD: str = 'Пароль пользователя'
 TITLE_IS_SUPERUSER_ADMIN: str = (

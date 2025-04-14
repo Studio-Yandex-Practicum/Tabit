@@ -12,11 +12,11 @@ if TYPE_CHECKING:
     from src.models import (
         AssociationUserProblem,
         Company,
+        CompanyUser,
         FileProblem,
         Meeting,
         MessageFeed,
         Task,
-        UserTabit,
     )
 
 
@@ -31,6 +31,7 @@ class Problem(BaseTabitModel):
         id: Идентификатор.
         name: Название проблемы.
         description: Описание.
+        company_id: Идентификатор компании, к которой относится проблема.
         color: Проблеме присваивается цвет.
         type: Проблема относится к определенному типу.
         status: Статус проблемы.
@@ -39,7 +40,8 @@ class Problem(BaseTabitModel):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
-        owner - UserTabit;
+        company - Company
+        owner - CompanyUser;
         meetings - Meeting: связь к назначенным встречам, для решения проблемы;
         tasks - Task: связь к задачам, для решения проблемы;
         messages - MessageFeed: связь к ленте сообщений;
@@ -57,7 +59,7 @@ class Problem(BaseTabitModel):
     # TODO: Не думаю, что нужно удалять проблему, если будет удален пользователь, создавший её.
     # Но вот если удалят компанию - должна удалятся. Можно реализовать за счет связей.
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='problem_owner')
+    owner: Mapped['CompanyUser'] = relationship(back_populates='problem_owner')
     members: Mapped[List['AssociationUserProblem']] = relationship(
         back_populates='problem',
         cascade='all, delete-orphan',

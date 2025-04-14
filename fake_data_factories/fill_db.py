@@ -64,7 +64,7 @@ async def fill_all_data():
     for company in companies:
         company_users = await create_company_users(count=FAKER_USER_COUNT, company_id=company.id)
         company_users_not_admins = [
-            company_user for company_user in company_users if company_user.role != 'Админ'
+            company_user for company_user in company_users if company_user.role != 'Модератор'
         ]
         for company_user in company_users_not_admins:
             problem = next(

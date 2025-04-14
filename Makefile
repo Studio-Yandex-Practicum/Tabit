@@ -116,7 +116,7 @@ db-reset: ## Полный сброс базы данных и реинициал
 	sleep 3
 	make migration-apply
 
-db-init: ## Полный процесс инициализации базы данных
+db-init: ## Полный процесс инициализации базы данных (работает только при отсутствии файлов миграций)
 	make up
 	sleep 3
 	make migration-init migration-apply

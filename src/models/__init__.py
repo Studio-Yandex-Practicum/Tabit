@@ -10,7 +10,7 @@ from .enum import (
     MeetingResultEngagementEnum,
     MeetingResultEnum,
     MeetingResultSolutionEnum,
-    RoleUserTabit,
+    RoleCompanyUser,
     StatusMeeting,
     StatusProblem,
     StatusTask,
@@ -22,9 +22,9 @@ from .license_type import LicenseType
 from .problem import Problem
 from .problem_discussion import CommentFeed, MessageFeed, VotingByUser, VotingFeed
 from .meeting import Meeting, MeetingResult
-from .tag import TagUser
+from .tag import UserTag
 from .task import Task
-from .user import TabitAdminUser, UserTabit
+from .user import TabitAdminUser, CompanyUser
 from .association_models import (
     AssociationUserComment,
     AssociationUserMeeting,
@@ -44,7 +44,7 @@ __all__ = [
     'MeetingResultEngagementEnum',
     'MeetingResultEnum',
     'MeetingResultSolutionEnum',
-    'RoleUserTabit',
+    'RoleCompanyUser',
     'StatusMeeting',
     'StatusProblem',
     'StatusTask',
@@ -62,10 +62,10 @@ __all__ = [
     'VotingFeed',
     'Meeting',
     'MeetingResult',
-    'TagUser',
+    'UserTag',
     'Task',
     'TabitAdminUser',
-    'UserTabit',
+    'CompanyUser',
     'AssociationUserComment',
     'AssociationUserMeeting',
     'AssociationUserProblem',

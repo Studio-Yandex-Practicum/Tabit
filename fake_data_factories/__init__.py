@@ -21,7 +21,7 @@ from .license_type_factories import LicenseTypeFactory, create_license_type
 from .message_feed_factory import MessageFeedFactory, create_message_feeds
 from .problem_factory import ProblemFactory, create_problems
 from .tabit_user_factories import TabitAdminUserFactory, create_tabit_admin_users
-from .tag_factories import TagUserFactory, create_tags
+from .tag_factories import UserTagFactory, create_tags
 from .task_factory import TaskFactory, create_tasks
 from .voting_feed_factory import VotingFeedFactory, create_voting_feeds
 
@@ -43,7 +43,7 @@ __all__ = [
     'create_problems',
     'TabitAdminUserFactory',
     'create_tabit_admin_users',
-    'TagUserFactory',
+    'UserTagFactory',
     'create_tags',
     'TaskFactory',
     'create_tasks',

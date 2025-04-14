@@ -1,5 +1,5 @@
 from src.crud.crud_base import CRUDBase
-from src.models import UserTabit
+from src.models import CompanyUser
 
 
 class CRUDUsers(CRUDBase):
@@ -8,4 +8,4 @@ class CRUDUsers(CRUDBase):
     pass
 
 
-user_crud = CRUDUsers(UserTabit)
+user_crud = CRUDUsers(CompanyUser)

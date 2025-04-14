@@ -9,7 +9,7 @@ from src.models import BaseTabitModel, BaseTag
 from src.models.annotations import comment_rating, int_pk, owner
 
 if TYPE_CHECKING:
-    from src.models import CommentFeed, FileMessage, Problem, UserTabit, VotingFeed
+    from src.models import CommentFeed, CompanyUser, FileMessage, Problem, VotingFeed
 
 
 class MessageFeed(BaseTabitModel):
@@ -30,7 +30,7 @@ class MessageFeed(BaseTabitModel):
 
     Связи (атрибут - Модель):
         problem - Problem;
-        owner - UserTabit;
+        owner - CompanyUser;
         comments - CommentFeed: к сообщением можно оставлять комментарии;
         voting - VotingFeed: есть возможность в сообщение начать голосование - это варианты;
         file - FileMessage: к сообщению могут быть прикреплены файлы.
@@ -40,7 +40,7 @@ class MessageFeed(BaseTabitModel):
     problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'))
     problem: Mapped['Problem'] = relationship(back_populates='messages')
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='messages')
+    owner: Mapped['CompanyUser'] = relationship(back_populates='messages')
     text: Mapped[str]
     important: Mapped[bool] = mapped_column(default=False)
     comments: Mapped[List['CommentFeed']] = relationship(
@@ -80,14 +80,14 @@ class CommentFeed(BaseTabitModel):
 
     Связи (атрибут - Модель):
         message - MessageFeed;
-        owner - UserTabit.
+        owner - CompanyUser.
     """
 
     id: Mapped[int_pk]
     message_id: Mapped[int] = mapped_column(ForeignKey('messagefeed.id'))
     message: Mapped['MessageFeed'] = relationship(back_populates='comments')
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='comments')
+    owner: Mapped['CompanyUser'] = relationship(back_populates='comments')
     text: Mapped[str]
     rating: Mapped[comment_rating]
 
@@ -153,13 +153,13 @@ class VotingByUser(BaseTabitModel):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
-        user - UserTabit;
+        user - CompanyUser;
         voting - VotingFeed.
     """
 
     id: Mapped[int_pk]
     user_id: Mapped[owner]
-    user: Mapped['UserTabit'] = relationship(back_populates='voting_by')
+    user: Mapped['CompanyUser'] = relationship(back_populates='voting_by')
     voting_id: Mapped[int] = mapped_column(ForeignKey('votingfeed.id'))
     voting: Mapped['VotingFeed'] = relationship(back_populates='by_user')
 

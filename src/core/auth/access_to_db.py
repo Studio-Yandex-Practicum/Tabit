@@ -2,7 +2,7 @@ from fastapi import Depends
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 
 from src.core.database.db_depends import get_async_session
-from src.models import TabitAdminUser, UserTabit
+from src.models import CompanyUser, TabitAdminUser
 
 
 async def get_admin_db(session=Depends(get_async_session)):
@@ -12,4 +12,4 @@ async def get_admin_db(session=Depends(get_async_session)):
 
 async def get_user_db(session=Depends(get_async_session)):
     """Асинхронный генератор. Обеспечивает доступ к БД к пользователям ресурса."""
-    yield SQLAlchemyUserDatabase(session, UserTabit)
+    yield SQLAlchemyUserDatabase(session, CompanyUser)

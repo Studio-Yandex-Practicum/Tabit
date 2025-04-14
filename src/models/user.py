@@ -7,7 +7,7 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
 
-from src.models import BaseUser, RoleUserTabit
+from src.models import BaseUser, RoleCompanyUser
 from src.models.annotations import url_link_field
 from src.models.constants import LENGTH_TELEGRAM_USERNAME
 
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     )
 
 
-class UserTabit(BaseUser):
+class CompanyUser(BaseUser):
     """
     Модель пользователей ресурс Tabit.
 
@@ -64,7 +64,7 @@ class UserTabit(BaseUser):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
-        tags - AssociationUserTag -> TagUser;
+        tags - AssociationUserTag -> UserTag;
         company - Company;
         current_department - Department;
         previous_department - Department;
@@ -84,7 +84,7 @@ class UserTabit(BaseUser):
     telegram_username: Mapped[Optional[str]] = mapped_column(
         String(LENGTH_TELEGRAM_USERNAME), unique=True, nullable=True
     )
-    role: Mapped['RoleUserTabit']
+    role: Mapped['RoleCompanyUser']
     start_date_employment: Mapped[Optional[date]]
     end_date_employment: Mapped[Optional[date]]
     tags: Mapped[List['AssociationUserTag']] = relationship(back_populates='user')
@@ -138,10 +138,10 @@ class UserTabit(BaseUser):
 
 class TabitAdminUser(BaseUser):
     """
-    Модель пользователей-админов сервиса Tabit.
+    Модель пользователей-модераторов сервиса Tabit.
 
     Назначение:
-        Хранит сведения о админов и модераторов, обслуживающих сервис Tabit.
+        Хранит сведения о модераторов и модераторов, обслуживающих сервис Tabit.
 
     Поля:
         id: Идентификационный номер пользователя - UUID.

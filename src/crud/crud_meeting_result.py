@@ -6,8 +6,8 @@ from src.core.config.logging import logger
 from src.crud import CRUDBase
 from src.crud.constants import TextError
 from src.models import (
+    CompanyUser,
     MeetingResult,
-    UserTabit,
 )
 
 
@@ -40,7 +40,7 @@ class CRUDMeetingResult(CRUDBase):
         self,
         session: AsyncSession,
         obj_in: dict,
-        owner: UserTabit,
+        owner: CompanyUser,
         meeting_id: int,
     ) -> MeetingResult:
         """Создает результат встречи.

@@ -73,10 +73,10 @@ class StatusTask(StrEnum):
     COMPLETED = 'Завершена'
 
 
-class RoleUserTabit(StrEnum):
-    """Варианты значений поля role модели UserTabit."""
+class RoleCompanyUser(StrEnum):
+    """Варианты значений поля role модели CompanyUser."""
 
-    ADMIN = 'Админ'
+    MODERATOR = 'Модератор'
     EMPLOYEE = 'Сотрудник'
 
 

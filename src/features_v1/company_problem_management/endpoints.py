@@ -12,7 +12,7 @@ from src.features_v1.validators import (
     validate_owner_object,
     validate_user_from_company,
 )
-from src.models import UserTabit
+from src.models import CompanyUser
 from src.schemas import (
     ProblemCreateSchema,
     ProblemResponseSchema,
@@ -32,7 +32,7 @@ router = APIRouter()
 )
 async def get_problems_for_user(
     company_slug: str,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> list[ProblemResponseSchema]:
     """Получает список всех проблем.
@@ -77,7 +77,7 @@ async def get_problems_for_user(
 async def create_problem(
     problem_in: ProblemCreateSchema,
     company_slug: str,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> ProblemResponseSchema:
     """Создание проблемы.
@@ -127,7 +127,7 @@ async def create_problem(
 async def get_problem(
     problem_id: int,
     company_slug: str,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> ProblemResponseSchema:
     """Получение информации о проблеме по ID.
@@ -170,7 +170,7 @@ async def update_problem(
     problem_in: ProblemUpdateSchema,
     company_slug: str,
     problem_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> ProblemResponseSchema:
     """Обновление проблемы.
@@ -218,7 +218,7 @@ async def update_problem(
 async def delete_problem(
     company_slug: str,
     problem_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """Удаление проблемы.
@@ -265,7 +265,7 @@ async def delete_problem(
 async def confirm_participation_in_problem(
     company_slug: str,
     problem_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> ProblemResponseSchema:
     """Подтвердить активное участие в решения проблемы.

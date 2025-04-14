@@ -16,7 +16,7 @@ from src.features_v1.validators import (
     validate_owner_object,
     validate_user_from_company,
 )
-from src.models import UserTabit
+from src.models import CompanyUser
 from src.schemas import (
     MeetingCreateSchema,
     MeetingResponseSchema,
@@ -40,7 +40,7 @@ router = APIRouter()
 async def get_meetings_for_user(
     company_slug: str,
     problem_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> list[MeetingResponseSchema]:
     """Получает список всех встреч.
@@ -89,7 +89,7 @@ async def create_meeting(
     meeting_in: MeetingCreateSchema,
     company_slug: str,
     problem_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> MeetingUpdateSchema:
     """Создает встречу.
@@ -141,7 +141,7 @@ async def get_meeting(
     company_slug: str,
     problem_id: int,
     meeting_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> MeetingUpdateSchema:
     """Получает информацию о встрече.
@@ -188,7 +188,7 @@ async def update_meeting(
     company_slug: str,
     problem_id: int,
     meeting_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> MeetingUpdateSchema:
     """Обновляет информацию о встрече.
@@ -244,7 +244,7 @@ async def delete_meeting(
     company_slug: str,
     problem_id: int,
     meeting_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """Удаляет встречу.
@@ -295,7 +295,7 @@ async def create_meeting_result(
     problem_id: int,
     meeting_id: int,
     session: AsyncSession = Depends(get_async_session),
-    owner: UserTabit = Depends(current_user_tabit),
+    owner: CompanyUser = Depends(current_user_tabit),
 ) -> MeetingResultResponseSchema:
     """Создает результат встречи.
 
@@ -367,7 +367,7 @@ async def patch_meeting_result(
     result_id: int,
     result_update: MeetingResultUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
-    owner: UserTabit = Depends(current_user_tabit),
+    owner: CompanyUser = Depends(current_user_tabit),
 ) -> MeetingResultResponseSchema:
     """Обновляет результат встречи.
 

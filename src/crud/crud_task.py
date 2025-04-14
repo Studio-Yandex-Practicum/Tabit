@@ -6,7 +6,7 @@ from sqlalchemy.orm import selectinload
 from src.core.config.logging import logger
 from src.crud import CRUDBaseWithAssociations
 from src.crud.constants import ZERO, TextError
-from src.models import AssociationUserTask, Company, Problem, StatusTask, Task, UserTabit
+from src.models import AssociationUserTask, Company, CompanyUser, Problem, StatusTask, Task
 from src.schemas import TaskCreateSchema, TaskResponseSchema, TaskUpdateSchema
 
 
@@ -32,7 +32,7 @@ class CRUDTask(CRUDBaseWithAssociations):
             select(self.model)
             .join(self.model.problem)
             .join(Problem.owner)
-            .join(UserTabit.company)
+            .join(CompanyUser.company)
             .where(Company.slug == company_slug)
             .where(self.model.problem_id == problem_id)
             .options(
@@ -48,7 +48,7 @@ class CRUDTask(CRUDBaseWithAssociations):
         self,
         session: AsyncSession,
         task_in: TaskCreateSchema,
-        owner: UserTabit,
+        owner: CompanyUser,
         problem: Problem,
     ) -> Task:
         """Создает новую задачу.

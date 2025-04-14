@@ -417,9 +417,9 @@ class TestPatchEmployee:
 
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == f'Не найден объект UserTabit по данному id: {non_existent_id}', (
-            f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
-        )
+        assert (
+            data['detail'] == f'Не найден объект CompanyUser по данному id: {non_existent_id}'
+        ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
 class TestDeleteEmployee:
@@ -485,9 +485,9 @@ class TestDeleteEmployee:
 
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == f'Не найден объект UserTabit по данному id: {non_existent_id}', (
-            f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
-        )
+        assert (
+            data['detail'] == f'Не найден объект CompanyUser по данному id: {non_existent_id}'
+        ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
 class TestGetDepartments:

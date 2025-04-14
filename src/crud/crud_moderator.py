@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import CRUDBase, UserCreateMixin
-from src.models import UserTabit
+from src.models import CompanyUser
 
 
 class CRUDModeratorUser(UserCreateMixin, CRUDBase):
@@ -10,9 +10,9 @@ class CRUDModeratorUser(UserCreateMixin, CRUDBase):
 
     async def get_by_telegram_username(
         self, username: str, session: AsyncSession
-    ) -> UserTabit | None:
+    ) -> CompanyUser | None:
         """
-        Функция, возвращающая объект пользователя UserTabit по переданному telegram_username,
+        Функция, возвращающая объект пользователя CompanyUser по переданному telegram_username,
         или же возвращающая значение None, если пользователь не обнаружен.
 
         Параметры:
@@ -25,4 +25,4 @@ class CRUDModeratorUser(UserCreateMixin, CRUDBase):
         return user.scalars().first()
 
 
-moderator_crud = CRUDModeratorUser(UserTabit)
+moderator_crud = CRUDModeratorUser(CompanyUser)

@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from fastapi import status
 
 from src.core.constants import TextError
-from src.models.enum import RoleUserTabit
+from src.models.enum import RoleCompanyUser
 
 load_dotenv()
 
@@ -164,7 +164,7 @@ PAYLOAD_FOR_PATCH_USER_EXTRA: dict = {
     'is_active': False,
     'is_superuser': True,
     'is_verified': False,
-    'role': RoleUserTabit.ADMIN,
+    'role': RoleCompanyUser.MODERATOR,
     'start_date_employment': '1776-05-01',
     'end_date_employment': '1776-05-01',
     'company_id': 1776,

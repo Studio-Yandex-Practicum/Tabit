@@ -26,7 +26,7 @@ from pydantic import BaseModel
 from src.core.auth.managers import get_admin_manager, get_user_manager
 from src.core.auth.protocol import StrategyT, TransportT
 from src.core.config.app import settings
-from src.models import TabitAdminUser, UserTabit
+from src.models import CompanyUser, TabitAdminUser
 
 
 class TransportShema(BaseModel):
@@ -57,11 +57,11 @@ class TransportTabit(BearerTransport):
 
 
 # TODO: Нужно путь в константы определить, так, чтобы от эндпоинта собиралась.
+# Транспорт JWT-токенов для администраторов сервиса Tabit.
 transport_admin = TransportTabit(tokenUrl='/api/v1/admin/auth/login')
-"""Транспорт JWT-токенов для администраторов сервиса Tabit."""
 
+# Транспорт JWT-токенов для пользователей сервиса Tabit
 transport_user = TransportTabit(tokenUrl='/api/v1/auth/login')
-"""Транспорт JWT-токенов для пользователей сервиса Tabit."""
 
 
 class AuthenticationBackendTabit(AuthenticationBackend):
@@ -185,20 +185,19 @@ def get_jwt_strategy() -> JWTStrategy:
     )
 
 
+# Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit.
 jwt_auth_backend_admin = AuthenticationBackendTabit(
     name='jwt_admin',
     transport=transport_admin,
     get_strategy=get_jwt_strategy,
 )
-"""Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
 
-
+# Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit.
 jwt_auth_backend_user = AuthenticationBackendTabit(
     name='jwt_user',
     transport=transport_user,
     get_strategy=get_jwt_strategy,
 )
-"""Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
 
 
 class AuthenticatorTabit(Authenticator):
@@ -320,14 +319,10 @@ class FastAPIUsersTabit(FastAPIUsers[models.UP, models.ID]):
         self.current_user_refresh_token = self.authenticator.current_user_refresh_token
 
 
+# Основной объект, который связывает воедино компонент для аутентификации пользователей для
+# администраторов сервиса Tabit.
 tabit_admin = FastAPIUsersTabit[TabitAdminUser, UUID](get_admin_manager, [jwt_auth_backend_admin])
-"""
-Основной объект, который связывает воедино компонент для аутентификации пользователей для
-администраторов сервиса Tabit.
-"""
 
-tabit_user = FastAPIUsersTabit[UserTabit, UUID](get_user_manager, [jwt_auth_backend_user])
-"""
-Основной объект, который связывает воедино компонент для аутентификации пользователей для
-пользователей сервиса Tabit.
-"""
+# Основной объект, который связывает воедино компонент для аутентификации пользователей для
+# пользователей сервиса Tabit.
+tabit_user = FastAPIUsersTabit[CompanyUser, UUID](get_user_manager, [jwt_auth_backend_user])

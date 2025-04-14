@@ -21,7 +21,7 @@ class VotingByUserFactory(AsyncSQLAlchemyFactory):
 
     Поля:
         - `user_id`: Обязательное поле. \
-            Должен быть создан объект `UserTabit`, чтобы передать полю uuid.
+            Должен быть создан объект `CompanyUser`, чтобы передать полю uuid.
         - `voting_id`: Обязательное поле. \
             Должен быть создан объект `VotingFeed`, чтобы передать полю id.
     """

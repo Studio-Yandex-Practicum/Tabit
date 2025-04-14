@@ -7,11 +7,11 @@ from src.crud import CRUDBaseWithAssociations
 from src.crud.constants import ZERO, TextError
 from src.models import (
     AssociationUserMeeting,
+    CompanyUser,
     Meeting,
     Problem,
     StatusMeeting,
     StatusProblem,
-    UserTabit,
 )
 from src.schemas import (
     MeetingCreateSchema,
@@ -26,7 +26,7 @@ class CRUDMeeting(CRUDBaseWithAssociations):
         self,
         session: AsyncSession,
         meeting_in: MeetingCreateSchema,
-        owner: UserTabit,
+        owner: CompanyUser,
         problem: Problem,
     ) -> Meeting:
         """Создание встречи с участниками.

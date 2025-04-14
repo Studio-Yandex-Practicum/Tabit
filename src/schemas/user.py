@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.models import RoleUserTabit
+from src.models import RoleCompanyUser
 from src.schemas import UserSchemaMixin
 from src.schemas.constants import (
     LENGTH_NAME_USER,
@@ -74,8 +74,8 @@ class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
         max_length=LENGTH_NAME_USER,
         title=TITLE_SURNAME_USER,
     )
-    role: RoleUserTabit = Field(
-        RoleUserTabit.EMPLOYEE,
+    role: RoleCompanyUser = Field(
+        RoleCompanyUser.EMPLOYEE,
         title=TITLE_ROLE_USER,
     )
     company_id: int = Field(
@@ -99,7 +99,7 @@ class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
         max_length=LENGTH_NAME_USER,
         title=TITLE_SURNAME_USER,
     )
-    role: Optional[RoleUserTabit] = Field(
+    role: Optional[RoleCompanyUser] = Field(
         None,
         title=TITLE_ROLE_USER,
     )

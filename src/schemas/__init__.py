@@ -83,7 +83,7 @@ from .query_params import (
     FeedsFilterSchema,
     UserFilterSchema
 )
-from .tag import TagUserCreateSchema, TagUserResponseSchema, TagUserUpdateSchema
+from .tag import UserTagCreateSchema, UserTagResponseSchema, UserTagUpdateSchema
 from .task import (
     TaskBaseSchema,
     TaskCreateSchema,
@@ -172,9 +172,9 @@ __all__ = [
     'CompanyFilterSchema',
     'FeedsFilterSchema',
     'UserFilterSchema',
-    'TagUserCreateSchema',
-    'TagUserResponseSchema',
-    'TagUserUpdateSchema',
+    'UserTagCreateSchema',
+    'UserTagResponseSchema',
+    'UserTagUpdateSchema',
     'TaskBaseSchema',
     'TaskCreateSchema',
     'TaskResponseSchema',

@@ -26,9 +26,9 @@ from src.models.constants import LENGTH_NAME_MEETING_PLACE
 if TYPE_CHECKING:
     from src.models import (
         AssociationUserMeeting,
+        CompanyUser,
         FileMeeting,
         Problem,
-        UserTabit,
     )
 
 
@@ -54,8 +54,8 @@ class Meeting(BaseTabitModel):
 
     Связи (атрибут - Модель):
         problem - Problem;
-        owner - UserTabit;
-        members - AssociationUserMeeting -> UserTabit: участники встречи;
+        owner - CompanyUser;
+        members - AssociationUserMeeting -> CompanyUser: участники встречи;
         result - MeetingResult: связь к анкетам, которые заполняются по завершению встречи;
         file - FileMeeting: к встречи могут быть прикреплены файлы.
     """
@@ -66,7 +66,7 @@ class Meeting(BaseTabitModel):
     problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'))
     problem: Mapped['Problem'] = relationship(back_populates='meetings')
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='meeting_owner')
+    owner: Mapped['CompanyUser'] = relationship(back_populates='meeting_owner')
     date_meeting: Mapped[date] = mapped_column(nullable=False)
     status: Mapped['StatusMeeting']
     place: Mapped[str] = mapped_column(String(LENGTH_NAME_MEETING_PLACE), nullable=False)
@@ -114,14 +114,14 @@ class MeetingResult(BaseTabitModel):
 
     Связи (атрибут - Модель):
         meeting - Meeting;
-        owner - UserTabit.
+        owner - CompanyUser.
     """
 
     id: Mapped[int_pk_autoincrement]
     meeting_id: Mapped[int] = mapped_column(ForeignKey('meeting.id'), primary_key=True)
     meeting: Mapped['Meeting'] = relationship(back_populates='result', lazy='joined')
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='meeting_result')
+    owner: Mapped['CompanyUser'] = relationship(back_populates='meeting_result')
     meeting_result: Mapped['MeetingResultEnum']
     participant_engagement: Mapped['MeetingResultEngagementEnum'] = mapped_column(
         Enum(MeetingResultEngagementEnum, name='resultmeetingengagementenum'),

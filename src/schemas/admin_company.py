@@ -13,7 +13,7 @@ from pydantic import (
     model_validator,
 )
 
-from src.models import RoleUserTabit
+from src.models import RoleCompanyUser
 from src.schemas.constants import (
     LENGTH_FILE_LINK,
     LENGTH_NAME_USER,
@@ -67,7 +67,7 @@ class AdminCompanyResponseSchema(BaseModel):
 
 
 class CompanyAdminSchemaMixin:
-    """Схема-миксин для админов от компаний."""
+    """Схема-миксин для модераторов от компаний."""
 
     patronymic: Optional[str] = Field(
         None, min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER, title=TITLE_PATRONYMIC_USER
@@ -124,7 +124,7 @@ class CompanyAdminSchemaMixin:
 
 
 class CompanyAdminReadSchema(BaseUser[UUID]):
-    """Схема для возврата данных админов от компаний при работе с ними."""
+    """Схема для возврата данных модераторов от компаний при работе с ними."""
 
     name: str
     surname: str
@@ -148,7 +148,7 @@ class CompanyAdminReadSchema(BaseUser[UUID]):
 
 
 class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
-    """Схема для PUT-запроса изменения данных админов от компаний."""
+    """Схема для PUT-запроса изменения данных модераторов от компаний."""
 
     name: str = Field(
         ...,
@@ -162,7 +162,7 @@ class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
         max_length=LENGTH_NAME_USER,
         title=TITLE_SURNAME_USER,
     )
-    role: RoleUserTabit
+    role: RoleCompanyUser
     current_department_id: int = Field(
         ...,
         title=TITLE_CURRENT_DEPARTMENT_ID_USER,
@@ -170,9 +170,9 @@ class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
 
 
 class CompanyAdminCreateSchema(CompanyAdminPutSchema):
-    """Схема для создания админов от компаний."""
+    """Схема для создания модераторов от компаний."""
 
-    role: Literal[RoleUserTabit.ADMIN]
+    role: Literal[RoleCompanyUser.MODERATOR]
     company_id: int = Field(
         ...,
         title=TITLE_COMPANY_ID_USER,
@@ -180,7 +180,7 @@ class CompanyAdminCreateSchema(CompanyAdminPutSchema):
 
 
 class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
-    """Схема для PATCH-запроса изменения данных админов от компаний."""
+    """Схема для PATCH-запроса изменения данных модераторов от компаний."""
 
     name: Optional[str] = Field(
         None,
@@ -194,7 +194,7 @@ class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
         max_length=LENGTH_NAME_USER,
         title=TITLE_SURNAME_USER,
     )
-    role: Optional[RoleUserTabit] = None
+    role: Optional[RoleCompanyUser] = None
     current_department_id: Optional[int] = Field(
         None,
         title=TITLE_CURRENT_DEPARTMENT_ID_USER,

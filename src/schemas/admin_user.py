@@ -10,11 +10,11 @@ from src.schemas.constants import (
     MIN_LENGTH_NAME,
     TITLE_EMAIL,
     TITLE_IS_SUPERUSER_ADMIN,
-    TITLE_NAME_ADMIN,
+    TITLE_NAME_MODERATOR,
     TITLE_PASSWORD,
-    TITLE_PATRONYMIC_ADMIN,
-    TITLE_PHONE_NUMBER_ADMIN,
-    TITLE_SURNAME_ADMIN,
+    TITLE_PATRONYMIC_MODERATOR,
+    TITLE_PHONE_NUMBER_MODERATOR,
+    TITLE_SURNAME_MODERATOR,
 )
 
 
@@ -25,13 +25,13 @@ class BaseAdminSchema:
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=TITLE_PATRONYMIC_ADMIN,
+        title=TITLE_PATRONYMIC_MODERATOR,
     )
     phone_number: Optional[str] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=TITLE_PHONE_NUMBER_ADMIN,
+        title=TITLE_PHONE_NUMBER_MODERATOR,
     )
 
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
@@ -68,13 +68,13 @@ class AdminCreateSchema(CreateUpdateDictModel, BaseAdminSchema):
         ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=TITLE_NAME_ADMIN,
+        title=TITLE_NAME_MODERATOR,
     )
     surname: str = Field(
         ...,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=TITLE_SURNAME_ADMIN,
+        title=TITLE_SURNAME_MODERATOR,
     )
 
 
@@ -85,13 +85,13 @@ class AdminUpdateSchema(BaseAdminSchema, BaseModel):
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=TITLE_NAME_ADMIN,
+        title=TITLE_NAME_MODERATOR,
     )
     surname: Optional[str] = Field(
         None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_USER,
-        title=TITLE_SURNAME_ADMIN,
+        title=TITLE_SURNAME_MODERATOR,
     )
 
 

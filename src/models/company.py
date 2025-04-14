@@ -17,7 +17,7 @@ from src.models.annotations import (
 from src.models.constants import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
 
 if TYPE_CHECKING:
-    from src.models import Department, LicenseType, Problem, TagUser, UserTabit
+    from src.models import CompanyUser, Department, LicenseType, Problem, UserTag
 
 
 class Company(BaseTabitModel):
@@ -45,9 +45,9 @@ class Company(BaseTabitModel):
 
     Связи (атрибут - Модель):
         departments - Department;
-        employees - UserTabit;
+        employees - CompanyUser;
         license - LicenseType;
-        tags_users - TagUser: админ от компании может придумывать свои тэги для пользователей.
+        tags_users - UserTag: админ от компании может придумывать свои тэги для пользователей.
         problems - Problem: связь к созданным проблемам, определенной компании;
     """
 
@@ -58,7 +58,7 @@ class Company(BaseTabitModel):
     departments: Mapped[List['Department']] = relationship(
         back_populates='company', cascade='all, delete'
     )
-    employees: Mapped[List['UserTabit']] = relationship(
+    employees: Mapped[List['CompanyUser']] = relationship(
         back_populates='company', cascade='all, delete', lazy='selectin'
     )
     problems: Mapped[List['Problem']] = relationship(
@@ -71,7 +71,7 @@ class Company(BaseTabitModel):
     start_license_time: Mapped[timestamp_nullable]
     end_license_time: Mapped[timestamp_nullable]
     is_active: Mapped[bool] = mapped_column(default=False)
-    tags_users: Mapped[List['TagUser']] = relationship(
+    tags_users: Mapped[List['UserTag']] = relationship(
         back_populates='company', cascade='all, delete-orphan'
     )
     slug: Mapped[slug]
@@ -109,8 +109,8 @@ class Department(BaseTabitModel):
     name: Mapped[str] = mapped_column(String(LENGTH_NAME_DEPARTMENT), nullable=False)
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'), nullable=False)
     company: Mapped['Company'] = relationship(back_populates='departments')
-    # employees: Mapped[List['UserTabit']] = relationship(back_populates='current_department')
-    # employees_lost: Mapped[List['UserTabit']]
+    # employees: Mapped[List['CompanyUser']] = relationship(back_populates='current_department')
+    # employees_lost: Mapped[List['CompanyUser']]
     #  = relationship(back_populates='last_department')
     slug: Mapped[slug]
 

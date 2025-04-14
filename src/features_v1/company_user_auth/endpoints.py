@@ -18,7 +18,7 @@ from src.core.database.db_depends import get_async_session
 from src.crud import user_crud
 from src.features_v1.constants import Description, Summary
 from src.features_v1.validators import check_telegram_username_for_duplicates, check_user_is_active
-from src.models import UserTabit
+from src.models import CompanyUser
 from src.schemas import TokenReadSchemas, UserForUserUpdateSchema, UserReadSchema
 
 router = APIRouter()
@@ -94,7 +94,7 @@ async def logout(
     description=Description.COMPANY_USER_AUTH_LOGOUT,
 )
 async def refresh_token_user(
-    user_and_refresh_token: tuple[UserTabit, str] = Depends(get_current_user_refresh_token),
+    user_and_refresh_token: tuple[CompanyUser, str] = Depends(get_current_user_refresh_token),
     strategy: StrategyT[models.UP, models.ID] = Depends(jwt_auth_backend_user.get_strategy),
 ) -> JSONResponse:
     """
@@ -142,7 +142,7 @@ router.include_router(  # форгот и резет пассворд
 )
 async def get_me_user(
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
 ) -> UserReadSchema:
     """
     Для доступа к своей учетной записи пользователей сервиса.
@@ -169,7 +169,7 @@ async def get_me_user(
 async def update_me_user(
     user_in: UserForUserUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
 ) -> UserReadSchema:
     """
     Позволит обновить данные о себе пользователю сервиса.

@@ -10,7 +10,7 @@ from src.models import BaseTabitModel, StatusTask
 from src.models.annotations import description, int_pk, int_zero, name_problem, owner
 
 if TYPE_CHECKING:
-    from src.models import AssociationUserTask, FileTask, Problem, UserTabit
+    from src.models import AssociationUserTask, CompanyUser, FileTask, Problem
 
 
 class Task(BaseTabitModel):
@@ -30,11 +30,12 @@ class Task(BaseTabitModel):
         status: Статус выполнения задачи.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
+        transfer_counter: Счетчик переносов даты решения задач.
 
     Связи (атрибут - Модель):
-        owner - UserTabit;
+        owner - CompanyUser;
         problem - Problem;
-        executors - AssociationUserTask -> UserTabit: исполнители задачи;
+        executors - AssociationUserTask -> CompanyUser: исполнители задачи;
         file - FileTask: к задаче могут быть прикреплены файлы.
     """
 
@@ -43,8 +44,8 @@ class Task(BaseTabitModel):
     description: Mapped[description]
     date_completion: Mapped[date] = mapped_column(nullable=False)
     owner_id: Mapped[owner]
-    owner: Mapped['UserTabit'] = relationship(back_populates='task_owner')
-    problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'), primary_key=True)
+    owner: Mapped['CompanyUser'] = relationship(back_populates='task_owner')
+    problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id', ondelete='CASCADE'))
     problem: Mapped['Problem'] = relationship(back_populates='tasks')
     executors: Mapped[List['AssociationUserTask']] = relationship(
         back_populates='task',

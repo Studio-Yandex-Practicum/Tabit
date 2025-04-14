@@ -13,7 +13,7 @@ from src.features_v1.validators import (
     validate_task_completed,
     validate_user_from_company,
 )
-from src.models import UserTabit
+from src.models import CompanyUser
 from src.schemas import (
     TaskCreateSchema,
     TaskResponseSchema,
@@ -34,7 +34,7 @@ router = APIRouter()
 async def get_tasks_for_user(
     company_slug: str,
     problem_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> list[TaskResponseSchema]:
     """
@@ -84,7 +84,7 @@ async def create_task(
     task_in: TaskCreateSchema,
     company_slug: str,
     problem_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskResponseSchema:
     """Создание задачи.
@@ -137,7 +137,7 @@ async def get_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskResponseSchema:
     """
@@ -185,7 +185,7 @@ async def update_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> TaskResponseSchema:
     """
@@ -242,7 +242,7 @@ async def delete_task(
     company_slug: str,
     problem_id: int,
     task_id: int,
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """Удаляет задачу.

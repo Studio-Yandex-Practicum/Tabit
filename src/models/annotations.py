@@ -39,7 +39,7 @@ timestamp_nullable = Annotated[
     Optional[datetime],
     mapped_column(type_=TIMESTAMP(timezone=True), nullable=True),
 ]
-owner = Annotated[UUID, mapped_column(ForeignKey('usertabit.id'), nullable=False)]
+owner = Annotated[UUID, mapped_column(ForeignKey('companyuser.id'), nullable=False)]
 int_zero = Annotated[int, mapped_column(Integer, nullable=False, default=ZERO)]
 name_problem = Annotated[str, mapped_column(String(LENGTH_NAME_PROBLEM), nullable=False)]
 slug = Annotated[str, mapped_column(String(LENGTH_SLUG), nullable=False, unique=True)]

@@ -15,7 +15,7 @@ from fake_data_factories.constants import (
 )
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
-from src.constants import ZERO
+from src.core.constants import ZERO
 from src.core.database.sc_db_session import sc_session
 from src.models import StatusTask, Task
 

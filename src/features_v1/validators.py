@@ -53,6 +53,7 @@ from src.models import (
     AssociationUserComment,
     CommentFeed,
     Company,
+    CompanyUser,
     Department,
     Meeting,
     Problem,
@@ -60,7 +61,6 @@ from src.models import (
     StatusProblem,
     StatusTask,
     Task,
-    UserTabit,
 )
 from src.schemas import UserCreateSchema
 
@@ -330,7 +330,7 @@ async def check_comment_has_likes_from_user(
         return user_comment_obj
 
 
-async def check_max_number_problems(session: AsyncSession, user: UserTabit):
+async def check_max_number_problems(session: AsyncSession, user: CompanyUser):
     """Проверит количество проблем, в которых участвует пользователь.
 
     Назначение:
@@ -394,7 +394,7 @@ def validate_close_problem(problem: Problem):
         )
 
 
-def validate_owner_object(user: UserTabit, row_model):
+def validate_owner_object(user: CompanyUser, row_model):
     """
     Валидатор, проверит что у переданной модели автор переданный пользователь.
     Иначе ошибка 403
@@ -406,7 +406,7 @@ def validate_owner_object(user: UserTabit, row_model):
         )
 
 
-def validate_user_from_company(user: UserTabit, company: Company):
+def validate_user_from_company(user: CompanyUser, company: Company):
     """
     Валидатор, проверит что пользователь из данной компании.
     Иначе ошибка 403
@@ -493,7 +493,7 @@ async def check_meeting_exists(meeting_id: int, session: AsyncSession):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_MEETING_NOT_FOUND)
 
 
-async def check_result_meeting_unique(meeting_id: int, owner: UserTabit, session: AsyncSession):
+async def check_result_meeting_unique(meeting_id: int, owner: CompanyUser, session: AsyncSession):
     """Проверяет что один пользователь может создать только один результат встречи.
 
     Назначение:
@@ -566,7 +566,7 @@ async def check_company_exists(company_slug: str, session: AsyncSession):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_COMPANY_NOT_FOUND)
 
 
-def validate_is_member_problem(user: UserTabit, problem: Problem):
+def validate_is_member_problem(user: CompanyUser, problem: Problem):
     """
     Валидатор, проверит что пользователь является участником проблемы.
     Иначе ошибка 403

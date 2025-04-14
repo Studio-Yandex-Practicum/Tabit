@@ -16,8 +16,8 @@ from src.schemas.constants import (
     PAGE_SIZE_DESCRIPTION,
     SORTING_DESCRIPTION,
     TITLE_LICENSE_TERM,
-    TITLE_MAX_ADMINS_COUNT,
     TITLE_MAX_EMPLOYEES_COUNT,
+    TITLE_MAX_MODERATORS_COUNT,
     TITLE_NAME_LICENSE,
     ZERO,
 )
@@ -58,7 +58,7 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
     max_admins_count: int = Field(
         ...,
         gt=ZERO,
-        title=TITLE_MAX_ADMINS_COUNT,
+        title=TITLE_MAX_MODERATORS_COUNT,
     )
     max_employees_count: int = Field(
         ...,
@@ -83,7 +83,7 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
     max_admins_count: Optional[int] = Field(
         None,
         gt=ZERO,
-        title=TITLE_MAX_ADMINS_COUNT,
+        title=TITLE_MAX_MODERATORS_COUNT,
     )
     max_employees_count: Optional[int] = Field(
         None,

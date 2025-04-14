@@ -2,14 +2,14 @@
 
 Revision ID: 01
 Revises:
-Create Date: 2025-03-06 13:12:00.748127
+Create Date: 2025-04-14 23:42:45.498839
 
 """
 from typing import Sequence, Union
 
 from alembic import op
-import fastapi_users_db_sqlalchemy
 import sqlalchemy as sa
+import fastapi_users_db_sqlalchemy
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
@@ -98,7 +98,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('id'),
     sa.UniqueConstraint('slug')
     )
-    op.create_table('taguser',
+    op.create_table('usertag',
     sa.Column('company_id', sa.Integer(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=30), nullable=False),
@@ -109,10 +109,10 @@ def upgrade() -> None:
     sa.UniqueConstraint('id'),
     sa.UniqueConstraint('name')
     )
-    op.create_table('usertabit',
+    op.create_table('companyuser',
     sa.Column('birthday', sa.Date(), nullable=True),
     sa.Column('telegram_username', sa.String(length=100), nullable=True),
-    sa.Column('role', sa.Enum('ADMIN', 'EMPLOYEE', name='roleusertabit'), nullable=False),
+    sa.Column('role', sa.Enum('MODERATOR', 'EMPLOYEE', name='rolecompanyuser'), nullable=False),
     sa.Column('start_date_employment', sa.Date(), nullable=True),
     sa.Column('end_date_employment', sa.Date(), nullable=True),
     sa.Column('company_id', sa.Integer(), nullable=False),
@@ -135,39 +135,37 @@ def upgrade() -> None:
     sa.Column('is_superuser', sa.Boolean(), nullable=False),
     sa.Column('is_verified', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['company_id'], ['company.id'], ),
-    sa.ForeignKeyConstraint(['current_department_id'], ['department.id'], ),
-    sa.ForeignKeyConstraint(['previous_department_id'], ['department.id'], ),
+    sa.ForeignKeyConstraint(['current_department_id'], ['department.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['previous_department_id'], ['department.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('supervisor', 'current_department_id', name='unique_supervisor'),
     sa.UniqueConstraint('telegram_username')
     )
-    op.create_index(op.f('ix_usertabit_email'), 'usertabit', ['email'], unique=True)
+    op.create_index(op.f('ix_companyuser_email'), 'companyuser', ['email'], unique=True)
     op.create_table('associationusertag',
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ),
-    sa.ForeignKeyConstraint(['right_id'], ['taguser.id'], ),
-    sa.PrimaryKeyConstraint('id', 'left_id', 'right_id'),
-    sa.UniqueConstraint('id')
+    sa.ForeignKeyConstraint(['left_id'], ['companyuser.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['right_id'], ['usertag.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('left_id', 'right_id')
     )
     op.create_table('problem',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
-    sa.Column('company_slug', sa.String(length=25), nullable=False),
+    sa.Column('company_id', sa.Integer(), nullable=False),
     sa.Column('color', sa.Enum('RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'DARK_BLUE', 'VIOLET', 'BROWN', 'GRAY', 'BLACK', 'WHITE', 'PINK', 'BEIGE', 'VINOUS', 'PURPLE', name='colorproblem'), nullable=False),
     sa.Column('type', sa.Enum('A', 'B', 'C', 'D', 'E', 'F', 'G', name='typeproblem'), nullable=False),
     sa.Column('status', sa.Enum('NEW', 'IN_PROGRESS', 'SUSPENDED', 'COMPLETED', name='statusproblem'), nullable=False),
     sa.Column('owner_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['company_slug'], ['company.slug'], ),
-    sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
+    sa.ForeignKeyConstraint(['company_id'], ['company.id'], ),
+    sa.ForeignKeyConstraint(['owner_id'], ['companyuser.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id'),
+    sa.UniqueConstraint('id')
     )
     op.create_table('associationuserproblem',
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
@@ -175,8 +173,8 @@ def upgrade() -> None:
     sa.Column('status', sa.Boolean(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ),
-    sa.ForeignKeyConstraint(['right_id'], ['problem.id'], ),
+    sa.ForeignKeyConstraint(['left_id'], ['companyuser.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['right_id'], ['problem.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('left_id', 'right_id')
     )
     op.create_table('fileproblem',
@@ -201,7 +199,7 @@ def upgrade() -> None:
     sa.Column('transfer_counter', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
+    sa.ForeignKeyConstraint(['owner_id'], ['companyuser.id'], ),
     sa.ForeignKeyConstraint(['problem_id'], ['problem.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
@@ -214,7 +212,7 @@ def upgrade() -> None:
     sa.Column('important', sa.Boolean(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
+    sa.ForeignKeyConstraint(['owner_id'], ['companyuser.id'], ),
     sa.ForeignKeyConstraint(['problem_id'], ['problem.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
@@ -230,32 +228,28 @@ def upgrade() -> None:
     sa.Column('transfer_counter', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
+    sa.ForeignKeyConstraint(['owner_id'], ['companyuser.id'], ),
     sa.ForeignKeyConstraint(['problem_id'], ['problem.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )
     op.create_table('associationusermeeting',
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ),
-    sa.ForeignKeyConstraint(['right_id'], ['meeting.id'], ),
-    sa.PrimaryKeyConstraint('id', 'left_id', 'right_id'),
-    sa.UniqueConstraint('id')
+    sa.ForeignKeyConstraint(['left_id'], ['companyuser.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['right_id'], ['meeting.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('left_id', 'right_id')
     )
     op.create_table('associationusertask',
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['left_id'], ['companyuser.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['right_id'], ['task.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id')
+    sa.PrimaryKeyConstraint('left_id', 'right_id')
     )
     op.create_table('commentfeed',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -266,7 +260,7 @@ def upgrade() -> None:
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['message_id'], ['messagefeed.id'], ),
-    sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
+    sa.ForeignKeyConstraint(['owner_id'], ['companyuser.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )
@@ -300,18 +294,18 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )
-    op.create_table('resultmeeting',
-    sa.Column('id', sa.Integer(), nullable=False),
+    op.create_table('meetingresult',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('meeting_id', sa.Integer(), nullable=False),
     sa.Column('owner_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
-    sa.Column('meeting_result', sa.Enum('EXCELLENT', 'GOOD', 'BADLY', 'DISGUSTING', name='resultmeetingenum'), nullable=False),
-    sa.Column('participant_engagement', sa.Boolean(), nullable=False),
-    sa.Column('problem_solution', sa.Boolean(), nullable=False),
+    sa.Column('meeting_result', sa.Enum('EXCELLENT', 'GOOD', 'BADLY', 'DISGUSTING', name='meetingresultenum'), nullable=False),
+    sa.Column('participant_engagement', sa.Enum('YES', 'MORE_THAN_HALF', 'LESS_THAN_HALF', 'NOBODY', name='resultmeetingengagementenum'), nullable=False),
+    sa.Column('problem_solution', sa.Enum('YES', 'MORE_YES', 'MORE_NO', 'NO', name='resultmeetingsolutionenum'), nullable=False),
     sa.Column('meeting_feedback', sa.Text(), nullable=True),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['meeting_id'], ['meeting.id'], ),
-    sa.ForeignKeyConstraint(['owner_id'], ['usertabit.id'], ),
+    sa.ForeignKeyConstraint(['owner_id'], ['companyuser.id'], ),
     sa.PrimaryKeyConstraint('id', 'meeting_id'),
     sa.UniqueConstraint('id')
     )
@@ -327,15 +321,13 @@ def upgrade() -> None:
     sa.UniqueConstraint('name')
     )
     op.create_table('associationusercomment',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('left_id', fastapi_users_db_sqlalchemy.generics.GUID(), nullable=False),
     sa.Column('right_id', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['left_id'], ['usertabit.id'], ),
-    sa.ForeignKeyConstraint(['right_id'], ['commentfeed.id'], ),
-    sa.PrimaryKeyConstraint('id', 'left_id', 'right_id'),
-    sa.UniqueConstraint('id')
+    sa.ForeignKeyConstraint(['left_id'], ['companyuser.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['right_id'], ['commentfeed.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('left_id', 'right_id')
     )
     op.create_table('votingbyuser',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -343,7 +335,7 @@ def upgrade() -> None:
     sa.Column('voting_id', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['usertabit.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['companyuser.id'], ),
     sa.ForeignKeyConstraint(['voting_id'], ['votingfeed.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
@@ -356,7 +348,7 @@ def downgrade() -> None:
     op.drop_table('votingbyuser')
     op.drop_table('associationusercomment')
     op.drop_table('votingfeed')
-    op.drop_table('resultmeeting')
+    op.drop_table('meetingresult')
     op.drop_table('filetask')
     op.drop_table('filemessage')
     op.drop_table('filemeeting')
@@ -370,9 +362,9 @@ def downgrade() -> None:
     op.drop_table('associationuserproblem')
     op.drop_table('problem')
     op.drop_table('associationusertag')
-    op.drop_index(op.f('ix_usertabit_email'), table_name='usertabit')
-    op.drop_table('usertabit')
-    op.drop_table('taguser')
+    op.drop_index(op.f('ix_companyuser_email'), table_name='companyuser')
+    op.drop_table('companyuser')
+    op.drop_table('usertag')
     op.drop_table('department')
     op.drop_table('company')
     op.drop_index(op.f('ix_tabitadminuser_email'), table_name='tabitadminuser')

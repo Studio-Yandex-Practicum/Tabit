@@ -10,7 +10,7 @@ from src.schemas.constants import (
 )
 
 
-class TagUserUpdateSchema(BaseModel):
+class UserTagUpdateSchema(BaseModel):
     """Схема для частичного изменения тэгов пользователей."""
 
     name: str = Field(
@@ -21,7 +21,7 @@ class TagUserUpdateSchema(BaseModel):
     )
 
 
-class TagUserCreateSchema(TagUserUpdateSchema):
+class UserTagCreateSchema(UserTagUpdateSchema):
     """Схема для создания тэгов пользователей."""
 
     company_id: int = Field(
@@ -30,7 +30,7 @@ class TagUserCreateSchema(TagUserUpdateSchema):
     )
 
 
-class TagUserResponseSchema(BaseModel):
+class UserTagResponseSchema(BaseModel):
     """Схема тэгов пользователей для ответов."""
 
     id: int

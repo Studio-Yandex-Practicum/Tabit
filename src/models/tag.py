@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from src.models import AssociationUserTag, Company
 
 
-class TagUser(BaseTag):
+class UserTag(BaseTag):
     """
     Модель тэгов пользователей.
 
@@ -26,7 +26,7 @@ class TagUser(BaseTag):
         updated_at: Дата изменения записи в таблице. Автозаполнение.
 
     Связи (атрибут - Модель):
-        user - AssociationUserTag -> UserTabit;
+        user - AssociationUserTag -> CompanyUser;
         company - Company.
     """
 

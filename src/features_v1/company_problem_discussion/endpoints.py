@@ -12,7 +12,7 @@ from src.features_v1.validators import (
     get_access_to_comments,
     get_access_to_feeds,
 )
-from src.models import UserTabit
+from src.models import CompanyUser
 from src.schemas import (
     CommentCreate,
     CommentRead,
@@ -36,7 +36,7 @@ async def get_all_threads(
     problem_id: int,
     query_params: FeedsFilterSchema = Depends(),
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
 ) -> list[MessageFeedRead]:
     """
     Получает список всех тредов по проблеме.
@@ -66,7 +66,7 @@ async def create_problem_thread(
     problem_id: int,
     create_data: MessageFeedCreate,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
 ) -> MessageFeedRead:
     """
     Создание треда по проблеме.
@@ -96,7 +96,7 @@ async def get_thread_comments(
     thread_id: int,
     query_params: FeedsFilterSchema = Depends(),
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
 ) -> list[CommentRead]:
     """
     Получить все комментарии треда.
@@ -128,7 +128,7 @@ async def create_thread_comment(
     thread_id: int,
     create_data: CommentCreate,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
 ) -> CommentRead:
     """
     Создание комментария к треду.
@@ -159,7 +159,7 @@ async def update_thread_comment(
     comment_id: int,
     update_data: CommentUpdate,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
 ) -> CommentRead:
     """
     Обновление комментария в треде.
@@ -191,7 +191,7 @@ async def delete_thread_comment(
     thread_id: int,
     comment_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
 ) -> None:
     """
     Удаление комментария в треде.
@@ -222,7 +222,7 @@ async def like_a_comment(
     thread_id: int,
     comment_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
 ) -> None:
     """
     Поставить лайк комментарию в треде.
@@ -254,7 +254,7 @@ async def unlike_a_comment(
     thread_id: int,
     comment_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user: UserTabit = Depends(current_user_tabit),
+    user: CompanyUser = Depends(current_user_tabit),
 ) -> None:
     """
     Убрать лайк с комментария.

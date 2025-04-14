@@ -37,7 +37,7 @@ class ProblemFactory(AsyncSQLAlchemyFactory):
         - `type`: Обязательное поле. Генерируется случайным выбором из `TypeProblem`.
         - `status`: Обязательное поле. Генерируется случайным выбором из `StatusProblem`.
         - `owner_id`: Обязательное поле. \
-            Должен быть создан объект `UserTabit`, чтобы передать полю id (типа uuid).
+            Должен быть создан объект `CompanyUser`, чтобы передать полю id (типа uuid).
     """
 
     name: factory.LazyFunction = factory.LazyFunction(lambda: choice(DEFAULT_PROBLEM_NAMES))
