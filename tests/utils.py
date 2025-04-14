@@ -6,7 +6,7 @@ from sqlalchemy import and_, select
 from sqlalchemy.engine import ChunkedIteratorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.problems.models import AssociationUserComment
+from src.models import AssociationUserComment
 
 
 def is_valid_uuid(value: Any) -> bool:

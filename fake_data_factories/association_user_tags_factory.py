@@ -5,13 +5,13 @@ from termcolor import cprint
 
 from fake_data_factories.constants import ColorCPrint
 from fake_data_factories.utils import start_and_end
-from src.database.sc_db_session import sc_session
-from src.users.models import AssociationUserTags
+from src.core.database.sc_db_session import sc_session
+from src.models import AssociationUserTag
 
 
-class AssociationUserTagsFactory(AsyncSQLAlchemyFactory):
+class AssociationUserTagFactory(AsyncSQLAlchemyFactory):
     """
-    Фабрика для генерации данных ассоциативной модели AssociationUserTags.
+    Фабрика для генерации данных ассоциативной модели AssociationUserTag.
 
     Поля:
         left_id: Идентификатор пользователя.
@@ -22,7 +22,7 @@ class AssociationUserTagsFactory(AsyncSQLAlchemyFactory):
     right_id: int
 
     class Meta:
-        model = AssociationUserTags
+        model = AssociationUserTag
         sqlalchemy_session = sc_session
 
 
@@ -36,7 +36,7 @@ async def create_user_tag_associations(user_id: UUID, tag_ids: list[int]) -> Non
         - tags_ids: список идентификаторов тэгов.
     """
     for tag_id in tag_ids:
-        await AssociationUserTagsFactory(left_id=user_id, right_id=tag_id)
+        await AssociationUserTagFactory(left_id=user_id, right_id=tag_id)
     cprint(
         f'Создано {len(tag_ids)} ассоциативных связей тэг-пользователь '
         f'от пользователя с id: {user_id}',

@@ -6,7 +6,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from src.constants import Directory
+from src.core.constants import Directory
 from tests.constants import IMAGE_BASE64_JPG, IMAGE_BASE64_PNG, INVALID_IMAGE, ONE, URL
 
 

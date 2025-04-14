@@ -112,10 +112,14 @@ migration-rollback: ## Откатить последнюю миграцию
 
 # Управление базой данных
 db-reset: ## Полный сброс базы данных и реинициализация
-	clean-volumes up migration-apply
+	make clean-volumes up
+	sleep 3
+	make migration-apply
 
-db-init: ## Полный процесс инициализации базы данных
-	up init-migration migration-apply
+db-init: ## Полный процесс инициализации базы данных (работает только при отсутствии файлов миграций)
+	make up
+	sleep 3
+	make migration-init migration-apply
 
 # Генерация тестовых данных
 create-superuser: ## Создание суперпользователя

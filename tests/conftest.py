@@ -14,15 +14,24 @@ from slugify import slugify
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from src.companies.models.models import Company, Department
-from src.database.db_depends import get_async_session
-from src.database.models import BaseTabitModel as Base
+from src.core.database.db_depends import get_async_session
 from src.main import app_v1
-from src.problems.models import CommentFeed, Meeting, MessageFeed, Problem
-from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
-from src.tabit_management.models import LicenseType, TabitAdminUser
-from src.users.models import UserTabit
-from src.users.models.enum import RoleUserTabit
+from src.models import (
+    BaseTabitModel,
+    CommentFeed,
+    Company,
+    CompanyUser,
+    CompanyUserRole,
+    Department,
+    LicenseType,
+    Meeting,
+    MessageFeed,
+    Problem,
+    ProblemColor,
+    ProblemStatus,
+    ProblemType,
+    TabitAdminUser,
+)
 from tests.constants import GOOD_PASSWORD, TEST_DATABASE_URL, URL
 
 
@@ -131,11 +140,11 @@ def test_db():
 
     async def init_db():
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+            await conn.run_sync(BaseTabitModel.metadata.create_all)
 
     async def drop_db():
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(BaseTabitModel.metadata.drop_all)
         await engine.dispose()
 
     pytest.db_engine = engine
@@ -361,8 +370,8 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
           вместе с пользователем.
 
     Возвращает:
-        - UserTabit: Объект созданного пользователя.
-        - (UserTabit, Company): Если `return_company=True`, возвращает кортеж
+        - CompanyUser: Объект созданного пользователя.
+        - (CompanyUser, Company): Если `return_company=True`, возвращает кортеж
           (пользователь, компания).
 
     Примеры использования:
@@ -370,7 +379,7 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
         employee = await employee_of_company()
 
         # Создание пользователя с кастомными параметрами
-        employee = await employee_of_company({'name': 'Джон', 'role': RoleUserTabit.MANAGER})
+        employee = await employee_of_company({'name': 'Джон', 'role': CompanyUserRole.MANAGER})
 
         # Получение пользователя и компании
         employee, company = await employee_of_company(return_company=True)
@@ -395,12 +404,12 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
             'is_active': True,
             'is_superuser': False,
             'is_verified': False,
-            'role': RoleUserTabit.EMPLOYEE,
+            'role': CompanyUserRole.EMPLOYEE,
             'company_id': company_id,
         }
         if user_data:
             default_data.update(user_data)
-        employee = await make_entry_in_table(async_session, default_data, UserTabit)
+        employee = await make_entry_in_table(async_session, default_data, CompanyUser)
 
         if return_company:
             return employee, company
@@ -421,8 +430,8 @@ async def moderator_of_company(employee_of_company):
           вместе с модератором.
 
     Возвращает:
-        - UserTabit: Объект созданного модератора.
-        - (UserTabit, Company): Если `return_company=True`, возвращает кортеж
+        - CompanyUser: Объект созданного модератора.
+        - (CompanyUser, Company): Если `return_company=True`, возвращает кортеж
           (модератор, компания).
 
     Примеры использования:
@@ -433,7 +442,7 @@ async def moderator_of_company(employee_of_company):
         moderator = await moderator_of_company({
             'name': 'Иван',
             'email': 'ivan@example.com',
-            'role': RoleUserTabit.ADMIN
+            'role': CompanyUserRole.MODERATOR
         })
 
         # Получение модератора и компании
@@ -443,7 +452,7 @@ async def moderator_of_company(employee_of_company):
     async def _create_moderator(moderator_data=None, return_company=False):
         """Функция-обёртка для модератора тестовой компании с изменяемыми параметрами."""
         default = moderator_data or {}
-        default['role'] = RoleUserTabit.ADMIN
+        default['role'] = CompanyUserRole.MODERATOR
 
         if return_company:
             return await employee_of_company(default, return_company=True)
@@ -581,7 +590,7 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
 
     Возвращает:
         - Problem: Объект созданной проблемы.
-        - (Problem, UserTabit, Company): Если `return_all_objects=True`,
+        - (Problem, CompanyUser, Company): Если `return_all_objects=True`,
            возвращает кортеж (проблема, сотрудник, компания).
 
     Примеры использования:
@@ -591,8 +600,8 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
         # Создание проблемы с кастомными параметрами
         problem = await problem_for_test({
             'name': 'Важная проблема',
-            'color': ColorProblem.RED,
-            'type': TypeProblem.A
+            'color': ProblemColor.RED,
+            'type': ProblemType.A
         })
 
         # Получение проблемы, сотрудника и компании
@@ -623,9 +632,9 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
         default_data = {
             'name': 'проблема',
             'description': 'описание проблемы',
-            'color': ColorProblem.RED,
-            'type': TypeProblem.B,
-            'status': StatusProblem.NEW,
+            'color': ProblemColor.RED,
+            'type': ProblemType.B,
+            'status': ProblemStatus.NEW,
             'owner_id': owner_id,
             'company_id': company_id,
         }
@@ -654,7 +663,7 @@ async def message_feed_for_test(async_session: AsyncSession, problem_for_test):
 
     Возвращает:
         - MessageFeed: Объект созданного треда.
-        - (MessageFeed, Problem, UserTabit, Company): Если `return_all_objects=True`,
+        - (MessageFeed, Problem, CompanyUser, Company): Если `return_all_objects=True`,
            возвращает кортеж (тред, проблема, сотрудник, компания).
 
     Примеры использования:
@@ -726,8 +735,9 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
 
     Возвращает:
         - CommentFeed: Объект созданного комментария.
-        - (CommentFeed, MessageFeed, Problem, UserTabit, Company): Если `return_all_objects=True`,
-           возвращает кортеж (комментарий, тред, проблема, сотрудник, компания).
+        - (CommentFeed, MessageFeed, Problem, CompanyUser, Company):
+            Если `return_all_objects=True`, возвращает кортеж
+            (комментарий, тред, проблема, сотрудник, компания).
 
     Примеры использования:
         # Создание комментария только с обязательными полями
@@ -800,7 +810,7 @@ async def meeting_for_test(async_session: AsyncSession, problem_for_test):
 
     Возвращает:
         - Meeting: Объект созданной встречи.
-        - (Meeting, Problem, UserTabit, Company): Если `return_all_objects=True`,
+        - (Meeting, Problem, CompanyUser, Company): Если `return_all_objects=True`,
            возвращает кортеж (встреча, проблема, сотрудник, компания).
 
     Примеры использования:

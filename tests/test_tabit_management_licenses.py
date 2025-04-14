@@ -5,8 +5,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from src.constants import LENGTH_NAME_USER
-from src.tabit_management.constants import DEFAULT_PAGE_SIZE
+from src.core.constants import DEFAULT_PAGE_SIZE, LENGTH_NAME_USER
 from tests.constants import URL
 
 

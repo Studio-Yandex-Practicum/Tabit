@@ -11,8 +11,8 @@ from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
 from fake_data_factories.voting_feed_factory import create_voting_feeds
-from src.database.sc_db_session import sc_session
-from src.problems.models.message_models import VotingByUser
+from src.core.database.sc_db_session import sc_session
+from src.models import VotingByUser
 
 
 class VotingByUserFactory(AsyncSQLAlchemyFactory):
@@ -21,7 +21,7 @@ class VotingByUserFactory(AsyncSQLAlchemyFactory):
 
     Поля:
         - `user_id`: Обязательное поле. \
-            Должен быть создан объект `UserTabit`, чтобы передать полю uuid.
+            Должен быть создан объект `CompanyUser`, чтобы передать полю uuid.
         - `voting_id`: Обязательное поле. \
             Должен быть создан объект `VotingFeed`, чтобы передать полю id.
     """

@@ -17,9 +17,8 @@ from fake_data_factories.constants import (
 )
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.utils import start_and_end
-from src.database.sc_db_session import sc_session
-from src.problems.models.message_models import CommentFeed, MessageFeed
-from src.users.models.models import UserTabit
+from src.core.database.sc_db_session import sc_session
+from src.models import CommentFeed, CompanyUser, MessageFeed
 
 
 class CommentFeedFactory(AsyncSQLAlchemyFactory):
@@ -70,7 +69,7 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
         message = result.scalar()
     if 'owner_id' not in kwargs:
         result = await sc_session.execute(
-            select(UserTabit).where(UserTabit.id == message.owner_id)
+            select(CompanyUser).where(CompanyUser.id == message.owner_id)
         )
         message_owner = result.scalar()
         comment_owners = await create_company_users(

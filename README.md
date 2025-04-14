@@ -502,7 +502,7 @@ docker compose -f infra/local/docker-compose.local.yaml --profile '*' down -v
 
 1. Импортируйте логгер:
    ```python
-   from src.logger import logger
+   from src.core.config.logging import logger
    ```
 
 2. Добавьте логи нужного уровня:

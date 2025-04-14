@@ -3,8 +3,8 @@ from fastapi import status
 from httpx import AsyncClient
 from pytest_lazy_fixtures import lf
 
-from src.tabit_management.constants import ERROR_INVALID_TELEGRAM_USERNAME
-from src.users.models.enum import RoleUserTabit
+from src.core.constants import ERROR_INVALID_TELEGRAM_USERNAME
+from src.models import CompanyUserRole
 from tests.constants import (
     GOOD_PASSWORD,
     MODERATOR_TELEGRAM,
@@ -34,9 +34,9 @@ class TestLoginUser:
         """Тест на вход в систему пользователей сервиса с валидными данными."""
         login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
         response = await client.post(URL.USER_LOGIN, data=login_payload)
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'При авторизации {text} у ответа должен быть статус 200:\n{response.text}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'При авторизации {text} у ответа должен быть статус 200:\n{response.text}'
+        )
         result = response.json()
         for key in ('access_token', 'refresh_token', 'token_type'):
             assert key in result, f'В теле ответа нет ключа {key}'
@@ -57,9 +57,9 @@ class TestLoginUser:
         """
         login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
         response = await client.post(URL.USER_LOGIN, data=login_payload)
-        assert (
-            response.status_code == status.HTTP_400_BAD_REQUEST
-        ), f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
+        )
         result = response.json()
         assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -79,9 +79,9 @@ class TestLoginUser:
         )
         for bad_login_payload in bad_login_payloads:
             response = await client.post(URL.ADMIN_LOGIN, data=bad_login_payload)
-            assert (
-                response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-            ), f'Не корректный ответ с данными\n{bad_login_payload}\n{response.text}'
+            assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
+                f'Не корректный ответ с данными\n{bad_login_payload}\n{response.text}'
+            )
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -90,9 +90,9 @@ class TestLoginUser:
         """Тест на вход в систему пользователей сервиса под неверным паролем."""
         login_payload = {'username': employee.email, 'password': f'NOT {GOOD_PASSWORD}'}
         response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
-        assert (
-            response.status_code == status.HTTP_400_BAD_REQUEST
-        ), f'Не корректный ответ с данными\n{login_payload}\n{response.text}'
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
+            f'Не корректный ответ с данными\n{login_payload}\n{response.text}'
+        )
         result = response.json()
         assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -115,9 +115,9 @@ class TestLogoutUser:
     async def test_logout_user(self, client: AsyncClient, token, text):
         """Тест на выход из системы пользователей сервиса."""
         response = await client.post(URL.USER_LOGOUT, headers=token)
-        assert (
-            response.status_code == status.HTTP_204_NO_CONTENT
-        ), f'При выходе из системы {text} должен быть статус ответа 204:\n{response.text}'
+        assert response.status_code == status.HTTP_204_NO_CONTENT, (
+            f'При выходе из системы {text} должен быть статус ответа 204:\n{response.text}'
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -131,9 +131,9 @@ class TestLogoutUser:
     async def test_logout_user_not_access(self, client: AsyncClient, token, text):
         """Тест на выход из системы пользователей сервиса."""
         response = await client.post(URL.USER_LOGOUT, headers=token)
-        assert (
-            response.status_code == status.HTTP_401_UNAUTHORIZED
-        ), f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED, (
+            f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
+        )
 
 
 class TestRefreshTokenUser:
@@ -159,9 +159,9 @@ class TestRefreshTokenUser:
     ):
         """Тест получения нового токена по refresh-token для пользователя сервиса Tabit."""
         response = await client.post(URL.USER_REFRESH, headers=token)
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'При получение токена {text} у ответа должен быть статус 200:\n{response.text}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'При получение токена {text} у ответа должен быть статус 200:\n{response.text}'
+        )
         result = response.json()
         for key in ('access_token', 'refresh_token', 'token_type'):
             assert key in result, f'В теле ответа нет ключа {key}'
@@ -206,8 +206,8 @@ class TestGetMeUser:
     @pytest.mark.parametrize(
         'token, role, text',
         [
-            (lf('moderator_token'), RoleUserTabit.ADMIN, 'модератором от компании'),
-            (lf('employee_token'), RoleUserTabit.EMPLOYEE, 'сотрудником компании'),
+            (lf('moderator_token'), CompanyUserRole.MODERATOR, 'модератором от компании'),
+            (lf('employee_token'), CompanyUserRole.EMPLOYEE, 'сотрудником компании'),
         ],
     )
     async def test_get_me_user(
@@ -242,7 +242,7 @@ class TestGetMeUser:
             'avatar_link',
             'company_id',
             'current_department_id',
-            'last_department_id',
+            'previous_department_id',
             'department_transition_date',
             'employee_position',
             'created_at',
@@ -261,7 +261,7 @@ class TestGetMeUser:
                     'end_date_employment',
                     'avatar_link',
                     'current_department_id',
-                    'last_department_id',
+                    'previous_department_id',
                     'department_transition_date',
                     'employee_position',
                 )
@@ -270,13 +270,13 @@ class TestGetMeUser:
                 f'Значение ключа {key} не должно быть пустым или быть null при запросе {text}:'
                 f'\n{data}'
             )
-        assert (
-            data['role'] == role
-        ), f'Роль пользователя {role} не соответствует роли в ответе: {data["role"]}'
+        assert data['role'] == role, (
+            f'Роль пользователя {role} не соответствует роли в ответе: {data["role"]}'
+        )
         for key in ('password', 'hashed_password'):
-            assert (
-                key not in data
-            ), f'Значение ключа {key} не должно быть в теле ответа при запросе {text}:\n{data}'
+            assert key not in data, (
+                f'Значение ключа {key} не должно быть в теле ответа при запросе {text}:\n{data}'
+            )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -353,13 +353,13 @@ class TestPatchMeUser:
         data_after = response_patch.json()
         for key in data_before:
             if key in payload:
-                assert (
-                    data_after[key] == payload[key]
-                ), f'При изменение своих личных данных {text} значение {key} не поменялось.'
+                assert data_after[key] == payload[key], (
+                    f'При изменение своих личных данных {text} значение {key} не поменялось.'
+                )
             elif key == 'updated_at':
-                assert (
-                    data_after[key] != data_before[key]
-                ), f'При изменение своих личных данных {text} значение {key} не поменялось.'
+                assert data_after[key] != data_before[key], (
+                    f'При изменение своих личных данных {text} значение {key} не поменялось.'
+                )
             else:
                 assert data_after[key] == data_before[key], (
                     f'При изменение своих личных данных {text} значение {key} поменялось, '

@@ -3,7 +3,7 @@ from typing import Any, Callable
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
-from src.config import Settings
+from src.core.config.app import Settings
 
 
 def get_tabit_openapi(app: FastAPI, settings: Settings) -> Callable:

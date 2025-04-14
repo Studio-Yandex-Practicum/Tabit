@@ -10,9 +10,9 @@ from fake_data_factories.constants import FAKER_VOTING_FEEDS_COUNT, ColorCPrint
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
-from src.constants import LENGTH_SMALL_NAME
-from src.database.sc_db_session import sc_session
-from src.problems.models.message_models import VotingFeed
+from src.core.constants import LENGTH_SMALL_NAME
+from src.core.database.sc_db_session import sc_session
+from src.models import VotingFeed
 
 
 class VotingFeedFactory(AsyncSQLAlchemyFactory):

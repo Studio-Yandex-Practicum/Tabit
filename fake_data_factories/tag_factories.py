@@ -4,16 +4,16 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from constants import FAKER_USER_TAGS_COUNT, ColorCPrint
 from fake_data_factories.association_user_tags_factory import create_user_tag_associations
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
+from fake_data_factories.constants import FAKER_USER_TAGS_COUNT, ColorCPrint
 from fake_data_factories.utils import start_and_end
-from src.database.sc_db_session import sc_session
-from src.users.models import TagUser
+from src.core.database.sc_db_session import sc_session
+from src.models import UserTag
 
 
-class TagUserFactory(AsyncSQLAlchemyFactory):
+class UserTagFactory(AsyncSQLAlchemyFactory):
     """
     Фабрика для генерации тэгов пользователей.
 
@@ -26,7 +26,7 @@ class TagUserFactory(AsyncSQLAlchemyFactory):
     company_id: int
 
     class Meta:
-        model = TagUser
+        model = UserTag
         sqlalchemy_session = sc_session
 
 
@@ -45,7 +45,7 @@ async def create_tags(count: int = FAKER_USER_TAGS_COUNT, **kwargs) -> None:
     if 'company_id' not in kwargs:
         company = next(iter(await create_companies(1)), None)
         kwargs['company_id'] = company.id
-    tags = await TagUserFactory.create_batch(count, company_id=kwargs['company_id'])
+    tags = await UserTagFactory.create_batch(count, company_id=kwargs['company_id'])
     cprint(
         f'Создано {count} тэгов для компании c id: {kwargs["company_id"]}',
         ColorCPrint.green,  # type: ignore

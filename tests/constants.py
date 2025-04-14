@@ -5,8 +5,8 @@ from typing import Any
 from dotenv import load_dotenv
 from fastapi import status
 
-from src.constants import TextError
-from src.users.models.enum import RoleUserTabit
+from src.core.constants import TextError
+from src.models.enum import CompanyUserRole
 
 load_dotenv()
 
@@ -35,9 +35,9 @@ class URL:
     USER_REFRESH: str = '/api/v1/auth/refresh-token'
     COMPANIES_ENDPOINT: str = '/api/v1/admin/companies/'
     LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
-    MEETINGS_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings'
+    MEETINGS_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/'
     MEETINGS_SINGLE: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/{meeting_id}'
-    COMPANY_ENDPOINT: str = '/api/v1/{company_slug}'
+    COMPANY_ENDPOINT: str = '/api/v1/{company_slug}/'
     DEPARTMENTS_ENDPOINT: str = '/api/v1/{company_slug}/departments'
     DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments/{department_slug}'
     CREATE_DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments'
@@ -164,12 +164,12 @@ PAYLOAD_FOR_PATCH_USER_EXTRA: dict = {
     'is_active': False,
     'is_superuser': True,
     'is_verified': False,
-    'role': RoleUserTabit.ADMIN,
+    'role': CompanyUserRole.MODERATOR,
     'start_date_employment': '1776-05-01',
     'end_date_employment': '1776-05-01',
     'company_id': 1776,
     'current_department_id': 1776,
-    'last_department_id': 1776,
+    'previous_department_id': 1776,
     'department_transition_date': '1776-05-01',
     'employee_position': 'Минервал',
     'created_at': '1776-05-01 00:00:01.000 +0100',
@@ -276,7 +276,7 @@ EMPLOYEE_FIELDS = {
     'avatar_link',
     'company_id',
     'current_department_id',
-    'last_department_id',
+    'previous_department_id',
     'department_transition_date',
     'employee_position',
     'created_at',

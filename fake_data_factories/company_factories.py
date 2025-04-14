@@ -8,9 +8,9 @@ from termcolor import cprint
 
 from fake_data_factories.constants import FAKER_COMPANY_COUNT, ColorCPrint
 from fake_data_factories.utils import start_and_end
-from src.database.alembic_models import Company
-from src.database.sc_db_session import sc_session
-from src.logger import fake_db_logger
+from src.core.config.logging import fake_db_logger
+from src.core.database.sc_db_session import sc_session
+from src.models import Company
 
 
 class CompanyFactory(AsyncSQLAlchemyFactory):
