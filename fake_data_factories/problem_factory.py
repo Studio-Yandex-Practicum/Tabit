@@ -19,7 +19,7 @@ from fake_data_factories.constants import (
 )
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
-from src.models import ColorProblem, Problem, StatusProblem, TypeProblem
+from src.models import Problem, ProblemColor, ProblemStatus, ProblemType
 
 
 class ProblemFactory(AsyncSQLAlchemyFactory):
@@ -33,9 +33,9 @@ class ProblemFactory(AsyncSQLAlchemyFactory):
             Генерируется случайным выбором из `DEFAULT_PROBLEM_DESCRIPTIONS`.
         - `company_id`: Обязательное поле. \
             Должен быть создан объект Company, чтобы передать полю slug.
-        - `color`: Обязательное поле. Генерируется случайным выбором из `ColorProblem`.
-        - `type`: Обязательное поле. Генерируется случайным выбором из `TypeProblem`.
-        - `status`: Обязательное поле. Генерируется случайным выбором из `StatusProblem`.
+        - `color`: Обязательное поле. Генерируется случайным выбором из `ProblemColor`.
+        - `type`: Обязательное поле. Генерируется случайным выбором из `ProblemType`.
+        - `status`: Обязательное поле. Генерируется случайным выбором из `ProblemStatus`.
         - `owner_id`: Обязательное поле. \
             Должен быть создан объект `CompanyUser`, чтобы передать полю id (типа uuid).
     """
@@ -45,9 +45,9 @@ class ProblemFactory(AsyncSQLAlchemyFactory):
         lambda: choice(DEFAULT_PROBLEM_DESCRIPTIONS)
     )
     company_id: int
-    color: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(ColorProblem)))
-    type: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(TypeProblem)))
-    status: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(StatusProblem)))
+    color: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(ProblemColor)))
+    type: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(ProblemType)))
+    status: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(ProblemStatus)))
     owner_id: UUID
 
     class Meta:

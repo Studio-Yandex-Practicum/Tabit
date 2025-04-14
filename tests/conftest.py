@@ -18,19 +18,19 @@ from src.core.database.db_depends import get_async_session
 from src.main import app_v1
 from src.models import (
     BaseTabitModel,
-    ColorProblem,
     CommentFeed,
     Company,
     CompanyUser,
+    CompanyUserRole,
     Department,
     LicenseType,
     Meeting,
     MessageFeed,
     Problem,
-    RoleCompanyUser,
-    StatusProblem,
+    ProblemColor,
+    ProblemStatus,
+    ProblemType,
     TabitAdminUser,
-    TypeProblem,
 )
 from tests.constants import GOOD_PASSWORD, TEST_DATABASE_URL, URL
 
@@ -379,7 +379,7 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
         employee = await employee_of_company()
 
         # Создание пользователя с кастомными параметрами
-        employee = await employee_of_company({'name': 'Джон', 'role': RoleCompanyUser.MANAGER})
+        employee = await employee_of_company({'name': 'Джон', 'role': CompanyUserRole.MANAGER})
 
         # Получение пользователя и компании
         employee, company = await employee_of_company(return_company=True)
@@ -404,7 +404,7 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
             'is_active': True,
             'is_superuser': False,
             'is_verified': False,
-            'role': RoleCompanyUser.EMPLOYEE,
+            'role': CompanyUserRole.EMPLOYEE,
             'company_id': company_id,
         }
         if user_data:
@@ -442,7 +442,7 @@ async def moderator_of_company(employee_of_company):
         moderator = await moderator_of_company({
             'name': 'Иван',
             'email': 'ivan@example.com',
-            'role': RoleCompanyUser.MODERATOR
+            'role': CompanyUserRole.MODERATOR
         })
 
         # Получение модератора и компании
@@ -452,7 +452,7 @@ async def moderator_of_company(employee_of_company):
     async def _create_moderator(moderator_data=None, return_company=False):
         """Функция-обёртка для модератора тестовой компании с изменяемыми параметрами."""
         default = moderator_data or {}
-        default['role'] = RoleCompanyUser.MODERATOR
+        default['role'] = CompanyUserRole.MODERATOR
 
         if return_company:
             return await employee_of_company(default, return_company=True)
@@ -600,8 +600,8 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
         # Создание проблемы с кастомными параметрами
         problem = await problem_for_test({
             'name': 'Важная проблема',
-            'color': ColorProblem.RED,
-            'type': TypeProblem.A
+            'color': ProblemColor.RED,
+            'type': ProblemType.A
         })
 
         # Получение проблемы, сотрудника и компании
@@ -632,9 +632,9 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
         default_data = {
             'name': 'проблема',
             'description': 'описание проблемы',
-            'color': ColorProblem.RED,
-            'type': TypeProblem.B,
-            'status': StatusProblem.NEW,
+            'color': ProblemColor.RED,
+            'type': ProblemType.B,
+            'status': ProblemStatus.NEW,
             'owner_id': owner_id,
             'company_id': company_id,
         }

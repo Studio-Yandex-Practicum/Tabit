@@ -7,7 +7,7 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
 
-from src.models import BaseUser, RoleCompanyUser
+from src.models import BaseUser, CompanyUserRole
 from src.models.annotations import url_link_field
 from src.models.constants import LENGTH_TELEGRAM_USERNAME
 
@@ -84,7 +84,7 @@ class CompanyUser(BaseUser):
     telegram_username: Mapped[Optional[str]] = mapped_column(
         String(LENGTH_TELEGRAM_USERNAME), unique=True, nullable=True
     )
-    role: Mapped['RoleCompanyUser']
+    role: Mapped['CompanyUserRole']
     start_date_employment: Mapped[Optional[date]]
     end_date_employment: Mapped[Optional[date]]
     tags: Mapped[List['AssociationUserTag']] = relationship(back_populates='user')

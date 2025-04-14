@@ -9,9 +9,9 @@ from src.models import (
     AssociationUserMeeting,
     CompanyUser,
     Meeting,
+    MeetingStatus,
     Problem,
-    StatusMeeting,
-    StatusProblem,
+    ProblemStatus,
 )
 from src.schemas import (
     MeetingCreateSchema,
@@ -46,7 +46,7 @@ class CRUDMeeting(CRUDBaseWithAssociations):
         default_data = {
             'problem_id': problem.id,
             'owner_id': owner.id,
-            'status': StatusMeeting.NEW,
+            'status': MeetingStatus.NEW,
             'transfer_counter': ZERO,
         }
         meeting_data.update(default_data)
@@ -65,8 +65,8 @@ class CRUDMeeting(CRUDBaseWithAssociations):
                 ]
                 session.add_all(associations_data)
 
-            if problem.status == StatusProblem.NEW:
-                problem.status = StatusProblem.IN_PROGRESS
+            if problem.status == ProblemStatus.NEW:
+                problem.status = ProblemStatus.IN_PROGRESS
                 session.add(problem)
             await session.commit()
             await session.refresh(meeting_db)

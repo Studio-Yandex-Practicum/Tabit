@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException
 
 from src.core.auth.jwt import tabit_admin, tabit_user
 from src.core.constants import TextError
-from src.models import CompanyUser, RoleCompanyUser
+from src.models import CompanyUser, CompanyUserRole
 
 # Зависимость. Проверит, является ли пользователь суперпользователем. Вернет этого пользователя.
 current_superuser = tabit_admin.current_user(active=True, superuser=True)
@@ -27,7 +27,7 @@ def current_company_admin(
     """
     # TODO: Не проверялось. В бд хранится название переменной - MODERATOR,
     # а не её значение - 'Модератор'.
-    if not user.role == RoleCompanyUser.MODERATOR:
+    if not user.role == CompanyUserRole.MODERATOR:
         raise HTTPException(
             status_code=HTTPStatus.FORBIDDEN,
             detail=message,

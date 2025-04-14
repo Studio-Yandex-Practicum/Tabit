@@ -56,11 +56,11 @@ from src.models import (
     CompanyUser,
     Department,
     Meeting,
+    MeetingStatus,
     Problem,
-    StatusMeeting,
-    StatusProblem,
-    StatusTask,
+    ProblemStatus,
     Task,
+    TaskStatus,
 )
 from src.schemas import UserCreateSchema
 
@@ -387,7 +387,7 @@ def validate_close_problem(problem: Problem):
     Валидатор, проверит что проблема ещё не решена.
     Иначе ошибка 422
     """
-    if problem.status == StatusProblem.COMPLETED:
+    if problem.status == ProblemStatus.COMPLETED:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=TextError.CLOSE_PROBLEM,
@@ -583,7 +583,7 @@ def validate_meeting_was_held(meeting: Meeting):
     Валидатор, проверит что встреча не проведена.
     Иначе ошибка 422
     """
-    if meeting.status == StatusMeeting.HELD:
+    if meeting.status == MeetingStatus.HELD:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=TextError.MEETING_WAS_HELD,
@@ -596,7 +596,7 @@ def validate_task_completed(task: Task):
 
     Иначе ошибка 422
     """
-    if task.status == StatusTask.COMPLETED:
+    if task.status == TaskStatus.COMPLETED:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=TextError.TASK_COMPLETED,

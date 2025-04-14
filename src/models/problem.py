@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.models import BaseTabitModel, ColorProblem, StatusProblem, TypeProblem
+from src.models import BaseTabitModel, ProblemColor, ProblemStatus, ProblemType
 from src.models.annotations import description, int_pk, name_problem, owner
 
 if TYPE_CHECKING:
@@ -53,9 +53,9 @@ class Problem(BaseTabitModel):
     description: Mapped[description]
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'), nullable=False)
     company: Mapped['Company'] = relationship(back_populates='problems')
-    color: Mapped['ColorProblem']
-    type: Mapped['TypeProblem']
-    status: Mapped['StatusProblem']
+    color: Mapped['ProblemColor']
+    type: Mapped['ProblemType']
+    status: Mapped['ProblemStatus']
     # TODO: Не думаю, что нужно удалять проблему, если будет удален пользователь, создавший её.
     # Но вот если удалят компанию - должна удалятся. Можно реализовать за счет связей.
     owner_id: Mapped[owner]

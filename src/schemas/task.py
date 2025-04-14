@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.models import StatusTask
+from src.models import TaskStatus
 from src.schemas.validators.task import (
     validate_date_in_future,
     validate_name,
@@ -88,7 +88,7 @@ class TaskResponseSchema(BaseModel):
     owner_id: UUID
     problem_id: int
     executors: list[ExecutorsResponseSchema]
-    status: StatusTask
+    status: TaskStatus
     transfer_counter: int
 
     model_config = ConfigDict(from_attributes=True)
@@ -127,4 +127,4 @@ class TaskUpdateSchema(TaskSchemaMixin, TaskBaseSchema):
 
     name: str | None = None
     date_completion: date | None = None
-    status: StatusTask | None = None
+    status: TaskStatus | None = None

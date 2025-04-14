@@ -3,7 +3,7 @@
 from enum import IntEnum, StrEnum
 
 
-class ColorProblem(IntEnum):
+class ProblemColor(IntEnum):
     """Варианты значений поля color модели Problem."""
 
     RED = 1
@@ -23,7 +23,7 @@ class ColorProblem(IntEnum):
     PURPLE = 15
 
 
-class TypeProblem(StrEnum):
+class ProblemType(StrEnum):
     """Варианты значений поля type модели Problem."""
 
     # TODO: Нужно уточнить варианты и уже тогда придумывать названия констант.
@@ -37,7 +37,7 @@ class TypeProblem(StrEnum):
     G = 'Опытные сотрудники'
 
 
-class StatusProblem(StrEnum):
+class ProblemStatus(StrEnum):
     """Варианты значений поля status модели Problem."""
 
     NEW = 'Новая'
@@ -46,7 +46,7 @@ class StatusProblem(StrEnum):
     COMPLETED = 'Завершена'
 
 
-class StatusMeeting(StrEnum):
+class MeetingStatus(StrEnum):
     """Варианты значений поля status модели Meeting."""
 
     NEW = 'Новая'
@@ -64,7 +64,7 @@ class MeetingResultEnum(StrEnum):
     DISGUSTING = 'Отвратительно'
 
 
-class StatusTask(StrEnum):
+class TaskStatus(StrEnum):
     """Варианты значений поля status модели Task."""
 
     NEW = 'Новая'
@@ -73,7 +73,7 @@ class StatusTask(StrEnum):
     COMPLETED = 'Завершена'
 
 
-class RoleCompanyUser(StrEnum):
+class CompanyUserRole(StrEnum):
     """Варианты значений поля role модели CompanyUser."""
 
     MODERATOR = 'Модератор'

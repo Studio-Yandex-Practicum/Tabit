@@ -4,7 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.models import (
-    StatusMeeting,
+    MeetingStatus,
 )
 from src.schemas.validators.problem_meeting import validate_date, validate_not_empty
 
@@ -76,7 +76,7 @@ class MeetingUpdateSchema(MeetingSchemaMixin, MeetingBaseSchema):
     title: str | None = None
     date_meeting: date | None = None
     place: str | None = None
-    status: StatusMeeting | None = None
+    status: MeetingStatus | None = None
     members: list[UUID] | None = []
 
 
@@ -119,7 +119,7 @@ class MeetingResponseSchema(MeetingBaseSchema):
     problem_id: int
     owner_id: UUID
     date_meeting: date
-    status: StatusMeeting
+    status: MeetingStatus
     place: str
     members: list[MemberResponseSchema]
     transfer_counter: int

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.models import ColorProblem, StatusProblem, TypeProblem
+from src.models import ProblemColor, ProblemStatus, ProblemType
 from src.schemas.validators.problem import validate_not_empty
 
 
@@ -64,9 +64,9 @@ class ProblemResponseSchema(ProblemBaseSchema):
         id: Уникальный идентификатор проблемы.
         name: Название проблемы.
         description: Описание проблемы (опционально).
-        color: Цвет проблемы из перечисления ColorProblem.
-        type: Тип проблемы из перечисления TypeProblem.
-        status: Статус проблемы из перечисления StatusProblem.
+        color: Цвет проблемы из перечисления ProblemColor.
+        type: Тип проблемы из перечисления ProblemType.
+        status: Статус проблемы из перечисления ProblemStatus.
         owner_id: UUID владельца проблемы.
         company_id: id компании, с которой связана проблема.
         members: список участников, из связной таблицы, оформленных через схему
@@ -76,9 +76,9 @@ class ProblemResponseSchema(ProblemBaseSchema):
 
     id: int
     name: str
-    color: ColorProblem
-    type: TypeProblem
-    status: StatusProblem
+    color: ProblemColor
+    type: ProblemType
+    status: ProblemStatus
     owner_id: UUID
     company_id: int
     members: list[MemberResponseSchema]
@@ -96,14 +96,14 @@ class ProblemCreateSchema(ProblemSchemaMixin, ProblemBaseSchema):
     Параметры:
         name: Название проблемы.
         description: Описание проблемы (опционально).
-        color: Цвет проблемы из перечисления ColorProblem.
-        type: Тип проблемы из перечисления TypeProblem.
+        color: Цвет проблемы из перечисления ProblemColor.
+        type: Тип проблемы из перечисления ProblemType.
         members: список участников, из связной таблицы, оформленных через схему
     """
 
     name: str
-    color: ColorProblem
-    type: TypeProblem
+    color: ProblemColor
+    type: ProblemType
 
 
 class ProblemUpdateSchema(ProblemSchemaMixin, ProblemBaseSchema):
@@ -114,13 +114,13 @@ class ProblemUpdateSchema(ProblemSchemaMixin, ProblemBaseSchema):
     Параметры:
         name: Название проблемы (опционально).
         description: Описание проблемы (опционально).
-        color: Цвет проблемы из перечисления ColorProblem (опционально).
-        type: Тип проблемы из перечисления TypeProblem (опционально).
-        status: Статус проблемы из перечисления StatusProblem (опционально).
+        color: Цвет проблемы из перечисления ProblemColor (опционально).
+        type: Тип проблемы из перечисления ProblemType (опционально).
+        status: Статус проблемы из перечисления ProblemStatus (опционально).
         members: список участников, из связной таблицы, оформленных через схему (опционально).
     """
 
     name: str | None = None
-    color: ColorProblem | None = None
-    type: TypeProblem | None = None
-    status: StatusProblem | None = None
+    color: ProblemColor | None = None
+    type: ProblemType | None = None
+    status: ProblemStatus | None = None

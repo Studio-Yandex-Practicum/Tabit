@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.models import BaseTabitModel, StatusTask
+from src.models import BaseTabitModel, TaskStatus
 from src.models.annotations import description, int_pk, int_zero, name_problem, owner
 
 if TYPE_CHECKING:
@@ -53,7 +53,7 @@ class Task(BaseTabitModel):
         viewonly=True,
         lazy='joined',
     )
-    status: Mapped['StatusTask']
+    status: Mapped['TaskStatus']
     transfer_counter: Mapped[int_zero]
     file: Mapped[List['FileTask']] = relationship(
         back_populates='task', cascade='all, delete-orphan'

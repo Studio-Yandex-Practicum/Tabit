@@ -6,7 +6,7 @@ from sqlalchemy.orm import selectinload
 from src.core.config.logging import logger
 from src.crud import CRUDBaseWithAssociations
 from src.crud.constants import ZERO, TextError
-from src.models import AssociationUserTask, Company, CompanyUser, Problem, StatusTask, Task
+from src.models import AssociationUserTask, Company, CompanyUser, Problem, Task, TaskStatus
 from src.schemas import TaskCreateSchema, TaskResponseSchema, TaskUpdateSchema
 
 
@@ -69,7 +69,7 @@ class CRUDTask(CRUDBaseWithAssociations):
         default_data = {
             'problem_id': problem.id,
             'owner_id': owner.id,
-            'status': StatusTask.NEW,
+            'status': TaskStatus.NEW,
             'transfer_counter': ZERO,
         }
         task_data.update(default_data)

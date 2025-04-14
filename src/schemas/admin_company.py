@@ -13,7 +13,7 @@ from pydantic import (
     model_validator,
 )
 
-from src.models import RoleCompanyUser
+from src.models import CompanyUserRole
 from src.schemas.constants import (
     LENGTH_FILE_LINK,
     LENGTH_NAME_USER,
@@ -162,7 +162,7 @@ class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
         max_length=LENGTH_NAME_USER,
         title=TITLE_SURNAME_USER,
     )
-    role: RoleCompanyUser
+    role: CompanyUserRole
     current_department_id: int = Field(
         ...,
         title=TITLE_CURRENT_DEPARTMENT_ID_USER,
@@ -172,7 +172,7 @@ class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
 class CompanyAdminCreateSchema(CompanyAdminPutSchema):
     """Схема для создания модераторов от компаний."""
 
-    role: Literal[RoleCompanyUser.MODERATOR]
+    role: Literal[CompanyUserRole.MODERATOR]
     company_id: int = Field(
         ...,
         title=TITLE_COMPANY_ID_USER,
@@ -194,7 +194,7 @@ class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
         max_length=LENGTH_NAME_USER,
         title=TITLE_SURNAME_USER,
     )
-    role: Optional[RoleCompanyUser] = None
+    role: Optional[CompanyUserRole] = None
     current_department_id: Optional[int] = Field(
         None,
         title=TITLE_CURRENT_DEPARTMENT_ID_USER,

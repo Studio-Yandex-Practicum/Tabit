@@ -4,7 +4,7 @@ from httpx import AsyncClient
 from pytest_lazy_fixtures import lf
 
 from src.core.constants import ERROR_INVALID_TELEGRAM_USERNAME
-from src.models import RoleCompanyUser
+from src.models import CompanyUserRole
 from tests.constants import (
     GOOD_PASSWORD,
     MODERATOR_TELEGRAM,
@@ -206,8 +206,8 @@ class TestGetMeUser:
     @pytest.mark.parametrize(
         'token, role, text',
         [
-            (lf('moderator_token'), RoleCompanyUser.MODERATOR, 'модератором от компании'),
-            (lf('employee_token'), RoleCompanyUser.EMPLOYEE, 'сотрудником компании'),
+            (lf('moderator_token'), CompanyUserRole.MODERATOR, 'модератором от компании'),
+            (lf('employee_token'), CompanyUserRole.EMPLOYEE, 'сотрудником компании'),
         ],
     )
     async def test_get_me_user(

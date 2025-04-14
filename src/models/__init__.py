@@ -6,15 +6,15 @@
 from .base import BaseFileLink, BaseTabitModel, BaseTag, BaseUser
 from .company import Company, Department
 from .enum import (
-    ColorProblem,
+    ProblemColor,
     MeetingResultEngagementEnum,
     MeetingResultEnum,
     MeetingResultSolutionEnum,
-    RoleCompanyUser,
-    StatusMeeting,
-    StatusProblem,
-    StatusTask,
-    TypeProblem,
+    CompanyUserRole,
+    MeetingStatus,
+    ProblemStatus,
+    TaskStatus,
+    ProblemType,
 )
 from .file import FileMeeting, FileMessage, FileProblem, FileTask
 from .landing_page import LandingPage
@@ -40,15 +40,15 @@ __all__ = [
     'BaseUser',
     'Company',
     'Department',
-    'ColorProblem',
+    'ProblemColor',
     'MeetingResultEngagementEnum',
     'MeetingResultEnum',
     'MeetingResultSolutionEnum',
-    'RoleCompanyUser',
-    'StatusMeeting',
-    'StatusProblem',
-    'StatusTask',
-    'TypeProblem',
+    'CompanyUserRole',
+    'MeetingStatus',
+    'ProblemStatus',
+    'TaskStatus',
+    'ProblemType',
     'FileMeeting',
     'FileMessage',
     'FileProblem',

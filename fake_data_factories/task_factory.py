@@ -17,7 +17,7 @@ from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
 from src.core.constants import ZERO
 from src.core.database.sc_db_session import sc_session
-from src.models import StatusTask, Task
+from src.models import Task, TaskStatus
 
 
 class TaskFactory(AsyncSQLAlchemyFactory):
@@ -41,7 +41,7 @@ class TaskFactory(AsyncSQLAlchemyFactory):
     date_completion: factory.Faker = factory.Faker('future_date')
     owner_id: UUID
     problem_id: str
-    status: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(StatusTask)))
+    status: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(TaskStatus)))
     transfer_counter: int = ZERO
 
     class Meta:

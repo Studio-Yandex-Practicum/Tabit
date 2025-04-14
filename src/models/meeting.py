@@ -11,7 +11,7 @@ from src.models import (
     MeetingResultEngagementEnum,
     MeetingResultEnum,
     MeetingResultSolutionEnum,
-    StatusMeeting,
+    MeetingStatus,
 )
 from src.models.annotations import (
     description,
@@ -68,7 +68,7 @@ class Meeting(BaseTabitModel):
     owner_id: Mapped[owner]
     owner: Mapped['CompanyUser'] = relationship(back_populates='meeting_owner')
     date_meeting: Mapped[date] = mapped_column(nullable=False)
-    status: Mapped['StatusMeeting']
+    status: Mapped['MeetingStatus']
     place: Mapped[str] = mapped_column(String(LENGTH_NAME_MEETING_PLACE), nullable=False)
     members: Mapped[List['AssociationUserMeeting']] = relationship(
         back_populates='meeting',
