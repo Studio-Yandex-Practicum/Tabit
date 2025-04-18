@@ -1,0 +1,138 @@
+from sqlalchemy import UUID
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from fastapi import Depends, HTTPException, status
+from fastapi_users.exceptions import InvalidPasswordException
+from fastapi_users.manager import BaseUserManager
+
+from src.core.auth.managers import get_user_manager
+from src.features_v1.constants import TextError, ERROR_INVALID_TELEGRAM_USERNAME
+from src.crud import moderator_crud, user_crud
+from src.models import (
+    Company,
+    CompanyUser,
+)
+from src.schemas import UserCreateSchema
+
+async def validate_user_not_exists(
+    user_data: UserCreateSchema,
+    user_manager: BaseUserManager = Depends(get_user_manager),
+) -> None:
+    """
+    Проверяет, что пользователь с таким email не существует.
+    Args:
+        user_data (UserCreateSchema): данные пользователя.
+        user_manager (BaseUserManager): менеджер для пользователя.
+    Raises:
+        HTTPException: Если пользователь с таким email уже существует,
+                        возвращает ошибку 400 (BAD REQUEST).
+    """
+    if user_data.email:
+        user = await user_manager.user_db.get_by_email(user_data.email)
+        if user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.EXISTS_EMAIL
+            )
+
+
+async def validate_password(
+    user_data: UserCreateSchema,
+    user_manager: BaseUserManager = Depends(get_user_manager),
+) -> None:
+    """
+    Проверяет, что пароль соответствует требованиям.
+    Args:
+        user_data (UserCreateSchema): данные пользователя.
+        user_manager (BaseUserManager): менеджер для пользователя.
+    Raises:
+        HTTPException: Если пароль не соответствует требованиям,
+                        возвращает ошибку 400 (BAD REQUEST).
+    """
+    if user_data.password:
+        try:
+            await user_manager.validate_password(user_data.password, user_data)
+        except InvalidPasswordException:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.INVALID_PASSWORD
+            )
+
+
+def check_user_is_active(user):
+    """Проверит, что пользователь передан и является активным. Иначе ошибка 400."""
+    if user is None or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=TextError.LOGIN,
+        )
+
+
+def validator_check_not_is_superuser(
+    user_model_object,
+    message: str = TextError.IS_SUPERUSER,
+) -> None:
+    """
+    Проверит, не является ли пользователь суперпользователем.
+    Если является: выкинет ошибку 400.
+    """
+    if user_model_object.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=message,
+        )
+
+
+def validate_user_from_company(user: CompanyUser, company: Company):
+    """
+    Валидатор, проверит что пользователь из данной компании.
+    Иначе ошибка 403
+    """
+    if user.company_id != company.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=TextError.FORBIDDEN_FROM_COMPANY.format(company.name),
+        )
+
+
+async def check_telegram_username_for_duplicates(username: str, session: AsyncSession) -> None:
+    """
+    Функция проверяет, что в БД не существует пользователя с переданным telegram_username.
+    В случае, если пользователь существует, то выбрасывается ошибка HTTP 400.
+    Параметры:
+        username: telegram_username, переданный в запросе к API;
+        session: асинхронная сессия SQLAlchemy;
+    """
+    if username:
+        if await moderator_crud.get_by_telegram_username(username, session):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_TELEGRAM_USERNAME
+            )
+
+
+async def validate_field_members(
+    session: AsyncSession,
+    uuid_members: list[UUID] | None,
+    company_id: int | None = None,
+) -> None:
+    """
+    Проверит переданный список uuid пользователей на корректность uuid
+    и принадлежность пользователей к переданной компании.
+
+    Параметры
+        session: Асинхронная сессия SQLAlchemy;
+        uuid_members: список uuid пользователей;
+        company_id: число - id компании из которой пользователи.
+    """
+    if not uuid_members:
+        return
+    for uuid in uuid_members:
+        user = await user_crud.get(session, uuid)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=TextError.UUID_INVALID.format(uuid),
+            )
+        if company_id is not None and company_id != user.company_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=TextError.USER_NOT_FROM_COMPANY.format(uuid),
+            )
