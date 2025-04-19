@@ -16,6 +16,7 @@ from .enum import (
     TaskStatus,
     ProblemType,
     SurveysStatus,
+    SurveysTags,
 )
 from .file import FileMeeting, FileMessage, FileProblem, FileTask
 from .landing_page import LandingPage
@@ -83,4 +84,5 @@ __all__ = [
     'SurveySchedule',
     'SurveyScheduleCycle',
     'SurveyData',
+    'SurveysTags',
 ]

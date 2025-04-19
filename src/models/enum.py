@@ -105,3 +105,10 @@ class SurveysStatus(StrEnum):
     complited = "Завершен"
     canceled = "Отменен"
     postponed = "Отложен"
+
+
+class SurveysTags(StrEnum):
+    """Тэги тестов для объединения нескольких тестов."""
+
+    emo = "Определение эмоционального состояния"
+    test = "Тестовый тест для тестирования"
