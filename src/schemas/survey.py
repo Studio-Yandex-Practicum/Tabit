@@ -1,71 +1,49 @@
-# TODO: Требуется проработка ERD
-
-# from pydantic import BaseModel
-# from typing import Optional
-# from datetime import date, datetime
-
-
-# class SurveyBaseSchema(BaseModel):
-#     """
-#     Базовая Pydantic-схема для опросов.
-#     """
-#     name: str
-#     description: Optional[str]
-#     slug: str
-#     status: int
-#     result: Optional[int]
-#     created_at: datetime
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, List
+from datetime import datetime
+from uuid import UUID
 
 
-# class SurveyCreateSchema(SurveyBaseSchema):
-#     """
-#     Pydantic-схема для создания опроса.
-#     """
-#     pass
+class SurveyScheduleCycleCreate(BaseModel):
+    date: datetime
 
 
-# class SurveyUpdateSchema(SurveyBaseSchema):
-#     """
-#     Pydantic-схема для обновления информации об опросе.
-#     """
-#     pass
+class SurveyScheduleCycleRead(SurveyScheduleCycleCreate):
+    id: int
+    survey_schedule_id: int
+
+    model_config = ConfigDict(from_attributes=True)
 
 
-# class SurveySchema(SurveyBaseSchema):
-#     """
-#     Pydantic-схема для отображения информации об опросе.
-#     """
-#     id: int
-
-#     model_config = ConfigDict(from_attributes=True)
+class SurveyScheduleCreate(BaseModel):
+    survey_tag: str
+    status: str
+    cycles: List[SurveyScheduleCycleCreate]
 
 
-# class SurveyUserSchema(BaseModel):
-#     """
-#     Pydantic-схема для связи пользователей с опросами.
-#     """
-#     id: int
-#     survey_id: int
-#     user_id: int
+class SurveyScheduleRead(BaseModel):
+    id: int
+    survey_tag: str
+    created_at: datetime
+    status: str
 
-#     model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True)
 
 
-# class DateSurveySchema(BaseModel):
-#     """
-#     Pydantic-схема для дат, связанных с опросами.
-#     """
-#     id: int
-#     date: date
-#     survey_id: int
+class SurveyAnswer(BaseModel):
+    survey_list_id: int
+    answers: List[int]
 
-#     model_config = ConfigDict(from_attributes=True)
 
-# class StatusSurveySchema(BaseModel):
-#     """
-#     Pydantic-схема для статусов опросов.
-#     """
-#     id: int
-#     name: str
+class SurveyDataCreate(BaseModel):
+    survey_shedule_id: int
+    cycle_id: int
+    answers: List[SurveyAnswer]
 
-#     model_config = ConfigDict(from_attributes=True)
+
+class SurveyDataRead(BaseModel):
+    survey_shedule_id: int
+    cycle_id: int
+    answers: List[int]
+
+    model_config = ConfigDict(from_attributes=True)
