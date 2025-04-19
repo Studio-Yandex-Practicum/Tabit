@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.users.models import UserTabit
+from src.models import CompanyUser
 from tests.constants import (
     ADMIN_CREATE_MOD_BAD,
     ADMIN_CREATE_MOD_NEW,
@@ -135,7 +135,7 @@ class TestPostTabitManagement:
                 assert result[key] == ADMIN_CREATE_MOD_NEW[key]
         assert result['company_id'] == department.company_id
         assert result['current_department_id'] == department.id
-        assert result['last_department_id'] is None
+        assert result['previous_department_id'] is None
 
     @pytest.mark.parametrize('payload', ADMIN_CREATE_MOD_BAD)
     async def test_unsuccessful_create_moderator(
@@ -158,15 +158,15 @@ class TestPostTabitManagement:
             }
         )
         await company_for_test()  # создаётся другая компания
-        old_user_count = await get_count(async_session, UserTabit)
+        old_user_count = await get_count(async_session, CompanyUser)
         response = await client.post(URL.ADMIN_MODS_URL, headers=admin_token, json=payload)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
             f'В ответе ожидается status_code {status.HTTP_422_UNPROCESSABLE_ENTITY}, '
             f'получен {response.status_code}'
         )
-        new_user_count = await get_count(async_session, UserTabit)
+        new_user_count = await get_count(async_session, CompanyUser)
         assert new_user_count == old_user_count, (
-            f'Количество объектов UserTabit должно равняться {old_user_count}. '
+            f'Количество объектов CompanyUser должно равняться {old_user_count}. '
             f'Текущее количество - {new_user_count}.'
         )
 
@@ -203,7 +203,7 @@ class TestUpdateTabitManagement:
         for key in payload:
             assert result[key] == payload[key]
         if check_department_change:
-            assert result['last_department_id'] == department.id
+            assert result['previous_department_id'] == department.id
 
     @pytest.mark.parametrize('payload', ADMIN_PATCH_MOD_BAD)
     async def test_unsuccessful_patch_moderator(
@@ -277,7 +277,7 @@ class TestUpdateTabitManagement:
             if key != 'password':
                 assert result[key] == payload[key]
         if check_department_change:
-            assert result['last_department_id'] == department.id
+            assert result['previous_department_id'] == department.id
 
     @pytest.mark.parametrize('payload', ADMIN_PATCH_MOD_BAD)
     async def test_unsuccessful_put_moderator(

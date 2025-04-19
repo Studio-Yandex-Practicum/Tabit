@@ -296,7 +296,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': CompanyUserRole.MODERATORE,
+        'role': CompanyUserRole.EMPLOYEE,
         'email': MOD_TEST_EMAIL_BAD,
         'password': GOOD_PASSWORD,
         'company_id': 1,
