@@ -1,33 +1,80 @@
 from uuid import UUID
+from typing import List
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database.db_depends import get_async_session
+from src.schemas.survey import (
+    SurveyScheduleCreate, SurveyScheduleRead,
+    SurveyDataCreate, SurveyDataRead)
+from src.crud.crud_company import company_crud
+from src.crud.crud_surveys import surveys_schedule_crud, surveys_data_crud
+from src.features_v1.validators import validator_check_object_exists
 
 router = APIRouter()
 
 
 @router.get(
     '/',
+    response_model=List[SurveyScheduleRead],
     summary='Получить список всех опросов компании',
     dependencies=[Depends(get_async_session)],
 )
-async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_async_session)):
+async def get_surveys(
+    company_slug: str,
+    session: AsyncSession = Depends(get_async_session)
+):
     """Получает список всех опросов компании."""
-    # TODO: Проверить существование компании
-    return {'message': 'Список опросов компании пока пуст'}
+    await validator_check_object_exists(
+        session=session,
+        model_crud=company_crud,
+        object_slug=company_slug
+    )
+
+    schedule = await surveys_schedule_crud.get_by_slug(
+        session=session,
+        obj_slug=company_slug,
+        raise_404=True,
+    )
+    return schedule
 
 
 @router.post(
     '/',
+    response_model=SurveyScheduleRead,
     summary='Создать новый опрос для компании',
     dependencies=[Depends(get_async_session)],
 )
-async def create_survey(company_slug: str, session: AsyncSession = Depends(get_async_session)):
-    """Создает новый опрос."""
-    # TODO: Проверить существование компании
-    return {'message': 'Создание опроса для компании временно недоступно'}
+async def create_survey_schedule(
+    company_slug: str,
+    data: SurveyScheduleCreate,
+    session: AsyncSession = Depends(get_async_session)
+):
+    """
+    Создает новое расписание.
+
+    Поля:
+        date: заполняется в формате "2019-08-24".
+        status: in_progress - "В работе"
+                complited - "Завершен"
+                canceled - "Отменен"
+                postponed - "Отложен"
+        survey_tag: emo = "Определение эмоционального состояния"
+                    test = "Тестовый тест для тестирования"
+    """
+    await validator_check_object_exists(
+        session=session,
+        model_crud=company_crud,
+        object_slug=company_slug
+    )
+
+    schedule = await surveys_schedule_crud.create_surveys_schedule(
+        session=session,
+        slug=company_slug,
+        schedule_in=data
+    )
+    return schedule
 
 
 @router.get(
@@ -36,7 +83,9 @@ async def create_survey(company_slug: str, session: AsyncSession = Depends(get_a
     dependencies=[Depends(get_async_session)],
 )
 async def get_employee_survey_history(
-    company_slug: str, uuid: UUID, session: AsyncSession = Depends(get_async_session)
+    company_slug: str,
+    uuid: UUID,
+    session: AsyncSession = Depends(get_async_session)
 ):
     """Получает историю опросов сотрудника компании."""
     # TODO: Проверить существование компании
@@ -58,70 +107,37 @@ async def get_employee_survey_info(
     """Получает информацию об опросе сотрудника компании."""
     # TODO: Проверить существование компании
     # TODO: Проверить существование сотрудника
-    # TODO: Проверить существование опроса
+    # TODO: Проверить существование пройденого теста
     return {'message': 'Информация об опросе сотрудника компании пока недоступна'}
 
 
-@router.get(
-    '/results/general',
-    summary='Получить общий результат опросов компании',
-    dependencies=[Depends(get_async_session)],
-)
-async def get_general_survey_results(
-    company_slug: str, session: AsyncSession = Depends(get_async_session)
-):
-    """Получает общий результат опросов компании."""
-    # TODO: Проверить существование компании
-    return {'message': 'Общий результат опросов компании пока пуст'}
-
-
-@router.get(
-    '/results/personalized',
-    summary='Получить персонализированный результат опросов компании',
-    dependencies=[Depends(get_async_session)],
-)
-async def get_personalized_survey_results(
-    company_slug: str, session: AsyncSession = Depends(get_async_session)
-):
-    """Получает персонализированный результат опросов компании."""
-    # TODO: Проверить существование компании
-    return {'message': 'Персонализированный результат опросов компании пока пуст'}
-
-
-@router.get(
-    '/results/dynamics',
-    summary='Получить динамику результатов опросов компании',
-    dependencies=[Depends(get_async_session)],
-)
-async def get_dynamics_survey_results_company(
-    company_slug: str, session: AsyncSession = Depends(get_async_session)
-):
-    """Получает динамику результатов опросов компании."""
-    # TODO: Проверить существование компании
-    return {'message': 'Динамика результатов опросов компании пока пуст'}
-
-
 @router.post(
-    '/manage',
-    summary='Управление опросами компании',
+    '/{uuid}',
+    response_model=List[SurveyDataRead],
+    summary='Передать информацию об опросе сотрудника компании',
     dependencies=[Depends(get_async_session)],
 )
-async def manage_surveys_company(
-    company_slug: str, session: AsyncSession = Depends(get_async_session)
+async def add_employee_survey_info(
+    company_slug: str,
+    uuid: UUID,
+    data: SurveyDataCreate,
+    session: AsyncSession = Depends(get_async_session),
 ):
-    """Управление опросами компании."""
-    # TODO: Проверить существование компании
-    return {'message': 'Управление опросами компании временно недоступно'}
+    """Получает информацию об опросе сотрудника компании."""
+    # TODO: Проверить существование сотрудника
+    # TODO: Проверить сущестрование номера теста 
+    await validator_check_object_exists(
+        session=session,
+        model_crud=company_crud,
+        object_slug=company_slug
+    )
 
+    await surveys_data_crud.create_survey_data(
+        session=session,
+        data=data,
+        user_id=uuid,
+        company_slug=company_slug
+    )
+    
+    return
 
-@router.delete(
-    '/manage',
-    summary='Удалить опросы компании',
-    dependencies=[Depends(get_async_session)],
-)
-async def delete_surveys_company(
-    company_slug: str, session: AsyncSession = Depends(get_async_session)
-):
-    """Удаление опросов компании."""
-    # TODO: Проверить существование компании
-    return {'message': 'Удаление опросов компании временно недоступно'}
