@@ -2,32 +2,32 @@
 
 ## Оглавление
 
-1. [📌 О проекте](#о-проекте)
-2. [🚀 Начало работы](#начало-работы)
+1. [📌 О проекте](#about)
+2. [🚀 Начало работы](#start)
    - [📦 Poetry](#poetry)
    - [🔄 Pre-commit](#pre-commit)
-   - [🪟 Установка на Windows](#установка-на-windows)
-3. [💾 Работа с базой данных](#работа-с-базой-данных)
-   - [📊 ERD модель данных](#erd-модель-данных)
+   - [🪟 Установка на Windows](#installation-on-Windows)
+3. [💾 Работа с базой данных](#working-with-database)
+   - [📊 ERD модель данных](#erd)
    - [🔍 DBeaver](#dbeaver)
    - [🔍 pgAdmin](#pgadmin)
-4. [👨‍💻 Разработка](#разработка)
-   - [🔄 Правила работы с git](#правила-работы-с-git)
-   - [📝 Логирование](#логирование)
-   - [🧹 Линтеры](#линтеры)
-5. [🔄 CI/CD и деплой](#cicd-и-деплой)
+4. [👨‍💻 Разработка](#development)
+   - [🔄 Правила работы с git](#rules-for-working-with-git)
+   - [📝 Логирование](#logging)
+   - [🧹 Линтеры](#linters)
+5. [🔄 CI/CD и деплой](#cicd-deployment)
    - [⚙️ GitHub Actions Workflows](#github-actions-workflows)
-   - [🐳 Инфраструктура Docker](#инфраструктура-docker)
-   - [🚀 Деплой на Stage](#деплой-на-stage)
-6. [▶️ Запуск приложения](#запуск-приложения)
-   - [💻 Из командной строки](#запуск-приложения-из-командной-строки)
-   - [👤 Создание суперпользователя](#создать-автоматически-суперпользователя)
-   - [🐞 Отладка CI/CD](#запуск-контейнеров-локально-для-отладки-cicd)
-7. [📋 Справочник команд Makefile](#makefile-команды)
-8. [🧪 Тестирование](#тестирование)
-9. [❓ Часто встречающиеся ошибки](#часто-встречающиеся-ошибки)
+   - [🐳 Инфраструктура Docker](#docker)
+   - [🚀 Деплой на Stage](#deployment-stage)
+6. [▶️ Запуск приложения](#launch-applications)
+   - [💻 Из командной строки](#launch-applications-from-command-line)
+   - [👤 Создание суперпользователя](#create-automatically-superuser)
+   - [🐞 Отладка CI/CD](#debugging-cicd)
+7. [📋 Справочник команд Makefile](#makefile)
+8. [🧪 Тестирование](#testing)
+9. [❓ Часто встречающиеся ошибки](#common-errors)
 
-## 📌 О проекте
+## 📌 О проекте <a name="about"></a> 
 
 **Tabit** — онлайн-сервис для HR-специалистов и собственников компаний, который помогает:
 - 📊 Измерять эмоциональный климат в компании
@@ -37,9 +37,9 @@
 
 > **Требования к окружению:** Python 3.12 или выше.
 
-## 🚀 Начало работы
+## 🚀 Начало работы <a name="start"></a> 
 
-### 📦 Poetry
+### 📦 Poetry <a name="poetry"></a> 
 
 Poetry — это инструмент для управления зависимостями и виртуальными окружениями Python. В проекте Poetry является **обязательным** для разработки.
 
@@ -149,7 +149,7 @@ poetry update
 
 </details>
 
-### 🔄 Pre-commit
+### 🔄 Pre-commit <a name="pre-commit"></a> 
 
 <details>
 <summary><strong>🔽 Настройка pre-commit</strong></summary>
@@ -168,7 +168,7 @@ poetry update
 
 </details>
 
-### 🪟 Установка на Windows
+### 🪟 Установка на Windows <a name="installation-on-Windows"></a> 
 
 <details>
 <summary><strong>🔽 Способ 1: Установка с использованием WSL (рекомендуется)</strong></summary>
@@ -253,10 +253,10 @@ poetry update
    make up                 # Запуск контейнера с БД
 
    # Если миграции уже существуют:
-   make apply-migrations   # Применение существующих миграций
+   make migration-apply    # Применение существующих миграций
 
    # Если это первая инициализация:
-   make init-db            # Создание и применение начальных миграций
+   make db-init            # Создание и применение начальных миграций
 
    make create-superuser   # Создание суперпользователя
    make fill-db            # Заполнение тестовыми данными
@@ -340,10 +340,10 @@ poetry update
    make up                 # Запуск контейнера с БД
 
    # Если миграции уже существуют:
-   make apply-migrations   # Применение существующих миграций
+   make migration-apply    # Применение существующих миграций
 
    # Если это первая инициализация:
-   make init-db            # Создание и применение начальных миграций
+   make db-init            # Создание и применение начальных миграций
 
    make create-superuser   # Создание суперпользователя
    make fill-db            # Заполнение тестовыми данными
@@ -353,7 +353,7 @@ poetry update
 > ⚠️ **Примечание:** На чистом Windows могут возникнуть проблемы совместимости. Если столкнетесь с ошибками, рекомендуется перейти на WSL.
 </details>
 
-## 💾 Работа с базой данных
+## 💾 Работа с базой данных <a name="working-with-database"></a> 
 
 ### Настройка окружения
 
@@ -367,16 +367,16 @@ poetry update
 POSTGRES_USER=warlock                     # Имя пользователя БД
 POSTGRES_PASSWORD=zTudS8LBSquBMwvS3ky5    # Пароль к БД
 POSTGRES_DB=tabit                         # Название БД
-PORT_BD_POSTGRES=5432                     # Порт для подключения к БД
+DB_PORT=5432                              # Порт для подключения к БД
 DB_TYPE=postgresql                        # Тип базы данных
 DB_API=asyncpg                            # API для работы с БД
 DB_HOST=localhost                         # Хост для подключения к БД
 ```
 
-### 📊 ERD модель данных
+### 📊 ERD модель данных <a name="erd"></a> 
 Актуальная ER-диаграмма базы данных доступна [по ссылке](https://app.erdlab.io/designer/schema/1736745715-tabit)
 
-### 🔍 DBeaver
+### 🔍 DBeaver <a name="dbeaver"></a> 
 
 <details>
 <summary><strong>🔽 Подключение к БД через DBeaver</strong></summary>
@@ -394,7 +394,7 @@ DB_HOST=localhost                         # Хост для подключени
 
 </details>
 
-### 🔍 pgAdmin
+### 🔍 pgAdmin <a name="pgadmin"></a> 
 
 <details>
 <summary><strong>🔽 Работа с pgAdmin</strong></summary>
@@ -415,7 +415,7 @@ pgAdmin — веб-интерфейс для управления PostgreSQL. В
    ```
    или
    ```bash
-   docker compose -f infra/docker-compose.local-with-pgadmin.yaml up -d
+   docker compose -f infra/local/docker-compose.local.yaml --profile pgadmin up -d
    ```
 
 3. Откройте в браузере http://localhost:5600/
@@ -428,10 +428,18 @@ pgAdmin — веб-интерфейс для управления PostgreSQL. В
 ```bash
 make down-pgadmin
 ```
+или
+   ```bash
+   docker compose -f infra/local/docker-compose.local.yaml --profile '*' down
+   ```
 
 **Удаление контейнеров и томов:**
 ```bash
 make down-pgadmin-volumes
+```
+или
+```bash
+docker compose -f infra/local/docker-compose.local.yaml --profile '*' down -v
 ```
 
 #### Дополнительные сведения о pgAdmin
@@ -455,9 +463,9 @@ make down-pgadmin-volumes
 
 </details>
 
-## 👨‍💻 Разработка
+## 👨‍💻 Разработка <a name="development"></a> 
 
-### 🔄 Правила работы с git
+### 🔄 Правила работы с git <a name="rules-for-working-with-git"></a> 
 
 <details>
 <summary><strong>🔽 Git-процесс в проекте</strong></summary>
@@ -481,7 +489,7 @@ make down-pgadmin-volumes
 
 </details>
 
-### 📝 Логирование
+### 📝 Логирование <a name="logging"></a> 
 
 <details>
 <summary><strong>🔽 Система логирования</strong></summary>
@@ -494,7 +502,7 @@ make down-pgadmin-volumes
 
 1. Импортируйте логгер:
    ```python
-   from src.logger import logger
+   from src.core.config.logging import logger
    ```
 
 2. Добавьте логи нужного уровня:
@@ -521,7 +529,7 @@ make down-pgadmin-volumes
 
 </details>
 
-### 🧹 Линтеры
+### 🧹 Линтеры <a name="linters"></a> 
 
 <details>
 <summary><strong>🔽 Проверка качества кода</strong></summary>
@@ -550,9 +558,9 @@ poetry run ruff format .
 
 </details>
 
-## 🔄 CI/CD и деплой
+## 🔄 CI/CD и деплой <a name="cicd-deployment"></a> 
 
-### ⚙️ GitHub Actions Workflows
+### ⚙️ GitHub Actions Workflows <a name="github-actions-workflows"></a> 
 
 В проекте настроены следующие автоматизированные процессы:
 
@@ -563,7 +571,7 @@ poetry run ruff format .
 | **ruff.yml**             | Проверка кода линтерами               | Push, Pull Request          |
 | **stage_deploy.yaml**    | Деплой на Stage-окружение             | Push в определенную ветку   |
 
-### 🐳 Инфраструктура Docker
+### 🐳 Инфраструктура Docker <a name="docker"></a> 
 
 <details>
 <summary><strong>🔽 Конфигурации Docker</strong></summary>
@@ -572,21 +580,24 @@ poetry run ruff format .
 
 1. **Только база данных**
    ```bash
-   make up     # Запуск
-   make down   # Остановка
+   make up              # Запуск
    ```
 
 2. **База данных с pgAdmin**
    ```bash
-   make up-pgadmin         # Запуск
-   make down-pgadmin       # Остановка
+   make up-pgadmin      # Запуск
    ```
 
 3. **Полное окружение**
    ```bash
-   make up-dc              # Запуск
-   make down-dc            # Остановка
-   make logs-dc            # Просмотр логов
+   make up-dc           # Запуск
+   ```
+
+4. **Общие команды**
+   ```bash
+   make logs            # Просмотр логов
+   make down            # Остановка
+   make clean-volumes   # Остановка и полный сброс данных
    ```
 
 #### Stage окружение
@@ -598,7 +609,7 @@ poetry run ruff format .
 
 </details>
 
-### 🚀 Деплой на Stage
+### 🚀 Деплой на Stage <a name="deployment-stage"></a> 
 
 <details>
 <summary><strong>🔽 Процесс деплоя</strong></summary>
@@ -621,9 +632,9 @@ poetry run ruff format .
 
 </details>
 
-## ▶️ Запуск приложения
+## ▶️ Запуск приложения <a name="launch-applications"></a> 
 
-### 💻 Запуск приложения из командной строки
+### 💻 Запуск приложения из командной строки <a name="launch-applications-from-command-line"></a> 
 
 ```bash
 python src/main.py [опции]
@@ -640,12 +651,12 @@ python src/main.py [опции]
 python src/main.py -r -h 127.0.0.1 -p 1234
 ```
 
-### 👤 Создать автоматически суперпользователя
+### 👤 Создать автоматически суперпользователя <a name="create-automatically-superuser"></a> 
 
 1. Заполните `.env` параметрами (примеры из .env.example):
 ```ini
 FIRST_SUPERUSER_EMAIL=yandex@yandex.ru    # Почта
-FIRST_SUPERUSER_PASSWORD=Password123      # Пароль (мин. 8 символов)
+FIRST_SUPERUSER_PASSWORD=Password123      # Пароль (Латинские символов в обоих регистрах, числа, минимальная длина 8 символов)
 FIRST_SUPERUSER_NAME=Ип                   # Имя
 FIRST_SUPERUSER_SURNAME=Ман               # Фамилия
 ```
@@ -659,7 +670,7 @@ python src/main.py -c
 make create-superuser
 ```
 
-### 🐞 Запуск контейнеров локально для отладки CI/CD
+### 🐞 Запуск контейнеров локально для отладки CI/CD <a name="debugging-cicd"></a> 
 
 <details>
 <summary><strong>🔽 Локальное тестирование CI/CD</strong></summary>
@@ -674,17 +685,17 @@ make up-dc
 
 #### 3. Проверка логов
 ```bash
-make logs-dc
+make logs
 ```
 
 #### 4. Применение миграций
 ```bash
-make migrate-dc
+make migration-apply-dc
 ```
 
 #### 5. Остановка контейнеров
 ```bash
-make down-dc
+make down
 ```
 
 #### Особенности отладки CI/CD
@@ -695,22 +706,19 @@ make down-dc
 
 </details>
 
-## 📋 Makefile команды
+## 📋 Makefile команды <a name="makefile"></a> 
 
 <details>
 <summary><strong>🔽 Docker Compose команды</strong></summary>
 
 | Команда                          | Описание                                     |
 |----------------------------------|----------------------------------------------|
-| `make up`                        | Запуск контейнера с локальной БД             |
-| `make down`                      | Остановка и удаление контейнеров             |
-| `make logs`                      | Просмотр логов контейнеров                   |
+| `make up`                        | Запуск контейнера с БД                       |
 | `make up-pgadmin`                | Запуск контейнеров с БД и pgAdmin            |
-| `make down-pgadmin`              | Остановка контейнеров с pgAdmin              |
-| `make down-pgadmin-volumes`      | Остановка и удаление volumes                 |
 | `make up-dc`                     | Запуск полного окружения в контейнерах       |
-| `make down-dc`                   | Остановка полного окружения                  |
-| `make logs-dc`                   | Просмотр логов полного окружения             |
+| `make logs`                      | Вывод логов всех контейнеров                 |
+| `make down`                      | Остановка и удаление контейнеров             |
+| `make clean-volumes`             | Остановка контейнеров и удаление томов       |
 
 </details>
 
@@ -719,14 +727,14 @@ make down-dc
 
 | Команда                          | Описание                                     |
 |----------------------------------|----------------------------------------------|
-| `make init-migrations`           | Создание первичной миграции с автогенерацией |
-| `make auto-migration m='commit'` | Создание миграции с указанным именем         |
-| `make empty-migration m='commit'`| Создание пустой миграции с указанным именем  |
-| `make apply-migrations`          | Применение всех миграций локально            |
-| `make migrate-dc`                | Выполнение миграций в контейнере             |
-| `make reset-db`                  | Полный сброс базы данных и реинициализация   |
-| `make init-db`                   | Полный процесс инициализации базы данных     |
-| `make clean-volumes`             | Удаление Docker volumes                      |
+| `make migration-init`            | Создание первичной миграции с автогенерацией |
+| `make migration-auto m='commit'` | Создание миграции с указанным именем         |
+| `make migration-empty m='commit'`| Создание пустой миграции                     |
+| `make migration-apply`           | Применение всех миграций                     |
+| `make migration-apply-dc`        | Выполнение миграций в контейнере             |
+| `make migration-rollback`        | Откат последней миграции                     |
+| `make db-reset`                  | Сброс базы и применение миграций             |
+| `make db-init`                   | Запуск контейнеров и создание структуры БД   |
 
 </details>
 
@@ -735,7 +743,7 @@ make down-dc
 
 | Команда                          | Описание                                     |
 |----------------------------------|----------------------------------------------|
-| `make run`                       | Запуск приложения локально                   |
+| `make run`                       | Запуск приложения с Uvicorn на порту 8000    |
 | `make create-superuser`          | Создание суперпользователя                   |
 | `make fill-db`                   | Заполнение БД всеми тестовыми данными        |
 | `make fill-companies`            | Создание тестовых компаний                   |
@@ -746,11 +754,14 @@ make down-dc
 | `make fill-problems`             | Создание тестовых проблем                    |
 | `make fill-message-feeds`        | Создание тестовых лент сообщений             |
 | `make fill-voting-feeds`         | Создание тестовых вариантов голосования      |
+| `make fill-voting-by-user`       | Создание тестовых голосований                |
 | `make fill-tasks`                | Создание тестовых задач                      |
+| `make fill-comments`             | Создание тестовых комментариев               |
+| `make fill-tags`                 | Создание тестовых тэгов                      |
 
 </details>
 
-## 🧪 Тестирование
+## 🧪 Тестирование <a name="testing"></a> 
 
 Тесты используют базу данных PostgreSQL, которая **автоматически** разворачивается в контейнере перед запуском тестов и удаляется после их выполнения. **Не нужно запускать контейнер вручную — `pytest` сделает это сам!**
 
@@ -815,12 +826,12 @@ docker-compose -f infra/docker-compose.test-db.yaml down -v
 
 3. **После завершения тестов контейнер с БД автоматически удаляется**.
 
-📌 **Важно**: тестовая БД создаётся в отдельном контейнере и не влияет на основную базу данных.  
+📌 **Важно**: тестовая БД создаётся в отдельном контейнере и не влияет на основную базу данных.
 Теперь тесты полностью автоматизированы и изолированы! 🚀
 
 </details>
 
-## ❓ Часто встречающиеся ошибки
+## ❓ Часто встречающиеся ошибки <a name="common-errors"></a> 
 
 <details>
 <summary><strong>🔽 Конфликт портов PostgreSQL в WSL и Docker</strong></summary>
@@ -848,7 +859,7 @@ docker-compose -f infra/docker-compose.test-db.yaml down -v
 
 3. **Вариант 2: Изменить порт в Docker**
    Если нужно использовать оба сервиса, измените порт для Docker-контейнера:
-   - В файле `.env` измените значение `PORT_BD_POSTGRES` на свободный порт (например, 5433)
+   - В файле `.env` измените значение `DB_PORT` на свободный порт (например, 5433)
    - Перезапустите контейнеры
 
 4. **Вариант 3: Изменить порт в WSL**
@@ -867,3 +878,43 @@ docker-compose -f infra/docker-compose.test-db.yaml down -v
 - Всегда проверяйте занятые порты перед запуском контейнеров
 - Используйте разные порты для WSL и Docker, если оба сервиса нужны одновременно
 - Убедитесь, что в `.env` указан правильный порт для подключения к базе данных
+
+</details>
+
+<details>
+<summary><strong>🔽 Конфликт имён контейнеров Docker</strong></summary>
+
+При обновлени репозитория или работе с несколькими его копиями может возникнуть пересечение имён контейнеров при запуске
+
+#### Симптомы:
+Сообщение в консоли:
+
+```bash
+Error response from daemon: Conflict. The container name "/postgres_local" is already in use by container...
+```
+
+#### Решение:
+1. **Прорерить запущенные контейнеры**
+
+```bash
+docker ps
+```
+
+2. **Если обнаружены лишние контейнеры - остановить и удалить их вручную**
+Пример:
+```bash
+docker stop postgres_local
+docker remove  postgres_local
+```
+
+3.  **Если обнаруженные контейнеры нужны - изменить название контейнеров в текущем локальном запуске чепез .env**
+Пример:
+```ini
+APP_CONTAINER_NAME=tabit_new
+DB_CONTAINER_NAME=postgres_new
+PGADMIN_CONTAINER_NAME=pgadmin_new
+```
+
+4. **Предпринять новую попытку запуска**
+
+</details>

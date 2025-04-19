@@ -3,7 +3,7 @@ import base64
 import aiofiles
 from fastapi import HTTPException, status
 
-from src.constants import BASE64_STARTSWITH, Directory, TextError
+from src.utils.constants import BASE64_STARTSWITH, Directory, TextError
 from src.utils.directory import create_folder
 
 

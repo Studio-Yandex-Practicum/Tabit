@@ -6,8 +6,8 @@ from uuid import UUID
 from dotenv import load_dotenv
 from fastapi import status
 
-from src.constants import TextError
-from src.users.models.enum import RoleUserTabit
+from src.core.constants import TextError
+from src.models.enum import CompanyUserRole
 
 load_dotenv()
 
@@ -17,7 +17,7 @@ class TEST_DATABASE_URL:
     TEST_USER: str = os.getenv('TEST_POSTGRES_USER', 'test_user')
     TEST_PASSWORD: str = os.getenv('TEST_POSTGRES_PASSWORD', 'test_password')
     TEST_HOST: str = os.getenv('TEST_POSTGRES_HOST', 'localhost')
-    TEST_PORT: int = int(os.getenv('TEST_POSTGRES_PORT', 5433))
+    TEST_PORT: int = int(os.getenv('TEST_POSTGRES_PORT', 54333))
     TEST_DBNAME: str = os.getenv('TEST_POSTGRES_DB', 'test_db')
 
 
@@ -36,11 +36,11 @@ class URL:
     USER_REFRESH: str = '/api/v1/auth/refresh-token'
     COMPANIES_ENDPOINT: str = '/api/v1/admin/companies/'
     LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
-    MEETINGS_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings'
+    MEETINGS_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/'
     MEETINGS_SINGLE: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/{meeting_id}'
-    COMPANY_ENDPOINT: str = '/api/v1/{company_slug}'
+    COMPANY_ENDPOINT: str = '/api/v1/{company_slug}/'
     DEPARTMENTS_ENDPOINT: str = '/api/v1/{company_slug}/departments'
-    DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments/{department_id}'
+    DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments/{department_slug}'
     CREATE_DEPARTMENT_ENDPOINT: str = '/api/v1/{company_slug}/departments'
     EMPLOYEES_ENDPOINT: str = '/api/v1/{company_slug}/employees'
     EMPLOYEE_ENDPOINT: str = '/api/v1/{company_slug}/employees/{employee_id}'
@@ -170,12 +170,12 @@ PAYLOAD_FOR_PATCH_USER_EXTRA: dict = {
     'is_active': False,
     'is_superuser': True,
     'is_verified': False,
-    'role': RoleUserTabit.ADMIN,
+    'role': CompanyUserRole.MODERATOR,
     'start_date_employment': '1776-05-01',
     'end_date_employment': '1776-05-01',
     'company_id': 1776,
     'current_department_id': 1776,
-    'last_department_id': 1776,
+    'previous_department_id': 1776,
     'department_transition_date': '1776-05-01',
     'employee_position': 'Минервал',
     'created_at': '1776-05-01 00:00:01.000 +0100',
@@ -253,7 +253,7 @@ ADMIN_GET_MOD_INFO: tuple[str] = (status.HTTP_200_OK, status.HTTP_404_NOT_FOUND)
 ADMIN_CREATE_MOD_NEW: dict[str] = {
     'name': 'test',
     'surname': 'test',
-    'role': RoleUserTabit.ADMIN,
+    'role': CompanyUserRole.MODERATOR,
     'email': MOD_TEST_EMAIL,
     'password': GOOD_PASSWORD,
 }
@@ -270,7 +270,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'password': GOOD_PASSWORD,
         'company_id': 1,
         'current_department_id': 1,
@@ -278,7 +278,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL_BAD,
         'password': BAD_PASSWORD[-1],
         'company_id': 1,
@@ -287,7 +287,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL,
         'password': GOOD_PASSWORD,
         'company_id': 1,
@@ -296,7 +296,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.EMPLOYEE,
+        'role': CompanyUserRole.MODERATORE,
         'email': MOD_TEST_EMAIL_BAD,
         'password': GOOD_PASSWORD,
         'company_id': 1,
@@ -305,7 +305,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL_BAD,
         'password': GOOD_PASSWORD,
         'company_id': 99,
@@ -314,7 +314,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL_BAD,
         'password': GOOD_PASSWORD,
         'company_id': 1,
@@ -323,7 +323,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL_BAD,
         'password': GOOD_PASSWORD,
         'company_id': 2,
@@ -355,7 +355,7 @@ ADMIN_PUT_MOD: tuple[tuple] = (
             'surname': 'updated_surname',
             'email': 'updated@example.com',
             'password': GOOD_PASSWORD,
-            'role': RoleUserTabit.ADMIN,
+            'role': CompanyUserRole.MODERATOR,
             'current_department_id': 1,
         },
         False,
@@ -366,7 +366,7 @@ ADMIN_PUT_MOD: tuple[tuple] = (
             'surname': 'updated_surname',
             'email': 'updated@example.com',
             'password': GOOD_PASSWORD,
-            'role': RoleUserTabit.ADMIN,
+            'role': CompanyUserRole.MODERATOR,
             'current_department_id': 2,
         },
         True,
@@ -384,7 +384,7 @@ ADMIN_PUT_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL,
         'password': GOOD_PASSWORD,
         'company_id': 1,
@@ -393,14 +393,14 @@ ADMIN_PUT_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'password': GOOD_PASSWORD,
         'current_department_id': 1,
     },
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL,
         'password': BAD_PASSWORD[-1],
         'current_department_id': 1,
@@ -408,7 +408,7 @@ ADMIN_PUT_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL_BAD,
         'password': GOOD_PASSWORD,
         'current_department_id': 1,
@@ -416,7 +416,7 @@ ADMIN_PUT_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL,
         'password': GOOD_PASSWORD,
         'current_department_id': 99,
@@ -424,7 +424,7 @@ ADMIN_PUT_MOD_BAD: tuple[dict, ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
-        'role': RoleUserTabit.ADMIN,
+        'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL,
         'password': GOOD_PASSWORD,
         'current_department_id': 2,
@@ -468,7 +468,7 @@ EMPLOYEE_FIELDS = {
     'avatar_link',
     'company_id',
     'current_department_id',
-    'last_department_id',
+    'previous_department_id',
     'department_transition_date',
     'employee_position',
     'created_at',

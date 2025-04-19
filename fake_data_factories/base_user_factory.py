@@ -6,7 +6,7 @@ from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from fastapi_users.password import PasswordHelper
 
 from fake_data_factories.constants import COMPANY_USER_CREATED_TEXT
-from src.logger import fake_db_logger
+from src.core.config.logging import fake_db_logger
 
 PATRONYMIC = [
     'Александрович',

@@ -6,11 +6,12 @@ from typing import Optional
 import factory
 from termcolor import cprint
 
-from constants import AMOUNT_OF_ADMIN, FAKER_USER_COUNT
 from fake_data_factories.base_user_factory import BaseUserFactory
 from fake_data_factories.company_factories import CompanyFactory
-from src.database.alembic_models import UserTabit
-from src.database.sc_db_session import sc_session
+from fake_data_factories.constants import AMOUNT_OF_MODERATORS, FAKER_USER_COUNT, ColorCPrint
+from fake_data_factories.utils import start_and_end
+from src.core.database.sc_db_session import sc_session
+from src.models import CompanyUser
 
 
 class PositionEnum(str, Enum):
@@ -29,7 +30,7 @@ class CompanyUserFactory(BaseUserFactory):
         сотруднику в функции создания пользователя create_tabit_user.
         3. current_department_id: По умолчанию None, присвиваетется сотруднику в функции создания
         пользователя create_tabit_user.
-        4. role: По умолчанию 'Сотрудник', можно подставить 'Админ' при создании сотрудника.
+        4. role: По умолчанию 'Сотрудник', можно подставить 'Модератор' при создании сотрудника.
     """
 
     employee_position: factory.LazyFunction = factory.LazyFunction(
@@ -40,13 +41,14 @@ class CompanyUserFactory(BaseUserFactory):
     company_id: int
 
     class Meta:
-        model = UserTabit
+        model = CompanyUser
         sqlalchemy_session = sc_session
 
 
-async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> list[UserTabit]:
+@start_and_end(__name__)
+async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> list[CompanyUser]:
     """
-    Функция для наполнения таблицы бд UserTabit.
+    Функция для наполнения таблицы бд CompanyUser.
     Для компании создается 1 админ, и все остальные простые сотрудники.
     Если функция запускается напрямую из текущего модуля, для этих департаментов создается
     компания, id этой компании передается в фабрику.
@@ -55,13 +57,15 @@ async def create_company_users(count: int = FAKER_USER_COUNT, **kwargs) -> list[
 
     Возвращает список созданных пользователей.
     """
-    company_users: list[UserTabit] = []
+    company_users: list[CompanyUser] = []
     if __name__ == '__main__':
         company_users = await CompanyFactory.create()
         kwargs['company_id'] = company_users.id
-    company_users += await CompanyUserFactory.create_batch(AMOUNT_OF_ADMIN, role='Админ', **kwargs)
-    company_users += await CompanyUserFactory.create_batch(count - AMOUNT_OF_ADMIN, **kwargs)
-    cprint(f'Создано {count} работников компании c id: {kwargs["company_id"]}', 'green')
+    company_users += await CompanyUserFactory.create_batch(
+        AMOUNT_OF_MODERATORS, role='Модератор', **kwargs
+    )
+    company_users += await CompanyUserFactory.create_batch(count - AMOUNT_OF_MODERATORS, **kwargs)
+    cprint(f'Создано {count} работников компании c id: {kwargs["company_id"]}', ColorCPrint.green)
     return company_users
 
 

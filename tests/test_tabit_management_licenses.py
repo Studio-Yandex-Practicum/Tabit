@@ -5,8 +5,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from src.constants import LENGTH_NAME_USER
-from src.tabit_management.constants import DEFAULT_PAGE_SIZE
+from src.core.constants import DEFAULT_PAGE_SIZE, LENGTH_NAME_USER
 from tests.constants import URL
 
 
@@ -387,7 +386,7 @@ class TestGetLicense:
         """
         licenses = [await license_for_test() for _ in range(30)]
 
-        response = await client.get('/api/v1/admin/licenses/?page=2&page_size=5')
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}?page=2&page_size=5')
 
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
@@ -403,10 +402,10 @@ class TestGetLicense:
 
         Проверяет, что API отклоняет запрос с `page_size=0` или `page_size > 100`.
         """
-        response = await client.get('/api/v1/admin/licenses/?page=1&page_size=0')
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}?page=1&page_size=0')
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
-        response = await client.get('/api/v1/admin/licenses/?page=1&page_size=101')
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}?page=1&page_size=101')
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     @pytest.mark.asyncio
@@ -420,42 +419,42 @@ class TestGetLicense:
         (await license_for_test({'name': 'C'}),)
 
         # Проверяем сортировку по имени (по возрастанию)
-        response = await client.get('/api/v1/admin/licenses/?ordering=name')
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=name')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         sorted_names = [license['name'] for license in result['items']]
         assert sorted_names == sorted(sorted_names)
 
         # Проверяем сортировку по имени (по убыванию)
-        response = await client.get('/api/v1/admin/licenses/?ordering=-name')
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=-name')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         sorted_names_desc = [license['name'] for license in result['items']]
         assert sorted_names_desc == sorted(sorted_names, reverse=True)
 
         # Проверяем сортировку по дате создания
-        response = await client.get('/api/v1/admin/licenses/?ordering=created_at')
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=created_at')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         created_dates = [license['created_at'] for license in result['items']]
         assert created_dates == sorted(created_dates)
 
         # Проверяем сортировку по убыванию
-        response = await client.get('/api/v1/admin/licenses/?ordering=-created_at')
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=-created_at')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         created_dates_desc = [license['created_at'] for license in result['items']]
         assert created_dates_desc == sorted(created_dates, reverse=True)
 
         # Проверяем сортировку по дате обновления
-        response = await client.get('/api/v1/admin/licenses/?ordering=updated_at')
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=updated_at')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         updated_dates = [license['updated_at'] for license in result['items']]
         assert updated_dates == sorted(updated_dates)
 
         # Проверяем сортировку по убыванию
-        response = await client.get('/api/v1/admin/licenses/?ordering=-updated_at')
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=-updated_at')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         updated_dates_desc = [license['updated_at'] for license in result['items']]
@@ -473,7 +472,7 @@ class TestGetLicense:
             {'license_term': license_term},
         )
 
-        response = await client.get(f'/api/v1/admin/licenses/{new_license.id}')
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}{new_license.id}')
 
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
@@ -491,12 +490,14 @@ class TestGetLicense:
         Проверяет, что при запросе лицензии с несуществующим ID API возвращает статус-код 404
         и сообщение 'Объект не найден'.
         """
-        response = await client.get('/api/v1/admin/licenses/99999')
+
+        invalid_licenses_id = 99999
+        response = await client.get(f'{URL.LICENSES_ENDPOINT}{invalid_licenses_id}')
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
-        result = response.json()
-
-        assert result == {'detail': 'Объект не найден'}
+        assert (result := response.json()) == {
+            'detail': f'Не найден объект LicenseType по данному id: {invalid_licenses_id}'
+        }, result
 
 
 class TestPatchLicense:
@@ -515,7 +516,7 @@ class TestPatchLicense:
             'max_employees_count': 100,
         }
 
-        response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
+        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
 
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
@@ -537,7 +538,7 @@ class TestPatchLicense:
 
         patch_data = {'name': license_1.name}
 
-        response = await client.patch(f'/api/v1/admin/licenses/{license_2.id}', json=patch_data)
+        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{license_2.id}', json=patch_data)
 
         assert response.status_code == 400
         result = response.json()
@@ -554,7 +555,7 @@ class TestPatchLicense:
 
         patch_data = {'license_term': 'P1D'}
 
-        response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
+        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_200_OK
 
         result = response.json()
@@ -571,7 +572,7 @@ class TestPatchLicense:
 
         patch_data = {'name': 123}
 
-        response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
+        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
@@ -588,7 +589,7 @@ class TestPatchLicense:
 
         patch_data = {'name': 'A' * (LENGTH_NAME_USER + 1)}
 
-        response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
+        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
@@ -605,7 +606,7 @@ class TestPatchLicense:
 
         patch_data = {'license_term': '1Y1S'}
 
-        response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
+        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
@@ -625,7 +626,7 @@ class TestPatchLicense:
 
         patch_data = {'max_admins_count': -5}
 
-        response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
+        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
@@ -644,7 +645,7 @@ class TestPatchLicense:
 
         patch_data = {'max_employees_count': 'true'}
 
-        response = await client.patch(f'/api/v1/admin/licenses/{new_license.id}', json=patch_data)
+        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
@@ -660,12 +661,12 @@ class TestPatchLicense:
         Проверяет, что API возвращает 404 при попытке обновить несуществующую запись.
         """
         patch_data = {'name': 'Updated License'}
-
-        response = await client.patch('/api/v1/admin/licenses/99999', json=patch_data)
+        invalid_licenses_id = 99999
+        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{99999}', json=patch_data)
         assert response.status_code == status.HTTP_404_NOT_FOUND
-
-        result = response.json()
-        assert result == {'detail': 'Объект не найден'}
+        assert (result := response.json()) == {
+            'detail': f'Не найден объект LicenseType по данному id: {invalid_licenses_id}'
+        }, result
 
 
 class TestDeleteLicense:
@@ -677,11 +678,11 @@ class TestDeleteLicense:
         """
         new_license = await license_for_test()
 
-        response = await client.delete(f'/api/v1/admin/licenses/{new_license.id}')
+        response = await client.delete(f'{URL.LICENSES_ENDPOINT}{new_license.id}')
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
-        response_check = await client.get(f'/api/v1/admin/licenses/{new_license.id}')
+        response_check = await client.get(f'{URL.LICENSES_ENDPOINT}{new_license.id}')
         assert response_check.status_code == status.HTTP_404_NOT_FOUND
 
     @pytest.mark.asyncio
@@ -692,9 +693,9 @@ class TestDeleteLicense:
         """
         non_existent_id = 99999
 
-        response = await client.delete(f'/api/v1/admin/licenses/{non_existent_id}')
+        response = await client.delete(f'{URL.LICENSES_ENDPOINT}{non_existent_id}')
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
-        result = response.json()
-
-        assert result == {'detail': 'Объект не найден'}
+        assert (result := response.json()) == {
+            'detail': f'Не найден объект LicenseType по данному id: {non_existent_id}'
+        }, result

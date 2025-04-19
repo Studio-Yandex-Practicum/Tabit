@@ -3,8 +3,10 @@ from uuid import UUID
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from src.database.sc_db_session import sc_session
-from src.problems.models.association_models import AssociationUserProblem
+from fake_data_factories.constants import ColorCPrint
+from fake_data_factories.utils import start_and_end
+from src.core.database.sc_db_session import sc_session
+from src.models import AssociationUserProblem
 
 
 class AssociationUserProblemFactory(AsyncSQLAlchemyFactory):
@@ -13,7 +15,7 @@ class AssociationUserProblemFactory(AsyncSQLAlchemyFactory):
 
     Поля:
         - `left_id`: Обязательное поле. Ссылка на пользователя Tabit. \
-            Должен быть создан объект `UserTabit`, чтобы передать полю id (типа uuid).
+            Должен быть создан объект `CompanyUser`, чтобы передать полю id (типа uuid).
         - `right_id`: Обязательное поле. Ссылка на проблему. \
             Должен быть создан объект `Problem`, чтобы передать полю id.
         - `status`: Обязательное поле. Значение по умолчанию - True.
@@ -28,6 +30,7 @@ class AssociationUserProblemFactory(AsyncSQLAlchemyFactory):
         sqlalchemy_session = sc_session
 
 
+@start_and_end(__name__)
 async def create_user_problem_associations(
     user_id: UUID,
     problem_ids: list[int],
@@ -52,6 +55,6 @@ async def create_user_problem_associations(
     cprint(
         f'Создано {len(problem_ids)} ассоциативных связей проблема-пользователь '
         f'от пользователя с id: {user_id}',
-        'green',
+        ColorCPrint.green,  # type: ignore
     )
     return user_problem_associations

@@ -5,7 +5,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from src.tabit_management.constants import ERROR_INVALID_TELEGRAM_USERNAME
+from src.core.constants import ERROR_INVALID_TELEGRAM_USERNAME
 from tests.constants import (
     COMPANY_FIELDS,
     DEPARTMENT_FIELDS,
@@ -20,7 +20,9 @@ def generate_department_data(all_fields=False):
     data = {'name': f'Тестовый департамент {uuid.uuid4().hex[:3]}'}
 
     if all_fields:
-        data.update({'slug': f'test-department-{uuid.uuid4().hex[:3]}'})
+        pass
+        # Slug автогенерится.
+        # data.update({'slug': f'test-department-{uuid.uuid4().hex[:3]}'})
 
     return data
 
@@ -53,7 +55,7 @@ def generate_employee_data(all_fields=False):
                 'end_date_employment': '2025-03-06',
                 'avatar_link': 'https://example.com/',
                 'current_department_id': 1,
-                'last_department_id': 1,
+                'previous_department_id': 1,
                 'employee_position': f'Должность{random_suffix}',
             }
         )
@@ -313,7 +315,7 @@ class TestPatchEmployee:
         update_data = generate_employee_data(all_fields=True)
         update_data['company_id'] = company.id
         update_data['current_department_id'] = department.id
-        update_data['last_department_id'] = department.id
+        update_data['previous_department_id'] = department.id
         update_data['role'] = 'Сотрудник'
 
         response = await client.patch(
@@ -364,7 +366,7 @@ class TestPatchEmployee:
         existing_employee_data = generate_employee_data(all_fields=True)
         existing_employee_data['company_id'] = company.id
         existing_employee_data['current_department_id'] = department.id
-        existing_employee_data['last_department_id'] = department.id
+        existing_employee_data['previous_department_id'] = department.id
         existing_employee_data['telegram_username'] = USER_TELEGRAM
         response = await client.post(
             URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
@@ -415,9 +417,9 @@ class TestPatchEmployee:
 
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == 'Объект не найден', (
-            f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
-        )
+        assert (
+            data['detail'] == f'Не найден объект CompanyUser по данному id: {non_existent_id}'
+        ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
 class TestDeleteEmployee:
@@ -483,9 +485,9 @@ class TestDeleteEmployee:
 
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == 'Объект не найден', (
-            f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
-        )
+        assert (
+            data['detail'] == f'Не найден объект CompanyUser по данному id: {non_existent_id}'
+        ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
 class TestGetDepartments:
@@ -553,7 +555,9 @@ class TestGetDepartment:
         department = await department_for_test({'company_id': company.id})
 
         response = await client.get(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
         )
         assert response.status_code == status.HTTP_200_OK, (
@@ -581,7 +585,7 @@ class TestGetDepartment:
 class TestPatchDepartment:
     """Тесты для эндпоинта обновления информации о департаменте."""
 
-    @pytest.mark.skip(reason='Тест временно пропущен, так как есть баг на slug')
+    # @pytest.mark.skip(reason='Тест временно пропущен, так как есть баг на slug')
     @pytest.mark.asyncio
     async def test_patch_department_success(
         self, client: AsyncClient, moderator_of_company, get_token_for_user, department_for_test
@@ -601,7 +605,9 @@ class TestPatchDepartment:
         new_name = 'Иванушка'
 
         response = await client.patch(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
             json={'name': new_name},
         )
@@ -618,7 +624,7 @@ class TestPatchDepartment:
             f"Ожидалось новое имя '{new_name}', получено: '{data['name']}'"
         )
 
-        field_checks = {'id': department.id, 'company_id': company.id, 'slug': department.slug}
+        field_checks = {'id': department.id, 'company_id': company.id}
 
         for field, expected_value in field_checks.items():
             assert data[field] == expected_value, (
@@ -639,10 +645,10 @@ class TestPatchDepartment:
         moderator, company = await moderator_of_company(return_company=True)
         token = await get_token_for_user(moderator)
 
-        non_existent_id = 99999
+        non_existent_slug = '99999'
         response = await client.patch(
             URL.DEPARTMENT_ENDPOINT.format(
-                company_slug=company.slug, department_id=non_existent_id
+                company_slug=company.slug, department_slug=non_existent_slug
             ),
             headers=token,
             json={'name': 'Иванушка'},
@@ -654,9 +660,9 @@ class TestPatchDepartment:
 
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == 'Объект не найден', (
-            f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
-        )
+        assert (
+            data['detail'] == f'Не найден объект Department по данному slug: {non_existent_slug}'
+        ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
 class TestDeleteDepartment:
@@ -679,7 +685,9 @@ class TestDeleteDepartment:
         department = await department_for_test({'company_id': company.id})
 
         response = await client.delete(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, (
@@ -688,7 +696,9 @@ class TestDeleteDepartment:
         )
 
         response = await client.get(
-            URL.DEPARTMENT_ENDPOINT.format(company_slug=company.slug, department_id=department.id),
+            URL.DEPARTMENT_ENDPOINT.format(
+                company_slug=company.slug, department_slug=department.slug
+            ),
             headers=token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -710,10 +720,10 @@ class TestDeleteDepartment:
         moderator, company = await moderator_of_company(return_company=True)
         token = await get_token_for_user(moderator)
 
-        non_existent_id = 99999
+        non_existent_slug = '99999'
         response = await client.delete(
             URL.DEPARTMENT_ENDPOINT.format(
-                company_slug=company.slug, department_id=non_existent_id
+                company_slug=company.slug, department_slug=non_existent_slug
             ),
             headers=token,
         )
@@ -724,9 +734,9 @@ class TestDeleteDepartment:
 
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == 'Объект не найден', (
-            f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
-        )
+        assert (
+            data['detail'] == f'Не найден объект Department по данному slug: {non_existent_slug}'
+        ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
 class TestCreateDepartment:
@@ -766,7 +776,6 @@ class TestCreateDepartment:
 
         field_checks = {
             'name': department_data['name'],
-            'slug': department_data['name'],
             'company_id': company.id,
         }
 
@@ -891,7 +900,7 @@ class TestCreateEmployee:
         employee_data = generate_employee_data(all_fields=True)
         employee_data['company_id'] = company.id
         employee_data['current_department_id'] = department.id
-        employee_data['last_department_id'] = department.id
+        employee_data['previous_department_id'] = department.id
 
         response = await client.post(
             URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
@@ -924,7 +933,7 @@ class TestCreateEmployee:
             'end_date_employment': employee_data['end_date_employment'],
             'avatar_link': employee_data['avatar_link'],
             'current_department_id': employee_data['current_department_id'],
-            'last_department_id': employee_data['last_department_id'],
+            'previous_department_id': employee_data['previous_department_id'],
             'employee_position': employee_data['employee_position'],
         }
 
@@ -954,7 +963,7 @@ class TestCreateEmployee:
             employee_data = generate_employee_data(all_fields=True)
             employee_data['company_id'] = company.id
             employee_data['current_department_id'] = department.id
-            employee_data['last_department_id'] = department.id
+            employee_data['previous_department_id'] = department.id
             employee_data['telegram_username'] = USER_TELEGRAM
             response = await client.post(
                 URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),

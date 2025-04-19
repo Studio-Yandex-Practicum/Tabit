@@ -3,8 +3,8 @@ from fastapi import status
 from httpx import AsyncClient
 from pytest_lazy_fixtures import lf
 
-from src.tabit_management.constants import ERROR_INVALID_TELEGRAM_USERNAME
-from src.users.models.enum import RoleUserTabit
+from src.core.constants import ERROR_INVALID_TELEGRAM_USERNAME
+from src.models import CompanyUserRole
 from tests.constants import (
     GOOD_PASSWORD,
     MODERATOR_TELEGRAM,
@@ -206,8 +206,8 @@ class TestGetMeUser:
     @pytest.mark.parametrize(
         'token, role, text',
         [
-            (lf('moderator_token'), RoleUserTabit.ADMIN, 'модератором от компании'),
-            (lf('employee_token'), RoleUserTabit.EMPLOYEE, 'сотрудником компании'),
+            (lf('moderator_token'), CompanyUserRole.MODERATOR, 'модератором от компании'),
+            (lf('employee_token'), CompanyUserRole.EMPLOYEE, 'сотрудником компании'),
         ],
     )
     async def test_get_me_user(
@@ -242,7 +242,7 @@ class TestGetMeUser:
             'avatar_link',
             'company_id',
             'current_department_id',
-            'last_department_id',
+            'previous_department_id',
             'department_transition_date',
             'employee_position',
             'created_at',
@@ -261,7 +261,7 @@ class TestGetMeUser:
                     'end_date_employment',
                     'avatar_link',
                     'current_department_id',
-                    'last_department_id',
+                    'previous_department_id',
                     'department_transition_date',
                     'employee_position',
                 )

@@ -1,7 +1,7 @@
 import pytest
 from fastapi import status
 
-from src.problems.models import AssociationUserComment
+from src.models import AssociationUserComment
 from tests.constants import (
     COMMENT_CREATE_BAD,
     COMMENT_CREATE_NEW,

@@ -1,1 +1,7 @@
-.venv
+*
+!alembic
+!alembic.ini
+!scripts
+!src
+!poetry.lock
+!pyproject.toml

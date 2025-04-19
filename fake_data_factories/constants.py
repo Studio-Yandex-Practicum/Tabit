@@ -1,4 +1,6 @@
-# Константы для генерации тестовых данных в Faker-сидерах
+"""Константы для генерации тестовых данных в Faker-сидерах"""
+
+from dataclasses import dataclass
 
 # Основные параметры генерации
 FAKER_USER_COUNT = 5  # Число пользователей для генерации
@@ -8,7 +10,12 @@ FAKER_PROBLEMS_COUNT: int = 5  # Число проблем для генерац
 FAKER_MESSAGE_FEEDS_COUNT: int = 5  # Число лент сообщений для генерации
 FAKER_VOTING_FEEDS_COUNT: int = 5  # Число лент голосований для генерации
 FAKER_TASK_COUNT: int = 5  # Число задач для генерации
-AMOUNT_OF_ADMIN = 1  # Количество админов создаваемых для компании за 1 запуск скрипта
+FAKER_COMMENT_COUNT: int = 5  # Число комментариев для генерации
+FAKER_COMMENT_WORDS_COUNT: int = 7  # Количество слов в комментарии
+FAKER_MIN_COMMENT_RATING: int = 0  # Минимальный рейтинг комментария
+FAKER_MAX_COMMENT_RATING: int = 5  # Максимальный рейтинг комментария
+FAKER_USER_TAGS_COUNT: int = 3  # Число тэгов для генерации
+AMOUNT_OF_MODERATORS = 1  # Количество модераторов создаваемых для компании за 1 запуск скрипта
 
 # Параметры лицензий
 LICENSE_TYPE_COUNT = 5
@@ -53,3 +60,25 @@ DEFAULT_TASK_NAMES: list[str] = [
     'Подготовить список клиентов, которые заказали на сумму менее 500 тыс.',
     'Подготовить отчётность о сделках за последний квартал',
 ]
+
+
+@dataclass
+class ColorCPrint:
+    """Набор цветов для cprint."""
+
+    black: str = 'black'
+    red: str = 'red'
+    green: str = 'green'
+    yellow: str = 'yellow'
+    blue: str = 'blue'
+    magenta: str = 'magenta'
+    cyan: str = 'cyan'
+    white: str = 'white'
+    light_grey: str = 'light_grey'
+    dark_grey: str = 'dark_grey'
+    light_red: str = 'light_red'
+    light_green: str = 'light_green'
+    light_yellow: str = 'light_yellow'
+    light_blue: str = 'light_blue'
+    light_magenta: str = 'light_magenta'
+    light_cyan: str = 'light_cyan'
