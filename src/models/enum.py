@@ -96,3 +96,12 @@ class MeetingResultSolutionEnum(StrEnum):
     MORE_YES = 'Скорее да, чем нет'
     MORE_NO = 'Скорее нет, чем да'
     NO = 'Нет'
+
+
+class SurveysStatus(StrEnum):
+    """Варианты значений для статуса тестирований в админ панели."""
+
+    in_progress = "В работе"
+    complited = "Завершен"
+    canceled = "Отменен"
+    postponed = "Отложен"

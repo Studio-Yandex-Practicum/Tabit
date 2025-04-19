@@ -1,58 +1,114 @@
-# TODO: Требуется проработка ERD
+from typing import List
+
+from sqlalchemy import (
+    Date, DateTime, Integer, ForeignKey,
+    String, Text, JSON, UniqueConstraint, Enum)
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+
+from src.models import BaseTabitModel
+from .enum import SurveysStatus
 
 
-# from sqlalchemy import Boolean, Date, DateTime, Integer, ForeignKey, String, Table, Text
-# from sqlalchemy.orm import relationship, Mapped, mapped_column
+class SurveySchedule(BaseTabitModel):
+    """
+    Модель расписания тестирований.
 
-# from src.models import BaseTabitModel
+    Назначение:
+        Содержит расписание тестирований компании.
 
+    Поля:
+        id: Идентификатор.
+        company_id: Идентифифкатор компании создавшей расписание.
+        survey_slug: slug для выборки нужных тестов.
+        status: Статус расписания тестирований.
 
-# class Survey(BaseTabitModel):
-#     """
-#     Модель для опросов.
-#     """
+    Связи (атрибут - Модель):
+        cycles: Cycle: циклы тестирований внутри одного расписания.
+    """
 
-#     __tablename__ = 'survey'
-
-#     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-#     name: Mapped[str] = mapped_column(String)
-#     description: Mapped[str | None] = mapped_column(Text)
-#     slug: Mapped[str] = mapped_column(String, unique=True)
-#     status: Mapped[int] = mapped_column(Integer, ForeignKey('status_survey.id'))
-#     result: Mapped[int | None] = mapped_column(Integer, ForeignKey('result_survey.id'))
-#     created_at: Mapped[DateTime] = mapped_column(DateTime)
-
-
-# class SurveyUser(BaseTabitModel):
-#     """
-#     Модель связи между опросами и пользователями.
-#     """
-
-#     __tablename__ = 'survey_user'
-
-#     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-#     survey_id: Mapped[int] = mapped_column(Integer, ForeignKey('survey.id'))
-#     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('user_tabit.uuid'))
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True)
+    company_slug: Mapped[str] = mapped_column(
+        ForeignKey("company.slug"), nullable=False)
+    survey_slug: Mapped[str] = mapped_column(String(255), unique=True)
+    status: Mapped[SurveysStatus] = mapped_column(
+        Enum(SurveysStatus), default=SurveysStatus.in_progress)
+    cycles: Mapped[List["SurveyScheduleCycle"]] = relationship(
+        back_populates="survey_schedule",
+        cascade="all, delete-orphan")
 
 
-# class DateSurvey(BaseTabitModel):
-#     """
-#     Модель даты связанные с опросами.
-#     """
+class SurveyScheduleCycle(BaseTabitModel):
+    """
+    Модель для циклов тестирования
 
-#     __tablename__ = 'date_survey'
+    Назначение:
+        Содержит даты начала циклов тестирования.
 
-#     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-#     date: Mapped[Date] = mapped_column(Date)
-#     survey_id: Mapped[int] = mapped_column(Integer, ForeignKey('survey.id'))
+    Поля:
+        id: Идентификатор.
+        date_start: Дата начала тестирования.
+        survey_shedule_id: Идентификатор расписания тестирования.
+    """
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True)
+    date_start: Mapped[Date] = mapped_column(DateTime)
+    survey_schedule_id: Mapped[int] = mapped_column(
+        ForeignKey("surveyschedule.id", ondelete="CASCADE"), nullable=False)
+    survey_schedule: Mapped["SurveySchedule"] = relationship(
+        back_populates="cycles")
 
 
-# class StatusSurvey(BaseTabitModel):
-#     """
-#     Модель статуса опроса.
-#     """
+class SurveyList(BaseTabitModel):
+    """
+    Модель для списка тестов.
 
-#     __tablename__ = 'status_survey'
+    Назначение:
+        Содержит спиок тестов.
 
-#     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-#     name: Mapped[str] = mapped_column(String)
+    Поля:
+        id: Идентификатор.
+        title: Название теста.
+        slug: Идентификатор с помощью которого можно объединить несколько
+              тестов в одно тестирование.
+        description: Описание теста.
+    """
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(255))
+    # slug на случай если будут в дальнейшем еще тесты помимо эмоционального
+    slug: Mapped[str] = mapped_column(String(255))
+    description: Mapped[str | None] = mapped_column(Text)
+
+
+class SurveyData(BaseTabitModel):
+    """
+    Данные об прохождении теста.
+
+    Назначение:
+        Содержит данные об прохождении каждого теста.
+
+    Поля:
+        id: Идентификатор.
+        survey_id: Номер расписания тестирований.
+        survey_list_id: Идентификатор конкретного теста.
+        user_id: Идентификатор пользователя прошедшего тест.
+        answers: Ответы введенные пользователем.
+        results: Результаты тестирования теста.
+
+    """
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True)
+    survey_shedule_id: Mapped[int] = mapped_column(
+        ForeignKey("surveyschedule.id", ondelete="CASCADE"), nullable=False)
+    survey_list_id: Mapped[int] = mapped_column(
+        ForeignKey("surveylist.id", ondelete="CASCADE"), nullable=False)
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("companyuser.id", ondelete="CASCADE"), nullable=False)
+    answers: Mapped[dict] = mapped_column(JSON)
+    results: Mapped[dict | None] = mapped_column(JSON)
+
+    __table_args__ = (UniqueConstraint("survey_list_id", "user_id"),)
