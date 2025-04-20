@@ -11,6 +11,7 @@ from src.schemas.survey import (
 from src.crud.crud_company import company_crud
 from src.crud.crud_surveys import surveys_schedule_crud, surveys_data_crud
 from src.features_v1.validators import validator_check_object_exists
+from src.utils.surveys import Surveys
 
 router = APIRouter()
 
@@ -113,7 +114,6 @@ async def get_employee_survey_info(
 
 @router.post(
     '/{uuid}',
-    response_model=List[SurveyDataRead],
     summary='Передать информацию об опросе сотрудника компании',
     dependencies=[Depends(get_async_session)],
 )
@@ -132,12 +132,14 @@ async def add_employee_survey_info(
         object_slug=company_slug
     )
 
-    await surveys_data_crud.create_survey_data(
-        session=session,
-        data=data,
-        user_id=uuid,
-        company_slug=company_slug
-    )
-    
-    return
-
+    for item in data.answers:
+        result = Surveys(item=item).survey_type()
+        await surveys_data_crud.create_survey_data(
+            session=session,
+            data=data,
+            item=item,
+            result=result,
+            user_id=uuid,
+            company_slug=company_slug
+        )
+    return result
