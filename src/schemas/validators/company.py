@@ -12,21 +12,7 @@ from src.schemas.validators.constants import (
     TEST_ERROR_INVALID_CHARACTERS_NAME,
     TEST_ERROR_INVALID_CHARACTERS_SURNAME,
     TEST_ERROR_LICENSE_FIELDS,
-    TEST_ERROR_UNIQUE_NAME_SURNAME,
 )
-
-
-def validate_name_surname_unique(name: Optional[str], surname: Optional[str]) -> None:
-    """
-    Проверяет, что имя и фамилия не совпадают.
-    Args:
-        name Optional[str]: имя пользователя.
-        surname Optional[str]: фамилия пользователя.
-    Raises:
-        ValueError: Если имя совпадает с фамилией, вызывается ошибка.
-    """
-    if name and surname and name == surname:
-        raise ValueError(TEST_ERROR_UNIQUE_NAME_SURNAME)
 
 
 def validate_name_characters(name: Optional[str]) -> None:

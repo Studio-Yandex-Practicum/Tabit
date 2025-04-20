@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from typing import Any
+from uuid import UUID
 
 from dotenv import load_dotenv
 from fastapi import status
@@ -57,6 +58,11 @@ class URL:
     )
     LIKE_URL: str = '/api/v1/{company_slug}/problems/1/{message_feed_id}/comments/1/like'
     UNLIKE_URL: str = '/api/v1/{company_slug}/problems/1/{message_feed_id}/comments/1/unlike'
+
+    # URLs для tabit_management.py
+    ADMIN_GET_COMPANIES: str = '/api/v1/admin/'
+    ADMIN_MODS_URL: str = '/api/v1/admin/staff'
+    ADMIN_MOD_DATA_URL: str = '/api/v1/admin/staff/{user_id}'
 
 
 GOOD_PASSWORD: str = 'string123STRING'
@@ -237,6 +243,192 @@ COMMENT_UPDATE: dict[str] = {'text': 'updated comment'}
 COMMENT_UPDATE_BAD: tuple[tuple] = (
     ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
     ({'text': 'comment with extra field', 'rating': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+)
+
+# Константы для тестов tabit_management.py
+TEST_UUID: UUID = UUID('{12345678-1234-5678-1234-567812345678}')
+MOD_TEST_EMAIL = 'test@example.com'
+MOD_TEST_EMAIL_BAD = 'test_bad@example.com'
+ADMIN_GET_MOD_INFO: tuple[str] = (status.HTTP_200_OK, status.HTTP_404_NOT_FOUND)
+ADMIN_CREATE_MOD_NEW: dict[str] = {
+    'name': 'test',
+    'surname': 'test',
+    'role': CompanyUserRole.MODERATOR,
+    'email': MOD_TEST_EMAIL,
+    'password': GOOD_PASSWORD,
+}
+
+# Варианты payload для ADMIN_CREATE_MOD_BAD:
+# 1) Отсутствие необходимого поля
+# 2) Некорректный пароль
+# 3) Повторяющийся email
+# 4) Некорректная роль
+# 5) Некорректный company_id
+# 6) Некорректный current_department_id
+# 7) Некорректная связка company_id и current_department_id
+ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'password': GOOD_PASSWORD,
+        'company_id': 1,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': BAD_PASSWORD[-1],
+        'company_id': 1,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'email': MOD_TEST_EMAIL,
+        'password': GOOD_PASSWORD,
+        'company_id': 1,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.EMPLOYEE,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': GOOD_PASSWORD,
+        'company_id': 1,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': GOOD_PASSWORD,
+        'company_id': 99,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': GOOD_PASSWORD,
+        'company_id': 1,
+        'current_department_id': 99,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': GOOD_PASSWORD,
+        'company_id': 2,
+        'current_department_id': 1,
+    },
+)
+ADMIN_PATCH_MOD: tuple[tuple] = (
+    ({'name': 'updated_name', 'email': 'updated@example.com'}, False),
+    ({'current_department_id': 2}, True),
+)
+
+# Варианты payload для ADMIN_PATCH_MOD_BAD:
+# 1) Лишнее поле
+# 2) Некорректный пароль
+# 3) Повторяющийся email
+# 4) Некорректный current_department_id
+# 5) Некорректная связка company_id и current_department_id
+ADMIN_PATCH_MOD_BAD: tuple[dict, ...] = (
+    {'company_id': 2},
+    {'password': BAD_PASSWORD[-1]},
+    {'email': MOD_TEST_EMAIL_BAD},
+    {'current_department_id': 99},
+    {'current_department_id': 2},
+)
+ADMIN_PUT_MOD: tuple[tuple] = (
+    (
+        {
+            'name': 'updated_name',
+            'surname': 'updated_surname',
+            'email': 'updated@example.com',
+            'password': GOOD_PASSWORD,
+            'role': CompanyUserRole.MODERATOR,
+            'current_department_id': 1,
+        },
+        False,
+    ),
+    (
+        {
+            'name': 'updated_name',
+            'surname': 'updated_surname',
+            'email': 'updated@example.com',
+            'password': GOOD_PASSWORD,
+            'role': CompanyUserRole.MODERATOR,
+            'current_department_id': 2,
+        },
+        True,
+    ),
+)
+
+# Варианты payload для ADMIN_PUT_MOD_BAD:
+# 1) Лишнее поле
+# 2) Отсутствие необходимого поля
+# 3) Некорректный пароль
+# 4) Повторяющийся email
+# 5) Некорректный current_department_id
+# 6) Некорректная связка company_id и current_department_id
+ADMIN_PUT_MOD_BAD: tuple[dict, ...] = (
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'email': MOD_TEST_EMAIL,
+        'password': GOOD_PASSWORD,
+        'company_id': 1,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'password': GOOD_PASSWORD,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'email': MOD_TEST_EMAIL,
+        'password': BAD_PASSWORD[-1],
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'email': MOD_TEST_EMAIL_BAD,
+        'password': GOOD_PASSWORD,
+        'current_department_id': 1,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'email': MOD_TEST_EMAIL,
+        'password': GOOD_PASSWORD,
+        'current_department_id': 99,
+    },
+    {
+        'name': 'test_bad',
+        'surname': 'test_bad',
+        'role': CompanyUserRole.MODERATOR,
+        'email': MOD_TEST_EMAIL,
+        'password': GOOD_PASSWORD,
+        'current_department_id': 2,
+    },
 )
 
 # Константы для ожидаемых полей в ответах API

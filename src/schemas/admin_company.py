@@ -47,12 +47,28 @@ url_to_string = Annotated[HttpUrl, AfterValidator(str)]
 
 
 class AdminCompanyResponseSchema(BaseModel):
-    """Схема компании для ответов админам сервиса."""
+    """
+    Схема компании для ответов админам сервиса.
+    Параметры:
+        id: идентификатор компании (обязательно).
+        name: название компании (обязательно).
+        description: Описание компании (опционально).
+        logo: логотип (опционально).
+        license_id: номер лицензии (опционально).
+        max_admins_count: максимальное кол-во администраторов (обязательно).
+        max_employees_count: максимальное кол-во сотрудников (обязательно)
+        start_license_time: дата начала лицензии (опционально).
+        end_license_time: дата окончания действия лицензии (опционально).
+        is_active: bool - активна ли лицензия (обязательно).
+        slug: короткая строка для пути к эндпоинту компании (автозаполнение).
+        created_at: дата создания записи в таблице (автозаполнение).
+        updated_at: дата изменения записи в таблице (автозаполнение).
+    """
 
     id: int
     name: str
     description: Optional[str]
-    logo: Optional[HttpUrl]
+    logo: Optional[str]
     license_id: Optional[int]
     max_admins_count: int
     max_employees_count: int
@@ -144,6 +160,7 @@ class CompanyAdminReadSchema(BaseUser[UUID]):
     employee_position: Optional[str]
     created_at: datetime
     updated_at: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 

@@ -73,7 +73,6 @@ TEST_ERROR_INVALID_CHARACTERS_SURNAME = 'Фамилия содержит нед�
 TEST_ERROR_LICENSE_FIELDS: str = (
     'Поля начала действия лицензии и тип лицензии заполняются одновременно.'
 )
-TEST_ERROR_UNIQUE_NAME_SURNAME = 'Имя и фамилия не могут совпадать!'
 SHORT_SYMBOLS = string.ascii_letters
 GENERATED_SLUG_SUFFIX_RANGE = 3
 ATTEMPTS = 100
