@@ -5,9 +5,12 @@ from sqlalchemy import select
 from fastapi import HTTPException, status
 
 from src.crud.crud_base import CRUDBase
-from src.schemas.survey import SurveyScheduleCreate, SurveyDataCreate
+from src.schemas.survey import (
+    SurveyScheduleCreate, SurveyDataCreate,
+    SurveyAnswer)
 from src.models.survey import (
-    SurveySchedule, SurveyScheduleCycle, SurveyData)
+    SurveySchedule, SurveyScheduleCycle,
+    SurveyData)
 from src.core.constants import (
     TextError,
 )
@@ -77,24 +80,26 @@ class CRUDSurveysData(CRUDBase):
             self,
             session: AsyncSession,
             data: SurveyDataCreate,
+            item: SurveyAnswer,
+            result: dict,
             user_id: UUID,
             company_slug: str
     ):
         """Записывает результаты прохождения теста"""
 
-        for item in data.answers:
-            print(item)
-            survey_data = self.model(
-                survey_shedule_id=data.survey_shedule_id,
-                cycle_id=data.cycle_id,
-                survey_list_id=item.survey_list_id,
-                answers=item.answers,
-                user_id=user_id,
-                company_slug=company_slug
-            )
-            session.add(survey_data)
+        survey_data = self.model(
+            survey_shedule_id=data.survey_shedule_id,
+            cycle_id=data.cycle_id,
+            survey_list_id=item.survey_list_id,
+            answers=item.answers,
+            user_id=user_id,
+            results=result,
+            company_slug=company_slug
+        )
+        session.add(survey_data)
         await session.commit()
-        return {"result"}
+        await session.refresh(survey_data)
+        return survey_data
 
 
 surveys_data_crud = CRUDSurveysData(SurveyData)
