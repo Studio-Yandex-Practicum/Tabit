@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
-from src.crud import admin_company_crud, admin_user_crud
+from src.crud import admin_company_crud, admin_user_crud, moderator_crud
 from src.features_v1.constants import OPENAPI_EXTRA_ADMIN_AUTH
 from src.features_v1.validators import (
     check_company_and_department,
@@ -71,7 +71,7 @@ async def get_all_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
-    return await admin_user_crud.get_multi(session, query_params.skip, query_params.limit)
+    return await moderator_crud.get_multi(session, query_params.skip, query_params.limit)
 
 
 @router.post(
