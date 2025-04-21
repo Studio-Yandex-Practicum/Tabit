@@ -1,8 +1,8 @@
-from src.schemas.survey import SurveyAnswer
+from src.schemas.survey import SurveyAnswerCreate
 
 
 class Surveys:
-    def __init__(self, item: SurveyAnswer):
+    def __init__(self, item: SurveyAnswerCreate):
         self.item = item
 
     def survey_type(self):
