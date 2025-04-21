@@ -39,6 +39,7 @@ class SurveySchedule(BaseTabitModel):
     status: Mapped[SurveysStatus] = mapped_column(
         Enum(SurveysStatus), default=SurveysStatus.in_progress
     )
+
     cycles: Mapped[List["SurveyScheduleCycle"]] = relationship(
         back_populates="survey_schedule",
         cascade="all, delete-orphan"
@@ -65,6 +66,7 @@ class SurveyScheduleCycle(BaseTabitModel):
     survey_schedule_id: Mapped[int] = mapped_column(
         ForeignKey("surveyschedule.id", ondelete="CASCADE"), nullable=False
     )
+
     survey_schedule: Mapped["SurveySchedule"] = relationship(
         back_populates="cycles"
     )
@@ -102,12 +104,11 @@ class SurveyData(BaseTabitModel):
 
     Поля:
         id: Идентификатор.
-        survey_id: Номер расписания тестирований.
-        survey_list_id: Идентификатор конкретного теста.
+        survey_shedule_id: Номер расписания тестирований.
         user_id: Идентификатор пользователя прошедшего тест.
         cycle_id: Идентификатор цикла к которому относится выполненный тест.
         answers: Ответы введенные пользователем.
-        results: Результаты тестирования теста.
+        results: Окончательный результат тестирования.
 
     """
 
@@ -116,9 +117,6 @@ class SurveyData(BaseTabitModel):
     )
     survey_shedule_id: Mapped[int] = mapped_column(
         ForeignKey("surveyschedule.id", ondelete="CASCADE"), nullable=False
-    )
-    survey_list_id: Mapped[int] = mapped_column(
-        ForeignKey("surveylist.id", ondelete="CASCADE"), nullable=False
     )
     user_id: Mapped[UUID] = mapped_column(
         ForeignKey("companyuser.id", ondelete="CASCADE"), nullable=False
@@ -130,7 +128,42 @@ class SurveyData(BaseTabitModel):
         ForeignKey("surveyschedulecycle.id",
                    ondelete="CASCADE"), nullable=False
     )
-    answers: Mapped[dict] = mapped_column(JSON)
     results: Mapped[dict | None] = mapped_column(JSON)
 
-    #__table_args__ = (UniqueConstraint("survey_list_id", "user_id"),)
+    answers: Mapped[List["SurveyAnswer"]] = relationship(
+        back_populates="survey_data",
+        cascade="all, delete-orphan"
+    )
+
+    # __table_args__ = (UniqueConstraint("survey_list_id", "user_id"),)
+
+
+class SurveyAnswer(BaseTabitModel):
+    """
+    Модель для ответов - результатов тестирования пользователя.
+
+    Назначение:
+        Содержит информацию о каждом этапе таста с его ответами и результатами.
+
+    Поля:
+        id: Идентификатор.
+        survey_data_id: Идентификатор таблицы "Данные об прохождении теста".
+        survey_list_id: Идентификатор конкретного теста.
+        answer: Ответы введенные пользователем.
+        results: Результаты теста.
+    """
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+    survey_data_id: Mapped[int] = mapped_column(
+        ForeignKey("surveydata.id")
+    )
+    survey_list_id: Mapped[int] = mapped_column(
+        ForeignKey("surveylist.id", ondelete="CASCADE"), nullable=False
+    )
+    answer: Mapped[dict] = mapped_column(JSON)
+    result: Mapped[dict | None] = mapped_column(JSON)
+
+    survey_data: Mapped["SurveyData"] = relationship(
+        back_populates="answers"
+    )

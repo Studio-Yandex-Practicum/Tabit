@@ -38,7 +38,8 @@ from .survey import (
     SurveyList,
     SurveySchedule,
     SurveyScheduleCycle,
-    SurveyData
+    SurveyData,
+    SurveyAnswer,
 )
 
 __all__ = [
@@ -85,4 +86,5 @@ __all__ = [
     'SurveyScheduleCycle',
     'SurveyData',
     'SurveysTags',
+    'SurveyAnswer',
 ]
