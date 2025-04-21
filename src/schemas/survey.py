@@ -10,7 +10,6 @@ class SurveyScheduleCycleCreate(BaseModel):
 
 class SurveyScheduleCycleRead(SurveyScheduleCycleCreate):
     id: int
-    survey_schedule_id: int
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -30,7 +29,7 @@ class SurveyScheduleRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class SurveyAnswer(BaseModel):
+class SurveyAnswerCreate(BaseModel):
     survey_list_id: int
     answers: List[int]
 
@@ -38,12 +37,11 @@ class SurveyAnswer(BaseModel):
 class SurveyDataCreate(BaseModel):
     survey_shedule_id: int
     cycle_id: int
-    answers: List[SurveyAnswer]
+    answers: List[SurveyAnswerCreate]
 
 
 class SurveyDataRead(BaseModel):
-    survey_shedule_id: int
+    id: int
     cycle_id: int
-    answers: List[int]
 
     model_config = ConfigDict(from_attributes=True)
