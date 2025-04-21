@@ -1,7 +1,7 @@
-from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
-from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict
 
 
 class SurveyScheduleCycleCreate(BaseModel):
@@ -43,5 +43,6 @@ class SurveyDataCreate(BaseModel):
 class SurveyDataRead(BaseModel):
     id: int
     cycle_id: int
+    results: Optional[dict]
 
     model_config = ConfigDict(from_attributes=True)
