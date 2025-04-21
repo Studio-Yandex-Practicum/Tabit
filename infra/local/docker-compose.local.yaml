@@ -24,6 +24,7 @@ services:
       dockerfile: infra/stage/stage.Dockerfile
       args:
         PYTHON_VERSION: ${PYTHON_VERSION}
+        POETRY_VERSION: ${POETRY_VERSION}
     environment:
       - POETRY_VIRTUALENVS_IN_PROJECT=true
       - PATH="/app/.venv/bin:$PATH"
