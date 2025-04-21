@@ -34,7 +34,7 @@ class CRUDSurveysSchedule(CRUDBase):
 
         for cycle_data in schedule_in.cycles:
             cycle = SurveyScheduleCycle(
-                date_start=cycle_data.date,
+                date_start=cycle_data.date_start,
                 survey_schedule_id=schedule.id,
             )
             session.add(cycle)
