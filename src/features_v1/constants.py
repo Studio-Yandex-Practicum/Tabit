@@ -108,6 +108,12 @@ class Summary:
     TABIT_MANAGEMENT_COMPANY_UPDATE: str = 'Обновить данные компании'
     TABIT_MANAGEMENT_COMPANY_DELETE: str = 'Удалить компанию'
 
+    TABIT_MANAGEMENT_DEPARTMENTS_LIST: str = 'Получить список всех отделов компании'
+    TABIT_MANAGEMENT_DEPARTMENT_CREATE: str = 'Создать новый отдел компании'
+    TABIT_MANAGEMENT_DEPARTMENT: str = 'Получить данные об отделе компании'
+    TABIT_MANAGEMENT_DEPARTMENT_UPDATE: str = 'Обновить данные об отделе компании'
+    TABIT_MANAGEMENT_DEPARTMENT_DELETE: str = 'Удалить отдел компании'
+
     TABIT_COMPANY: str = 'Получить данные о компании'
     TABIT_COMPANY_DEPARTMENTS_LIST: str = 'Получить список всех отделов компании'
     TABIT_COMPANY_DEPARTMENTS_CREATE: str = 'Создать новый отдел компании'
@@ -192,14 +198,35 @@ class Description:
     )
     TABIT_MANAGEMENT_COMPANY_CREATE: str = (
         'Создает новую компанию. Доступно только администраторам сервиса.'
-        'Поля "license_id" и "start_license_time" либо оба указываются, либо не одного.'
+        'Поля `license_id` и `start_license_time` либо оба указываются, либо не одного.'
     )
     TABIT_MANAGEMENT_COMPANY_UPDATE: str = (
         'Обновляет данные компании по её `slug`. Доступно только администраторам сервиса.'
+        'Поля `license_id` и `start_license_time` либо оба указываются, либо не одного.'
     )
     TABIT_MANAGEMENT_COMPANY_DELETE: str = (
         'Удаляет компанию по её `slug`. Доступно только администраторам сервиса.'
-        'Поля "license_id" и "start_license_time" либо оба указываются, либо не одного.'
+    )
+
+    TABIT_MANAGEMENT_DEPARTMENTS_LIST: str = (
+        'Возвращает список всех отделов компании. Доступно только администраторам сервиса.'
+    )
+    TABIT_MANAGEMENT_DEPARTMENT_CREATE: str = (
+        'Создает новую отдел для компании, `slug` которой указан в пути. '
+        'Доступно только администраторам сервиса.'
+        'Поле `name` - название отдела, уникально в пределах одной компании.'
+    )
+    TABIT_MANAGEMENT_DEPARTMENT: str = (
+        'Возвращает данные о конкретном отделе компании. Доступно только администраторам сервиса.'
+    )
+    TABIT_MANAGEMENT_DEPARTMENT_UPDATE: str = (
+        'Обновляет данные отдела компании по её и его `slug`, указанных в пути. '
+        'Доступно только администраторам сервиса.'
+        'Поле `name` - название отдела, уникально в пределах одной компании.'
+    )
+    TABIT_MANAGEMENT_DEPARTMENT_DELETE: str = (
+        'Удаляет отдел компании по её `slug`по её и его `slug`, указанных в пути. '
+        'Доступно только администраторам сервиса.'
     )
 
     COMPANY_USER_AUTH_LOGIN: str = 'Авторизация пользователя сервиса.'
@@ -351,6 +378,8 @@ class TextError:
     COMPANY_NOT_FOUND: str = 'Указан некорректный id компании'
     DEPARTMENT_NOT_FOUND: str = 'Указан некорректный id отдела.'
     WRONG_COMPANY_DEPARTMENT: str = 'У данной компании нет указанного отдела.'
+    EXISTS_NAME_DEPARTMENT_IN_COMPANY: str = 'Такое название отдела уже есть у данной компании.'
+    NOT_EMPTY_DEPARTMENT: str = 'Нельзя удалять отдел, в котором есть сотрудники.'
 
 
 @dataclass

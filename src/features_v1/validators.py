@@ -709,3 +709,94 @@ async def validate_license_name(session: AsyncSession, license_name: str):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Лицензия с именем '{license_name}' уже существует.",
         )
+
+
+async def check_name_department_in_company(
+    session: AsyncSession,
+    company_id: int,
+    new_name: str | None,
+    old_name: str | None = None,
+) -> None:
+    """
+    Проверит наличе отдела с указанным названием у компании.
+    Выкинет ошибку, если такое название уже есть.
+
+    Функция выполняет проверку корректности данных перед их обработкой
+    в API-эндпоинте.
+
+    Аргументы:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        company_id (int): идентификатор компании, в которой нужно проверить.
+        name (str): название отдела, наличие которого нужно проверить.
+
+    Возвращает:
+        None: Если данные прошли проверку.
+
+    Исключения:
+        HTTPException: Возникает при ошибках валидации данных.
+    """
+    if (
+        new_name is not None
+        and new_name != old_name
+        and (await department_crud.get_by_name_in_company(session, new_name, company_id))
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=TextError.EXISTS_NAME_DEPARTMENT_IN_COMPANY,
+        )
+
+
+def check_department_in_company(
+    department: Department,
+    company: Company,
+) -> None:
+    """
+    Проверит наличе данного отдела у данной компании.
+    Выкинет ошибку, если отдел от другой компании.
+
+    Функция выполняет проверку корректности данных перед их обработкой
+    в API-эндпоинте.
+
+    Аргументы:
+        department (Department): Модель отдела.
+        company (Company): Модель компании.
+
+    Возвращает:
+        None: Если данные прошли проверку.
+
+    Исключения:
+        HTTPException: Возникает при ошибках валидации данных.
+    """
+    if department.company_id != company.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=TextError.WRONG_COMPANY_DEPARTMENT,
+        )
+
+
+async def check_empty_department(session: AsyncSession, department: Department) -> None:
+    """
+    Проверит что в отделе нет сотрудников.
+    Выкинет ошибку, если в отделе есть хотя бы один сотрудник.
+
+    Функция выполняет проверку корректности данных перед их обработкой
+    в API-эндпоинте.
+
+    Аргументы:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        department (Department): Модель отдела.
+
+    Возвращает:
+        None: Если данные прошли проверку.
+
+    Исключения:
+        HTTPException: Возникает при ошибках валидации данных.
+    """
+    if await moderator_crud.get_multi(
+        session,
+        filters={'current_department_id': department.id},
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=TextError.NOT_EMPTY_DEPARTMENT,
+        )

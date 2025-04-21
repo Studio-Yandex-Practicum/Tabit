@@ -17,7 +17,7 @@ from src.models.annotations import (
 from src.models.constants import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
 
 if TYPE_CHECKING:
-    from src.models import CompanyUser, Department, LicenseType, Problem, UserTag
+    from src.models import CompanyUser, LicenseType, Problem, UserTag
 
 
 class Company(BaseTabitModel):
@@ -81,6 +81,7 @@ class Company(BaseTabitModel):
             f'{self.__class__.__name__}('
             f'id={self.id!r}, '
             f'name={self.name!r}, '
+            f'slug={self.slug!r}, '
             f'is_active={self.is_active!r})'
         )
 
@@ -121,5 +122,6 @@ class Department(BaseTabitModel):
             f'{self.__class__.__name__}('
             f'id={self.id!r}, '
             f'name={self.name!r}, '
+            f'slug={self.slug!r}, '
             f'company_id={self.company_id!r})'
         )

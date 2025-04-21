@@ -182,12 +182,13 @@ class CompanyTypeFilterSchema(BaseModel):
 class CompanyDepartmentUpdateSchema(BaseModel):
     """Схема для обновления данных об отделе."""
 
-    name: str = Field(
-        ...,
+    name: str | None = Field(
+        None,
         min_length=MIN_LENGTH_NAME,
         max_length=LENGTH_NAME_COMPANY,
         title=TITLE_NAME_DEPARTMENT,
     )
+
     model_config = ConfigDict(extra='forbid')
 
 

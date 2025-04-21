@@ -15,13 +15,13 @@ LENGTH_NAME_USER: int = 100
 LENGTH_NAME_LICENSE: int = 100
 LENGTH_NAME_COMPANY: int = 255
 LENGTH_DESCRIPTION_COMPANY: int = 255
-LENGTH_NAME_DEPARTMENT: int = 255
+LENGTH_NAME_DEPARTMENT: int = LENGTH_NAME_COMPANY
 LENGTH_NAME_PROBLEM: int = 255
 LENGTH_NAME_MEETING_PLACE: int = 255
 LENGTH_SMALL_NAME: int = 30
 LENGTH_TELEGRAM_USERNAME: int = 100
 LENGTH_FILE_LINK: int = 2048
-LENGTH_SLUG: int = 25
+LENGTH_SLUG: int = LENGTH_NAME_COMPANY + 5  # Генератор слага может добавить 4 символов.
 
 # Проверяет наличие символов в обоих регистрах, числел и минимальную длину 8 символов
 PATTERN_PASSWORD: str = rf'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{{{MIN_LENGTH_PASSWORD},}}$'
