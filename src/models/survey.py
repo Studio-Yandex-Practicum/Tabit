@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import (
     Date, DateTime, Integer, ForeignKey,
-    String, Text, JSON, UniqueConstraint, Enum)
+    String, Text, JSON, Enum)
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.models import BaseTabitModel
@@ -134,8 +134,6 @@ class SurveyData(BaseTabitModel):
         back_populates="survey_data",
         cascade="all, delete-orphan"
     )
-
-    # __table_args__ = (UniqueConstraint("survey_list_id", "user_id"),)
 
 
 class SurveyAnswer(BaseTabitModel):
