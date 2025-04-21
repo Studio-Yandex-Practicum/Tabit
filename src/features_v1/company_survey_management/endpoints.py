@@ -43,7 +43,7 @@ async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_asy
 @router.post(
     '/',
     response_model=SurveyScheduleRead,
-    summary='Создать новый опрос для компании',
+    summary='Создать новое расписание опросов',
     dependencies=[Depends(get_async_session)],
 )
 async def create_survey_schedule(
@@ -151,7 +151,7 @@ async def add_employee_survey_info(
     data: SurveyDataCreate,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Получает информацию об опросе сотрудника компании."""
+    """Передает информацию об опросе сотрудника компании."""
     # TODO: Проверить существование сотрудника
     # TODO: Проверить сущестрование номера теста
     await validator_check_object_exists(
