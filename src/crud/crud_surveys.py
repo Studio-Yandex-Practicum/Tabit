@@ -93,7 +93,7 @@ class CRUDSurveysSchedule(CRUDBase):
 
 
 class CRUDSurveysData(CRUDBase):
-    """CRUD операции для работы с данными проходжения тестирования."""
+    """CRUD операции для работы с данными прохождения тестирования."""
 
     async def create_survey_data(
             self,
