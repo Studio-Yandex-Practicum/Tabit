@@ -136,6 +136,38 @@ class CRUDSurveysData(CRUDBase):
         await session.refresh(answer)
         return answer
 
+    async def get_user_survey(
+            self,
+            session: AsyncSession,
+            company_slug: str,
+            survey_data_id: int,
+            user_id: UUID
+    ):
+        """ Получает информацию об опросе пользователя."""
+
+        result = await session.execute(
+            select(self.model)
+            .where(self.model.id == survey_data_id
+                   and self.model.user_id == user_id
+                   and self.model.company_slug == company_slug)
+        )
+        return result.scalars().first()
+
+    async def get_all_user_survey(
+            self,
+            session: AsyncSession,
+            company_slug: str,
+            user_id: UUID
+    ):
+        """ Получает информацию обо всех опросах пользователя."""
+
+        result = await session.execute(
+            select(self.model)
+            .where(self.model.user_id == user_id
+                   and self.model.company_slug == company_slug)
+        )
+        return result.scalars().all()
+
 
 surveys_data_crud = CRUDSurveysData(SurveyData)
 surveys_schedule_crud = CRUDSurveysSchedule(SurveySchedule)
