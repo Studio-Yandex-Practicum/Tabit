@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database.db_depends import get_async_session
 from src.schemas.survey import (
     SurveyScheduleCreate, SurveyScheduleRead,
-    SurveyDataCreate, SurveyDataRead)
+    SurveyDataCreate, SurveyDataRead, SurveyScheduleCycleRead)
 from src.crud.crud_company import company_crud
 from src.crud.crud_surveys import surveys_schedule_crud, surveys_data_crud
 from src.features_v1.validators import validator_check_object_exists
@@ -79,6 +79,31 @@ async def create_survey_schedule(
 
 
 @router.get(
+    '/{schedule_id}',
+    #response_model=List[SurveyScheduleCycleRead],
+    summary='Получить список циклов опросов внутри расписания компании',
+    dependencies=[Depends(get_async_session)],
+)
+async def get_surveys_cycles(
+    company_slug: str,
+    schedule_id: int,
+    session: AsyncSession = Depends(get_async_session)
+):
+    """Получает список циклов опросов внутри расписания компании."""
+    await validator_check_object_exists(
+        session=session,
+        model_crud=company_crud,
+        object_slug=company_slug
+    )
+
+    cycles = await surveys_schedule_crud.get_cycles(
+        session=session,
+        obj_id=schedule_id
+    )
+    return cycles
+
+
+@router.get(
     '/{uuid}',
     summary='Получить историю опросов сотрудника компании',
     dependencies=[Depends(get_async_session)],
@@ -125,21 +150,28 @@ async def add_employee_survey_info(
 ):
     """Получает информацию об опросе сотрудника компании."""
     # TODO: Проверить существование сотрудника
-    # TODO: Проверить сущестрование номера теста 
+    # TODO: Проверить сущестрование номера теста
     await validator_check_object_exists(
         session=session,
         model_crud=company_crud,
         object_slug=company_slug
     )
-
-    for item in data.answers:
-        result = Surveys(item=item).survey_type()
-        await surveys_data_crud.create_survey_data(
+    survey_data = await surveys_data_crud.create_survey_data(
             session=session,
             data=data,
-            item=item,
-            result=result,
             user_id=uuid,
             company_slug=company_slug
         )
-    return result
+
+    survey_data_id = survey_data.id
+
+    for item in data.answers:
+        result = Surveys(item=item).survey_type()
+        await surveys_data_crud.create_survay_answers(
+            session=session,
+            survey_data_id=survey_data_id,
+            item=item,
+            result=result
+        )
+
+    return survey_data
