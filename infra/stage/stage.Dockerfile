@@ -20,4 +20,4 @@ RUN poetry install --no-root --all-extras --with dev --no-interaction
 
 COPY . /app/
 
-CMD poetry run uvicorn src.main:app_v${APP_VERSION} --host 0.0.0.0 --port $APP_PORT
+CMD ["sh", "-c", "poetry run uvicorn src.main:app_v${APP_VERSION} --host 0.0.0.0 --port ${APP_PORT}"]
