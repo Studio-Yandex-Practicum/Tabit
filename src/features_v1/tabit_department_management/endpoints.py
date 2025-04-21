@@ -18,7 +18,7 @@ from src.features_v1.validators import (
 from src.models import Department
 from src.schemas.company import (
     CompanyDepartmentCreateSchema,
-    CompanyDepartmentResponseSchema,
+    CompanyDepartmentResponseSchemaForAdmin,
     CompanyDepartmentUpdateSchema,
 )
 
@@ -27,7 +27,7 @@ router = APIRouter(dependencies=[Depends(current_admin_tabit)])
 
 @router.get(
     '/',
-    response_model=list[CompanyDepartmentResponseSchema],
+    response_model=list[CompanyDepartmentResponseSchemaForAdmin],
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_MANAGEMENT_DEPARTMENTS_LIST,
     description=Description.TABIT_MANAGEMENT_DEPARTMENTS_LIST,
@@ -70,7 +70,7 @@ async def get_departments_by_company_slug(
 
 @router.post(
     '/',
-    response_model=CompanyDepartmentResponseSchema,
+    response_model=CompanyDepartmentResponseSchemaForAdmin,
     status_code=status.HTTP_201_CREATED,
     summary=Summary.TABIT_MANAGEMENT_DEPARTMENT_CREATE,
     description=Description.TABIT_MANAGEMENT_DEPARTMENT_CREATE,
@@ -83,6 +83,7 @@ async def create_department_by_company_slug(
 ) -> Department:
     """
     Описывает работу конечной точки создания отдела для компании администраторами сервиса.
+    Поле `name` - название отдела, уникально в пределах одной компании.
 
     Аргументы декоратора:
         path (str): URL-путь конечной точки.
@@ -117,8 +118,8 @@ async def create_department_by_company_slug(
 
 @router.get(
     '/{department_slug}',
-    response_model=CompanyDepartmentResponseSchema,
-    status_code=status.HTTP_201_CREATED,
+    response_model=CompanyDepartmentResponseSchemaForAdmin,
+    status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_MANAGEMENT_DEPARTMENT,
     description=Description.TABIT_MANAGEMENT_DEPARTMENT,
     openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
@@ -162,7 +163,7 @@ async def get_department_by_slug(
 
 @router.patch(
     '/{department_slug}',
-    response_model=CompanyDepartmentResponseSchema,
+    response_model=CompanyDepartmentResponseSchemaForAdmin,
     status_code=status.HTTP_200_OK,
     summary=Summary.TABIT_MANAGEMENT_DEPARTMENT_UPDATE,
     description=Description.TABIT_MANAGEMENT_DEPARTMENT_UPDATE,
@@ -177,6 +178,7 @@ async def update_department_by_company_slug(
     """
     Описывает работу конечной точки изменении информации о конкретном отделе компании
     администраторами сервиса.
+    Поле `name` - название отдела, уникально в пределах одной компании.
 
     Аргументы декоратора:
         path (str): URL-путь конечной точки.

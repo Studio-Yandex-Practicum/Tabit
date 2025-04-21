@@ -189,7 +189,7 @@ class CompanyDepartmentUpdateSchema(BaseModel):
         title=TITLE_NAME_DEPARTMENT,
     )
 
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
 class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
@@ -206,7 +206,7 @@ class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
         title=TITLE_NAME_DEPARTMENT,
     )
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, str_strip_whitespace=True)
 
 
 class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
@@ -223,6 +223,22 @@ class CompanyDepartmentResponseSchema(CompanyDepartmentCreateSchema):
     name: str
     slug: str
     company_id: int
+
+
+class CompanyDepartmentResponseSchemaForAdmin(CompanyDepartmentResponseSchema):
+    """
+    Схема для получения данных отдела.
+    Параметры:
+        id: идентификатор отдела (обязательно).
+        name: название отдела (обязательно).
+        slug: короткая строка для пути к эндпоинту отдела (автозаполнение).
+        company_id: идентификатор компании (автозаполнение).
+        created_at: дата создания отдела.
+        updated_at: дата изменения отдела.
+    """
+
+    created_at: datetime
+    updated_at: datetime
 
 
 class CompanyEmployeeUpdateSchema(UserUpdateSchema):

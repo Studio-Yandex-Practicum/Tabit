@@ -11,6 +11,16 @@ from src.models.enum import CompanyUserRole
 
 load_dotenv()
 
+type _token = dict[str, str]
+
+
+@dataclass
+class LENGTH:
+    """Длины"""
+
+    NAME: int = 255
+    SLUG: int = 260
+
 
 @dataclass
 class TEST_DATABASE_URL:
@@ -46,6 +56,10 @@ class URL:
     EMPLOYEE_ENDPOINT: str = '/api/v1/{company_slug}/employees/{employee_id}'
     CREATE_EMPLOYEE_ENDPOINT: str = '/api/v1/{company_slug}/employees'
     FEEDBACK_ENDPOINT: str = '/api/v1/{company_slug}/feedback/'
+    MANAGEMENT_DEPARTMENT: str = '/api/v1/admin/companies/{company_slug}/department/'
+    MANAGEMENT_DEPARTMENT_WITH_SLUG: str = (
+        '/api/v1/admin/companies/{company_slug}/department/{department_slug}'
+    )
 
     # URLs для problem_feeds.py
     MESSAGE_FEED_URL: str = '/api/v1/{company_slug}/problems/{problem_id}/thread'
@@ -223,24 +237,25 @@ INVALID_IMAGE: tuple[tuple[Any, Any], ...] = (
 )
 
 ONE: int = 1
+"""целочисленное 1"""
 
 # Константы для тестов problem_feeds.py
-MESSAGE_FEED_CREATE_NEW: tuple[tuple] = (
+MESSAGE_FEED_CREATE_NEW: tuple[tuple[dict[str, Any], bool], ...] = (
     ({'text': 'feed with important field', 'important': True}, True),
     ({'text': 'feed w/o important field'}, False),
 )
-MESSAGE_FEED_CREATE_BAD: tuple[tuple] = (
+MESSAGE_FEED_CREATE_BAD: tuple[tuple[dict[str, Any], int], ...] = (
     ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
     ({'text': 'feed with extra field', 'problem_id': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
 )
-MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY: dict[str] = {'text': 'feed for another company'}
-COMMENT_CREATE_NEW: dict[str] = {'text': 'new comment'}
-COMMENT_CREATE_BAD: tuple[tuple] = (
+MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY: dict[str, str] = {'text': 'feed for another company'}
+COMMENT_CREATE_NEW: dict[str, str] = {'text': 'new comment'}
+COMMENT_CREATE_BAD: tuple[tuple[dict[str, Any], int], ...] = (
     ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
     ({'text': 'comment with extra field', 'message_id': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
 )
-COMMENT_UPDATE: dict[str] = {'text': 'updated comment'}
-COMMENT_UPDATE_BAD: tuple[tuple] = (
+COMMENT_UPDATE: dict[str, str] = {'text': 'updated comment'}
+COMMENT_UPDATE_BAD: tuple[tuple[dict[str, Any], int], ...] = (
     ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
     ({'text': 'comment with extra field', 'rating': 5}, status.HTTP_422_UNPROCESSABLE_ENTITY),
 )
@@ -249,8 +264,8 @@ COMMENT_UPDATE_BAD: tuple[tuple] = (
 TEST_UUID: UUID = UUID('{12345678-1234-5678-1234-567812345678}')
 MOD_TEST_EMAIL = 'test@example.com'
 MOD_TEST_EMAIL_BAD = 'test_bad@example.com'
-ADMIN_GET_MOD_INFO: tuple[str] = (status.HTTP_200_OK, status.HTTP_404_NOT_FOUND)
-ADMIN_CREATE_MOD_NEW: dict[str] = {
+ADMIN_GET_MOD_INFO: tuple[int, int] = (status.HTTP_200_OK, status.HTTP_404_NOT_FOUND)
+ADMIN_CREATE_MOD_NEW: dict[str, Any] = {
     'name': 'test',
     'surname': 'test',
     'role': CompanyUserRole.MODERATOR,
@@ -266,7 +281,7 @@ ADMIN_CREATE_MOD_NEW: dict[str] = {
 # 5) Некорректный company_id
 # 6) Некорректный current_department_id
 # 7) Некорректная связка company_id и current_department_id
-ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
+ADMIN_CREATE_MOD_BAD: tuple[dict[str, Any], ...] = (
     {
         'name': 'test_bad',
         'surname': 'test_bad',
@@ -330,7 +345,7 @@ ADMIN_CREATE_MOD_BAD: tuple[dict, ...] = (
         'current_department_id': 1,
     },
 )
-ADMIN_PATCH_MOD: tuple[tuple] = (
+ADMIN_PATCH_MOD: tuple[tuple[dict[str, Any], bool], ...] = (
     ({'name': 'updated_name', 'email': 'updated@example.com'}, False),
     ({'current_department_id': 2}, True),
 )
@@ -348,7 +363,7 @@ ADMIN_PATCH_MOD_BAD: tuple[dict, ...] = (
     {'current_department_id': 99},
     {'current_department_id': 2},
 )
-ADMIN_PUT_MOD: tuple[tuple] = (
+ADMIN_PUT_MOD: tuple[tuple[dict[str, Any], bool], ...] = (
     (
         {
             'name': 'updated_name',
@@ -432,7 +447,7 @@ ADMIN_PUT_MOD_BAD: tuple[dict, ...] = (
 )
 
 # Константы для ожидаемых полей в ответах API
-COMPANY_FIELDS = {
+COMPANY_FIELDS: set[str] = {
     'id',
     'name',
     'description',
@@ -448,9 +463,17 @@ COMPANY_FIELDS = {
     'updated_at',
 }
 
-DEPARTMENT_FIELDS = {'name', 'slug', 'id', 'company_id'}
+DEPARTMENT_FIELDS: set[str] = {'name', 'slug', 'id', 'company_id'}
+DEPARTMENT_FIELDS_FOR_ADMIN: set[str] = {
+    'name',
+    'slug',
+    'id',
+    'company_id',
+    'created_at',
+    'updated_at',
+}
 
-EMPLOYEE_FIELDS = {
+EMPLOYEE_FIELDS: set[str] = {
     'id',
     'email',
     'is_active',

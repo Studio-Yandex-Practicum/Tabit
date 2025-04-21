@@ -741,7 +741,7 @@ async def check_name_department_in_company(
         and (await department_crud.get_by_name_in_company(session, new_name, company_id))
     ):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=TextError.EXISTS_NAME_DEPARTMENT_IN_COMPANY,
         )
 
@@ -769,7 +769,7 @@ def check_department_in_company(
     """
     if department.company_id != company.id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=TextError.WRONG_COMPANY_DEPARTMENT,
         )
 
