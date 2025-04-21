@@ -56,7 +56,7 @@ async def create_survey_schedule(
     Создает новое расписание.
 
     Поля:
-        date: заполняется в формате "2019-08-24".
+        date_start: заполняется в формате "2019-08-24".
         status: in_progress - "В работе"
                 complited - "Завершен"
                 canceled - "Отменен"
@@ -79,8 +79,8 @@ async def create_survey_schedule(
 
 
 @router.get(
-    '/{schedule_id}',
-    #response_model=List[SurveyScheduleCycleRead],
+    '/{schedule_id:int}',
+    response_model=List[SurveyScheduleCycleRead],
     summary='Получить список циклов опросов внутри расписания компании',
     dependencies=[Depends(get_async_session)],
 )
@@ -104,37 +104,61 @@ async def get_surveys_cycles(
 
 
 @router.get(
-    '/{uuid}',
+    '/{user_id:uuid}',
+    response_model=List[SurveyDataRead],
     summary='Получить историю опросов сотрудника компании',
     dependencies=[Depends(get_async_session)],
 )
 async def get_employee_survey_history(
     company_slug: str,
-    uuid: UUID,
-    session: AsyncSession = Depends(get_async_session)
+    user_id: UUID,
+    session: AsyncSession = Depends(get_async_session),
 ):
     """Получает историю опросов сотрудника компании."""
-    # TODO: Проверить существование компании
     # TODO: Проверить существование сотрудника
-    return {'message': 'История опросов сотрудника компании пока пуста'}
+    await validator_check_object_exists(
+        session=session,
+        model_crud=company_crud,
+        object_slug=company_slug
+    )
+
+    survey_data = await surveys_data_crud.get_all_user_survey(
+        session=session,
+        company_slug=company_slug,
+        user_id=user_id
+    )
+    return survey_data
 
 
 @router.get(
-    '/{uuid}/{survey_id}',
+    '/{user_id}/{survey_id}',
+    response_model=SurveyDataRead,
     summary='Получить информацию об опросе сотрудника компании',
     dependencies=[Depends(get_async_session)],
 )
 async def get_employee_survey_info(
     company_slug: str,
-    uuid: UUID,
+    user_id: UUID,
     survey_id: int,
     session: AsyncSession = Depends(get_async_session),
 ):
     """Получает информацию об опросе сотрудника компании."""
-    # TODO: Проверить существование компании
     # TODO: Проверить существование сотрудника
     # TODO: Проверить существование пройденого теста
-    return {'message': 'Информация об опросе сотрудника компании пока недоступна'}
+    await validator_check_object_exists(
+        session=session,
+        model_crud=company_crud,
+        object_slug=company_slug
+    )
+
+    survey_data = await surveys_data_crud.get_user_survey(
+        session=session,
+        company_slug=company_slug,
+        survey_data_id=survey_id,
+        user_id=user_id
+    )
+
+    return survey_data
 
 
 @router.post(
