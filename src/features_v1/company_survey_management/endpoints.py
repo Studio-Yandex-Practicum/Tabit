@@ -6,8 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database.db_depends import get_async_session
 from src.schemas.survey import (
-    SurveyScheduleCreate, SurveyScheduleRead,
-    SurveyDataCreate, SurveyDataRead, SurveyScheduleCycleRead)
+    SurveyScheduleCreate,
+    SurveyScheduleRead,
+    SurveyDataCreate,
+    SurveyDataRead,
+    SurveyScheduleCycleRead,
+)
 from src.crud.crud_company import company_crud
 from src.crud.crud_surveys import surveys_schedule_crud, surveys_data_crud
 from src.features_v1.validators import validator_check_object_exists
@@ -22,15 +26,10 @@ router = APIRouter()
     summary='Получить список всех опросов компании',
     dependencies=[Depends(get_async_session)],
 )
-async def get_surveys(
-    company_slug: str,
-    session: AsyncSession = Depends(get_async_session)
-):
+async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_async_session)):
     """Получает список всех опросов компании."""
     await validator_check_object_exists(
-        session=session,
-        model_crud=company_crud,
-        object_slug=company_slug
+        session=session, model_crud=company_crud, object_slug=company_slug
     )
 
     schedule = await surveys_schedule_crud.get_by_slug(
@@ -50,7 +49,7 @@ async def get_surveys(
 async def create_survey_schedule(
     company_slug: str,
     data: SurveyScheduleCreate,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
     """
     Создает новое расписание.
@@ -65,15 +64,11 @@ async def create_survey_schedule(
                     test = "Тестовый тест для тестирования"
     """
     await validator_check_object_exists(
-        session=session,
-        model_crud=company_crud,
-        object_slug=company_slug
+        session=session, model_crud=company_crud, object_slug=company_slug
     )
 
     schedule = await surveys_schedule_crud.create_surveys_schedule(
-        session=session,
-        slug=company_slug,
-        schedule_in=data
+        session=session, slug=company_slug, schedule_in=data
     )
     return schedule
 
@@ -85,21 +80,14 @@ async def create_survey_schedule(
     dependencies=[Depends(get_async_session)],
 )
 async def get_surveys_cycles(
-    company_slug: str,
-    schedule_id: int,
-    session: AsyncSession = Depends(get_async_session)
+    company_slug: str, schedule_id: int, session: AsyncSession = Depends(get_async_session)
 ):
     """Получает список циклов опросов внутри расписания компании."""
     await validator_check_object_exists(
-        session=session,
-        model_crud=company_crud,
-        object_slug=company_slug
+        session=session, model_crud=company_crud, object_slug=company_slug
     )
 
-    cycles = await surveys_schedule_crud.get_cycles(
-        session=session,
-        obj_id=schedule_id
-    )
+    cycles = await surveys_schedule_crud.get_cycles(session=session, obj_id=schedule_id)
     return cycles
 
 
@@ -117,15 +105,11 @@ async def get_employee_survey_history(
     """Получает историю опросов сотрудника компании."""
     # TODO: Проверить существование сотрудника
     await validator_check_object_exists(
-        session=session,
-        model_crud=company_crud,
-        object_slug=company_slug
+        session=session, model_crud=company_crud, object_slug=company_slug
     )
 
     survey_data = await surveys_data_crud.get_all_user_survey(
-        session=session,
-        company_slug=company_slug,
-        user_id=user_id
+        session=session, company_slug=company_slug, user_id=user_id
     )
     return survey_data
 
@@ -146,16 +130,11 @@ async def get_employee_survey_info(
     # TODO: Проверить существование сотрудника
     # TODO: Проверить существование пройденого теста
     await validator_check_object_exists(
-        session=session,
-        model_crud=company_crud,
-        object_slug=company_slug
+        session=session, model_crud=company_crud, object_slug=company_slug
     )
 
     survey_data = await surveys_data_crud.get_user_survey(
-        session=session,
-        company_slug=company_slug,
-        survey_data_id=survey_id,
-        user_id=user_id
+        session=session, company_slug=company_slug, survey_data_id=survey_id, user_id=user_id
     )
 
     return survey_data
@@ -176,26 +155,18 @@ async def add_employee_survey_info(
     # TODO: Проверить существование сотрудника
     # TODO: Проверить сущестрование номера теста
     await validator_check_object_exists(
-        session=session,
-        model_crud=company_crud,
-        object_slug=company_slug
+        session=session, model_crud=company_crud, object_slug=company_slug
     )
     survey_data = await surveys_data_crud.create_survey_data(
-            session=session,
-            data=data,
-            user_id=uuid,
-            company_slug=company_slug
-        )
+        session=session, data=data, user_id=uuid, company_slug=company_slug
+    )
 
     survey_data_id = survey_data.id
 
     for item in data.answers:
         result = Surveys(item=item).survey_type()
         await surveys_data_crud.create_survay_answers(
-            session=session,
-            survey_data_id=survey_data_id,
-            item=item,
-            result=result
+            session=session, survey_data_id=survey_data_id, item=item, result=result
         )
 
     return survey_data

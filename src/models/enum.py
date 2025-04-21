@@ -101,14 +101,14 @@ class MeetingResultSolutionEnum(StrEnum):
 class SurveysStatus(StrEnum):
     """Варианты значений для статуса тестирований в админ панели."""
 
-    in_progress = "В работе"
-    complited = "Завершен"
-    canceled = "Отменен"
-    postponed = "Отложен"
+    in_progress = 'В работе'
+    complited = 'Завершен'
+    canceled = 'Отменен'
+    postponed = 'Отложен'
 
 
 class SurveysTags(StrEnum):
     """Тэги тестов для объединения нескольких тестов."""
 
-    emo = "Определение эмоционального состояния"
-    test = "Тестовый тест для тестирования"
+    emo = 'Определение эмоционального состояния'
+    test = 'Тестовый тест для тестирования'

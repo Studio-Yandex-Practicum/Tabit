@@ -1,9 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from sqlalchemy import (
-    Date, DateTime, Integer, ForeignKey,
-    String, Text, JSON, Enum)
+from sqlalchemy import Date, DateTime, Integer, ForeignKey, String, Text, JSON, Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.models import BaseTabitModel
@@ -27,22 +25,17 @@ class SurveySchedule(BaseTabitModel):
         cycles: Cycle: циклы тестирований внутри одного расписания.
     """
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     company_slug: Mapped[str] = mapped_column(
-        ForeignKey("company.slug", ondelete="CASCADE"), nullable=False
+        ForeignKey('company.slug', ondelete='CASCADE'), nullable=False
     )
-    survey_tag: Mapped[SurveysTags] = mapped_column(
-        Enum(SurveysTags)
-    )
+    survey_tag: Mapped[SurveysTags] = mapped_column(Enum(SurveysTags))
     status: Mapped[SurveysStatus] = mapped_column(
         Enum(SurveysStatus), default=SurveysStatus.in_progress
     )
 
-    cycles: Mapped[List["SurveyScheduleCycle"]] = relationship(
-        back_populates="survey_schedule",
-        cascade="all, delete-orphan"
+    cycles: Mapped[List['SurveyScheduleCycle']] = relationship(
+        back_populates='survey_schedule', cascade='all, delete-orphan'
     )
 
 
@@ -59,17 +52,13 @@ class SurveyScheduleCycle(BaseTabitModel):
         survey_shedule_id: Идентификатор расписания тестирования.
     """
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     date_start: Mapped[Date] = mapped_column(DateTime)
     survey_schedule_id: Mapped[int] = mapped_column(
-        ForeignKey("surveyschedule.id", ondelete="CASCADE"), nullable=False
+        ForeignKey('surveyschedule.id', ondelete='CASCADE'), nullable=False
     )
 
-    survey_schedule: Mapped["SurveySchedule"] = relationship(
-        back_populates="cycles"
-    )
+    survey_schedule: Mapped['SurveySchedule'] = relationship(back_populates='cycles')
 
 
 class SurveyList(BaseTabitModel):
@@ -87,9 +76,7 @@ class SurveyList(BaseTabitModel):
         description: Описание теста.
     """
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(255))
     tag: Mapped[SurveysTags] = mapped_column(Enum(SurveysTags))
     description: Mapped[str | None] = mapped_column(Text)
@@ -112,27 +99,23 @@ class SurveyData(BaseTabitModel):
 
     """
 
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     survey_shedule_id: Mapped[int] = mapped_column(
-        ForeignKey("surveyschedule.id", ondelete="CASCADE"), nullable=False
+        ForeignKey('surveyschedule.id', ondelete='CASCADE'), nullable=False
     )
     user_id: Mapped[UUID] = mapped_column(
-        ForeignKey("companyuser.id", ondelete="CASCADE"), nullable=False
+        ForeignKey('companyuser.id', ondelete='CASCADE'), nullable=False
     )
     company_slug: Mapped[str] = mapped_column(
-        ForeignKey("company.slug", ondelete="CASCADE"), nullable=False
+        ForeignKey('company.slug', ondelete='CASCADE'), nullable=False
     )
     cycle_id: Mapped[int] = mapped_column(
-        ForeignKey("surveyschedulecycle.id",
-                   ondelete="CASCADE"), nullable=False
+        ForeignKey('surveyschedulecycle.id', ondelete='CASCADE'), nullable=False
     )
     results: Mapped[dict | None] = mapped_column(JSON)
 
-    answers: Mapped[List["SurveyAnswer"]] = relationship(
-        back_populates="survey_data",
-        cascade="all, delete-orphan"
+    answers: Mapped[List['SurveyAnswer']] = relationship(
+        back_populates='survey_data', cascade='all, delete-orphan'
     )
 
 
@@ -150,18 +133,13 @@ class SurveyAnswer(BaseTabitModel):
         answer: Ответы введенные пользователем.
         results: Результаты теста.
     """
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
-    survey_data_id: Mapped[int] = mapped_column(
-        ForeignKey("surveydata.id")
-    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    survey_data_id: Mapped[int] = mapped_column(ForeignKey('surveydata.id'))
     survey_list_id: Mapped[int] = mapped_column(
-        ForeignKey("surveylist.id", ondelete="CASCADE"), nullable=False
+        ForeignKey('surveylist.id', ondelete='CASCADE'), nullable=False
     )
     answer: Mapped[dict] = mapped_column(JSON)
     result: Mapped[dict | None] = mapped_column(JSON)
 
-    survey_data: Mapped["SurveyData"] = relationship(
-        back_populates="answers"
-    )
+    survey_data: Mapped['SurveyData'] = relationship(back_populates='answers')
