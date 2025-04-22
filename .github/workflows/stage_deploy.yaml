@@ -141,8 +141,8 @@ jobs:
             mkdir -p /home/${{ secrets.USERNAME }}/tabit/tmp
 
             # Скачиваем образ и сохраняем его в .tar
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
-            docker save -o /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar ghcr.io/${{ env.IMAGE_NAME }}:latest
+            docker pull ghcr.io/${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            docker save -o /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar ghcr.io/${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Load Docker image on VPS
         uses: appleboy/ssh-action@master
@@ -152,7 +152,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker load -i /home/${{ secrets.USERNAME }}/tabit/tmp/tabit.tar
-            docker tag ghcr.io/${{ env.IMAGE_NAME }}:latest ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            docker tag ghcr.io/${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest ghcr.io/${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Restart services
         uses: appleboy/ssh-action@master
@@ -182,4 +182,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             # Получаем список всех образов для проекта, сортируем по дате и удаляем все, кроме последних 5
-            docker images --format "{{.Repository}}:{{.Tag}} {{.CreatedAt}}" | grep "ghcr.io/${{ env.IMAGE_NAME }}" | sort -r | tail -n +6 | awk '{print $1}' | xargs -r docker rmi || true
+            docker images --format "{{.Repository}}:{{.Tag}} {{.CreatedAt}}" | grep "ghcr.io/${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}" | sort -r | tail -n +6 | awk '{print $1}' | xargs -r docker rmi || true

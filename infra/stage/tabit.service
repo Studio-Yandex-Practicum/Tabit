@@ -5,7 +5,7 @@ Requires=docker.service
 
 [Service]
 Restart=always
-ExecStartPre=-/usr/bin/docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
+ExecStartPre=-/usr/bin/docker pull ghcr.io/${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 ExecStart=/usr/bin/docker compose -f /home/${{ secrets.USERNAME }}/tabit/infra/stage/docker-compose.stage.yaml up -d
 ExecStop=/usr/bin/docker compose -f /home/${{ secrets.USERNAME }}/tabit/infra/stage/docker-compose.stage.yaml down
 WorkingDirectory=/home/dev_deploy/tabit/infra/stage/
