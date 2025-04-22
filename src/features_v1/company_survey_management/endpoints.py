@@ -73,8 +73,33 @@ async def create_survey_schedule(
     return schedule
 
 
-@router.get(
+@router.delete(
     '/{schedule_id:int}',
+    response_model=SurveyScheduleRead,
+    summary='Удалить расписание опросов',
+    dependencies=[Depends(get_async_session)],
+)
+async def delete_survey_schedule(
+    company_slug: str,
+    schedule_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """
+    Удаляет расписание расписание.
+    """
+    await validator_check_object_exists(
+        session=session, model_crud=company_crud, object_slug=company_slug
+    )
+
+    schedule = await validator_check_object_exists(
+        session=session, model_crud=surveys_schedule_crud, object_id=schedule_id
+    )
+    await surveys_schedule_crud.remove(session=session, db_object=schedule)
+    return schedule
+
+
+@router.get(
+    '/{schedule_id:int}/cycles',
     response_model=List[SurveyScheduleCycleRead],
     summary='Получить список циклов опросов внутри расписания компании',
     dependencies=[Depends(get_async_session)],
