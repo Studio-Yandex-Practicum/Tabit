@@ -56,12 +56,12 @@ async def create_survey_schedule(
 
     Поля:
         date_start: заполняется в формате "2019-08-24".
-        status: in_progress - "В работе"
-                complited - "Завершен"
-                canceled - "Отменен"
-                postponed - "Отложен"
-        survey_tag: emo = "Определение эмоционального состояния"
-                    test = "Тестовый тест для тестирования"
+        status: IN_PROGRESS = 'В работе'
+                COMPLETED = 'Завершен'
+                CANCELED = 'Отменен'
+                POSTPONED = 'Отложен'
+        survey_tag: EMO = 'Определение эмоционального состояния'
+                    TEST = 'Тестовый тест для тестирования'
     """
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
