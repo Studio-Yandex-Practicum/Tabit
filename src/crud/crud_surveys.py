@@ -87,7 +87,9 @@ class CRUDSurveysSchedule(CRUDBase):
             .where(self.model.id == obj_id)
         )
         obj_model = result.scalar_one_or_none()
-        return obj_model.cycles
+        if obj_model:
+            return obj_model.cycles
+        return []
 
 
 class CRUDSurveysData(CRUDBase):
