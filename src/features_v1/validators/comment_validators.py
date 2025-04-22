@@ -15,6 +15,55 @@ from .problem_validators import (
     get_access_to_feeds,
 )
 
+
+class BaseCommentValidator:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def get_comment_or_404(self, comment_id: int) -> CommentFeed:
+        comment = await comment_crud.get_or_404(self.session, comment_id)
+        return comment
+
+    def ensure_comment_in_feed(self, comment: CommentFeed, message_feed_id: int) -> None:
+        if comment.message_id != message_feed_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=VALID_WRONG_COMMENT
+            )
+
+    def ensure_not_owner(self, comment: CommentFeed, user_id: int) -> None:
+        if comment.owner_id == user_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=VALID_LIKE_OWN_COMMENT
+            )
+
+    def ensure_is_owner(self, comment: CommentFeed, user_id: int) -> None:
+        if comment.owner_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=VALID_COMMENT_NOT_OWNER
+            )
+
+    async def get_user_like(self, user_id: int, comment_id: int) -> AssociationUserComment | None:
+        return await user_comment_association_crud.get(comment_id, user_id, self.session)
+
+    def ensure_like_absent(self, like_obj: AssociationUserComment | None) -> None:
+        if like_obj:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=VALID_REPEATED_LIKE
+            )
+
+    def ensure_like_present(self, like_obj: AssociationUserComment | None) -> AssociationUserComment:
+        if not like_obj:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=VALID_NOT_LIKED_COMMENT
+            )
+        return like_obj
+
+
 async def check_comment_and_message_feed(
     comment_id: int, message_feed_id: int, session: AsyncSession
 ):
@@ -27,9 +76,9 @@ async def check_comment_and_message_feed(
 
     Возвращает объект комментария в случае прохождения проверки.
     """
-    comment = await comment_crud.get_or_404(session, comment_id)
-    if comment.message_id != message_feed_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=VALID_WRONG_COMMENT)
+    validator = BaseCommentValidator(session)
+    comment = await validator.get_comment_or_404(comment_id)
+    validator.ensure_comment_in_feed(comment, message_feed_id)
     return comment
 
 
@@ -49,17 +98,12 @@ async def check_comment_owner(
         user_id: UUID пользователя, сделавшего запрос к API;
         like_mode: опциональный параметр, определяет способ применения валидатора.
     """
+    validator = BaseCommentValidator(None)
     if like_mode:
-        if comment.owner_id == user_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=VALID_LIKE_OWN_COMMENT
-            )
+        validator.ensure_not_owner(comment, user_id)
     else:
-        if comment.owner_id != user_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail=VALID_COMMENT_NOT_OWNER
-            )
-
+        validator.ensure_is_owner(comment, user_id)
+    return comment
 
 async def get_access_to_comments(
     user_company_id: int,
@@ -91,15 +135,9 @@ async def check_comment_has_likes_from_user(
         comment_id: path-параметр, соответствующий id запрашиваемого комментария;
         like_mode: опциональный параметр, определяет способ применения валидатора.
     """
+    validator = BaseCommentValidator(session)
+    like_obj = await validator.get_user_like(user_id, comment_id)
     if like_mode:
-        if await user_comment_association_crud.get(comment_id, user_id, session):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=VALID_REPEATED_LIKE
-            )
-    else:
-        user_comment_obj = await user_comment_association_crud.get(comment_id, user_id, session)
-        if not user_comment_obj:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=VALID_NOT_LIKED_COMMENT
-            )
-        return user_comment_obj
+        validator.ensure_like_absent(like_obj)
+        return None
+    return validator.ensure_like_present(like_obj)

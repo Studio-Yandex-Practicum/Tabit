@@ -14,6 +14,32 @@ from src.models import (
 )
 from src.schemas import UserCreateSchema
 
+class BaseUserValidator:
+    def __init__(self, session: AsyncSession | None = None, user_manager: BaseUserManager | None = None):
+        self.session = session
+        self.user_manager = user_manager
+
+    async def check_user_exists_by_email(self, email: str) -> bool:
+        if not self.user_manager:
+            raise ValueError("user_manager is required")
+        user = await self.user_manager.user_db.get_by_email(email)
+        return user is not None
+
+    async def check_user_password_valid(self, password: str, user_data: UserCreateSchema) -> None:
+        if not self.user_manager:
+            raise ValueError("user_manager is required")
+        await self.user_manager.validate_password(password, user_data)
+
+    async def check_telegram_username_exists(self, username: str) -> bool:
+        if not self.session:
+            raise ValueError("session is required")
+        return await moderator_crud.get_by_telegram_username(username, self.session) is not None
+
+    async def get_user_by_uuid(self, uuid: UUID):
+        if not self.session:
+            raise ValueError("session is required")
+        return await user_crud.get(self.session, uuid)
+
 async def validate_user_not_exists(
     user_data: UserCreateSchema,
     user_manager: BaseUserManager = Depends(get_user_manager),
@@ -27,12 +53,11 @@ async def validate_user_not_exists(
         HTTPException: Если пользователь с таким email уже существует,
                         возвращает ошибку 400 (BAD REQUEST).
     """
-    if user_data.email:
-        user = await user_manager.user_db.get_by_email(user_data.email)
-        if user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.EXISTS_EMAIL
-            )
+    validator = BaseUserValidator(user_manager=user_manager)
+    if user_data.email and await validator.check_user_exists_by_email(user_data.email):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.EXISTS_EMAIL
+        )
 
 
 async def validate_password(
@@ -48,9 +73,10 @@ async def validate_password(
         HTTPException: Если пароль не соответствует требованиям,
                         возвращает ошибку 400 (BAD REQUEST).
     """
+    validator = BaseUserValidator(user_manager=user_manager)
     if user_data.password:
         try:
-            await user_manager.validate_password(user_data.password, user_data)
+            await validator.check_user_password_valid(user_data.password, user_data)
         except InvalidPasswordException:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.INVALID_PASSWORD
@@ -101,11 +127,11 @@ async def check_telegram_username_for_duplicates(username: str, session: AsyncSe
         username: telegram_username, переданный в запросе к API;
         session: асинхронная сессия SQLAlchemy;
     """
-    if username:
-        if await moderator_crud.get_by_telegram_username(username, session):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_TELEGRAM_USERNAME
-            )
+    validator = BaseUserValidator(session=session)
+    if username and await validator.check_telegram_username_exists(username):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_TELEGRAM_USERNAME
+        )
 
 
 async def validate_field_members(
@@ -124,8 +150,9 @@ async def validate_field_members(
     """
     if not uuid_members:
         return
+    validator = BaseUserValidator(session=session)
     for uuid in uuid_members:
-        user = await user_crud.get(session, uuid)
+        user = await validator.get_user_by_uuid(uuid)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
