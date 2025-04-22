@@ -1,10 +1,11 @@
 from typing import List
 from uuid import UUID
 
-from sqlalchemy import Date, DateTime, Integer, ForeignKey, String, Text, JSON, Enum
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import JSON, Date, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import BaseTabitModel
+
 from .enum import SurveysStatus, SurveysTags
 
 

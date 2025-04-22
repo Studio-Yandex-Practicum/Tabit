@@ -1,16 +1,14 @@
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from fastapi import HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
+from src.core.constants import TextError
 from src.crud.crud_base import CRUDBase
-from src.schemas.survey import SurveyScheduleCreate, SurveyDataCreate, SurveyAnswerCreate
-from src.models.survey import SurveySchedule, SurveyScheduleCycle, SurveyData, SurveyAnswer
-from src.core.constants import (
-    TextError,
-)
+from src.models.survey import SurveyAnswer, SurveyData, SurveySchedule, SurveyScheduleCycle
+from src.schemas.survey import SurveyAnswerCreate, SurveyDataCreate, SurveyScheduleCreate
 
 
 class CRUDSurveysSchedule(CRUDBase):
