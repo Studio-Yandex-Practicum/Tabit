@@ -348,6 +348,9 @@ class TextError:
     NOT_IS_MEMBERS: str = (
         'Вы не можете принять участие в решение проблемы, так как вы не являетесь её участником.'
     )
+    COMPANY_NOT_FOUND: str = 'Указан некорректный id компании'
+    DEPARTMENT_NOT_FOUND: str = 'Указан некорректный id отдела.'
+    WRONG_COMPANY_DEPARTMENT: str = 'У данной компании нет указанного отдела.'
 
 
 @dataclass

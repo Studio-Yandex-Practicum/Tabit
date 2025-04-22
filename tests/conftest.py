@@ -35,17 +35,6 @@ from src.models import (
 from tests.constants import GOOD_PASSWORD, TEST_DATABASE_URL, URL
 
 
-def pytest_collection_modifyitems(items):
-    """
-    Добавляет всем тестам параметр loop_scope="session" в декоратор.
-    Подробности: https://github.com/pytest-dev/pytest-asyncio/issues/922
-    """
-    pytest_asyncio_tests = (item for item in items if pytest_asyncio.is_async_test(item))
-    session_scope_marker = pytest.mark.asyncio(loop_scope='session')
-    for async_test in pytest_asyncio_tests:
-        async_test.add_marker(session_scope_marker, append=False)
-
-
 @pytest.fixture(scope='session', autouse=True)
 def setup_test_db():
     """

@@ -15,10 +15,10 @@ from tests.constants import (
 from tests.utils import get_association_objects_iterator
 
 
+@pytest.mark.asyncio(loop_scope='session')
 class TestGetProblemFeed:
     """Класс для тестов GET-эндпоинтов problem_feeds.py"""
 
-    @pytest.mark.asyncio
     async def test_get_multiple_message_feeds(
         self, client, get_token_for_user, message_feed_for_test
     ):
@@ -51,7 +51,6 @@ class TestGetProblemFeed:
             f'Длина полученного списка должна быть равна {len(message_feeds)}'
         )
 
-    @pytest.mark.asyncio
     async def test_get_message_feeds_of_another_company(
         self, client, employee_of_company, get_token_for_user, message_feed_for_test
     ):
@@ -72,7 +71,6 @@ class TestGetProblemFeed:
             'Сотрудники компаний должны иметь доступ только к проблемам, связанными с их компанией'
         )
 
-    @pytest.mark.asyncio
     async def test_get_multiple_comments(self, client, get_token_for_user, comment_for_test):
         """Тест для проверки получения списка комментариев треда."""
         comment, message_feed, _, employee, company = await comment_for_test(
@@ -108,7 +106,6 @@ class TestGetProblemFeed:
             f'Длина полученного списка должна быть равна {len(comments)}'
         )
 
-    @pytest.mark.asyncio
     async def test_get_feed_comments_of_another_company(
         self, client, employee_of_company, get_token_for_user, comment_for_test
     ):
@@ -132,7 +129,6 @@ class TestGetProblemFeed:
             'связаны с их компанией'
         )
 
-    @pytest.mark.asyncio
     async def test_404_get_urls(self, client, employee_of_company, get_token_for_user):
         """Тест для проверки запросов к несуществующим объектам."""
         employee, company = await employee_of_company(return_company=True)
@@ -149,10 +145,10 @@ class TestGetProblemFeed:
         )
 
 
+@pytest.mark.asyncio(loop_scope='session')
 class TestPostProblemFeed:
     """Класс для тестов POST-эндпоинтов problem_feeds.py"""
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', MESSAGE_FEED_CREATE_NEW)
     async def test_successful_create_message_feed(
         self, client, get_token_for_user, problem_for_test, payload, expected_result
@@ -186,7 +182,6 @@ class TestPostProblemFeed:
             'Значение поля "problem_id" созданного объекта не соответствует ожидаемому значению.'
         )
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', MESSAGE_FEED_CREATE_BAD)
     async def test_unsuccessful_create_message_feed(
         self, client, get_token_for_user, problem_for_test, payload, expected_result
@@ -205,7 +200,6 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_create_message_feed_with_mismatched_company_slug(
         self, client, employee_of_company, get_token_for_user, problem_for_test
     ):
@@ -228,7 +222,6 @@ class TestPostProblemFeed:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_create_message_feed_with_problem_from_another_company(
         self, client, get_token_for_user, problem_for_test
     ):
@@ -252,7 +245,6 @@ class TestPostProblemFeed:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_successful_create_comment(
         self, client, get_token_for_user, message_feed_for_test
     ):
@@ -287,7 +279,6 @@ class TestPostProblemFeed:
             'Значение поля "message_id" созданного объекта не соответствует ожидаемому значению.'
         )
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', COMMENT_CREATE_BAD)
     async def test_unsuccessful_create_comment(
         self, client, get_token_for_user, message_feed_for_test, payload, expected_result
@@ -310,7 +301,6 @@ class TestPostProblemFeed:
             f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_create_comment_for_wrong_message_feed(
         self, client, get_token_for_user, message_feed_for_test
     ):
@@ -338,7 +328,6 @@ class TestPostProblemFeed:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_successful_comment_like(
         self, async_session, client, employee_of_company, get_token_for_user, comment_for_test
     ):
@@ -368,7 +357,6 @@ class TestPostProblemFeed:
             'При лайке комментария в ассоциативной таблице должна появиться связанная запись'
         )
 
-    @pytest.mark.asyncio
     async def test_successful_comment_unlike(
         self, async_session, client, employee_of_company, get_token_for_user, comment_for_test
     ):
@@ -399,7 +387,6 @@ class TestPostProblemFeed:
             'Рейтинг комментария должен был уменьшиться на 1 (стать равным 0)'
         )
 
-    @pytest.mark.asyncio
     async def test_unsuccessful_comment_like_by_author(
         self, client, get_token_for_user, comment_for_test
     ):
@@ -422,7 +409,6 @@ class TestPostProblemFeed:
             'Рейтинг комментария не должен меняться при неуспешном лайке.'
         )
 
-    @pytest.mark.asyncio
     async def test_unsuccessful_repeated_comment_like(
         self, client, employee_of_company, get_token_for_user, comment_for_test
     ):
@@ -446,7 +432,6 @@ class TestPostProblemFeed:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_unsuccessful_comment_unlike_by_author(
         self, client, get_token_for_user, comment_for_test, employee_of_company
     ):
@@ -471,7 +456,6 @@ class TestPostProblemFeed:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_unsuccessful_comment_unlike_by_user(
         self, client, employee_of_company, get_token_for_user, comment_for_test
     ):
@@ -491,7 +475,6 @@ class TestPostProblemFeed:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_comment_like_with_wrong_message_feed_id(
         self,
         client,
@@ -521,7 +504,6 @@ class TestPostProblemFeed:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_comment_unlike_with_wrong_message_feed_id(
         self,
         client,
@@ -534,9 +516,7 @@ class TestPostProblemFeed:
         Тест для проверки неуспешного анлайка существующего комментария, но в запросе передаётся
         некорректный message_feed_id/thread_id.
         """
-        comment, message_feed, _, employee, company = await comment_for_test(
-            return_all_objects=True
-        )
+        comment, message_feed, _, _, company = await comment_for_test(return_all_objects=True)
 
         another_user = await employee_of_company({'company_id': company.id})
         another_user_token = await get_token_for_user(another_user)
@@ -561,10 +541,10 @@ class TestPostProblemFeed:
         )
 
 
+@pytest.mark.asyncio(loop_scope='session')
 class TestPatchProblemFeed:
     """Класс для тестов PATCH-эндпоинтов problem_feeds.py"""
 
-    @pytest.mark.asyncio
     async def test_successful_patch_comment(self, client, get_token_for_user, comment_for_test):
         """Тест для проверки успешного обновления комментария."""
         comment, _, _, employee, company = await comment_for_test(return_all_objects=True)
@@ -598,7 +578,6 @@ class TestPatchProblemFeed:
             'Значение поля "message_id" обновлённого объекта не соответствует ожидаемому значению.'
         )
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize('payload, expected_result', COMMENT_UPDATE_BAD)
     async def test_unsuccessful_patch_comment(
         self, client, get_token_for_user, comment_for_test, payload, expected_result
@@ -621,14 +600,11 @@ class TestPatchProblemFeed:
             f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_patch_comment_wrong_owner(
         self, client, employee_of_company, get_token_for_user, comment_for_test
     ):
         """Тест для проверки неуспешного обновления комментария другим пользователем."""
-        comment, message_feed, problem, employee, company = await comment_for_test(
-            return_all_objects=True
-        )
+        comment, _, _, _, company = await comment_for_test(return_all_objects=True)
 
         another_user_token = await get_token_for_user(
             await employee_of_company({'company_id': company.id})
@@ -648,7 +624,6 @@ class TestPatchProblemFeed:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_patch_comment_with_wrong_message_feed_id(
         self, client, get_token_for_user, message_feed_for_test, comment_for_test
     ):
@@ -656,7 +631,7 @@ class TestPatchProblemFeed:
         Тест для проверки неуспешного редактирования комментария, но в запросе передаётся
         некорректный message_feed_id/thread_id.
         """
-        comment, message_feed, problem, employee, company = await comment_for_test(
+        comment, message_feed, _, employee, company = await comment_for_test(
             return_all_objects=True
         )
 
@@ -679,7 +654,6 @@ class TestPatchProblemFeed:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_404_patch_urls(self, client, get_token_for_user, comment_for_test):
         """Тест для проверки редактивроания несуществующего комментария."""
         _, message_feed, problem, employee, company = await comment_for_test(
@@ -704,10 +678,10 @@ class TestPatchProblemFeed:
         )
 
 
+@pytest.mark.asyncio(loop_scope='session')
 class TestDeleteProblemFeeds:
     """Класс для тестов DELETE-эндпоинтов problem_feeds.py"""
 
-    @pytest.mark.asyncio
     async def test_successful_delete_comment(self, client, get_token_for_user, comment_for_test):
         """Тест проверки успешного удаления комментария."""
         comment, _, _, employee, company = await comment_for_test(return_all_objects=True)
@@ -727,7 +701,6 @@ class TestDeleteProblemFeeds:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_delete_comment_wrong_owner(
         self, client, employee_of_company, get_token_for_user, comment_for_test
     ):
@@ -751,7 +724,6 @@ class TestDeleteProblemFeeds:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_delete_comment_with_wrong_message_feed_id(
         self, client, get_token_for_user, message_feed_for_test, comment_for_test
     ):
@@ -781,7 +753,6 @@ class TestDeleteProblemFeeds:
             f'получен {response.status_code}'
         )
 
-    @pytest.mark.asyncio
     async def test_404_delete_urls(self, client, get_token_for_user, comment_for_test):
         """Тест для проверки удаления несуществующего комментария."""
         _, message_feed, problem, employee, company = await comment_for_test(
