@@ -24,7 +24,8 @@ router = APIRouter()
     '/',
     response_model=List[SurveyScheduleRead],
     summary='Получить список всех опросов компании',
-    description='Получить список всех опросов компании. Права доступа: Tabit Admin, Tabit Superuser.',
+    description='Получить список всех опросов компании.' \
+    'Права доступа: Tabit Admin, Tabit Superuser.',
     dependencies=[Depends(get_async_session)],
 )
 async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_async_session)):
@@ -50,7 +51,8 @@ async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_asy
     '/',
     response_model=SurveyScheduleRead,
     summary='Создать новое расписание опросов',
-    description='Создать новое расписание опросов. Права доступа: Tabit Admin, Tabit Superuser.',
+    description='Создать новое расписание опросов. ' \
+    'Права доступа: Tabit Admin, Tabit Superuser.',
     dependencies=[Depends(get_async_session)],
 )
 async def create_survey_schedule(
@@ -84,7 +86,8 @@ async def create_survey_schedule(
     '/{schedule_id:int}',
     response_model=SurveyScheduleRead,
     summary='Удалить расписание опросов',
-    description='Позволяет удалить расписание опросов. Права доступа: Tabit Admin, Tabit Superuser',
+    description='Позволяет удалить расписание опросов.' \
+    ' Права доступа: Tabit Admin, Tabit Superuser',
     dependencies=[Depends(get_async_session)],
 )
 async def delete_survey_schedule(
@@ -110,7 +113,8 @@ async def delete_survey_schedule(
     '/{schedule_id:int}/cycles',
     response_model=List[SurveyScheduleCycleRead],
     summary='Получить список циклов опросов внутри расписания компании',
-    description='Позволяет получить список циклов опросов внутри конкретного расписания. Права доступа: Tabit Admin, Tabit Superuser',
+    description='Позволяет получить список циклов опросов внутри конкретного' \
+    ' расписания. Права доступа: Tabit Admin, Tabit Superuser',
     dependencies=[Depends(get_async_session)],
 )
 async def get_surveys_cycles(
@@ -131,7 +135,8 @@ async def get_surveys_cycles(
     '/{user_id:uuid}',
     response_model=List[SurveyDataRead],
     summary='Получить историю опросов сотрудника компании',
-    description='Позволяет получить испорию всех пройденых опросов пользователя. Права доступа: Company User.',
+    description='Позволяет получить испорию всех пройденых опросов' \
+    ' пользователя. Права доступа: Company User.',
     dependencies=[Depends(get_async_session)],
 )
 async def get_employee_survey_history(
@@ -155,7 +160,8 @@ async def get_employee_survey_history(
     '/{user_id}/{survey_id}',
     response_model=SurveyDataRead,
     summary='Получить информацию об опросе сотрудника компании',
-    description='Позволяет получить информацию о конкретном опросе пользователя. Права доступа: Company User.',
+    description='Позволяет получить информацию о конкретном опросе' \
+    ' пользователя. Права доступа: Company User.',
     dependencies=[Depends(get_async_session)],
 )
 async def get_employee_survey_info(
@@ -181,7 +187,8 @@ async def get_employee_survey_info(
 @router.post(
     '/{user_id}',
     summary='Передать информацию об опросе сотрудника компании',
-    description='Позволяет передать данные о прохождении опроса пользователем. Права доступа: Company User.',
+    description='Позволяет передать данные о прохождении опроса пользователем.' \
+    ' Права доступа: Company User.',
     dependencies=[Depends(get_async_session)],
 )
 async def add_employee_survey_info(
