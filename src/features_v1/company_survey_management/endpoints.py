@@ -168,13 +168,13 @@ async def get_employee_survey_info(
 
 
 @router.post(
-    '/{uuid}',
+    '/{user_id}',
     summary='Передать информацию об опросе сотрудника компании',
     dependencies=[Depends(get_async_session)],
 )
 async def add_employee_survey_info(
     company_slug: str,
-    uuid: UUID,
+    user_id: UUID,
     data: SurveyDataCreate,
     session: AsyncSession = Depends(get_async_session),
 ):
@@ -185,7 +185,7 @@ async def add_employee_survey_info(
         session=session, model_crud=company_crud, object_slug=company_slug
     )
     survey_data = await surveys_data_crud.create_survey_data(
-        session=session, data=data, user_id=uuid, company_slug=company_slug
+        session=session, data=data, user_id=user_id, company_slug=company_slug
     )
 
     survey_data_id = survey_data.id
