@@ -111,7 +111,9 @@ async def get_surveys_cycles(
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
     )
-
+    await validator_check_object_exists(
+        session=session, model_crud=surveys_schedule_crud, object_id=schedule_id
+    )
     cycles = await surveys_schedule_crud.get_cycles(session=session, obj_id=schedule_id)
     return cycles
 
