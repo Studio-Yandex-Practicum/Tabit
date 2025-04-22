@@ -20,6 +20,24 @@ class SurveyScheduleCreate(BaseModel):
     status: str
     cycles: List[SurveyScheduleCycleCreate]
 
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "survey_tag": "EMO",
+                "status": "IN_PROGRESS",
+                "cycles": [
+                    {
+                        "cycle_number": 1,
+                        "date_start": "2025-04-22"
+                    },
+                    {
+                        "cycle_number": 2,
+                        "date_start": "2025-05-22"
+                    }
+                ]
+            }
+        }
+
 
 class SurveyScheduleRead(BaseModel):
     id: int
@@ -39,6 +57,28 @@ class SurveyDataCreate(BaseModel):
     survey_shedule_id: int
     cycle_id: int
     answers: List[SurveyAnswerCreate]
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "survey_shedule_id": 1,
+                "cycle_id": 2,
+                "answers": [
+                    {
+                        "survey_list_id": 1,
+                        "answers": [
+                            1, 2, 3, 4, 5, 6
+                        ]
+                    },
+                    {
+                        "survey_list_id": 2,
+                        "answers": [
+                            1, 2, 3, 4
+                        ]
+                    }
+                ]
+            }
+        }
 
 
 class SurveyDataRead(BaseModel):
