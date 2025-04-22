@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class SurveyScheduleCycleCreate(BaseModel):
+    cycle_number: int
     date_start: datetime
 
 
