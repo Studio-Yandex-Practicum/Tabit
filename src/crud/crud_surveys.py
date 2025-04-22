@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.core.constants import TextError
+from src.core.config.logging import logger
 from src.crud.crud_base import CRUDBase
 from src.models.survey import SurveyAnswer, SurveyData, SurveySchedule, SurveyScheduleCycle
 from src.schemas.survey import SurveyAnswerCreate, SurveyDataCreate, SurveyScheduleCreate
@@ -22,24 +23,35 @@ class CRUDSurveysSchedule(CRUDBase):
     ):
         """Создает новое расписание."""
 
-        schedule = self.model(
-            survey_tag=schedule_in.survey_tag,
-            company_slug=slug,
-            status=schedule_in.status,
-        )
-        session.add(schedule)
-        await session.flush()
-
-        for cycle_data in schedule_in.cycles:
-            cycle = SurveyScheduleCycle(
-                date_start=cycle_data.date_start,
-                survey_schedule_id=schedule.id,
+        try:
+            schedule = self.model(
+                survey_tag=schedule_in.survey_tag,
+                company_slug=slug,
+                status=schedule_in.status,
             )
-            session.add(cycle)
+            session.add(schedule)
+            await session.flush()
 
-        await session.commit()
-        await session.refresh(schedule)
-        return schedule
+            try:
+                for cycle_data in schedule_in.cycles:
+                    cycle = SurveyScheduleCycle(
+                        date_start=cycle_data.date_start,
+                        survey_schedule_id=schedule.id,
+                    )
+                    session.add(cycle)
+
+                await session.commit()
+                await session.refresh(schedule)
+                return schedule
+
+            except Exception as cycle_error:
+                await session.rollback()
+                raise cycle_error
+
+        except Exception as error:
+            await session.rollback()
+            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
+            raise error
 
     async def get_by_slug(
         self,
@@ -75,11 +87,7 @@ class CRUDSurveysSchedule(CRUDBase):
             .where(self.model.id == obj_id)
         )
         obj_model = result.scalar_one_or_none()
-
-        if obj_model:
-            return obj_model.cycles
-
-        return []
+        return obj_model.cycles
 
 
 class CRUDSurveysData(CRUDBase):
