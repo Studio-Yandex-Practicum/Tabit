@@ -55,6 +55,8 @@ services:
       - ${PWD}/pgadmin/config_local.py:/pgadmin4/config_local.py
       - ${PWD}/pgadmin/create-admin-folder.sh:/create-admin-folder.sh
     configs:
+      # В локальном окружении servers.json генерируется через блок configs, используя переменные окружения.
+      # Такой подход позволяет более гибко настраивать конфигурацию на этапе разработки.
       - source: servers.json
         target: /pgadmin4/servers.json
       - source: pgpass

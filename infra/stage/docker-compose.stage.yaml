@@ -40,6 +40,8 @@ services:
       - db
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+      # В stage-окружении servers.json задается жестко через файл.
+      # Такой подход позволяет быстро подменить файл servers.json без пересборки образа.
       - /home/dev_deploy/tabit/pgadmin/servers.json:/pgadmin4/servers.json
       - /home/dev_deploy/tabit/pgadmin/config_local.py:/pgadmin4/config_local.py
       - /home/dev_deploy/tabit/pgadmin/.pgpass:/pgadmin4/.pgpass
