@@ -35,6 +35,7 @@ class CRUDSurveysSchedule(CRUDBase):
             try:
                 for cycle_data in schedule_in.cycles:
                     cycle = SurveyScheduleCycle(
+                        cycle_number=cycle_data.cycle_number,
                         date_start=cycle_data.date_start,
                         survey_schedule_id=schedule.id,
                     )
