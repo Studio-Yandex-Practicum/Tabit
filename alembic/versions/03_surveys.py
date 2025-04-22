@@ -2,7 +2,7 @@
 
 Revision ID: 03
 Revises: 02
-Create Date: 2025-04-21 14:36:02.132469
+Create Date: 2025-04-22 16:46:07.001383
 
 """
 from typing import Sequence, Union
@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.create_table('surveylist',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('title', sa.String(length=255), nullable=False),
-    sa.Column('tag', sa.Enum('emo', 'test', name='surveystags'), nullable=False),
+    sa.Column('tag', sa.Enum('EMO', 'TEST', name='surveystags'), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -33,8 +33,8 @@ def upgrade() -> None:
     op.create_table('surveyschedule',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('company_slug', sa.String(length=25), nullable=False),
-    sa.Column('survey_tag', sa.Enum('emo', 'test', name='surveystags'), nullable=False),
-    sa.Column('status', sa.Enum('in_progress', 'complited', 'canceled', 'postponed', name='surveysstatus'), nullable=False),
+    sa.Column('survey_tag', sa.Enum('EMO', 'TEST', name='surveystags'), nullable=False),
+    sa.Column('status', sa.Enum('IN_PROGRESS', 'COMPLETED', 'CANCELED', 'POSTPONED', name='surveysstatus'), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['company_slug'], ['company.slug'], ondelete='CASCADE'),
@@ -42,6 +42,7 @@ def upgrade() -> None:
     )
     op.create_table('surveyschedulecycle',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('cycle_number', sa.Integer(), nullable=False),
     sa.Column('date_start', sa.DateTime(), nullable=False),
     sa.Column('survey_schedule_id', sa.Integer(), nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
