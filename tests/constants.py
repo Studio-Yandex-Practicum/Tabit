@@ -6,10 +6,30 @@ from uuid import UUID
 from dotenv import load_dotenv
 from fastapi import status
 
-from src.core.constants import TextError
+from src.constants import DefaultBase, DirectoryBase, LengthBase, MiscConstantsBase, TextErrorBase
 from src.models.enum import CompanyUserRole
 
 load_dotenv()
+
+
+class MiscConstants(MiscConstantsBase):
+    pass
+
+
+class TextError(TextErrorBase):
+    pass
+
+
+class Default(DefaultBase):
+    pass
+
+
+class Length(LengthBase):
+    pass
+
+
+class Directory(DirectoryBase):
+    pass
 
 
 @dataclass

@@ -2,6 +2,7 @@ import asyncio
 
 import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
+from Tabit.src.core.constants_old import LENGTH_SMALL_NAME
 from termcolor import cprint
 
 from fake_data_factories.company_factories import create_companies
@@ -10,7 +11,6 @@ from fake_data_factories.constants import FAKER_VOTING_FEEDS_COUNT, ColorCPrint
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
-from src.core.constants import LENGTH_SMALL_NAME
 from src.core.database.sc_db_session import sc_session
 from src.models import VotingFeed
 

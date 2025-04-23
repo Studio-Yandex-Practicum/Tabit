@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.database.db_depends import get_async_session
 from src.crud.crud_company import company_crud
-from src.features_v1.constants import OPENAPI_EXTRA_ADMIN_AUTH, Description, Summary
+from src.features_v1.constants import Description, MiscConstants, Summary
 from src.features_v1.validators import (
     validate_company_slug,
     validate_license_exists,
@@ -31,9 +31,9 @@ router = APIRouter()
     '/',
     response_model=list[CompanyResponseSchema],
     dependencies=[Depends(current_admin_tabit)],
-    summary=Summary.TABIT_MANAGEMENT_COMPANY_LIST,
-    description=Description.TABIT_MANAGEMENT_COMPANY_LIST,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.LIST_COMPANY,
+    description=Description.LIST_COMPANY,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_companies(
     session: AsyncSession = Depends(get_async_session),
@@ -63,9 +63,9 @@ async def get_companies(
     response_model=CompanyResponseSchema,
     dependencies=[Depends(current_admin_tabit)],
     status_code=HTTPStatus.CREATED,
-    summary=Summary.TABIT_MANAGEMENT_COMPANY_CREATE,
-    description=Description.TABIT_MANAGEMENT_COMPANY_CREATE,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.CREATE_COMPANY,
+    description=Description.CREATE_COMPANY,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def create_company(
     company: CompanyCreateSchema,
@@ -99,9 +99,9 @@ async def create_company(
     '/{company_slug}',
     response_model=CompanyResponseSchema,
     dependencies=[Depends(current_admin_tabit)],
-    summary=Summary.TABIT_MANAGEMENT_COMPANY_UPDATE,
-    description=Description.TABIT_MANAGEMENT_COMPANY_UPDATE,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.UPDATE_COMPANY,
+    description=Description.UPDATE_COMPANY,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_company(
     company_slug: str,
@@ -138,9 +138,9 @@ async def update_company(
     '/{company_slug}',
     dependencies=[Depends(current_admin_tabit)],
     status_code=HTTPStatus.NO_CONTENT,
-    summary=Summary.TABIT_MANAGEMENT_COMPANY_DELETE,
-    description=Description.TABIT_MANAGEMENT_COMPANY_DELETE,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.DELETE_COMPANY,
+    description=Description.DELETE_COMPANY,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def delete_company(
     company_slug: str,

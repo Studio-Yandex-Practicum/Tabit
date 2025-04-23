@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config.logging import logger
 from src.crud import CRUDBase, user_comment_association_crud
-from src.crud.constants import DEFAULT_AUTO_COMMIT, TextError
+from src.crud.constants import Default, TextError
 from src.models import AssociationUserComment, CommentFeed
 from src.schemas import CommentCreate
 
@@ -30,7 +30,7 @@ class CRUDComment(CRUDBase):
         obj_in: CommentCreate,
         message_feed_id: int,
         user_id: int,
-        auto_commit: bool = DEFAULT_AUTO_COMMIT,
+        auto_commit: bool = Default.AUTO_COMMIT,
     ) -> CommentFeed:
         """
         Переопределённый метод create для создания объектов CommentFeed в БД.
@@ -54,17 +54,17 @@ class CRUDComment(CRUDBase):
                 await session.refresh(db_obj)
         except IntegrityError as e:
             await session.rollback()
-            logger.error(f'{TextError.UNIQUE_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.CREATE_UNIQUE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=TextError.UNIQUE,
             )
         except Exception as e:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TextError.SERVER_CREATE,
+                detail=TextError.CREATE_SERVER,
             )
         return db_obj
 
@@ -85,10 +85,10 @@ class CRUDComment(CRUDBase):
             await session.commit()
         except Exception as e:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TextError.SERVER_CREATE,
+                detail=TextError.CREATE_SERVER,
             )
 
     async def unlike(
@@ -110,10 +110,10 @@ class CRUDComment(CRUDBase):
             await session.commit()
         except Exception as e:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TextError.SERVER_CREATE,
+                detail=TextError.CREATE_SERVER,
             )
 
 

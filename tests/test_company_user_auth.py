@@ -3,7 +3,6 @@ from fastapi import status
 from httpx import AsyncClient
 from pytest_lazy_fixtures import lf
 
-from src.core.constants import ERROR_INVALID_TELEGRAM_USERNAME
 from src.models import CompanyUserRole
 from tests.constants import (
     GOOD_PASSWORD,
@@ -12,6 +11,7 @@ from tests.constants import (
     PAYLOAD_FOR_PATCH_USER_EXTRA,
     URL,
     USER_TELEGRAM,
+    TextError,
 )
 
 
@@ -391,8 +391,8 @@ class TestPatchMeUser:
         )
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
-            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+        assert data['detail'] == TextError.INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{TextError.INVALID_TELEGRAM_USERNAME}'"
             f", получено: '{data['detail']}'"
         )
 

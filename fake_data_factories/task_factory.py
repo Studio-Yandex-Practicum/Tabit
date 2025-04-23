@@ -4,6 +4,7 @@ from uuid import UUID
 
 import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
+from Tabit.src.core.constants_old import ZERO
 from termcolor import cprint
 
 from fake_data_factories.association_user_task_factory import create_user_task_associations
@@ -15,7 +16,6 @@ from fake_data_factories.constants import (
 )
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
-from src.core.constants import ZERO
 from src.core.database.sc_db_session import sc_session
 from src.models import Task, TaskStatus
 

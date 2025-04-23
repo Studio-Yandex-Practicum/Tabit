@@ -5,8 +5,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from src.core.constants import DEFAULT_PAGE_SIZE, LENGTH_NAME_USER
-from tests.constants import URL
+from tests.constants import URL, Default, Length
 
 
 def generate_license_data():
@@ -118,7 +117,7 @@ class TestCreateLicense:
         со статус-кодом 422 и корректным сообщением.
         """
         data = generate_license_data()
-        data['name'] = 'A' * (LENGTH_NAME_USER + 1)
+        data['name'] = 'A' * (Length.MAX_NAME + 1)
 
         response = await client.post(URL.LICENSES_ENDPOINT, json=data)
 
@@ -374,9 +373,9 @@ class TestGetLicense:
         assert 'page_size' in result
 
         assert result['page'] == 1
-        assert result['page_size'] == DEFAULT_PAGE_SIZE
+        assert result['page_size'] == Default.PAGE_SIZE
         assert result['total'] == len(licenses)
-        assert len(result['items']) == DEFAULT_PAGE_SIZE
+        assert len(result['items']) == Default.PAGE_SIZE
 
     @pytest.mark.asyncio
     async def test_get_licenses_custom_pagination(self, client: AsyncClient, license_for_test):
@@ -587,7 +586,7 @@ class TestPatchLicense:
         """
         new_license = await license_for_test()
 
-        patch_data = {'name': 'A' * (LENGTH_NAME_USER + 1)}
+        patch_data = {'name': 'A' * (Length.MAX_NAME + 1)}
 
         response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY

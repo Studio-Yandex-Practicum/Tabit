@@ -5,13 +5,14 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from src.core.constants import ERROR_INVALID_TELEGRAM_USERNAME
+# from Tabit.src.core.constants_old import ERROR_INVALID_TELEGRAM_USERNAME
 from tests.constants import (
     COMPANY_FIELDS,
     DEPARTMENT_FIELDS,
     EMPLOYEE_FIELDS,
     URL,
     USER_TELEGRAM,
+    TextError,
 )
 
 
@@ -385,8 +386,8 @@ class TestPatchEmployee:
         )
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
-            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+        assert data['detail'] == TextError.INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{TextError.INVALID_TELEGRAM_USERNAME}'"
             f", получено: '{data['detail']}'"
         )
 
@@ -976,8 +977,8 @@ class TestCreateEmployee:
         )
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
-            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+        assert data['detail'] == TextError.INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{TextError.INVALID_TELEGRAM_USERNAME}'"
             f", получено: '{data['detail']}'"
         )
 
