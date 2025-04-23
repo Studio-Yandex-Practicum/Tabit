@@ -14,6 +14,7 @@ class SurveyScheduleCycleCreate(BaseModel):
         cycle_number: номер цикла в расписании (6 циклов максимум).
         date_start: дата начала тестирования.
     """
+
     cycle_number: int = Field(..., ge=1, le=6)
     date_start: datetime
 
@@ -29,6 +30,7 @@ class SurveyScheduleCycleRead(SurveyScheduleCycleCreate):
         cycle_number: номер цикла в расписании (6 циклов максимум).
         date_start: дата начала тестирования.
     """
+
     id: int
 
     model_config = ConfigDict(from_attributes=True)
@@ -45,25 +47,20 @@ class SurveyScheduleCreate(BaseModel):
         status: текущий статус расписания.
         cycles: список циклов тестирований.
     """
+
     survey_tag: str
     status: str
     cycles: List[SurveyScheduleCycleCreate]
 
     class Config:
         json_schema_extra = {
-            "example": {
-                "survey_tag": "EMO",
-                "status": "IN_PROGRESS",
-                "cycles": [
-                    {
-                        "cycle_number": 1,
-                        "date_start": "2025-04-22"
-                    },
-                    {
-                        "cycle_number": 2,
-                        "date_start": "2025-05-22"
-                    }
-                ]
+            'example': {
+                'survey_tag': 'EMO',
+                'status': 'IN_PROGRESS',
+                'cycles': [
+                    {'cycle_number': 1, 'date_start': '2025-04-22'},
+                    {'cycle_number': 2, 'date_start': '2025-05-22'},
+                ],
             }
         }
 
@@ -79,6 +76,7 @@ class SurveyScheduleUpdate(BaseModel):
         status: текущий статус расписания. (Опционально)
         cycles: список циклов тестирований. (Опционально)
     """
+
     survey_tag: str | None = None
     status: str | None = None
     cycles: List[SurveyScheduleCycleCreate] | None = None
@@ -96,6 +94,7 @@ class SurveyScheduleRead(BaseModel):
         created_at: Дата создания расписания.
         status: текущий статус расписания.
     """
+
     id: int
     survey_tag: str
     created_at: datetime
@@ -115,6 +114,7 @@ class SurveyAnswerCreate(BaseModel):
         survey_list_id: Уникальный идентификатор теста.
         answers: Список ответов.
     """
+
     survey_list_id: int
     answers: List[int]
 
@@ -130,29 +130,20 @@ class SurveyDataCreate(BaseModel):
         cycle_id: Идентификатор цикла к которому привязаны данные.
         answers: Список ответов.
     """
+
     survey_shedule_id: int
     cycle_id: int
     answers: List[SurveyAnswerCreate]
 
     class Config:
         json_schema_extra = {
-            "example": {
-                "survey_shedule_id": 1,
-                "cycle_id": 2,
-                "answers": [
-                    {
-                        "survey_list_id": 1,
-                        "answers": [
-                            1, 2, 3, 4, 5, 6
-                        ]
-                    },
-                    {
-                        "survey_list_id": 2,
-                        "answers": [
-                            1, 2, 3, 4
-                        ]
-                    }
-                ]
+            'example': {
+                'survey_shedule_id': 1,
+                'cycle_id': 2,
+                'answers': [
+                    {'survey_list_id': 1, 'answers': [1, 2, 3, 4, 5, 6]},
+                    {'survey_list_id': 2, 'answers': [1, 2, 3, 4]},
+                ],
             }
         }
 
@@ -168,6 +159,7 @@ class SurveyDataRead(BaseModel):
         cycle_id: Идентификатор цикла к которому привязаны данные.
         results: Окончательный результат тестирования на основе всех тестов.
     """
+
     id: int
     cycle_id: int
     results: Optional[dict]

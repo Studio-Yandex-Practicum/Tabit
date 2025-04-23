@@ -13,7 +13,7 @@ from src.schemas.survey import (
     SurveyDataRead,
     SurveyScheduleCreate,
     SurveyScheduleRead,
-    SurveyScheduleUpdate
+    SurveyScheduleUpdate,
 )
 from src.utils.surveys import Surveys
 
@@ -24,7 +24,7 @@ router = APIRouter()
     '/',
     response_model=List[SurveyScheduleRead],
     summary='Получить список всех опросов компании',
-    description='Получить список всех опросов компании.' \
+    description='Получить список всех опросов компании.'
     'Права доступа: Tabit Admin, Tabit Superuser.',
     dependencies=[Depends(get_async_session)],
 )
@@ -51,7 +51,7 @@ async def get_schedule_list(company_slug: str, session: AsyncSession = Depends(g
     '/',
     response_model=SurveyScheduleRead,
     summary='Создать новое расписание опросов',
-    description='Создать новое расписание опросов. ' \
+    description='Создать новое расписание опросов. '
     'Права доступа: Tabit Admin, Tabit Superuser.',
     dependencies=[Depends(get_async_session)],
 )
@@ -86,11 +86,13 @@ async def create_schedule(
     '/{schedule_id:int}',
     response_model=SurveyScheduleRead,
     summary='Получить конкретное расписание опросов компании',
-    description='Получить конкретное расписание опросов компании.' \
+    description='Получить конкретное расписание опросов компании.'
     'Права доступа: Tabit Admin, Tabit Superuser.',
     dependencies=[Depends(get_async_session)],
 )
-async def get_schedule(company_slug: str, schedule_id: int, session: AsyncSession = Depends(get_async_session)):
+async def get_schedule(
+    company_slug: str, schedule_id: int, session: AsyncSession = Depends(get_async_session)
+):
     """
     Возвращает конкретное расписание опросов компании.
 
@@ -114,7 +116,7 @@ async def get_schedule(company_slug: str, schedule_id: int, session: AsyncSessio
     '/{schedule_id:int}',
     response_model=SurveyScheduleRead,
     summary='Изменить расписание опросов',
-    description='Внести изменение в расписание опросов. ' \
+    description='Внести изменение в расписание опросов. '
     'Права доступа: Tabit Admin, Tabit Superuser.',
     dependencies=[Depends(get_async_session)],
 )
@@ -152,7 +154,7 @@ async def update_survey_schedule(
     '/{schedule_id:int}',
     response_model=SurveyScheduleRead,
     summary='Удалить расписание опросов',
-    description='Позволяет удалить расписание опросов.' \
+    description='Позволяет удалить расписание опросов.'
     ' Права доступа: Tabit Admin, Tabit Superuser',
     dependencies=[Depends(get_async_session)],
 )
@@ -179,7 +181,7 @@ async def delete_survey_schedule(
     '/{user_id:uuid}',
     response_model=List[SurveyDataRead],
     summary='Получить историю опросов сотрудника компании',
-    description='Позволяет получить испорию всех пройденых опросов' \
+    description='Позволяет получить испорию всех пройденых опросов'
     ' пользователя. Права доступа: Company User.',
     dependencies=[Depends(get_async_session)],
 )
@@ -204,7 +206,7 @@ async def get_employee_survey_history(
     '/{user_id:uuid}/{survey_id:int}',
     response_model=SurveyDataRead,
     summary='Получить информацию об опросе сотрудника компании',
-    description='Позволяет получить информацию о конкретном опросе' \
+    description='Позволяет получить информацию о конкретном опросе'
     ' пользователя. Права доступа: Company User.',
     dependencies=[Depends(get_async_session)],
 )
@@ -231,7 +233,7 @@ async def get_employee_survey_info(
 @router.post(
     '/{user_id:uuid}',
     summary='Передать информацию об опросе сотрудника компании',
-    description='Позволяет передать данные о прохождении опроса пользователем.' \
+    description='Позволяет передать данные о прохождении опроса пользователем.'
     ' Права доступа: Company User.',
     dependencies=[Depends(get_async_session)],
 )

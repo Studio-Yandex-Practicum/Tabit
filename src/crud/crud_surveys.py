@@ -63,8 +63,8 @@ class CRUDSurveysSchedule(CRUDBase):
         message: str | None = None,
     ):
         result = await session.execute(
-            select(self.model).where(self.model.company_slug == obj_slug and 
-                                     self.model.id == obj_id)
+            select(self.model)
+            .where(self.model.company_slug == obj_slug and self.model.id == obj_id)
             .options(selectinload(self.model.cycles))
         )
         obj_model = result.scalars().first()
@@ -84,7 +84,8 @@ class CRUDSurveysSchedule(CRUDBase):
         message: str | None = None,
     ):
         result = await session.execute(
-            select(self.model).where(self.model.company_slug == obj_slug)
+            select(self.model)
+            .where(self.model.company_slug == obj_slug)
             .options(selectinload(self.model.cycles))
         )
         obj_model = result.scalars().all()
