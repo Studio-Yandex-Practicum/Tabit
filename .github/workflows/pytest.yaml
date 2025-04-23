@@ -23,7 +23,6 @@ jobs:
           fi
 
       - name: Extract Python version
-        id: extract_py_ver
         run: |
           VERSION=$(echo "${{ secrets.ENV_FILE }}" | grep '^PYTHON_VERSION=' | cut -d'=' -f2)
           if [ -z "$VERSION" ]; then

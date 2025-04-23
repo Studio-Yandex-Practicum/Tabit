@@ -1,19 +1,19 @@
 services:
   db:
-    container_name: ${DB_CONTAINER_NAME:-postgres_local}
-    image: postgres:${POSTGRES_VERSION:-17.2-alpine}
+    container_name: ${DB_CONTAINER_NAME}
+    image: postgres:${POSTGRES_VERSION}
     # Определение пути расположения файла с переменными окружения на сервере.
     env_file:
       - /home/dev_deploy/tabit/infra/stage/.env
     ports:
-      - ${DB_PORT:-5432}:5432
+      - ${DB_PORT}:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
 
   app:
     container_name: tabit
-    image: ${CONTAINER_REGISTRY:-ghcr.io}/${IMAGE_NAME:-studio-yandex-practicum/tabit}:latest
+    image: ${CONTAINER_REGISTRY}/${IMAGE_NAME}:latest
     # Определение пути расположения файла с переменными окружения на сервере.
     env_file:
       - /home/dev_deploy/tabit/infra/stage/.env
@@ -29,13 +29,13 @@ services:
     restart: always
 
   pgadmin:
-    container_name: ${PGADMIN_CONTAINER_NAME:-pgadmin_local}
-    image: dpage/pgadmin4:${PGADMIN_VERSION:-8.14}
+    container_name: ${PGADMIN_CONTAINER_NAME}
+    image: dpage/pgadmin4:${PGADMIN_VERSION}
     # Определение пути расположения файла с переменными окружения на сервере.
     env_file:
       - /home/dev_deploy/tabit/infra/stage/.env
     ports:
-      - "${PGADMIN_PORT:-5600}:80"
+      - "${PGADMIN_PORT}:80"
     depends_on:
       - db
     volumes:

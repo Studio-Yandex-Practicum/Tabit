@@ -23,6 +23,8 @@ services:
       context: ${PWD}/
       dockerfile: infra/stage/stage.Dockerfile
       args:
+        APP_PORT=: ${APP_PORT}
+        APP_VERSION: ${APP_VERSION}
         PYTHON_VERSION: ${PYTHON_VERSION}
         POETRY_VERSION: ${POETRY_VERSION}
     environment:
