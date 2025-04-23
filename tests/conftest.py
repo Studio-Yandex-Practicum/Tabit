@@ -34,6 +34,9 @@ from src.models import (
 )
 from tests.constants import GOOD_PASSWORD, TEST_DATABASE_URL, URL
 
+from sqlalchemy import insert
+from src.models import AssociationUserComment
+
 
 def pytest_collection_modifyitems(items):
     """
@@ -749,6 +752,7 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
           используются значения по умолчанию.
         - return_all_objects (bool, optional): Если True, возвращает кортеж
           (комментарий, тред, проблема, сотрудник, компания).
+        - with_like (bool, optional): Если True, создаётся лайк к коментарию.
 
     Возвращает:
         - CommentFeed: Объект созданного комментария.
@@ -772,7 +776,8 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
         )
     """
 
-    async def _create_comment(comment_data=None, return_all_objects=False):
+    async def _create_comment(comment_data=None, return_all_objects=False,
+                              with_like=False):
         """Функция-обёртка для создания комментария с изменяемыми параметрами."""
         employee = None
         company = None
@@ -806,6 +811,13 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
             default_data.update(comment_data)
 
         comment = await make_entry_in_table(async_session, default_data, CommentFeed)
+        if with_like:
+            await async_session.execute(
+                insert(AssociationUserComment).values(
+                    left_id=owner_id, right_id=comment.id
+                )
+            )
+            await async_session.commit()
 
         if return_all_objects:
             return comment, message_feed, problem, employee, company

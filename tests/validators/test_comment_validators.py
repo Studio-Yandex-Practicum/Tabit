@@ -42,7 +42,7 @@ class TestCommentValidators:
 
     async def test_check_comment_owner_edit_mode_raises(self, comment_for_test):
         """
-        Проверка, что неавтор не может редактировать комментарий.
+        Проверка, что не-автор не может редактировать комментарий.
         """
         comment = await comment_for_test()
         with pytest.raises(HTTPException) as exc:
@@ -58,30 +58,11 @@ class TestCommentValidators:
             await check_comment_has_likes_from_user(str(uuid.uuid4()), comment.id, async_session)
         assert exc.value.status_code == 400
 
-    async def test_check_comment_has_likes_present_like_raises(self, async_session: AsyncSession, comment_for_test, like_comment):
+    async def test_check_comment_has_likes_present_like_raises(self, async_session: AsyncSession, comment_for_test):
         """
         Проверка ошибки, если пользователь пытается лайкнуть комментарий повторно.
         """
-        comment = await comment_for_test()
-        await like_comment(comment.id, comment.owner_id)
+        comment = await comment_for_test(with_like=True)
         with pytest.raises(HTTPException) as exc:
             await check_comment_has_likes_from_user(comment.owner_id, comment.id, async_session, like_mode=True)
         assert exc.value.status_code == 400
-
-
-import pytest_asyncio
-from sqlalchemy import insert
-from src.models import AssociationUserComment
-from sqlalchemy.ext.asyncio import AsyncSession
-
-# Temporary fixture for like_comment if not provided by conftest.py
-@pytest_asyncio.fixture
-async def like_comment(async_session: AsyncSession):
-    async def _like(comment_id, user_id):
-        await async_session.execute(
-            insert(AssociationUserComment).values(
-                left_id=user_id, right_id=comment_id
-            )
-        )
-        await async_session.commit()
-    return _like
