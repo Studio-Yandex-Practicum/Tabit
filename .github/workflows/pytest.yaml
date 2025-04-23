@@ -18,14 +18,19 @@ jobs:
       - name: Check required secrets
         run: |
           if [ -z "${{ secrets.ENV_FILE }}" ]; then
-            echo "Error: Secret ENV_FILE is not set!"
+            echo "::error::Secret ENV_FILE is not set!"
             exit 1
           fi
 
-      - name: Create .env file from secret
+      - name: Extract Python version
+        id: extract_py_ver
         run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
-        shell: bash
+          VERSION=$(echo "${{ secrets.ENV_FILE }}" | grep '^PYTHON_VERSION=' | cut -d'=' -f2)
+          if [ -z "$VERSION" ]; then
+            echo "::error::PYTHON_VERSION not found in ENV_FILE from secrets!"
+            exit 1
+          fi
+          echo "PYTHON_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -46,6 +51,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
+
+      - name: Create .env file from secret
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+        shell: bash
 
       - name: Run tests
         run: |
