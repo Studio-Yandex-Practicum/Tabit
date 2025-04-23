@@ -9,11 +9,18 @@ from src.core.config.logging import logger
 from src.core.constants import TextError
 from src.crud.crud_base import CRUDBase
 from src.models.survey import SurveyAnswer, SurveyData, SurveySchedule, SurveyScheduleCycle
-from src.schemas.survey import SurveyAnswerCreate, SurveyDataCreate, SurveyScheduleCreate
+from src.schemas.survey import (
+    SurveyAnswerCreate,
+    SurveyDataCreate,
+    SurveyScheduleCreate,
+    SurveyScheduleUpdate,
+)
 
 
 class CRUDSurveysSchedule(CRUDBase):
-    """CRUD операции для модели тестирований."""
+    """
+    CRUD операции для модели тестирований.
+    """
 
     async def create_surveys_schedule(
         self,
@@ -21,7 +28,9 @@ class CRUDSurveysSchedule(CRUDBase):
         slug: str,
         schedule_in: SurveyScheduleCreate,
     ):
-        """Создает новое расписание."""
+        """
+        Создает новое расписание.
+        """
 
         try:
             schedule = self.model(
@@ -62,9 +71,13 @@ class CRUDSurveysSchedule(CRUDBase):
         raise_404: bool = False,
         message: str | None = None,
     ):
+        """
+        Возвращает расписание.
+        """
         result = await session.execute(
             select(self.model)
-            .where(self.model.company_slug == obj_slug and self.model.id == obj_id)
+            .where(
+                (self.model.company_slug == obj_slug) & (self.model.id == obj_id))
             .options(selectinload(self.model.cycles))
         )
         obj_model = result.scalars().first()
@@ -83,6 +96,9 @@ class CRUDSurveysSchedule(CRUDBase):
         raise_404: bool = False,
         message: str | None = None,
     ):
+        """
+        Возвращает список всех расписаний.
+        """
         result = await session.execute(
             select(self.model)
             .where(self.model.company_slug == obj_slug)
@@ -97,14 +113,55 @@ class CRUDSurveysSchedule(CRUDBase):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
         return obj_model
 
+    async def update_shedule(
+        self,
+        session: AsyncSession,
+        db_obj: SurveySchedule,
+        obj_in: SurveyScheduleUpdate
+    ):
+        """
+        Обновляет расписание.
+        """
+
+        update_data = obj_in.model_dump(exclude_unset=True)
+
+        for field in ['survey_tag', 'status']:
+            if field in update_data:
+                setattr(db_obj, field, update_data[field])
+
+        # TODO : нужно подумать правильно ли удалять все циклы и заного записывать
+        if obj_in.cycles is not None:
+            db_obj.cycles.clear()
+
+            for cycle_data in obj_in.cycles:
+                db_obj.cycles.append(SurveyScheduleCycle(
+                    cycle_number=cycle_data.cycle_number,
+                    date_start=cycle_data.date_start,
+                    survey_schedule_id=db_obj.id,
+                    ))
+
+        try:
+            session.add(db_obj)
+            await session.commit()
+            await session.refresh(db_obj)
+        except Exception as error:
+            await session.rollback()
+            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            raise error
+        return db_obj
+
 
 class CRUDSurveysData(CRUDBase):
-    """CRUD операции для работы с данными прохождения тестирования."""
+    """
+    CRUD операции для работы с данными прохождения тестирования.
+    """
 
     async def create_survey_data(
         self, session: AsyncSession, data: SurveyDataCreate, user_id: UUID, company_slug: str
     ):
-        """Создает запись о прохождении теста в цикле."""
+        """
+        Создает запись о прохождении теста в цикле.
+        """
 
         survey_data = self.model(
             survey_shedule_id=data.survey_shedule_id,
@@ -125,7 +182,9 @@ class CRUDSurveysData(CRUDBase):
         item: SurveyAnswerCreate,
         result: dict,
     ):
-        """Записывает ответы и результаты теста."""
+        """
+        Записывает ответы и результаты теста.
+        """
 
         answer = SurveyAnswer(
             survey_data_id=survey_data_id,
@@ -141,7 +200,9 @@ class CRUDSurveysData(CRUDBase):
     async def get_user_survey(
         self, session: AsyncSession, company_slug: str, survey_data_id: int, user_id: UUID
     ):
-        """Получает информацию об опросе пользователя."""
+        """
+        Получает информацию об опросе пользователя.
+        """
 
         result = await session.execute(
             select(self.model).where(
@@ -153,11 +214,13 @@ class CRUDSurveysData(CRUDBase):
         return result.scalars().first()
 
     async def get_all_user_survey(self, session: AsyncSession, company_slug: str, user_id: UUID):
-        """Получает информацию обо всех опросах пользователя."""
+        """
+        Получает информацию обо всех опросах пользователя.
+        """
 
         result = await session.execute(
             select(self.model).where(
-                self.model.user_id == user_id and self.model.company_slug == company_slug
+                (self.model.user_id == user_id) & (self.model.company_slug == company_slug)
             )
         )
         return result.scalars().all()

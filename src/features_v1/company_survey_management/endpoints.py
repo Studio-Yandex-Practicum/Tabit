@@ -141,12 +141,16 @@ async def update_survey_schedule(
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
     )
-    schedule = await validator_check_object_exists(
-        session=session, model_crud=surveys_schedule_crud, object_id=schedule_id
+    schedule = await surveys_schedule_crud.get_shedule(
+        session=session,
+        obj_id=schedule_id,
+        obj_slug=company_slug,
+        raise_404=True,
     )
-    updated_shedule = await surveys_schedule_crud.update(
+    updated_shedule = await surveys_schedule_crud.update_shedule(
         session=session, db_obj=schedule, obj_in=data
     )
+
     return updated_shedule
 
 

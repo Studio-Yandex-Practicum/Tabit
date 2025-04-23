@@ -26,12 +26,10 @@ class SurveyScheduleCycleRead(SurveyScheduleCycleCreate):
     Назначение:
         Определяет структуру ответа получения циклов внутри расписания.
     Параметры:
-        id: Идентификатор цикла
         cycle_number: номер цикла в расписании (6 циклов максимум).
         date_start: дата начала тестирования.
     """
-
-    id: int
+    pass
 
     model_config = ConfigDict(from_attributes=True)
 
