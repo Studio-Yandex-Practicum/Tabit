@@ -54,21 +54,38 @@ class CRUDSurveysSchedule(CRUDBase):
             logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
             raise error
 
-    async def get_by_slug(
+    async def get_shedule(
+        self,
+        session: AsyncSession,
+        obj_id: int,
+        obj_slug: str,
+        raise_404: bool = False,
+        message: str | None = None,
+    ):
+        result = await session.execute(
+            select(self.model).where(self.model.company_slug == obj_slug and 
+                                     self.model.id == obj_id)
+            .options(selectinload(self.model.cycles))
+        )
+        obj_model = result.scalars().first()
+        if not obj_model and raise_404:
+            if message is None:
+                message = TextError.NOT_FOUND_BY_SLUG.format(
+                    obj=self.model.__name__, slug=obj_slug
+                )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+        return obj_model
+
+    async def get_all_shedules(
         self,
         session: AsyncSession,
         obj_slug: str,
         raise_404: bool = False,
         message: str | None = None,
     ):
-        """
-        Получает объекты по полю slug.
-
-        Возвращает объект модели или None, если он не найден.
-        Если параметр raise_404 = True, тогда выбрасывает 404-ошибку, если не найден.
-        """
         result = await session.execute(
             select(self.model).where(self.model.company_slug == obj_slug)
+            .options(selectinload(self.model.cycles))
         )
         obj_model = result.scalars().all()
         if not obj_model and raise_404:
@@ -78,19 +95,6 @@ class CRUDSurveysSchedule(CRUDBase):
                 )
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
         return obj_model
-
-    async def get_cycles(self, session: AsyncSession, obj_id: int):
-        """Получает все объекты по id."""
-
-        result = await session.execute(
-            select(self.model)
-            .options(selectinload(self.model.cycles))
-            .where(self.model.id == obj_id)
-        )
-        obj_model = result.scalar_one_or_none()
-        if obj_model:
-            return obj_model.cycles
-        return []
 
 
 class CRUDSurveysData(CRUDBase):

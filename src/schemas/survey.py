@@ -37,7 +37,7 @@ class SurveyScheduleCycleRead(SurveyScheduleCycleCreate):
 class SurveyScheduleCreate(BaseModel):
     """
     Схема создания расписания.
-    
+
     Назначение:
         Определяет структуру запроса для создания расписания.
     Параметры:
@@ -68,6 +68,22 @@ class SurveyScheduleCreate(BaseModel):
         }
 
 
+class SurveyScheduleUpdate(BaseModel):
+    """
+    Схема обновления расписания.
+
+    Назначение:
+        Определяет структуру запроса для создания расписания.
+    Параметры:
+        survey_tag: Таг определяетщий вид тестирования. (Опционально)
+        status: текущий статус расписания. (Опционально)
+        cycles: список циклов тестирований. (Опционально)
+    """
+    survey_tag: str | None = None
+    status: str | None = None
+    cycles: List[SurveyScheduleCycleCreate] | None = None
+
+
 class SurveyScheduleRead(BaseModel):
     """
     Схема получения расписания.
@@ -84,6 +100,7 @@ class SurveyScheduleRead(BaseModel):
     survey_tag: str
     created_at: datetime
     status: str
+    cycles: List[SurveyScheduleCycleRead]
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -12,8 +12,8 @@ from src.schemas.survey import (
     SurveyDataCreate,
     SurveyDataRead,
     SurveyScheduleCreate,
-    SurveyScheduleCycleRead,
     SurveyScheduleRead,
+    SurveyScheduleUpdate
 )
 from src.utils.surveys import Surveys
 
@@ -28,7 +28,7 @@ router = APIRouter()
     'Права доступа: Tabit Admin, Tabit Superuser.',
     dependencies=[Depends(get_async_session)],
 )
-async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_async_session)):
+async def get_schedule_list(company_slug: str, session: AsyncSession = Depends(get_async_session)):
     """
     Возвращает список всех опросов компании.
 
@@ -39,7 +39,7 @@ async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_asy
         session=session, model_crud=company_crud, object_slug=company_slug
     )
 
-    schedule = await surveys_schedule_crud.get_by_slug(
+    schedule = await surveys_schedule_crud.get_all_shedules(
         session=session,
         obj_slug=company_slug,
         raise_404=True,
@@ -55,7 +55,7 @@ async def get_surveys(company_slug: str, session: AsyncSession = Depends(get_asy
     'Права доступа: Tabit Admin, Tabit Superuser.',
     dependencies=[Depends(get_async_session)],
 )
-async def create_survey_schedule(
+async def create_schedule(
     company_slug: str,
     data: SurveyScheduleCreate,
     session: AsyncSession = Depends(get_async_session),
@@ -80,6 +80,72 @@ async def create_survey_schedule(
         session=session, slug=company_slug, schedule_in=data
     )
     return schedule
+
+
+@router.get(
+    '/{schedule_id:int}',
+    response_model=SurveyScheduleRead,
+    summary='Получить конкретное расписание опросов компании',
+    description='Получить конкретное расписание опросов компании.' \
+    'Права доступа: Tabit Admin, Tabit Superuser.',
+    dependencies=[Depends(get_async_session)],
+)
+async def get_schedule(company_slug: str, schedule_id: int, session: AsyncSession = Depends(get_async_session)):
+    """
+    Возвращает конкретное расписание опросов компании.
+
+    Назначение:
+        Для получения расписания опросов.
+    """
+    await validator_check_object_exists(
+        session=session, model_crud=company_crud, object_slug=company_slug
+    )
+
+    schedule = await surveys_schedule_crud.get_shedule(
+        session=session,
+        obj_id=schedule_id,
+        obj_slug=company_slug,
+        raise_404=True,
+    )
+    return schedule
+
+
+@router.patch(
+    '/{schedule_id:int}',
+    response_model=SurveyScheduleRead,
+    summary='Изменить расписание опросов',
+    description='Внести изменение в расписание опросов. ' \
+    'Права доступа: Tabit Admin, Tabit Superuser.',
+    dependencies=[Depends(get_async_session)],
+)
+async def update_survey_schedule(
+    company_slug: str,
+    schedule_id: int,
+    data: SurveyScheduleUpdate,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """
+    Вносит изменения в новое расписание.
+
+    Поля:
+     - date_start: заполняется в формате "2019-08-24".
+     - status: IN_PROGRESS = 'В работе'
+               COMPLETED = 'Завершен'
+               CANCELED = 'Отменен'
+               POSTPONED = 'Отложен'
+     - survey_tag: EMO = 'Определение эмоционального состояния'
+                   TEST = 'Тестовый тест для тестирования'
+    """
+    await validator_check_object_exists(
+        session=session, model_crud=company_crud, object_slug=company_slug
+    )
+    schedule = await validator_check_object_exists(
+        session=session, model_crud=surveys_schedule_crud, object_id=schedule_id
+    )
+    updated_shedule = await surveys_schedule_crud.update(
+        session=session, db_obj=schedule, obj_in=data
+    )
+    return updated_shedule
 
 
 @router.delete(
@@ -110,28 +176,6 @@ async def delete_survey_schedule(
 
 
 @router.get(
-    '/{schedule_id:int}/cycles',
-    response_model=List[SurveyScheduleCycleRead],
-    summary='Получить список циклов опросов внутри расписания компании',
-    description='Позволяет получить список циклов опросов внутри конкретного' \
-    ' расписания. Права доступа: Tabit Admin, Tabit Superuser',
-    dependencies=[Depends(get_async_session)],
-)
-async def get_surveys_cycles(
-    company_slug: str, schedule_id: int, session: AsyncSession = Depends(get_async_session)
-):
-    """Получает список циклов опросов внутри расписания компании."""
-    await validator_check_object_exists(
-        session=session, model_crud=company_crud, object_slug=company_slug
-    )
-    await validator_check_object_exists(
-        session=session, model_crud=surveys_schedule_crud, object_id=schedule_id
-    )
-    cycles = await surveys_schedule_crud.get_cycles(session=session, obj_id=schedule_id)
-    return cycles
-
-
-@router.get(
     '/{user_id:uuid}',
     response_model=List[SurveyDataRead],
     summary='Получить историю опросов сотрудника компании',
@@ -157,7 +201,7 @@ async def get_employee_survey_history(
 
 
 @router.get(
-    '/{user_id}/{survey_id}',
+    '/{user_id:uuid}/{survey_id:int}',
     response_model=SurveyDataRead,
     summary='Получить информацию об опросе сотрудника компании',
     description='Позволяет получить информацию о конкретном опросе' \
@@ -185,7 +229,7 @@ async def get_employee_survey_info(
 
 
 @router.post(
-    '/{user_id}',
+    '/{user_id:uuid}',
     summary='Передать информацию об опросе сотрудника компании',
     description='Позволяет передать данные о прохождении опроса пользователем.' \
     ' Права доступа: Company User.',
