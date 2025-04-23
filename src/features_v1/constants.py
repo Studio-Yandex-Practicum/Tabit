@@ -330,6 +330,7 @@ class TextError:
     LOGIN = 'Неверные учетные данные для входа в систему'
     IS_SUPERUSER: str = 'Объект - суперпользователь'
     DEPARTMENT_EXIST_ERROR_MESSAGE: str = 'Объект с таким именем уже существует.'
+    DEPARTMENT_NOT_FOUND = 'Нет объекта с таким именем'
     FORBIDDEN_FROM_COMPANY: str = 'Доступно только пользователю, из компании: {}.'
     FORBIDDEN_OWNER: str = 'Доступно только пользователю, создавшему объект.'
     FORBIDDEN_NOT_MEMBER: str = 'Только участники проблемы могут создавать встречи.'
