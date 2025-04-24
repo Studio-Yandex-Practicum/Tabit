@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class SurveyScheduleCycleCreate(BaseModel):
@@ -17,6 +17,16 @@ class SurveyScheduleCycleCreate(BaseModel):
 
     cycle_number: int = Field(..., ge=1, le=6)
     date_start: datetime
+
+    @field_validator('date_start')
+    @classmethod
+    def check_datetime(cls, value: datetime) -> datetime:
+        if value <= datetime.now():
+            raise ValueError(
+                'Дата начала тестирования  '
+                'не может быть меньше текущего времени'
+            )
+        return value
 
 
 class SurveyScheduleCycleRead(SurveyScheduleCycleCreate):
