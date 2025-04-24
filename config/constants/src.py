@@ -88,7 +88,7 @@ class MiscConstantsBase(ConstantsBase.MiscConstants):
         BASE_DIR (Path): Корневая директория проекта.
     """
 
-    BASE_DIR = Path(__file__).resolve().parents[2]
+    BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 class SummaryBase(ConstantsBase.Summary):

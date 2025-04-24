@@ -31,7 +31,7 @@ class MigrationConstants:
             Сопоставляет цифры в начале имени файла перед '_'.
     """
 
-    MIGRATIONS_DIR = Path(__file__).resolve().parents[2] / 'alembic' / 'versions'
+    MIGRATIONS_DIR: Path = Path(__file__).resolve().parent.parent.parent / 'alembic' / 'versions'
     MIGRATION_RE_ID: Pattern[str] = compile(r'^(\d+)_')
 
 
