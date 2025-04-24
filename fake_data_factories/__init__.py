@@ -22,6 +22,7 @@ from .company_factories import CompanyFactory, create_companies
 from .company_user_factories import CompanyUserFactory, create_company_users
 from .department_factories import DeparmentFactory, create_company_department
 from .license_type_factories import LicenseTypeFactory, create_license_type
+from .meeting_factory import MeetingFactory, create_meetings
 from .message_feed_factory import MessageFeedFactory, create_message_feeds
 from .problem_factory import ProblemFactory, create_problems
 from .tabit_user_factories import TabitAdminUserFactory, create_tabit_admin_users
@@ -41,6 +42,8 @@ __all__ = [
     'create_company_department',
     'LicenseTypeFactory',
     'create_license_type',
+    'MeetingFactory',
+    'create_meetings',
     'MessageFeedFactory',
     'create_message_feeds',
     'ProblemFactory',

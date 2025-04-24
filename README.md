@@ -27,7 +27,7 @@
 8. [🧪 Тестирование](#testing)
 9. [❓ Часто встречающиеся ошибки](#common-errors)
 
-## 📌 О проекте <a name="about"></a> 
+## 📌 О проекте <a name="about"></a>
 
 **Tabit** — онлайн-сервис для HR-специалистов и собственников компаний, который помогает:
 - 📊 Измерять эмоциональный климат в компании
@@ -37,9 +37,9 @@
 
 > **Требования к окружению:** Python 3.12 или выше.
 
-## 🚀 Начало работы <a name="start"></a> 
+## 🚀 Начало работы <a name="start"></a>
 
-### 📦 Poetry <a name="poetry"></a> 
+### 📦 Poetry <a name="poetry"></a>
 
 Poetry — это инструмент для управления зависимостями и виртуальными окружениями Python. В проекте Poetry является **обязательным** для разработки.
 
@@ -149,7 +149,7 @@ poetry update
 
 </details>
 
-### 🔄 Pre-commit <a name="pre-commit"></a> 
+### 🔄 Pre-commit <a name="pre-commit"></a>
 
 <details>
 <summary><strong>🔽 Настройка pre-commit</strong></summary>
@@ -168,7 +168,7 @@ poetry update
 
 </details>
 
-### 🪟 Установка на Windows <a name="installation-on-Windows"></a> 
+### 🪟 Установка на Windows <a name="installation-on-Windows"></a>
 
 <details>
 <summary><strong>🔽 Способ 1: Установка с использованием WSL (рекомендуется)</strong></summary>
@@ -353,7 +353,7 @@ poetry update
 > ⚠️ **Примечание:** На чистом Windows могут возникнуть проблемы совместимости. Если столкнетесь с ошибками, рекомендуется перейти на WSL.
 </details>
 
-## 💾 Работа с базой данных <a name="working-with-database"></a> 
+## 💾 Работа с базой данных <a name="working-with-database"></a>
 
 ### Настройка окружения
 
@@ -373,10 +373,10 @@ DB_API=asyncpg                            # API для работы с БД
 DB_HOST=localhost                         # Хост для подключения к БД
 ```
 
-### 📊 ERD модель данных <a name="erd"></a> 
+### 📊 ERD модель данных <a name="erd"></a>
 Актуальная ER-диаграмма базы данных доступна [по ссылке](https://app.erdlab.io/designer/schema/1736745715-tabit)
 
-### 🔍 DBeaver <a name="dbeaver"></a> 
+### 🔍 DBeaver <a name="dbeaver"></a>
 
 <details>
 <summary><strong>🔽 Подключение к БД через DBeaver</strong></summary>
@@ -394,7 +394,7 @@ DB_HOST=localhost                         # Хост для подключени
 
 </details>
 
-### 🔍 pgAdmin <a name="pgadmin"></a> 
+### 🔍 pgAdmin <a name="pgadmin"></a>
 
 <details>
 <summary><strong>🔽 Работа с pgAdmin</strong></summary>
@@ -463,9 +463,9 @@ docker compose -f infra/local/docker-compose.local.yaml --profile '*' down -v
 
 </details>
 
-## 👨‍💻 Разработка <a name="development"></a> 
+## 👨‍💻 Разработка <a name="development"></a>
 
-### 🔄 Правила работы с git <a name="rules-for-working-with-git"></a> 
+### 🔄 Правила работы с git <a name="rules-for-working-with-git"></a>
 
 <details>
 <summary><strong>🔽 Git-процесс в проекте</strong></summary>
@@ -489,7 +489,7 @@ docker compose -f infra/local/docker-compose.local.yaml --profile '*' down -v
 
 </details>
 
-### 📝 Логирование <a name="logging"></a> 
+### 📝 Логирование <a name="logging"></a>
 
 <details>
 <summary><strong>🔽 Система логирования</strong></summary>
@@ -529,7 +529,7 @@ docker compose -f infra/local/docker-compose.local.yaml --profile '*' down -v
 
 </details>
 
-### 🧹 Линтеры <a name="linters"></a> 
+### 🧹 Линтеры <a name="linters"></a>
 
 <details>
 <summary><strong>🔽 Проверка качества кода</strong></summary>
@@ -558,9 +558,9 @@ poetry run ruff format .
 
 </details>
 
-## 🔄 CI/CD и деплой <a name="cicd-deployment"></a> 
+## 🔄 CI/CD и деплой <a name="cicd-deployment"></a>
 
-### ⚙️ GitHub Actions Workflows <a name="github-actions-workflows"></a> 
+### ⚙️ GitHub Actions Workflows <a name="github-actions-workflows"></a>
 
 В проекте настроены следующие автоматизированные процессы:
 
@@ -571,7 +571,7 @@ poetry run ruff format .
 | **ruff.yml**             | Проверка кода линтерами               | Push, Pull Request          |
 | **stage_deploy.yaml**    | Деплой на Stage-окружение             | Push в определенную ветку   |
 
-### 🐳 Инфраструктура Docker <a name="docker"></a> 
+### 🐳 Инфраструктура Docker <a name="docker"></a>
 
 <details>
 <summary><strong>🔽 Конфигурации Docker</strong></summary>
@@ -609,7 +609,7 @@ poetry run ruff format .
 
 </details>
 
-### 🚀 Деплой на Stage <a name="deployment-stage"></a> 
+### 🚀 Деплой на Stage <a name="deployment-stage"></a>
 
 <details>
 <summary><strong>🔽 Процесс деплоя</strong></summary>
@@ -632,9 +632,9 @@ poetry run ruff format .
 
 </details>
 
-## ▶️ Запуск приложения <a name="launch-applications"></a> 
+## ▶️ Запуск приложения <a name="launch-applications"></a>
 
-### 💻 Запуск приложения из командной строки <a name="launch-applications-from-command-line"></a> 
+### 💻 Запуск приложения из командной строки <a name="launch-applications-from-command-line"></a>
 
 ```bash
 python src/main.py [опции]
@@ -651,7 +651,7 @@ python src/main.py [опции]
 python src/main.py -r -h 127.0.0.1 -p 1234
 ```
 
-### 👤 Создать автоматически суперпользователя <a name="create-automatically-superuser"></a> 
+### 👤 Создать автоматически суперпользователя <a name="create-automatically-superuser"></a>
 
 1. Заполните `.env` параметрами (примеры из .env.example):
 ```ini
@@ -670,7 +670,7 @@ python src/main.py -c
 make create-superuser
 ```
 
-### 🐞 Запуск контейнеров локально для отладки CI/CD <a name="debugging-cicd"></a> 
+### 🐞 Запуск контейнеров локально для отладки CI/CD <a name="debugging-cicd"></a>
 
 <details>
 <summary><strong>🔽 Локальное тестирование CI/CD</strong></summary>
@@ -706,7 +706,7 @@ make down
 
 </details>
 
-## 📋 Makefile команды <a name="makefile"></a> 
+## 📋 Makefile команды <a name="makefile"></a>
 
 <details>
 <summary><strong>🔽 Docker Compose команды</strong></summary>
@@ -758,10 +758,13 @@ make down
 | `make fill-tasks`                | Создание тестовых задач                      |
 | `make fill-comments`             | Создание тестовых комментариев               |
 | `make fill-tags`                 | Создание тестовых тэгов                      |
+| `make fill-meetings`             | Создание тестовых встреч                     |
+| `fill-meetings-results`          | Создание результатов к тестовым встречам     |
+
 
 </details>
 
-## 🧪 Тестирование <a name="testing"></a> 
+## 🧪 Тестирование <a name="testing"></a>
 
 Тесты используют базу данных PostgreSQL, которая **автоматически** разворачивается в контейнере перед запуском тестов и удаляется после их выполнения. **Не нужно запускать контейнер вручную — `pytest` сделает это сам!**
 
@@ -831,7 +834,7 @@ docker-compose -f infra/docker-compose.test-db.yaml down -v
 
 </details>
 
-## ❓ Часто встречающиеся ошибки <a name="common-errors"></a> 
+## ❓ Часто встречающиеся ошибки <a name="common-errors"></a>
 
 <details>
 <summary><strong>🔽 Конфликт портов PostgreSQL в WSL и Docker</strong></summary>

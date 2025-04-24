@@ -8,6 +8,7 @@ FAKER_COMPANY_COUNT = 5  # Число компаний для генерации
 FAKER_DEPARTMENT_COUNT = 5  # Число отделов для генерации
 FAKER_PROBLEMS_COUNT: int = 5  # Число проблем для генерации
 FAKER_MEETINGS_COUNT: int = 5  # Число встреч для генерации
+FAKER_MEETINGS_RESULT_COUNT: int = 5  # Число результатов встреч для генерации
 FAKER_MESSAGE_FEEDS_COUNT: int = 5  # Число лент сообщений для генерации
 FAKER_VOTING_FEEDS_COUNT: int = 5  # Число лент голосований для генерации
 FAKER_TASK_COUNT: int = 5  # Число задач для генерации
@@ -59,6 +60,14 @@ DEFAULT_MEETING_TITLES: list[str] = [
     'Пицца или суши?',
     'Практики ревью кода.',
     'Улучшение взаимодействия с клиентом.',
+]
+
+DEFAULT_MEETING_FEEDBACK: list[str] = [
+    None,
+    'Всё прошло отлично, разобрали все темы.',
+    'Часть тем не успели разобрать. Сделаем на следующей встрече.',
+    'Было очень мало людей, встречу отменили.',
+    'А где все?',
 ]
 
 DEFAULT_MEETING_DESCRIPTIONS: list[str | None] = [

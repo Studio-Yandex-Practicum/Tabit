@@ -89,7 +89,7 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
                 user_id=comment_owners_ids[i], comment_ids=[comments[i].id]
             )
     else:
-        comments = await CommentFeedFactory.create_batch(owner_id=kwargs['owner_id'], **kwargs)
+        comments = await CommentFeedFactory.create_batch(size=2, **kwargs)
         cprint(
             f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}',
             ColorCPrint.green,  # type: ignore

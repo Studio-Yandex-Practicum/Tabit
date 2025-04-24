@@ -3,6 +3,7 @@ from random import randint, sample
 
 from termcolor import colored, cprint
 
+from fake_data_factories.association_user_meeting_factory import create_user_meeting_association
 from fake_data_factories.association_user_problem_factory import (
     create_user_problem_associations,
 )
@@ -22,6 +23,8 @@ from fake_data_factories.constants import (
 )
 from fake_data_factories.department_factories import create_company_department
 from fake_data_factories.license_type_factories import create_license_type
+from fake_data_factories.meeting_factory import create_meetings
+from fake_data_factories.meeting_result_factory import create_meeting_result
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.tabit_user_factories import create_tabit_admin_users
@@ -73,11 +76,19 @@ async def fill_all_data():
                 ),
                 None,
             )
+
             company_users_not_problem_owners = [
                 user for user in company_users_not_admins if user != company_user
             ]
+            meetings = await create_meetings(
+                count=1, owner_id=problem.owner_id, problem_id=problem.id
+            )
             for user in company_users_not_problem_owners:
                 await create_user_problem_associations(user_id=user.id, problem_ids=[problem.id])
+                await create_user_meeting_association(
+                    user_id=user.id, meeting_ids=[meeting.id for meeting in meetings]
+                )
+            await create_meeting_result(ount=1, owner_id=problem.owner_id, meetings=meetings)
             message_feeds = await create_message_feeds(
                 count=1, problem_id=problem.id, owner_id=problem.owner_id
             )
@@ -92,7 +103,11 @@ async def fill_all_data():
                         user_id=user.id,
                         voting_ids=sample(voting_ids, max_votings_by_user),
                     )
-                await create_comments(count=FAKER_COMMENT_COUNT, message_id=message_feed.id)
+                await create_comments(
+                    count=FAKER_COMMENT_COUNT,
+                    message_id=message_feed.id,
+                    owner_id=message_feed.owner_id,
+                )
             await create_tasks(
                 count=FAKER_TASK_COUNT, problem_id=problem.id, owner_id=company_user.id
             )

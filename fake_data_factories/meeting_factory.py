@@ -7,12 +7,9 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from fake_data_factories import (
-    create_companies,
-    create_company_users,
-    create_problems,
-    create_user_meeting_association,
-)
+from fake_data_factories.association_user_meeting_factory import create_user_meeting_association
+from fake_data_factories.company_factories import create_companies
+from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.constants import (
     DEFAULT_MEETING_DESCRIPTIONS,
     DEFAULT_MEETING_PLACES,
@@ -20,6 +17,7 @@ from fake_data_factories.constants import (
     FAKER_MEETINGS_COUNT,
     ColorCPrint,
 )
+from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
 from src.models import Meeting, MeetingStatus
@@ -71,10 +69,10 @@ async def create_meetings(count: int = FAKER_MEETINGS_COUNT, **kwargs) -> list[M
     - пользователь Tabit (uuid пользователя передаётся в фабрику);
     - проблема (id проблемы передаётся в фабрику).
 
-    Если функция запускается через импорт, в неё можно передать именованный аргумент \
-    `owner_id`. Если не передать, запустится фабрика создания пользователей компании \
-        с предварительным запуском фабрики создания компании, а также запустится фабрика \
-        создания проблемы от авторства созданного фабрикой пользователя.
+    Если функция запускается через импорт, в неё нужно передать именованные аргументы \
+    `owner_id` и 'problem_id'. Если не передать 'owner_id', запустится фабрика создания \
+    пользователей компании с предварительным запуском фабрики создания компании, а также \
+    запустится фабрика создания проблемы от авторства созданного фабрикой пользователя.
 
     Функция возвращает список встреч.
     """
