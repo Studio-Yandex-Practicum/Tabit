@@ -7,6 +7,7 @@ FAKER_USER_COUNT = 5  # Число пользователей для генер�
 FAKER_COMPANY_COUNT = 5  # Число компаний для генерации
 FAKER_DEPARTMENT_COUNT = 5  # Число отделов для генерации
 FAKER_PROBLEMS_COUNT: int = 5  # Число проблем для генерации
+FAKER_MEETINGS_COUNT: int = 5  # Число встреч для генерации
 FAKER_MESSAGE_FEEDS_COUNT: int = 5  # Число лент сообщений для генерации
 FAKER_VOTING_FEEDS_COUNT: int = 5  # Число лент голосований для генерации
 FAKER_TASK_COUNT: int = 5  # Число задач для генерации
@@ -51,6 +52,24 @@ DEFAULT_PROBLEM_DESCRIPTIONS: list[str | None] = [
     'Слишком много времени тратится впустую.',
     'Общение через почту слишком неэффективно.',
 ]
+
+DEFAULT_MEETING_TITLES: list[str] = [
+    'Узкие места процессов.',
+    'Технический долг команды.',
+    'Пицца или суши?',
+    'Практики ревью кода.',
+    'Улучшение взаимодействия с клиентом.',
+]
+
+DEFAULT_MEETING_DESCRIPTIONS: list[str | None] = [
+    None,
+    'Будем обсуждать обсуждения.',
+    'Что можем делать немного лучше.',
+    'Окончательное голосование: Coca-cola или Pepsi.',
+    'Как улучшить качество и взаимодействие внутри команды.',
+]
+
+DEFAULT_MEETING_PLACES: list[str] = ['Офис 000', 'Офис 422', 'Офис 500', 'Подвал', 'MS Teams']
 
 DEFAULT_TASK_NAMES: list[str] = [
     'Разработка новой формы договора',

@@ -3,6 +3,10 @@ from .association_user_comment_factory import (
     AssociationUserCommentFactory,
     create_user_comment_associations,
 )
+from .association_user_meeting_factory import (
+    AssociationUserMeetingFactory,
+    create_user_meeting_association
+)
 from .association_user_problem_factory import (
     AssociationUserProblemFactory,
     create_user_problem_associations,
@@ -51,6 +55,8 @@ __all__ = [
     'create_voting_feeds',
     'AssociationUserCommentFactory',
     'create_user_comment_associations',
+    'AssociationUserMeetingFactory',
+    'create_user_meeting_association',
     'AssociationUserProblemFactory',
     'create_user_problem_associations',
     'AssociationUserTagFactory',
