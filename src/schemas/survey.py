@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class SurveyScheduleCycleCreate(BaseModel):
@@ -19,7 +19,7 @@ class SurveyScheduleCycleCreate(BaseModel):
     date_start: datetime
 
     # TODO надо доработать неправильно отрабатывает
-    """ @field_validator('date_start')
+    @field_validator('date_start')
     @classmethod
     def check_datetime(cls, value: datetime) -> datetime:
         if value <= datetime.now():
@@ -27,10 +27,10 @@ class SurveyScheduleCycleCreate(BaseModel):
                 'Дата начала тестирования  '
                 'не может быть меньше текущего времени'
             )
-        return value """
+        return value
 
 
-class SurveyScheduleCycleRead(SurveyScheduleCycleCreate):
+class SurveyScheduleCycleRead(BaseModel):
     """
     Схема получения циклов в расписании.
 
@@ -40,6 +40,7 @@ class SurveyScheduleCycleRead(SurveyScheduleCycleCreate):
         cycle_number: номер цикла в расписании (6 циклов максимум).
         date_start: дата начала тестирования.
     """
+    cycle_number: int 
     date_start: datetime
 
     model_config = ConfigDict(from_attributes=True)
