@@ -4,16 +4,10 @@ from uuid import UUID
 
 import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
-from Tabit.src.core.constants_old import ZERO
 from termcolor import cprint
 
+from config.constants.fake_data_factories import ColorCPrint, Default, Faker, Length, MiscConstants
 from fake_data_factories.association_user_task_factory import create_user_task_associations
-from fake_data_factories.constants import (
-    DEFAULT_TASK_DESCRIPTION_LENGTH,
-    DEFAULT_TASK_NAMES,
-    FAKER_TASK_COUNT,
-    ColorCPrint,
-)
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
@@ -34,15 +28,13 @@ class TaskFactory(AsyncSQLAlchemyFactory):
         transfer_counter: Счетчик переносов даты решения задач.
     """
 
-    name: factory.LazyFunction = factory.LazyFunction(lambda: choice(DEFAULT_TASK_NAMES))
-    description: factory.Faker = factory.Faker(
-        'text', max_nb_chars=DEFAULT_TASK_DESCRIPTION_LENGTH
-    )
+    name: factory.LazyFunction = factory.LazyFunction(lambda: choice(Default.TASK_NAMES))
+    description: factory.Faker = factory.Faker('text', max_nb_chars=Length.TASK_DESCRIPTION)
     date_completion: factory.Faker = factory.Faker('future_date')
     owner_id: UUID
     problem_id: str
     status: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(TaskStatus)))
-    transfer_counter: int = ZERO
+    transfer_counter: int = MiscConstants.ZERO
 
     class Meta:
         model = Task
@@ -50,7 +42,7 @@ class TaskFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_tasks(count: int = FAKER_TASK_COUNT, **kwargs) -> None:
+async def create_tasks(count: int = Faker.TASK_COUNT, **kwargs) -> None:
     """
     Функция для для пакетного создания задач.
 

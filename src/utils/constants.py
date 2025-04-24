@@ -1,6 +1,6 @@
 import string
 
-from src.constants import DirectoryBase, LengthBase, MiscConstantsBase, TextErrorBase
+from config.constants.src import DirectoryBase, LengthBase, MiscConstantsBase, TextErrorBase
 
 
 class Directory(DirectoryBase):

@@ -3,7 +3,7 @@ from uuid import UUID
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from fake_data_factories.constants import ColorCPrint
+from config.constants.fake_data_factories import ColorCPrint
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
 from src.models import AssociationUserTask

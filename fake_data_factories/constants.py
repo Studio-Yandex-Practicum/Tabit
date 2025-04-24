@@ -2,64 +2,73 @@
 
 from dataclasses import dataclass
 
-# Основные параметры генерации
-FAKER_USER_COUNT = 5  # Число пользователей для генерации
-FAKER_COMPANY_COUNT = 5  # Число компаний для генерации
-FAKER_DEPARTMENT_COUNT = 5  # Число отделов для генерации
-FAKER_PROBLEMS_COUNT: int = 5  # Число проблем для генерации
-FAKER_MESSAGE_FEEDS_COUNT: int = 5  # Число лент сообщений для генерации
-FAKER_VOTING_FEEDS_COUNT: int = 5  # Число лент голосований для генерации
-FAKER_TASK_COUNT: int = 5  # Число задач для генерации
-FAKER_COMMENT_COUNT: int = 5  # Число комментариев для генерации
-FAKER_COMMENT_WORDS_COUNT: int = 7  # Количество слов в комментарии
-FAKER_MIN_COMMENT_RATING: int = 0  # Минимальный рейтинг комментария
-FAKER_MAX_COMMENT_RATING: int = 5  # Максимальный рейтинг комментария
-FAKER_USER_TAGS_COUNT: int = 3  # Число тэгов для генерации
-AMOUNT_OF_MODERATORS = 1  # Количество модераторов создаваемых для компании за 1 запуск скрипта
+from src.constants import MiscConstantsBase
 
-# Параметры лицензий
-LICENSE_TYPE_COUNT = 5
-DEFAULT_LICENSE_TERM = 365
-LICENSE_MAX_ADMINS = 100
-LICENSE_MAX_EMPLOYEES = 1000
 
-# Текстовые константы
-COMPANY_USER_CREATED_TEXT = '{role} компании c id={company_id}: {user_email}, пасс: {password}'
-DEFAULT_TASK_DESCRIPTION_LENGTH: int = 256
+class MiscConstants(MiscConstantsBase):
+    # Текстовые константы
+    COMPANY_USER_CREATED_TEXT = '{role} компании c id={company_id}: {user_email}, пасс: {password}'
 
-# Списки значений по умолчанию
-DEFAULT_DEPARTMENT_NAMES = [
-    'Отдел кадров',
-    'Отдел менеджмента',
-    'Отдел продаж',
-    'IT-отдел',
-    'Технический отдел',
-]  # Имена для отделов компании
 
-DEFAULT_PROBLEM_NAMES: list[str] = [
-    'Нехватка персонала',
-    'Медленный отклик на заявку',
-    'Несоблюдение делового стиля общения',
-    'Переносы сроков проектов',
-    'Неэффективные встречи',
-]
+class Faker:
+    # Основные параметры генерации
+    FAKER_USER_COUNT = 5  # Число пользователей для генерации
+    FAKER_COMPANY_COUNT = 5  # Число компаний для генерации
+    FAKER_DEPARTMENT_COUNT = 5  # Число отделов для генерации
+    FAKER_PROBLEMS_COUNT: int = 5  # Число проблем для генерации
+    FAKER_MESSAGE_FEEDS_COUNT: int = 5  # Число лент сообщений для генерации
+    FAKER_VOTING_FEEDS_COUNT: int = 5  # Число лент голосований для генерации
+    FAKER_TASK_COUNT: int = 5  # Число задач для генерации
+    FAKER_COMMENT_COUNT: int = 5  # Число комментариев для генерации
+    FAKER_COMMENT_WORDS_COUNT: int = 7  # Количество слов в комментарии
+    FAKER_MIN_COMMENT_RATING: int = 0  # Минимальный рейтинг комментария
+    FAKER_MAX_COMMENT_RATING: int = 5  # Максимальный рейтинг комментария
+    FAKER_USER_TAGS_COUNT: int = 3  # Число тэгов для генерации
+    AMOUNT_OF_MODERATORS = 1  # Количество модераторов создаваемых для компании за 1 запуск скрипта
 
-DEFAULT_PROBLEM_DESCRIPTIONS: list[str | None] = [
-    None,
-    'Проблемы возникают на этапе взаимодействия с менеджерами.',
-    'Из проектов исчезло поле с дедлайном.',
-    'Слишком много времени тратится впустую.',
-    'Общение через почту слишком неэффективно.',
-]
 
-DEFAULT_TASK_NAMES: list[str] = [
-    'Разработка новой формы договора',
-    'Пересмотреть активные сделки',
-    'Собрать список незакрытых сделок',
-    'Позвонить клиентам, которые давно к нам не обращались',
-    'Подготовить список клиентов, которые заказали на сумму менее 500 тыс.',
-    'Подготовить отчётность о сделках за последний квартал',
-]
+class Length:
+    # Параметры лицензий
+    LICENSE_TYPE_COUNT = 5
+    LICENSE_MAX_ADMINS = 100
+    LICENSE_MAX_EMPLOYEES = 1000
+
+
+class Default:
+    LICENSE_TERM = 365
+    # Списки значений по умолчанию
+    DEPARTMENT_NAMES = [
+        'Отдел кадров',
+        'Отдел менеджмента',
+        'Отдел продаж',
+        'IT-отдел',
+        'Технический отдел',
+    ]  # Имена для отделов компании
+
+    DEFAULT_PROBLEM_NAMES: list[str] = [
+        'Нехватка персонала',
+        'Медленный отклик на заявку',
+        'Несоблюдение делового стиля общения',
+        'Переносы сроков проектов',
+        'Неэффективные встречи',
+    ]
+
+    DEFAULT_PROBLEM_DESCRIPTIONS: list[str | None] = [
+        None,
+        'Проблемы возникают на этапе взаимодействия с менеджерами.',
+        'Из проектов исчезло поле с дедлайном.',
+        'Слишком много времени тратится впустую.',
+        'Общение через почту слишком неэффективно.',
+    ]
+
+    DEFAULT_TASK_NAMES: list[str] = [
+        'Разработка новой формы договора',
+        'Пересмотреть активные сделки',
+        'Собрать список незакрытых сделок',
+        'Позвонить клиентам, которые давно к нам не обращались',
+        'Подготовить список клиентов, которые заказали на сумму менее 500 тыс.',
+        'Подготовить отчётность о сделках за последний квартал',
+    ]
 
 
 @dataclass

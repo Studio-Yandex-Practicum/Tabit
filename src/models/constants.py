@@ -1,4 +1,4 @@
-from src.constants import DefaultBase, LengthBase, MiscConstantsBase
+from config.constants.src import DefaultBase, LengthBase, MiscConstantsBase
 
 
 class Default(DefaultBase):
@@ -22,13 +22,11 @@ class Length(LengthBase):
         MAX_NAME_DEPARTMENT (int): Максимальная длина названия отдела.
         MAX_NAME_MEETING_PLACE (int): Максимальная длина названия места встречи.
         MAX_NAME_PROBLEM (int): Максимальная длина названия проблемы.
-        MAX_SMALL_NAME (int): Максимальная длина короткого названия.
     """
 
     MAX_NAME_DEPARTMENT: int = 255
     MAX_NAME_MEETING_PLACE: int = 255
     MAX_NAME_PROBLEM: int = 255
-    MAX_SMALL_NAME: int = 30
 
 
 class MiscConstants(MiscConstantsBase):

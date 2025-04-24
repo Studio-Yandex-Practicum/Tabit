@@ -1,4 +1,4 @@
-from src.constants import DefaultBase, DirectoryBase, MiscConstantsBase, TextErrorBase
+from config.constants.src import DefaultBase, DirectoryBase, MiscConstantsBase, TextErrorBase
 
 
 class Default(DefaultBase):

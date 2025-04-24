@@ -1,6 +1,6 @@
 from re import compile
 
-from src.constants import (
+from config.constants.src import (
     DefaultBase,
     LengthBase,
     MiscConstantsBase,
@@ -97,7 +97,7 @@ class TextError(TextErrorBase):
         VALUE_ERROR_EMPTY (int): Максимальный допустимый размер файла.
     """
 
-    ALLOWED_FILE_EXTENSIONS: tuple[str, ...] = ('.pdf', '.doc', '.docx')
+    ALLOWED_FILE_EXTENSIONS: tuple[str] = ('.pdf', '.doc', '.docx')
     DATE_CANNOT_BE_EARLIER: str = 'Дата не может быть раньше.'
     DATE_SHOULD_BE_FUTURE: str = 'Дата должна быть в будущем.'
     EXECUTORS_MUST_BE_UUID_FORMAT: str = 'Исполнители должны быть в формате UUID.'

@@ -1,12 +1,12 @@
 """
-Модуль констант приложения.
+Модуль констант пакета `src`.
 
-Содержит глобальные константы, используемые во всем проекте.
+Содержит глобальные константы, используемые в пакете `src`.
 Все константы должны быть написаны в UPPER_CASE нотации.
 
 Примеры использования:
-    from src import constants
-    print(constants.BASE_DIR)
+    from config.constants.src import MiscConstantsBase
+    print(MiscConstantsBase.BASE_DIR)
 
 Константы разделены на логические группы с комментариями.
 Новые константы должны добавляться в соответствующие секции.
@@ -16,43 +16,49 @@
     - Все числовые константы должны иметь поясняющий комментарий
     - Строковые константы должны быть документально оформлены
     - Сложные константы должны содержать примеры значений
+    - Все пути вычисляются относительно расположения этого файла
 """
 
+from dataclasses import dataclass
 from pathlib import Path
 
+from config.constants.core import ConstantsBase
 
-class DefaultBase:
-    """Базовый класс констант значений по умолчанию для пагинации и лимитов.
+
+class DefaultBase(ConstantsBase.Default):
+    """Базовый класс констант значений по умолчанию для пагинации и лимитов,
+    используемых в пакете `src`.
+
+    Так же класс наследует значения из ConstantsBase.Default.
 
     Атрибуты:
         LIMIT (int): Максимальный лимит элементов.
-        PAGE_SIZE (int): Размер страницы по умолчанию.
         SKIP (int): Значение по умолчанию для пропуска элементов.
     """
 
     LIMIT: int = 100
-    PAGE_SIZE: int = 20
     SKIP: int = 0
 
 
-class DescriptionBase:
-    """Базовый класс для текстовых описаний."""
+class DescriptionBase(ConstantsBase.Description):
+    """Базовый класс для текстовых описаний, используемых в пакете `src`.
 
-
-class DirectoryBase:
-    """Базовый класс констант путей к директориям.
-
-    Атрибуты:
-        LOGO (str): Название поддиректории для логотипов.
-        MEDIA (str): Название директории для медиафайлов.
+    Так же класс наследует значения из ConstantsBase.Description.
     """
 
-    LOGO: str = 'logo'
-    MEDIA: str = 'media'
+
+class DirectoryBase(ConstantsBase.Directory):
+    """Базовый класс констант путей к директориям, используемых в пакете `src`.
+
+    Так же класс наследует значения из ConstantsBase.Directory.
+    """
 
 
-class LengthBase:
-    """Константы, определяющие ограничения длины для различных полей.
+class LengthBase(ConstantsBase.Length):
+    """Базовый класс констант, определяющих ограничения длины для различных полей,
+    используемых в пакете `src`.
+
+    Так же класс наследует значения из ConstantsBase.Length.
 
     Атрибуты:
         FILE_LINK (int): Максимальная длина ссылки на файл.
@@ -64,63 +70,68 @@ class LengthBase:
     """
 
     FILE_LINK: int = 2048
-    MAX_NAME: int = 100
     MAX_NAME_COMPANY: int = 255
     MAX_TELEGRAM_USERNAME: int = 100
     MIN_PASSWORD: int = 8
     SLUG: int = 110
 
 
-class MiscConstantsBase:
-    """Базовые константы приложения разного назначения.
+@dataclass(frozen=True)
+class MiscConstantsBase(ConstantsBase.MiscConstants):
+    """Базовый класс разных общесистемных констант, используемых в пакете `src`.
+
+    Класс реализован, как неизменяемый.
+
+    Так же класс наследует значения из ConstantsBase.MiscConstants.
 
     Атрибуты:
-        BASE64_STARTSWITH (str): Префикс строк base64 для изображений.
         BASE_DIR (Path): Корневая директория проекта.
-        ZERO (int): Числовая константа нуля для унификации.
     """
 
-    BASE64_STARTSWITH: str = 'data:image'
-    BASE_DIR = Path(__file__).resolve().parent.parent
-    ZERO: int = 0
+    BASE_DIR: Path = Path(__file__).resolve().parents[2]
 
 
-class SummaryBase:
-    """Базовый класс для констант-описаний."""
+class SummaryBase(ConstantsBase.Summary):
+    """Базовый класс констант кратких описаний, используемых в пакете `src`.
+
+    Так же класс наследует значения из ConstantsBase.Summary.
+    """
 
 
-class TextErrorBase:
-    """Базовый класс для хранения стандартных текстов ошибок приложения.
+class TextErrorBase(ConstantsBase.TextError):
+    """Базовый класс для хранения стандартных текстов ошибок,
+    используемых в пакете `src`.
+
+    Так же класс наследует значения из ConstantsBase.TextError.
 
     Атрибуты:
-        BASE64_FATAL (str): Шаблон сообщения об ошибке сохранения изображения.
-        BASE64_TYPE (str): Сообщение о неверном формате base64.
         EXISTS_EMAIL (str): Сообщение о существующем email.
         INVALID_PASSWORD (str): Сообщение о невалидном пароле.
-        INVALID_TELEGRAM_USERNAME (str): Сообщение о занятом Telegram username.
         NOT_FOUND (str): Шаблон сообщения об отсутствии объекта.
     """
 
-    BASE64_FATAL: str = 'Ошибка при сохранение картинки {image}: {error_class}: {error_text}'
-    BASE64_TYPE: str = (
-        'Переданный файл не является строкой начинающийся '
-        f'на с {MiscConstantsBase.BASE64_STARTSWITH}'
-    )
     EXISTS_EMAIL: str = 'Пользователь с такой электронной почтой уже существует.'
     INVALID_PASSWORD: str = (
         'Пароль должен содержать символы латинского алфавита в обоих регистрах, '
         f'числа и иметь минимальную длину в {LengthBase.MIN_PASSWORD} символов.'
     )
-    INVALID_TELEGRAM_USERNAME: str = 'Пользователь с указанным Telegram username уже существует.'
     NOT_FOUND: str = 'Не найден объект {obj} по данному id: {id}'
 
 
-class TitleBase:
-    """Базовый класс для констант-заголовков."""
+class TitleBase(ConstantsBase.Title):
+    """Базовый класс констант-заголовков, используемых в пакете `src`.
+
+    Так же класс наследует значения из ConstantsBase.Title.
+    """
 
 
-class ValidationBase:
-    """Базовый класс регулярных выражений для валидации данных.
+@dataclass(frozen=True)
+class ValidationBase(ConstantsBase.Validation):
+    """Базовый класс для валидации данных, используемых в пакете `src`.
+
+    Класс реализован, как неизменяемый.
+
+    Так же класс наследует значения из ConstantsBase.Validation.
 
     Атрибуты:
         EMAIL_REGEX (str): Регулярное выражение для валидации email.

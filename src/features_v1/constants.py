@@ -1,4 +1,4 @@
-from src.constants import (
+from config.constants.src import (
     DescriptionBase,
     LengthBase,
     MiscConstantsBase,

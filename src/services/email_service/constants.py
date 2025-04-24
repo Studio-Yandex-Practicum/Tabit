@@ -1,4 +1,4 @@
-from src.constants import LengthBase, TextErrorBase, TitleBase
+from config.constants.src import LengthBase, TextErrorBase, TitleBase
 
 
 class Length(LengthBase):

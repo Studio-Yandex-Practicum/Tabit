@@ -5,7 +5,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from tests.constants import URL, Default, Length
+from config.constants.tests import Default, Length, Url
 
 
 def generate_license_data():
@@ -27,7 +27,7 @@ class TestCreateLicense:
         Убедимся, что ответ содержит правильные значения и API возвращает статус-код 201
         """
         license_data = generate_license_data()
-        response = await client.post(URL.LICENSES_ENDPOINT, json=license_data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=license_data)
 
         assert response.status_code == status.HTTP_201_CREATED
         result = response.json()
@@ -48,7 +48,7 @@ class TestCreateLicense:
         duplicate_data = generate_license_data()
         duplicate_data['name'] = new_license.name
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=duplicate_data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=duplicate_data)
 
         assert response.status_code == 400
         result = response.json()
@@ -65,7 +65,7 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['name']
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -83,7 +83,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = 11
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -101,7 +101,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = ''
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -119,7 +119,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = 'A' * (Length.MAX_NAME + 1)
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -137,7 +137,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['name'] = ' пробелы '
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -157,7 +157,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = '1Y1S'
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -178,7 +178,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = 360
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_201_CREATED
         result = response.json()
@@ -196,7 +196,7 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['license_term']
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -214,7 +214,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = -11
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -231,7 +231,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['license_term'] = 0
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -249,7 +249,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_admins_count'] = 0
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -267,7 +267,7 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['max_admins_count']
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -285,7 +285,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_admins_count'] = 'true'
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -305,7 +305,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_employees_count'] = 0
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -323,7 +323,7 @@ class TestCreateLicense:
         data = generate_license_data()
         del data['max_employees_count']
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -341,7 +341,7 @@ class TestCreateLicense:
         data = generate_license_data()
         data['max_employees_count'] = 'true'
 
-        response = await client.post(URL.LICENSES_ENDPOINT, json=data)
+        response = await client.post(Url.LICENSES_ENDPOINT, json=data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         result = response.json()
@@ -361,7 +361,7 @@ class TestGetLicense:
         """
         licenses = [await license_for_test() for _ in range(30)]
 
-        response = await client.get(URL.LICENSES_ENDPOINT)
+        response = await client.get(Url.LICENSES_ENDPOINT)
 
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
@@ -385,7 +385,7 @@ class TestGetLicense:
         """
         licenses = [await license_for_test() for _ in range(30)]
 
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}?page=2&page_size=5')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}?page=2&page_size=5')
 
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
@@ -401,10 +401,10 @@ class TestGetLicense:
 
         Проверяет, что API отклоняет запрос с `page_size=0` или `page_size > 100`.
         """
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}?page=1&page_size=0')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}?page=1&page_size=0')
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}?page=1&page_size=101')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}?page=1&page_size=101')
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     @pytest.mark.asyncio
@@ -418,42 +418,42 @@ class TestGetLicense:
         (await license_for_test({'name': 'C'}),)
 
         # Проверяем сортировку по имени (по возрастанию)
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=name')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}?ordering=name')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         sorted_names = [license['name'] for license in result['items']]
         assert sorted_names == sorted(sorted_names)
 
         # Проверяем сортировку по имени (по убыванию)
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=-name')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}?ordering=-name')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         sorted_names_desc = [license['name'] for license in result['items']]
         assert sorted_names_desc == sorted(sorted_names, reverse=True)
 
         # Проверяем сортировку по дате создания
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=created_at')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}?ordering=created_at')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         created_dates = [license['created_at'] for license in result['items']]
         assert created_dates == sorted(created_dates)
 
         # Проверяем сортировку по убыванию
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=-created_at')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}?ordering=-created_at')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         created_dates_desc = [license['created_at'] for license in result['items']]
         assert created_dates_desc == sorted(created_dates, reverse=True)
 
         # Проверяем сортировку по дате обновления
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=updated_at')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}?ordering=updated_at')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         updated_dates = [license['updated_at'] for license in result['items']]
         assert updated_dates == sorted(updated_dates)
 
         # Проверяем сортировку по убыванию
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}?ordering=-updated_at')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}?ordering=-updated_at')
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
         updated_dates_desc = [license['updated_at'] for license in result['items']]
@@ -471,7 +471,7 @@ class TestGetLicense:
             {'license_term': license_term},
         )
 
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}{new_license.id}')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}{new_license.id}')
 
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
@@ -491,7 +491,7 @@ class TestGetLicense:
         """
 
         invalid_licenses_id = 99999
-        response = await client.get(f'{URL.LICENSES_ENDPOINT}{invalid_licenses_id}')
+        response = await client.get(f'{Url.LICENSES_ENDPOINT}{invalid_licenses_id}')
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert (result := response.json()) == {
@@ -515,7 +515,7 @@ class TestPatchLicense:
             'max_employees_count': 100,
         }
 
-        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
+        response = await client.patch(f'{Url.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
 
         assert response.status_code == status.HTTP_200_OK
         result = response.json()
@@ -537,7 +537,7 @@ class TestPatchLicense:
 
         patch_data = {'name': license_1.name}
 
-        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{license_2.id}', json=patch_data)
+        response = await client.patch(f'{Url.LICENSES_ENDPOINT}{license_2.id}', json=patch_data)
 
         assert response.status_code == 400
         result = response.json()
@@ -554,7 +554,7 @@ class TestPatchLicense:
 
         patch_data = {'license_term': 'P1D'}
 
-        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
+        response = await client.patch(f'{Url.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_200_OK
 
         result = response.json()
@@ -571,7 +571,7 @@ class TestPatchLicense:
 
         patch_data = {'name': 123}
 
-        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
+        response = await client.patch(f'{Url.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
@@ -588,7 +588,7 @@ class TestPatchLicense:
 
         patch_data = {'name': 'A' * (Length.MAX_NAME + 1)}
 
-        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
+        response = await client.patch(f'{Url.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
@@ -605,7 +605,7 @@ class TestPatchLicense:
 
         patch_data = {'license_term': '1Y1S'}
 
-        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
+        response = await client.patch(f'{Url.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
@@ -625,7 +625,7 @@ class TestPatchLicense:
 
         patch_data = {'max_admins_count': -5}
 
-        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
+        response = await client.patch(f'{Url.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
@@ -644,7 +644,7 @@ class TestPatchLicense:
 
         patch_data = {'max_employees_count': 'true'}
 
-        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
+        response = await client.patch(f'{Url.LICENSES_ENDPOINT}{new_license.id}', json=patch_data)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result = response.json()
@@ -661,7 +661,7 @@ class TestPatchLicense:
         """
         patch_data = {'name': 'Updated License'}
         invalid_licenses_id = 99999
-        response = await client.patch(f'{URL.LICENSES_ENDPOINT}{99999}', json=patch_data)
+        response = await client.patch(f'{Url.LICENSES_ENDPOINT}{99999}', json=patch_data)
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert (result := response.json()) == {
             'detail': f'Не найден объект LicenseType по данному id: {invalid_licenses_id}'
@@ -677,11 +677,11 @@ class TestDeleteLicense:
         """
         new_license = await license_for_test()
 
-        response = await client.delete(f'{URL.LICENSES_ENDPOINT}{new_license.id}')
+        response = await client.delete(f'{Url.LICENSES_ENDPOINT}{new_license.id}')
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
-        response_check = await client.get(f'{URL.LICENSES_ENDPOINT}{new_license.id}')
+        response_check = await client.get(f'{Url.LICENSES_ENDPOINT}{new_license.id}')
         assert response_check.status_code == status.HTTP_404_NOT_FOUND
 
     @pytest.mark.asyncio
@@ -692,7 +692,7 @@ class TestDeleteLicense:
         """
         non_existent_id = 99999
 
-        response = await client.delete(f'{URL.LICENSES_ENDPOINT}{non_existent_id}')
+        response = await client.delete(f'{Url.LICENSES_ENDPOINT}{non_existent_id}')
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert (result := response.json()) == {
