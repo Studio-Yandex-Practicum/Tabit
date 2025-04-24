@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database.db_depends import get_async_session
@@ -26,14 +26,32 @@ router = APIRouter()
     summary='Получить список всех опросов компании',
     description='Получить список всех опросов компании.'
     'Права доступа: Tabit Admin, Tabit Superuser.',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_200_OK,
 )
-async def get_schedule_list(company_slug: str, session: AsyncSession = Depends(get_async_session)):
+async def get_schedule_list(
+    company_slug: str,
+    session: AsyncSession = Depends(get_async_session)
+) -> List[SurveyScheduleRead]:
     """
     Возвращает список всех опросов компании.
 
     Назначение:
         Для получения списка всех расписаний проводившихся опросов.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        company_slug: слаг компании, полученный из пути.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        Список объектов SurveyScheduleRead.
+
+    Проверки:
+        - существует ли компания с таким slug;
+        - существуют ли расписания у данной компании.
     """
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
@@ -53,24 +71,33 @@ async def get_schedule_list(company_slug: str, session: AsyncSession = Depends(g
     summary='Создать новое расписание опросов',
     description='Создать новое расписание опросов. '
     'Права доступа: Tabit Admin, Tabit Superuser.',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_schedule(
     company_slug: str,
     data: SurveyScheduleCreate,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> SurveyScheduleRead:
     """
     Создает новое расписание.
 
-    Поля:
-     - date_start: заполняется в формате "2019-08-24".
-     - status: IN_PROGRESS = 'В работе'
-               COMPLETED = 'Завершен'
-               CANCELED = 'Отменен'
-               POSTPONED = 'Отложен'
-     - survey_tag: EMO = 'Определение эмоционального состояния'
-                   TEST = 'Тестовый тест для тестирования'
+    Назначение:
+        Создает новое расписание..
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        company_slug: слаг компании, полученный из пути.
+        data: данные в виде схемы, для создания новой записи в БД.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        Объект SurveyScheduleRead.
+
+    Проверки:
+        - существует ли компания с таким slug
     """
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
@@ -88,16 +115,32 @@ async def create_schedule(
     summary='Получить конкретное расписание опросов компании',
     description='Получить конкретное расписание опросов компании.'
     'Права доступа: Tabit Admin, Tabit Superuser.',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_200_OK,
 )
 async def get_schedule(
     company_slug: str, schedule_id: int, session: AsyncSession = Depends(get_async_session)
-):
+) -> SurveyScheduleRead:
     """
     Возвращает конкретное расписание опросов компании.
 
     Назначение:
         Для получения расписания опросов.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        company_slug: слаг компании, полученный из пути.
+        schedule_id: идентификатор расписания, полученный из пути.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        Объект SurveyScheduleRead.
+
+    Проверки:
+        - существует ли компания с таким slug;
+        - существует ли расписание с данным id.
     """
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
@@ -118,25 +161,36 @@ async def get_schedule(
     summary='Изменить расписание опросов',
     description='Внести изменение в расписание опросов. '
     'Права доступа: Tabit Admin, Tabit Superuser.',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_200_OK
 )
 async def update_survey_schedule(
     company_slug: str,
     schedule_id: int,
     data: SurveyScheduleUpdate,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> SurveyScheduleRead:
     """
     Вносит изменения в новое расписание.
 
-    Поля:
-     - date_start: заполняется в формате "2019-08-24".
-     - status: IN_PROGRESS = 'В работе'
-               COMPLETED = 'Завершен'
-               CANCELED = 'Отменен'
-               POSTPONED = 'Отложен'
-     - survey_tag: EMO = 'Определение эмоционального состояния'
-                   TEST = 'Тестовый тест для тестирования'
+    Назначение:
+        Для изменения значений в расписании.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        data: данные в виде схемы, для создания новой записи в БД.
+        company_slug: слаг компании, полученный из пути.
+        schedule_id: идентификатор расписания, полученный из пути.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        Объект SurveyScheduleRead.
+
+    Проверки:
+        - существует ли компания с таким slug;
+        - существует ли расписание с данным id;
     """
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
@@ -156,19 +210,36 @@ async def update_survey_schedule(
 
 @router.delete(
     '/{schedule_id:int}',
-    response_model=SurveyScheduleRead,
     summary='Удалить расписание опросов',
     description='Позволяет удалить расписание опросов.'
     ' Права доступа: Tabit Admin, Tabit Superuser',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_survey_schedule(
     company_slug: str,
     schedule_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> None:
     """
-    Удаляет расписание расписание.
+    Удаляет расписание.
+
+    Назначение:
+        Удаляет конкретное расписание.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        company_slug: слаг компании, полученный из пути.
+        schedule_id: идентификатор расписания, полученный из пути.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        None.
+
+    Проверки:
+        - существует ли компания с таким slug;
+        - существует ли расписание с данным id;
     """
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
@@ -178,7 +249,7 @@ async def delete_survey_schedule(
         session=session, model_crud=surveys_schedule_crud, object_id=schedule_id
     )
     await surveys_schedule_crud.remove(session=session, db_object=schedule)
-    return schedule
+
 
 
 @router.get(
@@ -187,14 +258,34 @@ async def delete_survey_schedule(
     summary='Получить историю опросов сотрудника компании',
     description='Позволяет получить испорию всех пройденых опросов'
     ' пользователя. Права доступа: Company User.',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_200_OK,
 )
 async def get_employee_survey_history(
     company_slug: str,
     user_id: UUID,
     session: AsyncSession = Depends(get_async_session),
-):
-    """Получает историю опросов сотрудника компании."""
+) -> List[SurveyDataRead]:
+    """
+    Получает историю опросов сотрудника компании.
+    
+    Назначение:
+        Для получения истории опросов сотрудника компании.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        company_slug: слаг компании, полученный из пути.
+        user_id: идентификатор пользователя полученный из пути.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        Список объектов List[SurveyDataRead].
+
+    Проверки:
+        - существует ли компания с таким slug;
+    """
     # TODO: Проверить существование сотрудника
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
@@ -212,15 +303,36 @@ async def get_employee_survey_history(
     summary='Получить информацию об опросе сотрудника компании',
     description='Позволяет получить информацию о конкретном опросе'
     ' пользователя. Права доступа: Company User.',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_200_OK
 )
 async def get_employee_survey_info(
     company_slug: str,
     user_id: UUID,
     survey_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
-    """Получает информацию об опросе сотрудника компании."""
+) -> SurveyDataRead:
+    """
+    Получает информацию об опросе сотрудника компании.
+
+    Назначение:
+        Для получения информации по конкретном опросе.
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        company_slug: слаг компании, полученный из пути.
+        survey_id: идентификатор расписания, полученный из пути.
+        user_id: идентификатор пользователя полученный из пути.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        Объект SurveyDataRead.
+
+    Проверки:
+        - существует ли компания с таким slug;
+    """
     # TODO: Проверить существование сотрудника
     # TODO: Проверить существование пройденого теста
     await validator_check_object_exists(
@@ -236,10 +348,11 @@ async def get_employee_survey_info(
 
 @router.post(
     '/{user_id:uuid}',
+    response_model=SurveyDataRead,
     summary='Передать информацию об опросе сотрудника компании',
     description='Позволяет передать данные о прохождении опроса пользователем.'
     ' Права доступа: Company User.',
-    dependencies=[Depends(get_async_session)],
+    status_code=status.HTTP_201_CREATED,
 )
 async def add_employee_survey_info(
     company_slug: str,
@@ -247,7 +360,29 @@ async def add_employee_survey_info(
     data: SurveyDataCreate,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Передает информацию об опросе сотрудника компании."""
+    """
+    Передает информацию об опросе сотрудника компании.
+
+    Назначение:
+        Записывет данные об прохождении опроса.
+
+    Параметры декоратора:
+        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+        summary: краткое описание.
+        description: подробное описание.
+        status_code: статус ответа.
+    Параметры функции:
+        data: данные в виде схемы, для создания новой записи в БД.
+        company_slug: слаг компании, полученный из пути.
+        user_id: идентификатор пользователя полученный из пути.
+        session: асинхронная сессия через зависимость.
+    Возвращаемое значение:
+        Объект SurveyDataRead.
+
+    Проверки:
+        - существует ли компания с таким slug;
+    """
     # TODO: Проверить существование сотрудника
     # TODO: Проверить сущестрование номера теста
     await validator_check_object_exists(
@@ -265,4 +400,7 @@ async def add_employee_survey_info(
             session=session, survey_data_id=survey_data_id, item=item, result=result
         )
 
+    survey_data = await surveys_data_crud.get_user_survey(
+        session=session, company_slug=company_slug, survey_data_id=survey_data_id, user_id=user_id
+    )
     return survey_data
