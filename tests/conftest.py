@@ -68,7 +68,7 @@ def setup_test_db():
         )
 
 
-def wait_for_postgres(host: str, port: int, user: str, password: str, dbname, timeout=60):
+def wait_for_postgres(host: str, port: int, user: str, password: str, dbname, timeout=30):
     """
     Ожидает готовности PostgreSQL перед началом тестов.
 
