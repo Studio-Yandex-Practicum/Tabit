@@ -62,7 +62,7 @@ class AdminPayloads:
             Содержит различные комбинации полей для тестирования частичного обновления.
     """
 
-    PAYLOAD_FOR_CREATE_ADMIN: tuple[dict, ...] = (
+    PAYLOAD_FOR_CREATE_ADMIN: tuple[dict[str, str], ...] = (
         {
             'patronymic': 'string',
             'phone_number': 'string',
