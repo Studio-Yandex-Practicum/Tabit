@@ -56,6 +56,12 @@ jobs:
           echo "${{ secrets.ENV_FILE }}" > .env
         shell: bash
 
+      - name: Load variables to GitHub env
+        run: |
+          grep -v '^#' .env | while read -r line; do
+            echo "$line" >> $GITHUB_ENV
+          done
+
       - name: Run tests
         run: |
           poetry run pytest

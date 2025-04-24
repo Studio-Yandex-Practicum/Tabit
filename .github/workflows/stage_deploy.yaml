@@ -21,44 +21,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check required secrets
+      - name: Check required Secrets
         run: |
-          if [ -z "${{ secrets.HOST }}" ]; then
-            echo "Error: Secret HOST is not set!"
-            exit 1
-          fi
-          if [ -z "${{ secrets.USERNAME }}" ]; then
-            echo "Error: Secret USERNAME is not set!"
-            exit 1
-          fi
-          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
-            echo "Error: Secret SSH_PRIVATE_KEY is not set!"
-            exit 1
-          fi
-          if [ -z "${{ secrets.GHCR_PAT }}" ]; then
-            echo "Error: Secret GHCR_PAT is not set!"
-            exit 1
-          fi
-          if [ -z "${{ secrets.ENV_FILE }}" ]; then
-            echo "Error: Secret ENV_FILE is not set!"
+          REQUIRED_SECRETS=("HOST" "USERNAME" "SSH_PRIVATE_KEY" "GHCR_PAT" "ENV_FILE")
+          MISSING_SECRETS=()
+
+          for secret in "${REQUIRED_SECRETS[@]}"; do
+            if [[ -z "${{ secrets[secret] }}" ]]; then
+              MISSING_SECRETS+=("$secret")
+            fi
+          done
+
+          if [ ${#MISSING_SECRETS[@]} -ne 0 ]; then
+            echo "::error::Missing secrets: ${MISSING_SECRETS[*]}"
             exit 1
           fi
 
-      - name: Extract Registry and Image name
+      - name: Load variables to GitHub env
         run: |
-          REGISTRY=$(echo "${{ secrets.ENV_FILE }}" | grep '^CONTAINER_REGISTRY=' | cut -d'=' -f2)
-          if [ -z "$REGISTRY" ]; then
-            echo "::error::CONTAINER_REGISTRY not found in ENV_FILE from secrets!"
-            exit 1
-          fi
-          echo "CONTAINER_REGISTRY=$REGISTRY" >> $GITHUB_ENV
-
-          IMAGE=$(echo "${{ secrets.ENV_FILE }}" | grep '^IMAGE_NAME=' | cut -d'=' -f2)
-          if [ -z "$IMAGE" ]; then
-            echo "::error::IMAGE_NAME not found in ENV_FILE from secrets!"
-            exit 1
-          fi
-          echo "IMAGE_NAME=$IMAGE" >> $GITHUB_ENV
+          grep -v '^#' .env | while read -r line; do
+            echo "$line" >> $GITHUB_ENV
+          done
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3

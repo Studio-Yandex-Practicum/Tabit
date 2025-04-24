@@ -38,10 +38,10 @@ services:
       - "${PGADMIN_PORT}:80"
     depends_on:
       - db
+    # В stage-окружении servers.json и pgpass задаются жестко через файл.
+    # Такой подход позволяет быстро подменить файлы на сервере без пересборки образа.
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-      # В stage-окружении servers.json задается жестко через файл.
-      # Такой подход позволяет быстро подменить файл servers.json без пересборки образа.
       - /home/dev_deploy/tabit/pgadmin/servers.json:/pgadmin4/servers.json
       - /home/dev_deploy/tabit/pgadmin/config_local.py:/pgadmin4/config_local.py
       - /home/dev_deploy/tabit/pgadmin/.pgpass:/pgadmin4/.pgpass
