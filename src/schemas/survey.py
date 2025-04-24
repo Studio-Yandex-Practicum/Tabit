@@ -18,7 +18,8 @@ class SurveyScheduleCycleCreate(BaseModel):
     cycle_number: int = Field(..., ge=1, le=6)
     date_start: datetime
 
-    @field_validator('date_start')
+    # TODO надо доработать неправильно отрабатывает
+    """ @field_validator('date_start')
     @classmethod
     def check_datetime(cls, value: datetime) -> datetime:
         if value <= datetime.now():
@@ -26,7 +27,7 @@ class SurveyScheduleCycleCreate(BaseModel):
                 'Дата начала тестирования  '
                 'не может быть меньше текущего времени'
             )
-        return value
+        return value """
 
 
 class SurveyScheduleCycleRead(SurveyScheduleCycleCreate):
@@ -39,7 +40,7 @@ class SurveyScheduleCycleRead(SurveyScheduleCycleCreate):
         cycle_number: номер цикла в расписании (6 циклов максимум).
         date_start: дата начала тестирования.
     """
-    pass
+    date_start: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
