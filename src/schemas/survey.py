@@ -18,7 +18,6 @@ class SurveyScheduleCycleCreate(BaseModel):
     cycle_number: int = Field(..., ge=1, le=6)
     date_start: datetime
 
-    # TODO надо доработать неправильно отрабатывает
     @field_validator('date_start')
     @classmethod
     def check_datetime(cls, value: datetime) -> datetime:
