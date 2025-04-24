@@ -1,89 +1,54 @@
 from datetime import date
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from src.models import TaskStatus
-from src.schemas.validators.task import (
-    validate_date_in_future,
-    validate_name,
-)
 
 
 class TaskBaseSchema(BaseModel):
-    """
-    Базовая Pydantic-схема для задач.
+    """Базовая схема задачи.
 
-    Назначение:
-        Определяет базовые поля и их типы для работы с данными задач.
-    Параметры:
+    Определяет базовые поля задачи.
+    Поля:
         description: Описание задачи (опционально).
     """
-
     description: str | None = None
-    # TODO: Надо реализовать добавление файлов в встречу
+    # TODO: Реализовать добавление файлов в задачу
 
-
-class TaskSchemaMixin:
-    """
-    Миксин для схем Задач, с валидаторами.
-
-    Параметры:
-        executors: Список идентификаторов исполнителей.
-    """
-
-    executors: list[UUID] | None = []
-
-    model_config = ConfigDict(extra='forbid', str_min_length=1)
-
-    @field_validator('date_completion')
-    @classmethod
-    def validate_date_in_future(cls, value: date) -> date:
-        """Валидирует дату завершения задачи."""
-        return validate_date_in_future(value)
-
-    @field_validator('name')
-    @classmethod
-    def validate_name_not_empty(cls, value: str) -> str:
-        """Валидирует название задачи."""
-        return validate_name(value)
+    model_config = ConfigDict(extra='forbid')
 
 
 class ExecutorsResponseSchema(BaseModel):
     """Схема исполнителя задачи.
 
-    Назначение:
-        Определяет структуру данных для ответа с информацией о исполнителе задачи.
-    Параметры:
-        member_id: UUID исполнителя задачи.
+    Определяет данные исполнителя для ответа.
+    Поля:
+        executor_id: UUID исполнителя.
     """
-
     executor_id: UUID = Field(validation_alias='left_id')
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class TaskResponseSchema(BaseModel):
-    """
-    Pydantic-схема для данных о задаче из БД.
+class TaskResponseSchema(TaskBaseSchema):
+    """Схема задачи для ответа.
 
-    Назначение:
-        Используется для сериализации данных о задаче при получении из БД.
-    Параметры:
+    Определяет данные задачи из БД.
+    Поля:
         id: Идентификатор задачи.
         name: Название задачи.
-        description: Описание задачи (опционально).
-        date_completion: Дата выполнения задачи
-        owner_id: Идентификатор создателя задачи.
-        problem_id: Идентификатор проблемы, для которой создана задача.
-        executors: Список идентификаторов исполнителей, реализованны через схему.
+        description: Описание (опционально).
+        date_completion: Дата выполнения.
+        owner_id: UUID создателя.
+        problem_id: ID проблемы.
+        executors: Список исполнителей.
         status: Статус задачи.
-        transfer_counter: Счётчик переноса даты выполнения задачи.
+        transfer_counter: Счетчик переноса даты.
     """
-
     id: int
     name: str
-    description: str | None
     date_completion: date
     owner_id: UUID
     problem_id: int
@@ -94,37 +59,42 @@ class TaskResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class TaskCreateSchema(TaskSchemaMixin, TaskBaseSchema):
+class TaskCreateSchema(TaskBaseSchema):
+    """Схема для создания задачи.
+
+    Определяет данные для создания задачи.
+    Поля:
+        name: Название (не пустое, без пробелов).
+        date_completion: Дата выполнения (в будущем).
+        executors: Список UUID исполнителей (опционально).
     """
-    Pydantic-схема для данных о задаче из БД.
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
+    date_completion: Annotated[
+        date,
+        Field(..., ge=date.today())
+    ]
+    executors: list[UUID] | None = []
 
-    Назначение:
-        Используется для сериализации данных о задаче при создании записи в БД.
-    Параметры:
-        name: Название задачи.
-        description: Описание задачи (опционально).
-        date_completion: Дата выполнения задачи
-        executors: Список идентификаторов исполнителей.
-    """
-
-    name: str
-    date_completion: date
+    model_config = ConfigDict(extra='forbid')
 
 
-class TaskUpdateSchema(TaskSchemaMixin, TaskBaseSchema):
-    """
-    Pydantic-схема для обновления задачи.
+class TaskUpdateSchema(TaskBaseSchema):
+    """Схема для обновления задачи.
 
-    Назначение:
-        Используется для валидации данных при обновлении информации о задаче.
-    Параметры:
-        name: Название задачи (опционально).
-        description: Описание задачи (опционально).
-        date_completion: Дата завершения задачи (опционально).
-        executors: Список идентификаторов исполнителей (опционально).
+    Определяет данные для обновления задачи.
+    Поля:
+        name: Название (опционально, не пустое, без пробелов).
+        description: Описание (опционально).
+        date_completion: Дата выполнения (опционально, в будущем).
+        executors: Список UUID исполнителей (опционально).
         status: Статус задачи (опционально).
     """
-
-    name: str | None = None
-    date_completion: date | None = None
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)] | None = None
+    date_completion: Annotated[
+        date,
+        Field(None, ge=date.today())
+    ] | None = None
+    executors: list[UUID] | None = None
     status: TaskStatus | None = None
+
+    model_config = ConfigDict(extra='forbid')

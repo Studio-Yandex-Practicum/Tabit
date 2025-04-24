@@ -1,35 +1,46 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from typing_extensions import Annotated
 
+BASE_CONFIG = ConfigDict(
+    extra="forbid",
+    str_strip_whitespace=True,
+    from_attributes=True,
+)
+
+VotingText = Annotated[str, StringConstraints(min_length=1, max_length=1000)]
 
 class VotingBase(BaseModel):
-    """Базовая модель для голосования."""
+    """Базовая схема для голосования."""
+    text: VotingText = Field(..., title="Текст голосования")
+    message_id: int = Field(..., ge=1, title="ID сообщения")
 
-    text: str
-    message_id: int
-
+    model_config = BASE_CONFIG
 
 class VotingCreate(VotingBase):
-    """Модель для создания голосования."""
-
-    pass
-
+    """Схема для создания голосования."""
+    model_config = BASE_CONFIG
 
 class VotingInDB(VotingBase):
-    """Модель голосования в базе данных с ID."""
+    """Схема голосования в базе данных."""
+    id: int = Field(..., title="ID голосования")
 
-    id: int
+    model_config = BASE_CONFIG
 
+class VotingByUserBase(BaseModel):
+    """Базовая схема для голосования пользователя."""
+    user_id: UUID = Field(..., title="ID пользователя")
+    voting_id: int = Field(..., ge=1, title="ID голосования")
 
-class VotingByUserCreate(BaseModel):
-    """Модель для голосования пользователя."""
+    model_config = BASE_CONFIG
 
-    user_id: UUID
-    voting_id: int
+class VotingByUserCreate(VotingByUserBase):
+    """Схема для голосования пользователя."""
+    model_config = BASE_CONFIG
 
+class VotingByUserInDB(VotingByUserBase):
+    """Схема голосования пользователя в базе данных."""
+    id: int = Field(..., title="ID записи")
 
-class VotingByUserInDB(VotingByUserCreate):
-    """Модель голосования пользователя в базе данных с ID."""
-
-    id: int
+    model_config = BASE_CONFIG

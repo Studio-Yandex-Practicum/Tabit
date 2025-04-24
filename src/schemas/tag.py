@@ -1,6 +1,8 @@
 from datetime import date
+from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from typing_extensions import Annotated
 
 from src.schemas.constants import (
     LENGTH_NAME_USER,
@@ -9,34 +11,41 @@ from src.schemas.constants import (
     TITLE_NAME_TAG,
 )
 
+BASE_CONFIG = ConfigDict(
+    extra="forbid",
+    str_strip_whitespace=True,
+    from_attributes=True,
+)
 
-class UserTagUpdateSchema(BaseModel):
-    """Схема для частичного изменения тэгов пользователей."""
+TagNameStr = Annotated[
+    str, StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER)
+]
 
-    name: str = Field(
-        ...,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_NAME_TAG,
-    )
+class TagBaseSchema(BaseModel):
+    """Базовая схема для тегов пользователей."""
+    name: TagNameStr = Field(..., title=TITLE_NAME_TAG)
+    company_id: Optional[int] = Field(None, ge=1, title=TITLE_COMPANY_ID_TAG)
 
+    model_config = BASE_CONFIG
 
-class UserTagCreateSchema(UserTagUpdateSchema):
-    """Схема для создания тэгов пользователей."""
+class UserTagCreateSchema(TagBaseSchema):
+    """Схема для создания тегов пользователей."""
+    company_id: int = Field(..., ge=1, title=TITLE_COMPANY_ID_TAG)
 
-    company_id: int = Field(
-        ...,
-        title=TITLE_COMPANY_ID_TAG,
-    )
+    model_config = BASE_CONFIG
 
+class UserTagUpdateSchema(TagBaseSchema):
+    """Схема для частичного изменения тегов пользователей."""
+    name: TagNameStr
 
-class UserTagResponseSchema(BaseModel):
-    """Схема тэгов пользователей для ответов."""
+    model_config = BASE_CONFIG
 
+class UserTagResponseSchema(TagBaseSchema):
+    """Схема тегов пользователей для ответов."""
     id: int
-    name: str
+    name: TagNameStr
     company_id: int
     created_at: date
     updated_at: date
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = BASE_CONFIG

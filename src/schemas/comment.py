@@ -1,37 +1,42 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from typing_extensions import Annotated
 
 from src.schemas.constants import TITLE_COMMENTS_TEXT_CREATE, TITLE_COMMENTS_TEXT_UPDATE
 
+BASE_CONFIG = ConfigDict(
+    extra="forbid",
+    str_strip_whitespace=True,
+    from_attributes=True,
+)
+
+CommentText = Annotated[str, StringConstraints(min_length=1, max_length=1000)]
 
 class CommentBase(BaseModel):
     """Базовая схема для комментариев."""
+    text: CommentText = Field(..., title=TITLE_COMMENTS_TEXT_CREATE)
 
-    text: str
-    model_config = ConfigDict(str_strip_whitespace=True, extra='forbid')
-
+    model_config = BASE_CONFIG
 
 class CommentCreate(CommentBase):
     """Схема для создания комментария к треду."""
-
-    text: str = Field(..., title=TITLE_COMMENTS_TEXT_CREATE)
-
+    model_config = BASE_CONFIG
 
 class CommentUpdate(CommentBase):
     """Схема для обновления комментария."""
+    text: CommentText = Field(..., title=TITLE_COMMENTS_TEXT_UPDATE)
 
-    text: str = Field(..., title=TITLE_COMMENTS_TEXT_UPDATE)
-
+    model_config = BASE_CONFIG
 
 class CommentRead(CommentBase):
     """Схема комментария для ответов API."""
-
     id: int
     message_id: int
     owner_id: UUID
     rating: int
     created_at: datetime
     updated_at: datetime
-    model_config = ConfigDict(from_attributes=True)
+
+    model_config = BASE_CONFIG

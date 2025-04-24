@@ -1,41 +1,48 @@
-from pydantic import BaseModel, Field
+from typing import Literal, Optional
 
-from src.schemas.constants import DEFAULT_LIMIT, DEFAULT_SKIP
+from pydantic import BaseModel, ConfigDict, Field
 
+from src.schemas.constants import (
+    DEFAULT_LIMIT,
+    DEFAULT_SKIP,
+    FILTER_NAME_DESCRIPTION,
+    MAX_PAGE_SIZE,
+    SORTING_DESCRIPTION,
+)
+
+BASE_CONFIG = ConfigDict(
+    extra="forbid",
+    str_strip_whitespace=True,
+    from_attributes=True,
+)
 
 class BaseFilterSchema(BaseModel):
     """
-    Базовая схема фильтраций.
-
-    Используется для обработки query-параметров:
-    пагинация, сортировка и фильтрация списка объектов.
+    Базовая схема для обработки query-параметров: пагинация, сортировка, фильтрация.
     """
+    skip: int = Field(DEFAULT_SKIP, ge=0, title="Пропустить n объектов")
+    limit: int = Field(
+        DEFAULT_LIMIT, ge=1, le=MAX_PAGE_SIZE, title="Лимитировать список объектов"
+    )
+    name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
+    ordering: Optional[
+        Literal["name", "-name", "created_at", "-created_at", "updated_at", "-updated_at"]
+    ] = Field(None, description=SORTING_DESCRIPTION)
 
-    skip: int = Field(DEFAULT_SKIP, ge=0, title='Пропустить n объектов')
-    limit: int = Field(DEFAULT_LIMIT, ge=1, title='Лимитировать список объектов')
-    # TODO: добавить поля для сортировки и фильтрации
-
+    model_config = BASE_CONFIG
 
 class CompanyFilterSchema(BaseFilterSchema):
-    """Фильтр списка компаний под query-параметры."""
+    """
+    Схема фильтрации списка компаний под query-параметры.
 
-    # TODO: добавить валидацию query-параметров сортировки и фильтрации
-
+    TODO: Добавить специфические поля фильтрации (например, is_active, license_id).
+    """
+    model_config = BASE_CONFIG
 
 class UserFilterSchema(BaseFilterSchema):
-    """Фильтр списка пользователей под query-параметры."""
-
-    # TODO добавить валидацию query-параметров сортировки и фильтрации
-
-
-class FeedsFilterSchema(BaseModel):
     """
-    Базовая схема фильтраций.
+    Схема фильтрации списка пользователей под query-параметры.
 
-    Используется для обработки query-параметров:
-    пагинация, сортировка и фильтрация списка объектов.
+    TODO: Добавить специфические поля фильтрации (например, role, department_id).
     """
-
-    skip: int = Field(DEFAULT_SKIP, ge=0, title='Пропустить n объектов')
-    limit: int = Field(DEFAULT_LIMIT, ge=1, title='Лимитировать список объектов')
-    # TODO добавить поля для сортировки и фильтрации
+    model_config = BASE_CONFIG

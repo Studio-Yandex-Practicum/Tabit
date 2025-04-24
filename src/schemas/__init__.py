@@ -16,7 +16,7 @@ from .admin_user import (
     AdminCreateSchema,
     AdminReadSchema,
     AdminUpdateSchema,
-    BaseAdminSchema,
+    AdminBaseSchema,
 )
 from .comment import CommentCreate, CommentRead, CommentUpdate
 from .company import (
@@ -38,12 +38,12 @@ from .enum import (
     MeetingResult,
     MeetingStatus,
 )
-from .file import BaseFileSchema, FileCreateSchema, FileResponseSchema, FileUpdateSchema
+from .file import FileBaseSchema, FileCreateSchema, FileResponseSchema, FileUpdateSchema
 from .landing_page import (
     LandingPageBaseSchema,
     LandingPageCreateSchema,
     LandingPageResponseSchema,
-    LandingPageUpdateSchema,
+    LandingPageBaseSchema,
 )
 from .license_type import (
     LicenseTypeBaseSchema,
@@ -80,7 +80,7 @@ from .meeting_result import (
 from .query_params import (
     BaseFilterSchema,
     CompanyFilterSchema,
-    FeedsFilterSchema,
+    BaseFilterSchema,
     UserFilterSchema
 )
 from .tag import UserTagCreateSchema, UserTagResponseSchema, UserTagUpdateSchema
@@ -119,7 +119,7 @@ __all__ = [
     'AdminCreateSchema',
     'AdminReadSchema',
     'AdminUpdateSchema',
-    'BaseAdminSchema',
+    'AdminBaseSchema',
     'CommentCreate',
     'CommentRead',
     'CommentUpdate',
@@ -138,14 +138,14 @@ __all__ = [
     'MeetingProblemSolution',
     'MeetingResult',
     'MeetingStatus',
-    'BaseFileSchema',
+    'FileBaseSchema',
     'FileCreateSchema',
     'FileResponseSchema',
     'FileUpdateSchema',
     'LandingPageBaseSchema',
     'LandingPageCreateSchema',
     'LandingPageResponseSchema',
-    'LandingPageUpdateSchema',
+    'LandingPageBaseSchema',
     'LicenseTypeBaseSchema',
     'LicenseTypeCreateSchema',
     'LicenseTypeFilterSchema',
@@ -170,7 +170,7 @@ __all__ = [
     'MeetingResultSchema',
     'BaseFilterSchema',
     'CompanyFilterSchema',
-    'FeedsFilterSchema',
+    'BaseFilterSchema',
     'UserFilterSchema',
     'UserTagCreateSchema',
     'UserTagResponseSchema',
