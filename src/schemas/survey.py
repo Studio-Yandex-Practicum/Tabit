@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -170,6 +170,6 @@ class SurveyDataRead(BaseModel):
 
     id: int
     cycle_id: int
-    results: Optional[dict]
+    results: dict | None = None
 
     model_config = ConfigDict(from_attributes=True)
