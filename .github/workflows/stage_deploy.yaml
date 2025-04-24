@@ -21,7 +21,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check required Secrets
+      - name: Check required secrets
         run: |
           REQUIRED_SECRETS=("HOST" "USERNAME" "SSH_PRIVATE_KEY" "GHCR_PAT" "ENV_FILE")
           MISSING_SECRETS=()
@@ -36,6 +36,11 @@ jobs:
             echo "::error::Missing secrets: ${MISSING_SECRETS[*]}"
             exit 1
           fi
+
+      - name: Create .env file from secret
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+        shell: bash
 
       - name: Load variables to GitHub env
         run: |
