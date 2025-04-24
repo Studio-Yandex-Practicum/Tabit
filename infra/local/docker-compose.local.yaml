@@ -57,8 +57,6 @@ services:
       - ${PWD}/pgadmin/config_local.py:/pgadmin4/config_local.py
       - ${PWD}/pgadmin/create-admin-folder.sh:/create-admin-folder.sh
     configs:
-      # В локальном окружении servers.json и pgpass генерируется через блок configs, используя переменные окружения.
-      # Такой подход позволяет более гибко настраивать конфигурацию на этапе разработки.
       - source: servers.json
         target: /pgadmin4/servers.json
       - source: pgpass
@@ -68,7 +66,6 @@ services:
       - app_dc
       - pgadmin
     restart: always
-
 
 configs:
   servers.json:
@@ -90,6 +87,7 @@ configs:
   pgpass:
     content: |
         ${DB_CONTAINER_NAME}:5432:*:${POSTGRES_USER}:${POSTGRES_PASSWORD}
+
 volumes:
   postgres_data:
     driver: local

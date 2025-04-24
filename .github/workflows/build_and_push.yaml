@@ -43,7 +43,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_PATH }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -58,7 +58,7 @@ jobs:
             POETRY_VERSION=${{ env.POETRY_VERSION }}
           push: true
           tags: |
-            ${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_PATH }}:latest
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=registry,ref=${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_PATH }}:latest
           cache-to: type=inline
