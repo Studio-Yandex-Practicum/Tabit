@@ -326,7 +326,7 @@ class TextError:
     SERVER_DELETE: str = 'Ошибка сервера при удалении объекта.'
     SERVER_DELETE_LOG: str = 'Ошибка при удалении'
     EXISTS_EMAIL: str = 'Пользователь с такой электронной почтой уже существует.'
-    FORBIDDEN_ROLE_ADMIN: str = 'Доступно только админам компаний'
+    FORBIDDEN_ROLE_MODERATOR: str = 'Доступно только модераторам компаний'
     LOGIN = 'Неверные учетные данные для входа в систему'
     IS_SUPERUSER: str = 'Объект - суперпользователь'
     DEPARTMENT_EXIST_ERROR_MESSAGE: str = 'Объект с таким именем уже существует.'

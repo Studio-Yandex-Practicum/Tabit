@@ -11,6 +11,8 @@ from src.models.enum import CompanyUserRole
 
 load_dotenv()
 
+type _token = dict[str, str]
+
 
 @dataclass
 class TEST_DATABASE_URL:
