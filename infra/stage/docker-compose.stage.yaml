@@ -1,3 +1,5 @@
+version: '${COMPOSE_VERSION}'
+
 services:
   db:
     container_name: ${DB_CONTAINER_NAME}
@@ -12,7 +14,7 @@ services:
 
   app:
     container_name: tabit
-    image: ${CONTAINER_REGISTRY}/${IMAGE_PATH}:latest
+    image: ${IMAGE_REGISTRY}/${IMAGE_PATH}:latest
     env_file:
       - /home/${SERVER_USERNAME}/tabit/infra/stage/.env
     environment:

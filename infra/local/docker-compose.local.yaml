@@ -1,3 +1,5 @@
+version: '${COMPOSE_VERSION}'
+
 services:
   db:
     container_name: ${DB_CONTAINER_NAME}
