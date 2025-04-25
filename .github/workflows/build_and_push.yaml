@@ -20,6 +20,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check if ENV_FILE is set
+        run: |
+          if [ -z "${{ secrets.ENV_FILE }}" ]; then
+            echo "ENV_FILE is not set"
+          else
+            echo "ENV_FILE is set"
+          fi
+
       - name: Create .env file from secret
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
