@@ -32,6 +32,9 @@ jobs:
           done
 
       - name: Login to GitHub Container Registry
+          echo ${{ env.IMAGE_REGISTRY }}
+          echo ${{ github.actor }}
+          echo ${{ secrets.GHCR_PAT }}
         uses: docker/login-action@v3
         with:
           registry: ${{ env.IMAGE_REGISTRY }}
