@@ -33,7 +33,8 @@ jobs:
 
       - name: view variables (DELETE)
         run: |
-          echo "Содеримое сформжированного файла .env из секретов:"
+          echo "Содержимое файла с секретами: ${{ secrets.ENV_FILE }}"
+          echo "Содеримое сформированного файла .env из секретов:"
           if [ -f ".env" ]; then
             cat ".env"
           else
