@@ -8,14 +8,31 @@ from fastapi_users.manager import BaseUserManager
 from src.core.auth.managers import get_user_manager
 from src.features_v1.constants import TextError, ERROR_INVALID_TELEGRAM_USERNAME
 from src.crud import moderator_crud, user_crud
-from src.models import (
-    Company,
-    CompanyUser,
-)
 from src.schemas import UserCreateSchema
 
 class BaseUserValidator:
-    def __init__(self, session: AsyncSession | None = None, user_manager: BaseUserManager | None = None):
+    """
+    Базовый класс для валидации, связанной с пользователями.
+
+    Назначение:
+        Инкапсулирует общие методы проверки, такие как:
+        - проверка существования пользователя по email;
+        - валидация пароля пользователя;
+        - проверка telegram_username;
+        - получение пользователя по UUID.
+
+    Преимущества:
+        - Повышает читаемость и повторное использование кода.
+        - Избегает дублирования логики валидации в разных функциях/хендлерах.
+        - Упрощает тестирование и расширение функциональности валидаторов.
+        - Централизует зависимости (например, `session`, `user_manager`) и делает их явными.
+
+    Используется:
+        В функциях валидации, зависящих от `user_manager` или `session`, для чистого и
+        предсказуемого взаимодействия с внешними ресурсами (БД, менеджерами).
+    """
+    def __init__(self, session: AsyncSession | None = None,
+                 user_manager: BaseUserManager | None = None):
         self.session = session
         self.user_manager = user_manager
 
@@ -25,7 +42,8 @@ class BaseUserValidator:
         user = await self.user_manager.user_db.get_by_email(email)
         return user is not None
 
-    async def check_user_password_valid(self, password: str, user_data: UserCreateSchema) -> None:
+    async def check_user_password_valid(self, password: str,
+                                        user_data: UserCreateSchema) -> None:
         if not self.user_manager:
             raise ValueError("user_manager is required")
         await self.user_manager.validate_password(password, user_data)
@@ -33,12 +51,15 @@ class BaseUserValidator:
     async def check_telegram_username_exists(self, username: str) -> bool:
         if not self.session:
             raise ValueError("session is required")
-        return await moderator_crud.get_by_telegram_username(username, self.session) is not None
+        return await moderator_crud.get_by_telegram_username(
+            username,self.session
+        ) is not None
 
     async def get_user_by_uuid(self, uuid: UUID):
         if not self.session:
             raise ValueError("session is required")
         return await user_crud.get(self.session, uuid)
+
 
 async def validate_user_not_exists(
     user_data: UserCreateSchema,
@@ -81,42 +102,6 @@ async def validate_password(
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.INVALID_PASSWORD
             )
-
-
-def check_user_is_active(user):
-    """Проверит, что пользователь передан и является активным. Иначе ошибка 400."""
-    if user is None or not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=TextError.LOGIN,
-        )
-
-
-def validator_check_not_is_superuser(
-    user_model_object,
-    message: str = TextError.IS_SUPERUSER,
-) -> None:
-    """
-    Проверит, не является ли пользователь суперпользователем.
-    Если является: выкинет ошибку 400.
-    """
-    if user_model_object.is_superuser:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=message,
-        )
-
-
-def validate_user_from_company(user: CompanyUser, company: Company):
-    """
-    Валидатор, проверит что пользователь из данной компании.
-    Иначе ошибка 403
-    """
-    if user.company_id != company.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=TextError.FORBIDDEN_FROM_COMPANY.format(company.name),
-        )
 
 
 async def check_telegram_username_for_duplicates(username: str, session: AsyncSession) -> None:

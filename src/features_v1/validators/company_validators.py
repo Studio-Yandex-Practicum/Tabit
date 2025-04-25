@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database.db_depends import get_async_session
 from src.crud import company_crud, department_crud
-from src.features_v1.constants import LENGTH_SLUG, TextError, ERROR_COMPANY_NOT_FOUND, VALID_WRONG_COMPANY
+from src.features_v1.constants import LENGTH_SLUG, TextError, VALID_WRONG_COMPANY
 from src.models import Company, Department
 
 
@@ -98,24 +98,6 @@ async def check_company_and_department(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=TextError.WRONG_COMPANY_DEPARTMENT,
         )
-
-
-async def check_company_exists(company_slug: str, session: AsyncSession):
-    """Проверяет существование компании по slug.
-
-    Назначение:
-        Валидирует, что компания существует в базе данных по заданному slug.
-    Параметры:
-        company_slug: Строка, представляющая slug компании для проверки.
-        session: Асинхронная сессия базы данных.
-    Возвращаемое значение:
-        Проверенная компания, если она существует.
-    Исключения:
-        HTTPException: Если компания не найдена.
-    """
-
-    if not await company_crud.get_by_company_slug(session, company_slug):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_COMPANY_NOT_FOUND)
 
 
 async def validate_company_slug(session: AsyncSession, slug: str) -> None:
