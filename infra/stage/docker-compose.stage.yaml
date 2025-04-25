@@ -13,7 +13,7 @@ services:
     restart: always
 
   app:
-    container_name: tabit
+    container_name: ${APP_CONTAINER_NAME}
     image: ${IMAGE_REGISTRY}/${IMAGE_PATH}:latest
     env_file:
       - /home/${SERVER_USERNAME}/tabit/infra/stage/.env
