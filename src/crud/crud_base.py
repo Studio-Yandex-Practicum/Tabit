@@ -3,7 +3,7 @@
 
 Содержит:
 - Определения типов: ModelType, CreateSchemaType, UpdateSchemaType.
-- Константу DEFAULT_AUTO_COMMIT для управления автокоммитом.
+- Константу Default.AUTO_COMMIT для управления автокоммитом.
 - Функции для фильтрации и сортировки запросов:
   apply_filters, apply_order_by.
 - Класс CRUDBase с асинхронными методами get, get_or_404, get_multi,
@@ -23,12 +23,7 @@ from sqlalchemy.sql import Select
 from starlette.requests import Request
 
 from src.core.config.logging import logger
-from src.core.constants import (
-    DEFAULT_AUTO_COMMIT,
-    DEFAULT_LIMIT,
-    DEFAULT_SKIP,
-    TextError,
-)
+from src.crud.constants import Default, TextError
 
 ModelType = TypeVar('ModelType')
 CreateSchemaType = TypeVar('CreateSchemaType')
@@ -107,8 +102,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def get_multi(
         self,
         session: AsyncSession,
-        skip: int = DEFAULT_SKIP,
-        limit: int = DEFAULT_LIMIT,
+        skip: int = Default.SKIP,
+        limit: int = Default.LIMIT,
         filters: Dict[str, Any] | None = None,
         order_by: list[str] | None = None,
         unique_filter_rows: bool = False,
@@ -163,7 +158,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         session: AsyncSession,
         obj_in: CreateSchemaType,
-        auto_commit: bool = DEFAULT_AUTO_COMMIT,
+        auto_commit: bool = Default.AUTO_COMMIT,
     ) -> ModelType:
         """
         Создаёт новый объект в БД.
@@ -178,7 +173,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.refresh(db_obj)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return db_obj
 
@@ -187,7 +182,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         db_obj: ModelType,
         obj_in: UpdateSchemaType,
-        auto_commit: bool = DEFAULT_AUTO_COMMIT,
+        auto_commit: bool = Default.AUTO_COMMIT,
     ) -> ModelType:
         """
         "Обновляет существующий объект (частичное обновление).
@@ -208,12 +203,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.refresh(db_obj)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return db_obj
 
     async def remove(
-        self, session: AsyncSession, db_object: ModelType, auto_commit: bool = DEFAULT_AUTO_COMMIT
+        self, session: AsyncSession, db_object: ModelType, auto_commit: bool = Default.AUTO_COMMIT
     ) -> Any:
         """
         Удаляет переданный объект.
@@ -224,7 +219,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.commit()
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_DELETE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextError.DELETE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
 
     def _apply_filters(self, query: Select, filters: dict[str, Any]) -> Select:

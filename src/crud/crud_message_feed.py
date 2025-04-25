@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config.logging import logger
 from src.crud import CRUDBase
-from src.crud.constants import DEFAULT_AUTO_COMMIT, TextError
+from src.crud.constants import Default, TextError
 from src.models import MessageFeed
 from src.schemas import MessageFeedCreate
 
@@ -18,7 +18,7 @@ class CRUDMessageFeed(CRUDBase):
         obj_in: MessageFeedCreate,
         problem_id: int,
         user_id: int,
-        auto_commit: bool = DEFAULT_AUTO_COMMIT,
+        auto_commit: bool = Default.AUTO_COMMIT,
     ) -> MessageFeed:
         """
         Переопределённый метод create для создания объектов MesageFeed в БД.
@@ -42,17 +42,17 @@ class CRUDMessageFeed(CRUDBase):
                 await session.refresh(db_obj)
         except IntegrityError as e:
             await session.rollback()
-            logger.error(f'{TextError.UNIQUE_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.CREATE_UNIQUE_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=TextError.UNIQUE,
             )
         except Exception as e:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {e}')
+            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {e}')
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=TextError.SERVER_CREATE,
+                detail=TextError.CREATE_SERVER,
             )
         return db_obj
 

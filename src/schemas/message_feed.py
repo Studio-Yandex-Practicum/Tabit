@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.schemas.constants import TITLE_MESSAGE_FEED_IMPORTANT, TITLE_MESSAGE_FEED_TEXT
+from src.schemas.constants import Title
 
 
 class MessageFeedBase(BaseModel):
@@ -17,8 +17,8 @@ class MessageFeedBase(BaseModel):
 class MessageFeedCreate(MessageFeedBase):
     """Схема для создания нового треда к проблеме."""
 
-    text: str = Field(..., title=TITLE_MESSAGE_FEED_TEXT)
-    important: bool = Field(False, title=TITLE_MESSAGE_FEED_IMPORTANT)
+    text: str = Field(..., title=Title.MESSAGE_FEED_TEXT)
+    important: bool = Field(False, title=Title.MESSAGE_FEED_IMPORTANT)
 
 
 class MessageFeedRead(MessageFeedBase):
