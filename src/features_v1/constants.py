@@ -1,3 +1,35 @@
+"""
+Модуль констант приложения.
+
+Содержит все текстовые константы, ограничения и сообщения, используемые в проекте.
+Организован в виде классов-контейнеров, сгруппированных по функциональному назначению.
+
+Структура модуля:
+- Description: подробные описания API endpoints для документации.
+- Length: ограничения длины.
+- MiscConstants: различные технические константы приложения.
+- Summary: содержит краткие описания API endpoints для использования в UI.
+- TextError: стандартные сообщения об ошибках.
+
+Импортирует базовые константы из config.constants.src:
+- DescriptionBase: базовые описания endpoints.
+- LengthBase: базовые ограничения длины.
+- MiscConstantsBase: общие технические константы.
+- SummaryBase: базовые краткие описания.
+- TextErrorBase: стандартные тексты ошибок.
+
+Важные особенности:
+- Все классы наследуют соответствующие базовые классы констант.
+- Дополнительные константы добавляются в дочерние классы.
+- Для согласованности рекомендуется использовать эти константы вместо хардкода строк.
+- Сообщения об ошибках содержат параметры для форматирования (например, {}).
+
+Пример использования:
+- from config.constants import Description, TextError
+- endpoint_description = Description.CREATE_PROBLEM
+- error_message = TextError.PROBLEM_NOT_FOUND
+"""
+
 from config.constants.src import (
     DescriptionBase,
     LengthBase,
@@ -8,7 +40,8 @@ from config.constants.src import (
 
 
 class Description(DescriptionBase):
-    """Класс для хранения подробных описаний API endpoints.
+    """
+    Класс для хранения подробных описаний API endpoints.
 
     Содержит развернутые описания всех конечных точек API, включая условия доступа,
     которые используются в документации.
@@ -156,34 +189,37 @@ class Description(DescriptionBase):
 
 
 class Length(LengthBase):
-    """Класс для хранения констант, связанных с допустимой длиной полей.
+    """
+    Класс для хранения констант, связанных с допустимой длиной полей.
 
     Наследует все константы из LengthBase.
 
     Атрибуты:
-        MAX_NUMBER_PROBLEM (int): Максимальное количество проблем, в которых
-            может участвовать пользователь.
+    - MAX_NUMBER_PROBLEM (int): Максимальное количество проблем, в которых
+      может участвовать пользователь.
     """
 
     MAX_NUMBER_PROBLEM: int = 3
 
 
 class MiscConstants(MiscConstantsBase):
-    """Различные константы приложения.
+    """
+    Различные константы приложения.
 
     Наследует все константы из MiscConstantsBase.
 
     Атрибуты:
-        OPENAPI_EXTRA_ADMIN_AUTH (dict): Спецификация безопасности OpenAPI для
-            аутентификации администраторов.
-            Использует JWT-аутентификацию для администраторов.
+    - OPENAPI_EXTRA_ADMIN_AUTH (dict): Спецификация безопасности OpenAPI для
+      аутентификации администраторов.
+      Использует JWT-аутентификацию для администраторов.
     """
 
     OPENAPI_EXTRA_ADMIN_AUTH = {'security': [{'jwt_auth_backend_admin': []}]}
 
 
 class Summary(SummaryBase):
-    """Класс для хранения кратких описаний API endpoints.
+    """
+    Класс для хранения кратких описаний API endpoints.
 
     Содержит краткие описания всех конечных точек API, используемые в документации.
     """
@@ -227,15 +263,15 @@ class Summary(SummaryBase):
     LIST_MEETING: str = 'Получить список всех встреч для пользователя.'
     LIST_PROBLEM: str = 'Получить список всех проблем для пользователя.'
     LIST_TASK: str = 'Получить список всех задач для пользователя.'
-    LOGIN_ADMIN_AUTH: str = 'Авторизация.'
-    LOGIN_COMPANY_USER_AUTH: str = 'Авторизация.'
-    LOGOUT_ADMIN_AUTH: str = 'Выход из системы.'
-    LOGOUT_COMPANY_USER_AUTH: str = 'Выход из системы.'
+    LOGIN_ADMIN_AUTH: str = 'Авторизация администратора.'
+    LOGIN_COMPANY_USER_AUTH: str = 'Авторизация сотрудника.'
+    LOGOUT_ADMIN_AUTH: str = 'Выход администратора из системы.'
+    LOGOUT_COMPANY_USER_AUTH: str = 'Выход сотрудника из системы.'
     PATCH_BY_ID_ADMIN_AUTH: str = 'Изменить данные конкретного администратора сервиса.'
     PATCH_ME_ADMIN_AUTH: str = 'Для редактирования своих данных администратору сервиса.'
     PATCH_ME_USER_AUTH: str = 'Для редактирования своих данных пользователя сервиса.'
-    REFRESH_TOKEN_ADMIN_AUTH: str = 'Обновить токен.'
-    REFRESH_TOKEN_COMPANY_USER_AUTH: str = 'Обновить токен.'
+    REFRESH_TOKEN_ADMIN_AUTH: str = 'Обновить токен администратора.'
+    REFRESH_TOKEN_COMPANY_USER_AUTH: str = 'Обновить токен пользователя.'
     UPDATE_COMPANY: str = 'Обновить данные компании.'
     UPDATE_COMPANY_DEPARTMENTS: str = 'Обновить данные об отделе компании.'
     UPDATE_COMPANY_EMPLOYEES: str = 'Изменить данные сотрудника компании.'
@@ -247,41 +283,42 @@ class Summary(SummaryBase):
 
 
 class TextError(TextErrorBase):
-    """Класс для хранения стандартных текстов ошибок приложения.
+    """
+    Класс для хранения стандартных текстов ошибок приложения.
 
     Наследует все константы из TextErrorBase.
 
     Атрибуты:
-        CLOSE_PROBLEM (str): Сообщение о невозможности изменения завершенных проблем.
-        COMMENT_NOT_OWNER (str): Сообщение о невозможности изменения чужих комментариев.
-        COMPANY_NOT_FOUND (str): Сообщение об отсутствии компании.
-        DATE_MEETING_ALREADY_IN_USE (str): Сообщение о занятой дате встречи.
-        DEPARTMENT_EXIST (str): Сообщение о существующем отделе с таким именем.
-        DEPARTMENT_NOT_FOUND (str): Сообщение о некорректном ID отдела.
-        FORBIDDEN_FROM_COMPANY (str): Сообщение о доступе только для пользователей компании.
-        FORBIDDEN_NOT_MEMBER (str): Сообщение о доступе только для участников проблемы.
-        FORBIDDEN_OWNER (str): Сообщение о доступе только для создателя объекта.
-        IS_SUPERUSER (str): Сообщение о том, что объект - суперпользователь.
-        LIKE_OWN_COMMENT (str): Сообщение о невозможности оценки собственного комментария.
-        LOGIN (str): Сообщение о неверных учетных данных.
-        MEETING_NOT_FOUND (str): Сообщение об отсутствии встречи.
-        MEETING_TITLE_ALREADY_IN_USE (str): Сообщение о занятом названии встречи.
-        MEETING_WAS_HELD (str): Сообщение о невозможности изменения проведенных встреч.
-        NOT_LIKED_COMMENT (str): Сообщение об отсутствии лайка на комментарии.
-        NOT_UNIQUE_RESULT_MEETING (str): Сообщение о дублировании результата встречи.
-        PROBLEM_NOT_FOUND (str): Сообщение об отсутствии проблемы.
-        PROBLEM_NUMBER (str): Сообщение о превышении лимита участия в проблемах.
-        REPEATED_LIKE (str): Сообщение о повторном лайке комментария.
-        TASK_COMPLETED (str): Сообщение о невозможности изменения завершенных задач.
-        TASK_FOR_PROBLEM_NOT_FOUND (str): Сообщение об отсутствии задач для проблемы.
-        TASK_NOT_FOUND (str): Сообщение об отсутствии задачи.
-        USER_NOT_FROM_COMPANY (str): Сообщение о пользователе из другой компании.
-        UUID_INVALID (str): Сообщение о некорректном UUID.
-        WRONG_COMMENT (str): Сообщение об отсутствии комментария для треда.
-        WRONG_COMPANY (str): Сообщение о доступе только к своей компании.
-        WRONG_COMPANY_DEPARTMENT (str): Сообщение об отсутствии отдела в компании.
-        WRONG_MESSAGE_FEED (str): Сообщение об отсутствии треда для проблемы.
-        WRONG_PROBLEM (str): Сообщение о доступе только к проблемам своей компании.
+    - CLOSE_PROBLEM (str): Сообщение о невозможности изменения завершенных проблем.
+    - COMMENT_NOT_OWNER (str): Сообщение о невозможности изменения чужих комментариев.
+    - COMPANY_NOT_FOUND (str): Сообщение об отсутствии компании.
+    - DATE_MEETING_ALREADY_IN_USE (str): Сообщение о занятой дате встречи.
+    - DEPARTMENT_EXIST (str): Сообщение о существующем отделе с таким именем.
+    - DEPARTMENT_NOT_FOUND (str): Сообщение о некорректном ID отдела.
+    - FORBIDDEN_FROM_COMPANY (str): Сообщение о доступе только для пользователей компании.
+    - FORBIDDEN_NOT_MEMBER (str): Сообщение о доступе только для участников проблемы.
+    - FORBIDDEN_OWNER (str): Сообщение о доступе только для создателя объекта.
+    - IS_SUPERUSER (str): Сообщение о том, что объект - суперпользователь.
+    - LIKE_OWN_COMMENT (str): Сообщение о невозможности оценки собственного комментария.
+    - LOGIN (str): Сообщение о неверных учетных данных.
+    - MEETING_NOT_FOUND (str): Сообщение об отсутствии встречи.
+    - MEETING_TITLE_ALREADY_IN_USE (str): Сообщение о занятом названии встречи.
+    - MEETING_WAS_HELD (str): Сообщение о невозможности изменения проведенных встреч.
+    - NOT_LIKED_COMMENT (str): Сообщение об отсутствии лайка на комментарии.
+    - NOT_UNIQUE_RESULT_MEETING (str): Сообщение о дублировании результата встречи.
+    - PROBLEM_NOT_FOUND (str): Сообщение об отсутствии проблемы.
+    - PROBLEM_NUMBER (str): Сообщение о превышении лимита участия в проблемах.
+    - REPEATED_LIKE (str): Сообщение о повторном лайке комментария.
+    - TASK_COMPLETED (str): Сообщение о невозможности изменения завершенных задач.
+    - TASK_FOR_PROBLEM_NOT_FOUND (str): Сообщение об отсутствии задач для проблемы.
+    - TASK_NOT_FOUND (str): Сообщение об отсутствии задачи.
+    - USER_NOT_FROM_COMPANY (str): Сообщение о пользователе из другой компании.
+    - UUID_INVALID (str): Сообщение о некорректном UUID.
+    - WRONG_COMMENT (str): Сообщение об отсутствии комментария для треда.
+    - WRONG_COMPANY (str): Сообщение о доступе только к своей компании.
+    - WRONG_COMPANY_DEPARTMENT (str): Сообщение об отсутствии отдела в компании.
+    - WRONG_MESSAGE_FEED (str): Сообщение об отсутствии треда для проблемы.
+    - WRONG_PROBLEM (str): Сообщение о доступе только к проблемам своей компании.
     """
 
     CLOSE_PROBLEM: str = (

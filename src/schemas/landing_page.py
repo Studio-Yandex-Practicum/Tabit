@@ -22,9 +22,20 @@ class LandingPageBaseSchema(BaseModel):
 
     @field_validator('phone_number_1', 'phone_number_2', 'phone_number_3')
     def validate_phone_number(cls, v: Optional[str]) -> Optional[str]:
-        """Проверка формата телефонного номера(формат +7xxxxxxxxxx)."""
-        if v and not re.match(Validation.PHONE_REGEX, v):
-            raise ValueError('Номер телефона должен быть в формате: +7xxxxxxxxxx')
+        """
+        Проверка формата телефонного номера.
+
+        Поддерживаемые форматы:
+        - +7 (123) 456-78-90
+        - 8(123)4567890
+        - 123-45-67
+        - (123) 456 78 90
+        """
+        if v and not re.match(Validation.PHONE_NUMBER_PATTERN, v):
+            raise ValueError(
+                'Номер телефона должен быть в одном из следующих форматов: '
+                ' +7 (123) 456-78-90, 8(123)4567890, 123-45-67, (123) 456 78 90'
+            )
         return v
 
     @field_validator('email')

@@ -1,12 +1,49 @@
-"""Модуль содержит константы и настройки для тестирования API.
+"""
+Модуль тестовых констант API приложения.
 
-Включает в себя:
-- Базовые константы (TextError, Default, Length, Directory)
-- Настройки тестовой БД (TEST_DATABASE_URL)
-- URL-адреса API (URL)
-- Тестовые данные (пароли, email, изображения и т.д.)
-- Полезные нагрузки (payload) для тестовых запросов
-- Ожидаемые поля в ответах API
+Содержит все необходимые данные для тестирования API:
+- Тестовые данные аутентификации.
+- Полезные нагрузки (payload) для запросов.
+- Ожидаемые структуры ответов.
+- URL-адреса всех эндпоинтов.
+- Настройки тестовой базы данных.
+- Тестовые изображения.
+- Сообщения об ошибках.
+
+Структура модуля:
+- AdminPayloads: payload для тестирования администраторов.
+- AuthData: тестовые данные для аутентификации.
+- Default: параметры по умолчанию для системных настроек.
+- Directory: пути к директориям файловой системы.
+- ExpectedFields: ожидаемые поля в ответах API.
+- Images: тестовые изображения в base64.
+- Length: ограничения длины.
+- MiscConstants: различные технические константы.
+- ProblemFeedsData: данные для тестирования ленты проблем.
+- TabitManagementData: данные для тестирования управления.
+- Test_Database_URL: настройки тестовой БД.
+- TextError: стандартные сообщения об ошибках.
+- Url: все URL API эндпоинтов.
+- UserPayloads: payload для тестирования пользователей.
+
+Импортируемые базовые классы:
+- ConstantsBase.Default: базовые значения по умолчанию.
+- ConstantsBase.Directory: основные пути к директориям.
+- ConstantsBase.Length: базовые ограничения длины.
+- ConstantsBase.TextError: стандартные тексты ошибок.
+
+Важные особенности:
+- Все классы наследуют соответствующие базовые классы констант.
+- Дополнительные константы добавляются в дочерние классы.
+- Для параметризованных тестов используются кортежи payload с ожидаемыми кодами ответов.
+- Все строковые константы типизированы.
+- Неизменяемые классы помечены @dataclass(frozen=True).
+- Для работы с БД используются переменные окружения с fallback значениями.
+
+Пример использования:
+- from config.constants.tests import AuthData, Url
+- test_email = AuthData.BAD_EMAIL[0]
+- login_url = Url.ADMIN_LOGIN
 """
 
 import os
@@ -24,12 +61,13 @@ load_dotenv()
 
 
 class AuthData:
-    """Тестовые данные для аутентификации.
+    """
+    Класс констант - тестовых данных для аутентификации.
 
     Атрибуты:
-        BAD_EMAIL: Кортеж невалидных email адресов для тестирования валидации.
-        BAD_PASSWORD: Кортеж невалидных паролей для тестирования валидации.
-        GOOD_PASSWORD: Валидный пароль для тестирования.
+    - BAD_EMAIL: Кортеж невалидных email адресов для тестирования валидации.
+    - BAD_PASSWORD: Кортеж невалидных паролей для тестирования валидации.
+    - GOOD_PASSWORD: Валидный пароль для тестирования.
     """
 
     GOOD_PASSWORD: str = 'string123STRING'
@@ -51,15 +89,16 @@ class AuthData:
 
 
 class AdminPayloads:
-    """Полезные нагрузки (payload) для тестирования администраторов.
+    """
+    Класс констант - полезных нагрузок (payload) для тестирования администраторов.
 
     Атрибуты:
-        PAYLOAD_BAD_FOR_CREATE_ADMIN: Кортеж невалидных payload для создания администратора.
-            Каждый payload не содержит обязательные поля или содержит невалидные данные.
-        PAYLOAD_FOR_CREATE_ADMIN: Кортеж валидных payload для создания администратора.
-            Содержит различные комбинации обязательных и необязательных полей.
-        PAYLOAD_FOR_PATCH_ADMIN: Кортеж валидных payload для обновления данных администратора.
-            Содержит различные комбинации полей для тестирования частичного обновления.
+    - PAYLOAD_BAD_FOR_CREATE_ADMIN: Кортеж невалидных payload для создания администратора.
+      Каждый payload не содержит обязательные поля или содержит невалидные данные.
+    - PAYLOAD_FOR_CREATE_ADMIN: Кортеж валидных payload для создания администратора.
+      Содержит различные комбинации обязательных и необязательных полей.
+    - PAYLOAD_FOR_PATCH_ADMIN: Кортеж валидных payload для обновления данных администратора.
+      Содержит различные комбинации полей для тестирования частичного обновления.
     """
 
     PAYLOAD_FOR_CREATE_ADMIN: tuple[dict[str, str], ...] = (
@@ -132,26 +171,29 @@ class AdminPayloads:
 
 
 class Default(ConstantsBase.Default):
-    """Класс констант значений по умолчанию используемых в пакете `tests`.
+    """
+    Класс констант - значений по умолчанию используемых в пакете `tests`.
 
     Так же класс наследует значения из ConstantsBase.Default.
     """
 
 
 class Directory(ConstantsBase.Directory):
-    """Класс констант путей к директориям, используемых в пакете `tests`.
+    """
+    Класс констант путей к директориям, используемых в пакете `tests`.
 
     Так же класс наследует значения из ConstantsBase.Directory.
     """
 
 
 class ExpectedFields:
-    """Ожидаемые поля в ответах API.
+    """
+    Класс констант - ожидаемых полей в ответах API.
 
     Атрибуты:
-        COMPANY_FIELDS: Множество полей, ожидаемых в ответе с информацией о компании.
-        DEPARTMENT_FIELDS: Множество полей, ожидаемых в ответе с информацией об отделе.
-        EMPLOYEE_FIELDS: Множество полей, ожидаемых в ответе с информацией о сотруднике.
+    - COMPANY_FIELDS: Множество полей, ожидаемых в ответе с информацией о компании.
+    - DEPARTMENT_FIELDS: Множество полей, ожидаемых в ответе с информацией об отделе.
+    - EMPLOYEE_FIELDS: Множество полей, ожидаемых в ответе с информацией о сотруднике.
     """
 
     COMPANY_FIELDS: set[str] = {
@@ -199,19 +241,21 @@ class ExpectedFields:
 
 
 class TextError(ConstantsBase.TextError):
-    """Класс для хранения стандартных текстов ошибок, используемых в пакете `tests`.
+    """
+    Класс констант для хранения стандартных текстов ошибок, используемых в пакете `tests`.
 
     Так же класс наследует значения из ConstantsBase.TextError.
     """
 
 
 class Images:
-    """Тестовые изображения в формате base64.
+    """
+    Класс констант - тестовых изображений в формате base64.
 
     Атрибуты:
-        BASE64_JPG: Изображение в формате JPG, закодированное в base64.
-        BASE64_PNG: Изображение в формате PNG, закодированное в base64.
-        INVALID: Кортеж невалидных изображений с ожидаемыми ошибками.
+    - BASE64_JPG: Изображение в формате JPG, закодированное в base64.
+    - BASE64_PNG: Изображение в формате PNG, закодированное в base64.
+    - INVALID: Кортеж невалидных изображений с ожидаемыми ошибками.
     """
 
     BASE64_PNG: str = (
@@ -219,13 +263,11 @@ class Images:
         'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAA'
         'AJcEhZcwAADsQAAA7EAZUrDhsAAAAWSURBVBhXY/jPAEIM/5ns7eyA1H8GADMUBbmnKLI7AAAAAElFTkSuQmCC'
     )
-
     BASE64_JPG: str = (
         'data:image/jpg;base64,'
         'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAA'
         'JcEhZcwAADsQAAA7EAZUrDhsAAAAZSURBVBhXY2T4DwQMDAxMBw8dYmBgZGQAAEnjBkemLjB6AAAAAElFTkSuQmCC'
     )
-
     INVALID: tuple[tuple[Any, Any], ...] = (
         (
             1,
@@ -254,7 +296,8 @@ class Images:
 
 
 class Length(ConstantsBase.Length):
-    """Класс констант, определяющих ограничения длины для различных полей,
+    """
+    Класс констант, определяющих ограничения длины для различных полей,
     используемых в пакете `tests`.
 
     Так же класс наследует значения из ConstantsBase.Length.
@@ -263,7 +306,8 @@ class Length(ConstantsBase.Length):
 
 @dataclass(frozen=True)
 class MiscConstants(ConstantsBase.MiscConstants):
-    """Класс разных общесистемных констант, используемых в пакете `tests`.
+    """
+    Класс разных общесистемных констант, используемых в пакете `tests`.
 
     Класс реализован, как неизменяемый.
 
@@ -272,21 +316,22 @@ class MiscConstants(ConstantsBase.MiscConstants):
 
 
 class ProblemFeedsData:
-    """Данные для тестирования ленты проблем `problem_feeds.py`.
+    """
+    Класс констант - данных для тестирования ленты проблем `problem_feeds.py`.
 
     Атрибуты:
-        COMMENT_CREATE_BAD: Кортеж невалидных payload для создания комментария
-            с ожидаемыми кодами ошибок.
-        COMMENT_CREATE_NEW: Валидный payload для создания нового комментария.
-        COMMENT_UPDATE: Валидный payload для обновления комментария.
-        COMMENT_UPDATE_BAD: Кортеж невалидных payload для обновления комментария
-            с ожидаемыми кодами ошибок.
-        MESSAGE_FEED_CREATE_BAD: Кортеж невалидных payload для создания ленты сообщений
-            с ожидаемыми кодами ошибок.
-        MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY: Payload для создания ленты сообщений
-            для другой компании.
-        MESSAGE_FEED_CREATE_NEW: Кортеж валидных payload для создания ленты сообщений
-            с флагом важности.
+    - COMMENT_CREATE_BAD: Кортеж невалидных payload для создания комментария
+      с ожидаемыми кодами ошибок.
+    - COMMENT_CREATE_NEW: Валидный payload для создания нового комментария.
+    - COMMENT_UPDATE: Валидный payload для обновления комментария.
+    - COMMENT_UPDATE_BAD: Кортеж невалидных payload для обновления комментария
+      с ожидаемыми кодами ошибок.
+    - MESSAGE_FEED_CREATE_BAD: Кортеж невалидных payload для создания ленты сообщений
+      с ожидаемыми кодами ошибок.
+    - MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY: Payload для создания ленты сообщений
+      для другой компании.
+    - MESSAGE_FEED_CREATE_NEW: Кортеж валидных payload для создания ленты сообщений
+      с флагом важности.
     """
 
     MESSAGE_FEED_CREATE_NEW: tuple[tuple[dict[str, Any], bool], ...] = (
@@ -314,42 +359,43 @@ class ProblemFeedsData:
 
 
 class TabitManagementData:
-    """Данные для тестирования управления `tabit_management.py`.
+    """
+    Класс констант - данных для тестирования управления `tabit_management.py`.
 
     Атрибуты:
-        ADMIN_CREATE_MOD_BAD: Кортеж невалидных payload для создания модератора.
-            Варианты payload:
-                1) Отсутствие необходимого поля
-                2) Некорректный пароль
-                3) Повторяющийся email
-                4) Некорректная роль
-                5) Некорректный company_id
-                6) Некорректный current_department_id
-                7) Некорректная связка company_id и current_department_id
-        ADMIN_CREATE_MOD_NEW: Валидный payload для создания нового модератора.
-        ADMIN_GET_MOD_INFO: Ожидаемые коды ответа для получения информации о модераторе.
-        ADMIN_PATCH_MOD: Кортеж валидных payload для частичного обновления модератора
-            с флагами проверки department_id.
-        ADMIN_PATCH_MOD_BAD: Кортеж невалидных payload для частичного обновления модератора.
-            Варианты payload:
-                1) Лишнее поле
-                2) Некорректный пароль
-                3) Повторяющийся email
-                4) Некорректный current_department_id
-                5) Некорректная связка company_id и current_department_id
-        ADMIN_PUT_MOD: Кортеж валидных payload для полного обновления модератора
-            с флагами проверки department_id.
-        ADMIN_PUT_MOD_BAD: Кортеж невалидных payload для полного обновления модератора.
-            Варианты payload:
-                1) Лишнее поле
-                2) Отсутствие необходимого поля
-                3) Некорректный пароль
-                4) Повторяющийся email
-                5) Некорректный current_department_id
-                6) Некорректная связка company_id и current_department_id
-        MOD_TEST_EMAIL: Тестовый email для модератора.
-        MOD_TEST_EMAIL_BAD: Альтернативный тестовый email для модератора.
-        TEST_UUID: Тестовый UUID для идентификации.
+    - ADMIN_CREATE_MOD_BAD: Кортеж невалидных payload для создания модератора.
+      - Варианты payload:
+        1) Отсутствие необходимого поля
+        2) Некорректный пароль
+        3) Повторяющийся email
+        4) Некорректная роль
+        5) Некорректный company_id
+        6) Некорректный current_department_id
+        7) Некорректная связка company_id и current_department_id
+    - ADMIN_CREATE_MOD_NEW: Валидный payload для создания нового модератора.
+    - ADMIN_GET_MOD_INFO: Ожидаемые коды ответа для получения информации о модераторе.
+    - ADMIN_PATCH_MOD: Кортеж валидных payload для частичного обновления модератора
+      с флагами проверки department_id.
+    - ADMIN_PATCH_MOD_BAD: Кортеж невалидных payload для частичного обновления модератора.
+      - Варианты payload:
+        1) Лишнее поле
+        2) Некорректный пароль
+        3) Повторяющийся email
+        4) Некорректный current_department_id
+        5) Некорректная связка company_id и current_department_id
+    - ADMIN_PUT_MOD: Кортеж валидных payload для полного обновления модератора
+      с флагами проверки department_id.
+    - ADMIN_PUT_MOD_BAD: Кортеж невалидных payload для полного обновления модератора.
+      - Варианты payload:
+        1) Лишнее поле
+        2) Отсутствие необходимого поля
+        3) Некорректный пароль
+        4) Повторяющийся email
+        5) Некорректный current_department_id
+        6) Некорректная связка company_id и current_department_id
+    - MOD_TEST_EMAIL: Тестовый email для модератора.
+    - MOD_TEST_EMAIL_BAD: Альтернативный тестовый email для модератора.
+    - TEST_UUID: Тестовый UUID для идентификации.
     """
 
     TEST_UUID: UUID = UUID('{12345678-1234-5678-1234-567812345678}')
@@ -363,7 +409,6 @@ class TabitManagementData:
         'email': MOD_TEST_EMAIL,
         'password': AuthData.GOOD_PASSWORD,
     }
-
     ADMIN_CREATE_MOD_BAD: tuple[dict[str, str | int | CompanyUserRole], ...] = (
         {
             'name': 'test_bad',
@@ -432,7 +477,6 @@ class TabitManagementData:
         ({'name': 'updated_name', 'email': 'updated@example.com'}, False),
         ({'current_department_id': 2}, True),
     )
-
     ADMIN_PATCH_MOD_BAD: tuple[dict[str, str | int], ...] = (
         {'company_id': 2},
         {'password': AuthData.BAD_PASSWORD[-1]},
@@ -464,7 +508,6 @@ class TabitManagementData:
             True,
         ),
     )
-
     ADMIN_PUT_MOD_BAD: tuple[dict[str, str | int | CompanyUserRole], ...] = (
         {
             'name': 'test_bad',
@@ -518,14 +561,15 @@ class TabitManagementData:
 
 
 class Test_Database_URL:
-    """Настройки подключения к тестовой базе данных.
+    """
+    Класс констант - настроек подключения к тестовой базе данных.
 
     Атрибуты:
-        USER: Имя пользователя тестовой БД
-        PASSWORD: Пароль пользователя тестовой БД
-        HOST: Хост тестовой БД
-        PORT: Порт тестовой БД
-        DBNAME: Имя тестовой БД
+    - USER: Имя пользователя тестовой БД
+    - PASSWORD: Пароль пользователя тестовой БД
+    - HOST: Хост тестовой БД
+    - PORT: Порт тестовой БД
+    - DBNAME: Имя тестовой БД
     """
 
     USER: str = os.getenv('TEST_POSTGRES_USER', 'test_user')
@@ -537,7 +581,8 @@ class Test_Database_URL:
 
 @dataclass(frozen=True)
 class Url:
-    """Все пути API, используемые в тестах.
+    """
+    Класс констант - всех пути API, используемые в тестах.
 
     Класс реализован, как неизменяемый.
 
@@ -549,36 +594,36 @@ class Url:
     - Управления модераторами
 
     Атрибуты:
-        ADMIN_AUTH: Базовый URL для аутентификации администратора
-        ADMIN_GET_COMPANIES: URL для получения списка компаний администратором
-        ADMIN_LOGIN: URL для входа администратора
-        ADMIN_LOGOUT: URL для выхода администратора
-        ADMIN_ME: URL для получения информации о текущем администраторе
-        ADMIN_MOD_DATA_URL: URL для работы с данными конкретного модератора
-        ADMIN_MODS_URL: URL для работы со списком модераторов
-        ADMIN_REFRESH: URL для обновления токена администратора
-        COMMENTS_PATCH_DELETE_404_URL: URL для тестирования ошибок при работе с комментариями
-        COMMENTS_PATCH_DELETE_URL: URL для изменения/удаления комментариев
-        COMMENTS_URL: URL для работы с комментариями
-        COMPANY_ENDPOINT: URL для работы с конкретной компанией
-        COMPANIES_ENDPOINT: URL для работы со списком компаний
-        CREATE_DEPARTMENT_ENDPOINT: URL для создания отдела
-        CREATE_EMPLOYEE_ENDPOINT: URL для создания сотрудника
-        DEPARTMENT_ENDPOINT: URL для работы с конкретным отделом
-        DEPARTMENTS_ENDPOINT: URL для работы со списком отделов
-        EMPLOYEE_ENDPOINT: URL для работы с конкретным сотрудником
-        EMPLOYEES_ENDPOINT: URL для работы со списком сотрудников
-        FEEDBACK_ENDPOINT: URL для работы с обратной связью
-        LICENSES_ENDPOINT: URL для работы с лицензиями
-        LIKE_URL: URL для лайка комментария
-        MEETINGS_ENDPOINT: URL для работы со списком встреч
-        MEETINGS_SINGLE: URL для работы с конкретной встречей
-        MESSAGE_FEED_URL: URL для работы с лентой сообщений
-        UNLIKE_URL: URL для снятия лайка с комментария
-        USER_LOGIN: URL для входа пользователя
-        USER_LOGOUT: URL для выхода пользователя
-        USER_ME: URL для получения информации о текущем пользователе
-        USER_REFRESH: URL для обновления токена пользователя
+    - ADMIN_AUTH: Базовый URL для аутентификации администратора
+    - ADMIN_GET_COMPANIES: URL для получения списка компаний администратором
+    - ADMIN_LOGIN: URL для входа администратора
+    - ADMIN_LOGOUT: URL для выхода администратора
+    - ADMIN_ME: URL для получения информации о текущем администраторе
+    - ADMIN_MOD_DATA_URL: URL для работы с данными конкретного модератора
+    - ADMIN_MODS_URL: URL для работы со списком модераторов
+    - ADMIN_REFRESH: URL для обновления токена администратора
+    - COMMENTS_PATCH_DELETE_404_URL: URL для тестирования ошибок при работе с комментариями
+    - COMMENTS_PATCH_DELETE_URL: URL для изменения/удаления комментариев
+    - COMMENTS_URL: URL для работы с комментариями
+    - COMPANY_ENDPOINT: URL для работы с конкретной компанией
+    - COMPANIES_ENDPOINT: URL для работы со списком компаний
+    - CREATE_DEPARTMENT_ENDPOINT: URL для создания отдела
+    - CREATE_EMPLOYEE_ENDPOINT: URL для создания сотрудника
+    - DEPARTMENT_ENDPOINT: URL для работы с конкретным отделом
+    - DEPARTMENTS_ENDPOINT: URL для работы со списком отделов
+    - EMPLOYEE_ENDPOINT: URL для работы с конкретным сотрудником
+    - EMPLOYEES_ENDPOINT: URL для работы со списком сотрудников
+    - FEEDBACK_ENDPOINT: URL для работы с обратной связью
+    - LICENSES_ENDPOINT: URL для работы с лицензиями
+    - LIKE_URL: URL для лайка комментария
+    - MEETINGS_ENDPOINT: URL для работы со списком встреч
+    - MEETINGS_SINGLE: URL для работы с конкретной встречей
+    - MESSAGE_FEED_URL: URL для работы с лентой сообщений
+    - UNLIKE_URL: URL для снятия лайка с комментария
+    - USER_LOGIN: URL для входа пользователя
+    - USER_LOGOUT: URL для выхода пользователя
+    - USER_ME: URL для получения информации о текущем пользователе
+    - USER_REFRESH: URL для обновления токена пользователя
     """
 
     ADMIN_AUTH: str = '/api/v1/admin/auth/'
@@ -622,13 +667,14 @@ class Url:
 
 
 class UserPayloads:
-    """Полезные нагрузки (payload) для тестирования пользователей.
+    """
+    Класс констант - полезных нагрузок (payload) для тестирования пользователей.
 
     Атрибуты:
-        MODERATOR_TELEGRAM: Тестовый Telegram username для модератора
-        PAYLOAD_FOR_PATCH_USER: Кортеж валидных payload для обновления данных пользователя
-        PAYLOAD_FOR_PATCH_USER_EXTRA: Payload с дополнительными полями для тестирования валидации
-        USER_TELEGRAM: Тестовый Telegram username для пользователя
+    - MODERATOR_TELEGRAM: Тестовый Telegram username для модератора
+    - PAYLOAD_FOR_PATCH_USER: Кортеж валидных payload для обновления данных пользователя
+    - PAYLOAD_FOR_PATCH_USER_EXTRA: Payload с дополнительными полями для тестирования валидации
+    - USER_TELEGRAM: Тестовый Telegram username для пользователя
     """
 
     MODERATOR_TELEGRAM: str = 'avadakedavra'
