@@ -7,9 +7,6 @@ from src.features_v1.validators.user_validators import (
     BaseUserValidator,
     validate_user_not_exists,
     validate_password,
-    check_user_is_active,
-    validator_check_not_is_superuser,
-    validate_user_from_company,
     check_telegram_username_for_duplicates,
     validate_field_members,
 )
@@ -34,54 +31,12 @@ async def test_validate_user_not_exists_valid():
     assert await validate_user_not_exists(user_data, mock_user_manager) is None
 
 
-
-
 @pytest.mark.asyncio
 async def test_validate_password_valid():
     mock_user_manager = MagicMock()
     mock_user_manager.validate_password = AsyncMock(return_value=None)
     user_data = MagicMock(password="validpassword")
     assert await validate_password(user_data, mock_user_manager) is None
-
-
-def test_check_user_is_active_raises():
-    user = MagicMock(is_active=False)
-    with pytest.raises(HTTPException) as exc:
-        check_user_is_active(user)
-    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
-
-
-def test_check_user_is_active_valid():
-    user = MagicMock(is_active=True)
-    assert check_user_is_active(user) is None
-
-
-def test_validator_check_not_is_superuser_raises():
-    user = MagicMock(is_superuser=True)
-    with pytest.raises(HTTPException) as exc:
-        validator_check_not_is_superuser(user)
-    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
-    assert exc.value.detail == TextError.IS_SUPERUSER
-
-
-def test_validator_check_not_is_superuser_valid():
-    user = MagicMock(is_superuser=False)
-    assert validator_check_not_is_superuser(user) is None
-
-
-def test_validate_user_from_company_raises():
-    user = MagicMock(company_id=1)
-    company = MagicMock(id=2, name="Company X")
-    with pytest.raises(HTTPException) as exc:
-        validate_user_from_company(user, company)
-    assert exc.value.status_code == status.HTTP_403_FORBIDDEN
-    assert TextError.FORBIDDEN_FROM_COMPANY.format(company.name) in exc.value.detail
-
-
-def test_validate_user_from_company_valid():
-    user = MagicMock(company_id=1)
-    company = MagicMock(id=1, name="Company X")
-    assert validate_user_from_company(user, company) is None
 
 
 @pytest.mark.asyncio

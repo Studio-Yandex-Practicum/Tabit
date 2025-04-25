@@ -5,16 +5,13 @@ from src.crud import (
     company_crud,
     message_feed_crud,
     problem_crud,
-    task_crud,
 )
 from src.crud.constants import MAX_NUMBER_PROBLEM
 from src.features_v1.constants import (
     ERROR_PROBLEM_NOT_FOUND,
     ERROR_PROBLEM_NUMBER,
-    ERROR_TASK_FOR_PROBLEM_NOT_FOUND,
     VALID_WRONG_MESSAGE_FEED,
     VALID_WRONG_PROBLEM,
-    TextError,
 )
 from src.models import CompanyUser, Problem, ProblemStatus
 from src.features_v1.validators.company_validators import check_user_company
@@ -102,48 +99,3 @@ async def check_problem_exists(problem_id: int, session: AsyncSession):
         await problem_crud.get_or_404(session, problem_id)
     except HTTPException:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_PROBLEM_NOT_FOUND)
-
-
-async def check_tasks_for_company_problem_exist(
-    company_slug: str, problem_id: int, session: AsyncSession
-):
-    """Проверяет, существуют ли задачи в базе данных.
-
-    Args:
-        company_slug: Уникальный идентификатор компании
-        problem_id: Идентификатор проблемы
-        session: Асинхронная сессия SQLAlchemy.
-
-    Raises:
-        HTTPException: Если задача не найдена.
-    """
-    tasks = await task_crud.get_by_company_and_problem(session, company_slug, problem_id)
-    if tasks is None or tasks == []:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=ERROR_TASK_FOR_PROBLEM_NOT_FOUND,
-        )
-
-
-def validate_close_problem(problem: Problem):
-    """
-    Валидатор, проверит что проблема ещё не решена.
-    Иначе ошибка 422
-    """
-    if problem.status == ProblemStatus.COMPLETED:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=TextError.CLOSE_PROBLEM,
-        )
-
-
-def validate_is_member_problem(user: CompanyUser, problem: Problem):
-    """
-    Валидатор, проверит что пользователь является участником проблемы.
-    Иначе ошибка 403
-    """
-    if user in problem.members:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=TextError.FORBIDDEN_NOT_MEMBER,
-        )

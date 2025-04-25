@@ -13,7 +13,9 @@ from src.features_v1.validators.comment_validators import (
 
 @pytest.mark.asyncio
 class TestCommentValidators:
-    async def test_check_comment_and_message_feed_valid(self, async_session: AsyncSession, comment_for_test):
+    async def test_check_comment_and_message_feed_valid(
+            self, async_session: AsyncSession, comment_for_test
+    ):
         """
         Проверка успешной валидации принадлежности комментария к треду.
         """
@@ -22,7 +24,9 @@ class TestCommentValidators:
         assert isinstance(result, CommentFeed)
         assert result.id == comment.id
 
-    async def test_check_comment_and_message_feed_invalid(self, async_session: AsyncSession, comment_for_test):
+    async def test_check_comment_and_message_feed_invalid(
+            self, async_session: AsyncSession, comment_for_test
+    ):
         """
         Проверка ошибки при несоответствии комментария и треда.
         """
@@ -49,7 +53,9 @@ class TestCommentValidators:
             await check_comment_owner(comment, 999999, like_mode=False)
         assert exc.value.status_code == 403
 
-    async def test_check_comment_has_likes_absent_like_raises(self, async_session: AsyncSession, comment_for_test):
+    async def test_check_comment_has_likes_absent_like_raises(
+            self, async_session: AsyncSession, comment_for_test
+    ):
         """
         Проверка ошибки, если пользователь не лайкал комментарий, а от него ожидается лайк.
         """
@@ -58,7 +64,9 @@ class TestCommentValidators:
             await check_comment_has_likes_from_user(str(uuid.uuid4()), comment.id, async_session)
         assert exc.value.status_code == 400
 
-    async def test_check_comment_has_likes_present_like_raises(self, async_session: AsyncSession, comment_for_test):
+    async def test_check_comment_has_likes_present_like_raises(
+            self, async_session: AsyncSession, comment_for_test
+    ):
         """
         Проверка ошибки, если пользователь пытается лайкнуть комментарий повторно.
         """

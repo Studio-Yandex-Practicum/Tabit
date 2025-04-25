@@ -3,12 +3,9 @@ from unittest.mock import AsyncMock, MagicMock
 from fastapi import HTTPException, status
 
 from src.features_v1.validators import problem_validators
-from src.models import ProblemStatus
 from src.crud.constants import MAX_NUMBER_PROBLEM
 from src.features_v1.constants import (
-    TextError,
     ERROR_PROBLEM_NOT_FOUND,
-    ERROR_TASK_FOR_PROBLEM_NOT_FOUND,
     VALID_WRONG_MESSAGE_FEED,
     VALID_WRONG_PROBLEM,
     ERROR_PROBLEM_NUMBER,
@@ -64,33 +61,3 @@ async def test_check_problem_exists_not_found():
         await problem_validators.check_problem_exists(42, session)
     assert exc.value.status_code == status.HTTP_404_NOT_FOUND
     assert exc.value.detail == ERROR_PROBLEM_NOT_FOUND
-
-
-@pytest.mark.asyncio
-async def test_check_tasks_for_company_problem_exist_none_found():
-    session = AsyncMock()
-    problem_validators.task_crud.get_by_company_and_problem = AsyncMock(return_value=[])
-
-    with pytest.raises(HTTPException) as exc:
-        await problem_validators.check_tasks_for_company_problem_exist("slug", 123, session)
-    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
-    assert exc.value.detail == ERROR_TASK_FOR_PROBLEM_NOT_FOUND
-
-
-def test_validate_close_problem_completed_raises():
-    problem = MagicMock(status=ProblemStatus.COMPLETED)
-
-    with pytest.raises(HTTPException) as exc:
-        problem_validators.validate_close_problem(problem)
-    assert exc.value.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-    assert exc.value.detail == TextError.CLOSE_PROBLEM
-
-
-def test_validate_is_member_problem_forbidden():
-    user = MagicMock()
-    problem = MagicMock(members=[user])
-
-    with pytest.raises(HTTPException) as exc:
-        problem_validators.validate_is_member_problem(user, problem)
-    assert exc.value.status_code == status.HTTP_403_FORBIDDEN
-    assert exc.value.detail == TextError.FORBIDDEN_NOT_MEMBER

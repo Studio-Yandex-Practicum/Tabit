@@ -3,13 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import meeting_crud, result_meeting_crud
 from src.features_v1.constants import (
-    ERROR_DATE_MEETING_ALREADY_IN_USE,
     ERROR_MEETING_NOT_FOUND,
-    ERROR_MEETING_TITLE_ALREADY_IN_USE,
     VALID_NOT_UNIQUE_RESULT_MEETING,
-    TextError,
 )
-from src.models import CompanyUser, Meeting, MeetingStatus
+from src.models import CompanyUser
 
 
 async def check_meeting_exists(meeting_id: int, session: AsyncSession):
@@ -31,42 +28,6 @@ async def check_meeting_exists(meeting_id: int, session: AsyncSession):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_MEETING_NOT_FOUND)
 
 
-async def check_meeting_title_unique(title: str, session: AsyncSession):
-    """Проверяет уникальность названия встречи.
-
-    Назначение:
-        Валидирует, что название встречи уникально и не используется в базе данных.
-    Параметры:
-        title: Строка, представляющая название встречи для проверки.
-        session: Асинхронная сессия базы данных.
-    Исключения:
-        HTTPException: Если название встречи уже используется.
-    """
-
-    if not await meeting_crud.get_meeting(title=title, session=session):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_MEETING_TITLE_ALREADY_IN_USE
-        )
-
-
-async def check_meeting_date_available(date_meeting: str, session: AsyncSession):
-    """Проверяет доступность даты встречи.
-
-    Назначение:
-        Валидирует, что дата встречи доступна и не конфликтует с существующими встречами.
-    Параметры:
-        date_meeting: Строка, представляющая дату встречи для проверки.
-        session: Асинхронная сессия базы данных.
-    Исключения:
-        HTTPException: Если дата встречи уже занята.
-    """
-
-    if not await meeting_crud.get_meeting(date_meeting=date_meeting, session=session):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_DATE_MEETING_ALREADY_IN_USE
-        )
-
-
 async def check_result_meeting_unique(meeting_id: int, owner: CompanyUser, session: AsyncSession):
     """Проверяет что один пользователь может создать только один результат встречи.
 
@@ -85,18 +46,6 @@ async def check_result_meeting_unique(meeting_id: int, owner: CompanyUser, sessi
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=VALID_NOT_UNIQUE_RESULT_MEETING
-        )
-
-
-def validate_meeting_was_held(meeting: Meeting):
-    """
-    Валидатор, проверит что встреча не проведена.
-    Иначе ошибка 422
-    """
-    if meeting.status == MeetingStatus.HELD:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=TextError.MEETING_WAS_HELD,
         )
 
 

@@ -15,7 +15,6 @@ async def test_validate_license_exists_found():
     mock_crud = AsyncMock()
     mock_crud.get = AsyncMock(return_value={"id": 1})
 
-    # Мокаем импорт license_type_crud
     import src.features_v1.validators.license_validators as validators
     validators.license_type_crud = mock_crud
 

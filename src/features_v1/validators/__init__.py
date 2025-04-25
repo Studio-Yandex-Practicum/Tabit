@@ -6,4 +6,6 @@ from .meeting_validators import *
 from .problem_validators import *
 from .task_validators import *
 from .user_validators import *
+# Все функции синхронных валидаторов
+from .sync_validators import *
 
