@@ -4,10 +4,10 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
+from config.constants.fake_data_factories import ColorCPrint, Faker
 from fake_data_factories.association_user_tags_factory import create_user_tag_associations
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import FAKER_USER_TAGS_COUNT, ColorCPrint
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
 from src.models import UserTag
@@ -31,7 +31,7 @@ class UserTagFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_tags(count: int = FAKER_USER_TAGS_COUNT, **kwargs) -> None:
+async def create_tags(count: int = Faker.USER_TAGS_COUNT, **kwargs) -> None:
     """
     Функция для пакетного создания тэгов.
 

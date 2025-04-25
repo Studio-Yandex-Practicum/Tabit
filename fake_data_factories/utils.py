@@ -2,7 +2,7 @@ from functools import wraps
 
 from termcolor import cprint
 
-from fake_data_factories.constants import ColorCPrint
+from config.constants.fake_data_factories import ColorCPrint
 
 
 def start_and_end(name: str = '', color: str = ColorCPrint.yellow):

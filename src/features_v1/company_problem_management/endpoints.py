@@ -26,8 +26,8 @@ router = APIRouter()
     '/',
     response_model=list[ProblemResponseSchema],
     response_model_exclude_unset=True,
-    summary=Summary.PROBLEM_LIST,
-    description=Description.PROBLEM_LIST,
+    summary=Summary.LIST_PROBLEM,
+    description=Description.LIST_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def get_problems_for_user(
@@ -70,8 +70,8 @@ async def get_problems_for_user(
     '/',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.PROBLEM_CREATE,
-    description=Description.PROBLEM_CREATE,
+    summary=Summary.CREATE_PROBLEM,
+    description=Description.CREATE_PROBLEM,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_problem(
@@ -120,8 +120,8 @@ async def create_problem(
     '/{problem_id}',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.PROBLEM,
-    description=Description.PROBLEM,
+    summary=Summary.GET_PROBLEM,
+    description=Description.GET_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def get_problem(
@@ -162,8 +162,8 @@ async def get_problem(
     '/{problem_id}',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.PROBLEM_UPDATE,
-    description=Description.PROBLEM_UPDATE,
+    summary=Summary.UPDATE_PROBLEM,
+    description=Description.UPDATE_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def update_problem(
@@ -212,7 +212,8 @@ async def update_problem(
 
 @router.delete(
     '/{problem_id}',
-    summary='Удалить проблему',
+    summary=Summary.DELETE_PROBLEM,
+    description=Description.DELETE_PROBLEM,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_problem(
@@ -258,8 +259,8 @@ async def delete_problem(
     '/{problem_id}/confirm',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.PROBLEM_CONFIRM,
-    description=Description.PROBLEM_CONFIRM,
+    summary=Summary.CONFIRM_PROBLEM,
+    description=Description.CONFIRM_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def confirm_participation_in_problem(
