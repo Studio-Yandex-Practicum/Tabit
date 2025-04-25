@@ -22,12 +22,6 @@ jobs:
 
       - name: Check if ENV_FILE is set
         run: |
-          if [ -z "$ENV_FILE" ]; then
-            echo "ENV_FILE is not set"
-          else
-            echo "ENV_FILE is set"
-          fi
-
           if [ -z "${{ ENV_FILE }}" ]; then
             echo "ENV_FILE is not set"
           else
