@@ -22,7 +22,13 @@ jobs:
 
       - name: Check if ENV_FILE is set
         run: |
-          if [ -z "${{ secrets.ENV_FILE }}" ]; then
+          if [ -z "$ENV_FILE" ]; then
+            echo "ENV_FILE is not set"
+          else
+            echo "ENV_FILE is set"
+          fi
+
+          if [ -z "${{ ENV_FILE }}" ]; then
             echo "ENV_FILE is not set"
           else
             echo "ENV_FILE is set"
@@ -41,7 +47,7 @@ jobs:
 
       - name: view variables (DELETE)
         run: |
-          echo "Содержимое файла с секретами: ${{ secrets.ENV_FILE }}"
+          echo "Содержимое файла с секретами: $ENV_FILE"
           echo "Содеримое сформированного файла .env из секретов:"
           if [ -f ".env" ]; then
             cat ".env"
@@ -50,7 +56,7 @@ jobs:
           fi
 
           echo "Содержимое переменных окружения GitHub:"
-          printenv
+          printenv | sort
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
