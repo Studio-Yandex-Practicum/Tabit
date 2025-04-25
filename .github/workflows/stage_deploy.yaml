@@ -27,7 +27,7 @@ jobs:
           MISSING_SECRETS=()
 
           for secret in "${REQUIRED_SECRETS[@]}"; do
-            if [[ -z "${{ secrets[secret] }}" ]]; then
+            if [ -z "${!secret}" ]; then
               MISSING_SECRETS+=("$secret")
             fi
           done
