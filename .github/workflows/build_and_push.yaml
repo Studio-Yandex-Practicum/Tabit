@@ -33,9 +33,14 @@ jobs:
 
       - name: view variables (DELETE)
         run: |
-          echo "Содердимое сформированного файла .env из секретов:"
-          cat ".env"
-          echo "Содердимое переменных окружения GitHub:"
+          echo "Содеримое сформжированного файла .env из секретов:"
+          if [ -f ".env" ]; then
+            cat ".env"
+          else
+            echo ".env файл не найден."
+          fi
+
+          echo "Содержимое переменных окружения GitHub:"
           printenv
 
       - name: Login to GitHub Container Registry
