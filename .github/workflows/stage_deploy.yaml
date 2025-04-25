@@ -11,13 +11,9 @@ jobs:
     uses: ./.github/workflows/build_and_push.yaml
     secrets:
       GHCR_PAT:
-        required: true
       SSH_PRIVATE_KEY:
-        required: true
       USERNAME:
-        required: true
       ENV_FILE:
-        required: true
 
   deploy:
     needs: build
@@ -25,6 +21,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Check required secrets
+        run: |
+          REQUIRED_SECRETS=("HOST" "USERNAME" "SSH_PRIVATE_KEY" "GHCR_PAT" "ENV_FILE")
+          MISSING_SECRETS=()
+
+          for secret in "${REQUIRED_SECRETS[@]}"; do
+            if [ -z "${!secret}" ]; then
+              MISSING_SECRETS+=("$secret")
+            fi
+          done
+
+          if [ ${#MISSING_SECRETS[@]} -ne 0 ]; then
+            echo "::error::Missing secrets: ${MISSING_SECRETS[*]}"
+            exit 1
+          fi
 
       - name: Create .env file from secret
         run: |
