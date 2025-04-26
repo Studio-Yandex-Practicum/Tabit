@@ -55,9 +55,11 @@ class SurveyScheduleCreate(BaseModel):
         cycles: список циклов тестирований.
     """
 
-    survey_tag: str
-    status: str
-    cycles: List[SurveyScheduleCycleCreate]
+    survey_tag: str = Field(..., description='таг вида тестирования')
+    status: str = Field(..., description='статус расписания')
+    cycles: List[SurveyScheduleCycleCreate] = Field(
+        ..., description='список циклов в расписании (6 циклов максимум)'
+    )
 
     class Config:
         json_schema_extra = {
@@ -84,9 +86,11 @@ class SurveyScheduleUpdate(BaseModel):
         cycles: список циклов тестирований. (Опционально)
     """
 
-    survey_tag: str | None = None
-    status: str | None = None
-    cycles: List[SurveyScheduleCycleCreate] | None = None
+    survey_tag: str | None = Field(None, description='таг вида тестирования')
+    status: str | None = Field(None, description='статус расписания')
+    cycles: List[SurveyScheduleCycleCreate] | None = Field(
+        None, description='список циклов в расписании (6 циклов максимум)'
+    )
 
 
 class SurveyScheduleRead(BaseModel):
@@ -138,9 +142,9 @@ class SurveyDataCreate(BaseModel):
         answers: Список ответов.
     """
 
-    survey_shedule_id: int
-    cycle_id: int
-    answers: List[SurveyAnswerCreate]
+    survey_shedule_id: int = Field(..., description='Идентификатор расписания')
+    cycle_id: int = Field(..., description='Идентификатор цикла')
+    answers: List[SurveyAnswerCreate] = Field(..., description='Список ответов')
 
     class Config:
         json_schema_extra = {
