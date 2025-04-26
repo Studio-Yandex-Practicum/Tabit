@@ -600,7 +600,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"{{email_admin_company}}\",\r\n  \"password\": \"{{password_admin_company}}\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": {{department_id}},\r\n  \"last_department_id\": null,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": {{comment_id}}\r\n}",
+							"raw": "{\r\n  \"email\": \"{{email_admin_company}}\",\r\n  \"password\": \"{{password_admin_company}}\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": {{department_id}},\r\n  \"previous_department_id\": null,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": {{comment_id}}\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -667,7 +667,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"string222A\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"string222A\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"previous_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1661,7 +1661,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string34\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string34\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"previous_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

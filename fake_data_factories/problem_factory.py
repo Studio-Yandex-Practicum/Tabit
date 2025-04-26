@@ -6,21 +6,15 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
+from config.constants.fake_data_factories import ColorCPrint, Default, Faker
 from fake_data_factories.association_user_problem_factory import (
     create_user_problem_associations,
 )
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import (
-    DEFAULT_PROBLEM_DESCRIPTIONS,
-    DEFAULT_PROBLEM_NAMES,
-    FAKER_PROBLEMS_COUNT,
-    ColorCPrint,
-)
 from fake_data_factories.utils import start_and_end
-from src.database.sc_db_session import sc_session
-from src.problems.models.enums import ColorProblem, StatusProblem, TypeProblem
-from src.problems.models.problem_models import Problem
+from src.core.database.sc_db_session import sc_session
+from src.models import Problem, ProblemColor, ProblemStatus, ProblemType
 
 
 class ProblemFactory(AsyncSQLAlchemyFactory):
@@ -29,26 +23,26 @@ class ProblemFactory(AsyncSQLAlchemyFactory):
 
     Поля:
         - `name`: Обязательное поле. \
-            Генерируется случайным выбором из `DEFAULT_PROBLEM_NAMES`.
+            Генерируется случайным выбором из `Default.PROBLEM_NAMES`.
         - `description`: Опциональное поле.\
-            Генерируется случайным выбором из `DEFAULT_PROBLEM_DESCRIPTIONS`.
+            Генерируется случайным выбором из `Default.PROBLEM_DESCRIPTIONS`.
         - `company_id`: Обязательное поле. \
             Должен быть создан объект Company, чтобы передать полю slug.
-        - `color`: Обязательное поле. Генерируется случайным выбором из `ColorProblem`.
-        - `type`: Обязательное поле. Генерируется случайным выбором из `TypeProblem`.
-        - `status`: Обязательное поле. Генерируется случайным выбором из `StatusProblem`.
+        - `color`: Обязательное поле. Генерируется случайным выбором из `ProblemColor`.
+        - `type`: Обязательное поле. Генерируется случайным выбором из `ProblemType`.
+        - `status`: Обязательное поле. Генерируется случайным выбором из `ProblemStatus`.
         - `owner_id`: Обязательное поле. \
-            Должен быть создан объект `UserTabit`, чтобы передать полю id (типа uuid).
+            Должен быть создан объект `CompanyUser`, чтобы передать полю id (типа uuid).
     """
 
-    name: factory.LazyFunction = factory.LazyFunction(lambda: choice(DEFAULT_PROBLEM_NAMES))
+    name: factory.LazyFunction = factory.LazyFunction(lambda: choice(Default.PROBLEM_NAMES))
     description: factory.LazyFunction = factory.LazyFunction(
-        lambda: choice(DEFAULT_PROBLEM_DESCRIPTIONS)
+        lambda: choice(Default.PROBLEM_DESCRIPTIONS)
     )
     company_id: int
-    color: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(ColorProblem)))
-    type: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(TypeProblem)))
-    status: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(StatusProblem)))
+    color: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(ProblemColor)))
+    type: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(ProblemType)))
+    status: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(ProblemStatus)))
     owner_id: UUID
 
     class Meta:
@@ -57,7 +51,7 @@ class ProblemFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_problems(count: int = FAKER_PROBLEMS_COUNT, **kwargs) -> list[Problem]:
+async def create_problems(count: int = Faker.PROBLEMS_COUNT, **kwargs) -> list[Problem]:
     """
     Создать запись(-и) в таблицу объекта `Problem`.
 

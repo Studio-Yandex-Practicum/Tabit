@@ -4,15 +4,15 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
+from config.constants.fake_data_factories import Length
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.constants import FAKER_VOTING_FEEDS_COUNT, ColorCPrint
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
-from src.constants import LENGTH_SMALL_NAME
-from src.database.sc_db_session import sc_session
-from src.problems.models.message_models import VotingFeed
+from src.core.database.sc_db_session import sc_session
+from src.models import VotingFeed
 
 
 class VotingFeedFactory(AsyncSQLAlchemyFactory):
@@ -23,11 +23,11 @@ class VotingFeedFactory(AsyncSQLAlchemyFactory):
         - `message_id`: Обязательное поле. \
             Должен быть создан объект `MessageFeed`, чтобы передать полю id.
         - `name`: Обязательное поле. Генерируется `Faker`. \
-            Длина поля ограничена константой LENGTH_SMALL_NAME.
+            Длина поля ограничена константой Length.MAX_SMALL_NAME.
     """
 
     message_id: int
-    name: factory.Faker = factory.Faker('text', locale='ru_RU', max_nb_chars=LENGTH_SMALL_NAME)
+    name: factory.Faker = factory.Faker('text', locale='ru_RU', max_nb_chars=Length.MAX_SMALL_NAME)
 
     class Meta:
         model = VotingFeed

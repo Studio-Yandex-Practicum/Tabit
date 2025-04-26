@@ -5,14 +5,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from src.tabit_management.constants import ERROR_INVALID_TELEGRAM_USERNAME
-from tests.constants import (
-    COMPANY_FIELDS,
-    DEPARTMENT_FIELDS,
-    EMPLOYEE_FIELDS,
-    URL,
-    USER_TELEGRAM,
-)
+from config.constants.tests import ExpectedFields, TextError, Url, UserPayloads
 
 
 def generate_department_data(all_fields=False):
@@ -55,7 +48,7 @@ def generate_employee_data(all_fields=False):
                 'end_date_employment': '2025-03-06',
                 'avatar_link': 'https://example.com/',
                 'current_department_id': 1,
-                'last_department_id': 1,
+                'previous_department_id': 1,
                 'employee_position': f'Должность{random_suffix}',
             }
         )
@@ -81,15 +74,15 @@ class TestGetСompanies:
         moderator, company = await moderator_of_company(return_company=True)
         token = await get_token_for_user(moderator)
         response = await client.get(
-            URL.COMPANY_ENDPOINT.format(company_slug=company.slug), headers=token
+            Url.COMPANY_ENDPOINT.format(company_slug=company.slug), headers=token
         )
         assert (
             response.status_code == status.HTTP_200_OK
         ), f'Ожидался статус 200 OK, получен {response.status_code}. Ответ: {response.text}'
         data = response.json()
         assert (
-            set(data.keys()) == COMPANY_FIELDS
-        ), f'Ожидались поля {COMPANY_FIELDS}, получены поля {set(data.keys())}'
+            set(data.keys()) == ExpectedFields.COMPANY_FIELDS
+        ), f'Ожидались поля {ExpectedFields.COMPANY_FIELDS}, получены поля {set(data.keys())}'
 
         field_checks = {
             'name': company.name,
@@ -126,7 +119,7 @@ class TestGetEmployees:
         employees.extend([await employee_of_company({'company_id': company.id}) for _ in range(3)])
 
         response = await client.get(
-            URL.EMPLOYEES_ENDPOINT.format(company_slug=company.slug), headers=token
+            Url.EMPLOYEES_ENDPOINT.format(company_slug=company.slug), headers=token
         )
         assert (
             response.status_code == status.HTTP_200_OK
@@ -140,9 +133,10 @@ class TestGetEmployees:
         ), f'Ожидалось {len(employees)} сотрудников, получено {len(data)}'
 
         for employee_data in data:
-            assert (
-                set(employee_data.keys()) == EMPLOYEE_FIELDS
-            ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(employee_data.keys())}'
+            assert set(employee_data.keys()) == ExpectedFields.EMPLOYEE_FIELDS, (
+                f'Ожидались поля {ExpectedFields.EMPLOYEE_FIELDS}, '
+                f'получены поля {set(employee_data.keys())}'
+            )
 
             field_checks = {
                 'company_id': company.id,
@@ -179,7 +173,7 @@ class TestGetEmployee:
         employee = await employee_of_company({'company_id': company.id})
 
         response = await client.get(
-            URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
+            Url.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
             headers=token,
         )
         assert (
@@ -188,8 +182,8 @@ class TestGetEmployee:
 
         data = response.json()
         assert (
-            set(data.keys()) == EMPLOYEE_FIELDS
-        ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
+            set(data.keys()) == ExpectedFields.EMPLOYEE_FIELDS
+        ), f'Ожидались поля {ExpectedFields.EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
         assert data['id'] == str(
             employee.id
         ), f'Ожидался id сотрудника {employee.id}, получен {data["id"]}'
@@ -255,7 +249,7 @@ class TestPatchEmployee:
             response.json()
             if (
                 response := await client.get(
-                    URL.EMPLOYEE_ENDPOINT.format(
+                    Url.EMPLOYEE_ENDPOINT.format(
                         company_slug=company.slug, employee_id=employee.id
                     ),
                     headers=token,
@@ -266,7 +260,7 @@ class TestPatchEmployee:
         )
 
         response = await client.patch(
-            URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
+            Url.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
             headers=token,
             json={field: new_value},
         )
@@ -276,8 +270,8 @@ class TestPatchEmployee:
 
         data = response.json()
         assert (
-            set(data.keys()) == EMPLOYEE_FIELDS
-        ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
+            set(data.keys()) == ExpectedFields.EMPLOYEE_FIELDS
+        ), f'Ожидались поля {ExpectedFields.EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
 
         assert (
             data[field] == new_value
@@ -315,11 +309,11 @@ class TestPatchEmployee:
         update_data = generate_employee_data(all_fields=True)
         update_data['company_id'] = company.id
         update_data['current_department_id'] = department.id
-        update_data['last_department_id'] = department.id
+        update_data['previous_department_id'] = department.id
         update_data['role'] = 'Сотрудник'
 
         response = await client.patch(
-            URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
+            Url.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
             headers=token,
             json=update_data,
         )
@@ -329,8 +323,8 @@ class TestPatchEmployee:
 
         data = response.json()
         assert (
-            set(data.keys()) == EMPLOYEE_FIELDS
-        ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
+            set(data.keys()) == ExpectedFields.EMPLOYEE_FIELDS
+        ), f'Ожидались поля {ExpectedFields.EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
 
         for field, expected_value in update_data.items():
             if field != 'password':
@@ -366,18 +360,18 @@ class TestPatchEmployee:
         existing_employee_data = generate_employee_data(all_fields=True)
         existing_employee_data['company_id'] = company.id
         existing_employee_data['current_department_id'] = department.id
-        existing_employee_data['last_department_id'] = department.id
-        existing_employee_data['telegram_username'] = USER_TELEGRAM
+        existing_employee_data['previous_department_id'] = department.id
+        existing_employee_data['telegram_username'] = UserPayloads.USER_TELEGRAM
         response = await client.post(
-            URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
+            Url.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
             headers=token,
             json=existing_employee_data,
         )
         employee = await employee_of_company({'company_id': company.id})
         response = await client.patch(
-            URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
+            Url.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
             headers=token,
-            json={'telegram_username': USER_TELEGRAM},
+            json={'telegram_username': UserPayloads.USER_TELEGRAM},
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'При попытке создать запись с дублированием Telegram-имени'
@@ -385,8 +379,8 @@ class TestPatchEmployee:
         )
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
-            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+        assert data['detail'] == TextError.INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{TextError.INVALID_TELEGRAM_USERNAME}'"
             f", получено: '{data['detail']}'"
         )
 
@@ -406,7 +400,7 @@ class TestPatchEmployee:
 
         non_existent_id = '5e4350bd-ffb8-4af9-92bd-f3199c6fafe3'
         response = await client.patch(
-            URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=non_existent_id),
+            Url.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=non_existent_id),
             headers=token,
             json={'name': 'Иванушка'},
         )
@@ -418,7 +412,7 @@ class TestPatchEmployee:
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
         assert (
-            data['detail'] == f'Не найден объект UserTabit по данному id: {non_existent_id}'
+            data['detail'] == f'Не найден объект CompanyUser по данному id: {non_existent_id}'
         ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
@@ -442,7 +436,7 @@ class TestDeleteEmployee:
         employee = await employee_of_company({'company_id': company.id})
 
         response = await client.delete(
-            URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
+            Url.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
             headers=token,
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, (
@@ -451,7 +445,7 @@ class TestDeleteEmployee:
         )
 
         response = await client.get(
-            URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
+            Url.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=employee.id),
             headers=token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -475,7 +469,7 @@ class TestDeleteEmployee:
 
         non_existent_id = '5e4350bd-ffb8-4af9-92bd-f3199c6fafe3'
         response = await client.delete(
-            URL.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=non_existent_id),
+            Url.EMPLOYEE_ENDPOINT.format(company_slug=company.slug, employee_id=non_existent_id),
             headers=token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -486,7 +480,7 @@ class TestDeleteEmployee:
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
         assert (
-            data['detail'] == f'Не найден объект UserTabit по данному id: {non_existent_id}'
+            data['detail'] == f'Не найден объект CompanyUser по данному id: {non_existent_id}'
         ), f"Ожидалось сообщение 'Объект не найден', получено: '{data['detail']}'"
 
 
@@ -513,7 +507,7 @@ class TestGetDepartments:
         departments = [await department_for_test({'company_id': company.id}) for _ in range(3)]
 
         response = await client.get(
-            URL.DEPARTMENTS_ENDPOINT.format(company_slug=company.slug), headers=token
+            Url.DEPARTMENTS_ENDPOINT.format(company_slug=company.slug), headers=token
         )
         assert (
             response.status_code == status.HTTP_200_OK
@@ -526,9 +520,10 @@ class TestGetDepartments:
             departments
         ), f'Ожидалось {len(departments)} департаментов, получено {len(data)}'
         for dept in data:
-            assert (
-                set(dept.keys()) == DEPARTMENT_FIELDS
-            ), f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(dept.keys())}'
+            assert set(dept.keys()) == ExpectedFields.DEPARTMENT_FIELDS, (
+                f'Ожидались поля {ExpectedFields.DEPARTMENT_FIELDS}, '
+                f'получены поля {set(dept.keys())}'
+            )
             assert (
                 dept['company_id'] == company.id
             ), f'Ожидался company_id {company.id}, получен {dept["company_id"]}'
@@ -555,7 +550,7 @@ class TestGetDepartment:
         department = await department_for_test({'company_id': company.id})
 
         response = await client.get(
-            URL.DEPARTMENT_ENDPOINT.format(
+            Url.DEPARTMENT_ENDPOINT.format(
                 company_slug=company.slug, department_slug=department.slug
             ),
             headers=token,
@@ -566,8 +561,8 @@ class TestGetDepartment:
 
         data = response.json()
         assert (
-            set(data.keys()) == DEPARTMENT_FIELDS
-        ), f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
+            set(data.keys()) == ExpectedFields.DEPARTMENT_FIELDS
+        ), f'Ожидались поля {ExpectedFields.DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
 
         field_checks = {
             'name': department.name,
@@ -605,7 +600,7 @@ class TestPatchDepartment:
         new_name = 'Иванушка'
 
         response = await client.patch(
-            URL.DEPARTMENT_ENDPOINT.format(
+            Url.DEPARTMENT_ENDPOINT.format(
                 company_slug=company.slug, department_slug=department.slug
             ),
             headers=token,
@@ -617,8 +612,8 @@ class TestPatchDepartment:
 
         data = response.json()
         assert (
-            set(data.keys()) == DEPARTMENT_FIELDS
-        ), f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
+            set(data.keys()) == ExpectedFields.DEPARTMENT_FIELDS
+        ), f'Ожидались поля {ExpectedFields.DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
 
         assert (
             data['name'] == new_name
@@ -647,7 +642,7 @@ class TestPatchDepartment:
 
         non_existent_slug = '99999'
         response = await client.patch(
-            URL.DEPARTMENT_ENDPOINT.format(
+            Url.DEPARTMENT_ENDPOINT.format(
                 company_slug=company.slug, department_slug=non_existent_slug
             ),
             headers=token,
@@ -685,7 +680,7 @@ class TestDeleteDepartment:
         department = await department_for_test({'company_id': company.id})
 
         response = await client.delete(
-            URL.DEPARTMENT_ENDPOINT.format(
+            Url.DEPARTMENT_ENDPOINT.format(
                 company_slug=company.slug, department_slug=department.slug
             ),
             headers=token,
@@ -696,7 +691,7 @@ class TestDeleteDepartment:
         )
 
         response = await client.get(
-            URL.DEPARTMENT_ENDPOINT.format(
+            Url.DEPARTMENT_ENDPOINT.format(
                 company_slug=company.slug, department_slug=department.slug
             ),
             headers=token,
@@ -722,7 +717,7 @@ class TestDeleteDepartment:
 
         non_existent_slug = '99999'
         response = await client.delete(
-            URL.DEPARTMENT_ENDPOINT.format(
+            Url.DEPARTMENT_ENDPOINT.format(
                 company_slug=company.slug, department_slug=non_existent_slug
             ),
             headers=token,
@@ -761,7 +756,7 @@ class TestCreateDepartment:
         department_data = generate_department_data()
 
         response = await client.post(
-            URL.CREATE_DEPARTMENT_ENDPOINT.format(company_slug=company.slug),
+            Url.CREATE_DEPARTMENT_ENDPOINT.format(company_slug=company.slug),
             headers=token,
             json=department_data,
         )
@@ -771,8 +766,8 @@ class TestCreateDepartment:
 
         data = response.json()
         assert (
-            set(data.keys()) == DEPARTMENT_FIELDS
-        ), f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
+            set(data.keys()) == ExpectedFields.DEPARTMENT_FIELDS
+        ), f'Ожидались поля {ExpectedFields.DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
 
         field_checks = {
             'name': department_data['name'],
@@ -806,7 +801,7 @@ class TestCreateDepartment:
         department_data = generate_department_data(all_fields=True)
 
         response = await client.post(
-            URL.CREATE_DEPARTMENT_ENDPOINT.format(company_slug=company.slug),
+            Url.CREATE_DEPARTMENT_ENDPOINT.format(company_slug=company.slug),
             headers=token,
             json=department_data,
         )
@@ -816,8 +811,8 @@ class TestCreateDepartment:
 
         data = response.json()
         assert (
-            set(data.keys()) == DEPARTMENT_FIELDS
-        ), f'Ожидались поля {DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
+            set(data.keys()) == ExpectedFields.DEPARTMENT_FIELDS
+        ), f'Ожидались поля {ExpectedFields.DEPARTMENT_FIELDS}, получены поля {set(data.keys())}'
 
         field_checks = {'name': department_data['name'], 'company_id': company.id}
 
@@ -854,7 +849,7 @@ class TestCreateEmployee:
         employee_data['company_id'] = company.id
 
         response = await client.post(
-            URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
+            Url.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
             headers=token,
             json=employee_data,
         )
@@ -864,8 +859,8 @@ class TestCreateEmployee:
 
         data = response.json()
         assert (
-            set(data.keys()) == EMPLOYEE_FIELDS
-        ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
+            set(data.keys()) == ExpectedFields.EMPLOYEE_FIELDS
+        ), f'Ожидались поля {ExpectedFields.EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
 
         required_fields = {
             'email': employee_data['email'],
@@ -900,10 +895,10 @@ class TestCreateEmployee:
         employee_data = generate_employee_data(all_fields=True)
         employee_data['company_id'] = company.id
         employee_data['current_department_id'] = department.id
-        employee_data['last_department_id'] = department.id
+        employee_data['previous_department_id'] = department.id
 
         response = await client.post(
-            URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
+            Url.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
             headers=token,
             json=employee_data,
         )
@@ -913,8 +908,8 @@ class TestCreateEmployee:
 
         data = response.json()
         assert (
-            set(data.keys()) == EMPLOYEE_FIELDS
-        ), f'Ожидались поля {EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
+            set(data.keys()) == ExpectedFields.EMPLOYEE_FIELDS
+        ), f'Ожидались поля {ExpectedFields.EMPLOYEE_FIELDS}, получены поля {set(data.keys())}'
 
         field_checks = {
             'email': employee_data['email'],
@@ -933,7 +928,7 @@ class TestCreateEmployee:
             'end_date_employment': employee_data['end_date_employment'],
             'avatar_link': employee_data['avatar_link'],
             'current_department_id': employee_data['current_department_id'],
-            'last_department_id': employee_data['last_department_id'],
+            'previous_department_id': employee_data['previous_department_id'],
             'employee_position': employee_data['employee_position'],
         }
 
@@ -963,10 +958,10 @@ class TestCreateEmployee:
             employee_data = generate_employee_data(all_fields=True)
             employee_data['company_id'] = company.id
             employee_data['current_department_id'] = department.id
-            employee_data['last_department_id'] = department.id
-            employee_data['telegram_username'] = USER_TELEGRAM
+            employee_data['previous_department_id'] = department.id
+            employee_data['telegram_username'] = UserPayloads.USER_TELEGRAM
             response = await client.post(
-                URL.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
+                Url.CREATE_EMPLOYEE_ENDPOINT.format(company_slug=company.slug),
                 headers=token,
                 json=employee_data,
             )
@@ -976,8 +971,8 @@ class TestCreateEmployee:
         )
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
-            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+        assert data['detail'] == TextError.INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{TextError.INVALID_TELEGRAM_USERNAME}'"
             f", получено: '{data['detail']}'"
         )
 
@@ -1012,7 +1007,7 @@ class TestFeedback:
         feedback_data = self.generate_feedback_data()
 
         response = await client.post(
-            URL.FEEDBACK_ENDPOINT.format(company_slug=company.slug),
+            Url.FEEDBACK_ENDPOINT.format(company_slug=company.slug),
             headers=token,
             json=feedback_data,
         )

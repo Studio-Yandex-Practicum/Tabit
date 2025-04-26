@@ -6,13 +6,13 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
+from config.constants.fake_data_factories import ColorCPrint, Faker
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import FAKER_MESSAGE_FEEDS_COUNT, ColorCPrint
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
-from src.database.sc_db_session import sc_session
-from src.problems.models.message_models import MessageFeed
+from src.core.database.sc_db_session import sc_session
+from src.models import MessageFeed
 
 
 class MessageFeedFactory(AsyncSQLAlchemyFactory):
@@ -23,7 +23,7 @@ class MessageFeedFactory(AsyncSQLAlchemyFactory):
         - `problem_id`: Обязательное поле. \
             Должен быть создан объект `Problem`, чтобы передать полю id.
         - `owner_id`: Обязательное поле. \
-            Должен быть создан объект `UserTabit`, чтобы передать полю id (типа uuid).
+            Должен быть создан объект `CompanyUser`, чтобы передать полю id (типа uuid).
         - `text`: Обязательное поле. Генерируется `Faker`.
         - `important`: Обязательное поле. Генерируется случайным выбором из [True, False].
     """
@@ -40,7 +40,7 @@ class MessageFeedFactory(AsyncSQLAlchemyFactory):
 
 @start_and_end(__name__)
 async def create_message_feeds(
-    count: int = FAKER_MESSAGE_FEEDS_COUNT, **kwargs
+    count: int = Faker.MESSAGE_FEEDS_COUNT, **kwargs
 ) -> list[MessageFeed]:
     """
     Создать запись(-и) в таблицу объекта `MessageFeed`.

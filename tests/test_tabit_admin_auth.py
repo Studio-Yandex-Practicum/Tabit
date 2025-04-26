@@ -2,15 +2,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from tests.constants import (
-    BAD_EMAIL,
-    BAD_PASSWORD,
-    GOOD_PASSWORD,
-    PAYLOAD_BAD_FOR_CREATE_ADMIN,
-    PAYLOAD_FOR_CREATE_ADMIN,
-    PAYLOAD_FOR_PATCH_ADMIN,
-    URL,
-)
+from config.constants.tests import AdminPayloads, AuthData, Url
 from tests.utils import is_valid_uuid
 
 
@@ -31,9 +23,9 @@ class TestLoginAdminTabit:
         for user, text in variants:
             login_payload = {
                 'username': user.email,
-                'password': GOOD_PASSWORD,
+                'password': AuthData.GOOD_PASSWORD,
             }
-            response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
+            response = await client.post(Url.ADMIN_LOGIN, data=login_payload)
             assert (
                 response.status_code == status.HTTP_200_OK
             ), f'При авторизации {text} у ответа должен быть статус 200:\n{response.text}'
@@ -57,9 +49,9 @@ class TestLoginAdminTabit:
         for user, text in variants:
             login_payload = {
                 'username': user.email,
-                'password': GOOD_PASSWORD,
+                'password': AuthData.GOOD_PASSWORD,
             }
-            response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
+            response = await client.post(Url.ADMIN_LOGIN, data=login_payload)
             assert (
                 response.status_code == status.HTTP_400_BAD_REQUEST
             ), f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
@@ -73,7 +65,7 @@ class TestLoginAdminTabit:
         """
         bad_login_payloads: tuple[dict, ...] = (
             {
-                'password': GOOD_PASSWORD,
+                'password': AuthData.GOOD_PASSWORD,
             },
             {
                 'username': admin.email,
@@ -81,7 +73,7 @@ class TestLoginAdminTabit:
             {},
         )
         for bad_login_payload in bad_login_payloads:
-            response = await client.post(URL.ADMIN_LOGIN, data=bad_login_payload)
+            response = await client.post(Url.ADMIN_LOGIN, data=bad_login_payload)
             assert (
                 response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
             ), f'Не корректный ответ с данными\n{bad_login_payload}\n{response.text}'
@@ -93,9 +85,9 @@ class TestLoginAdminTabit:
         """Тест на вход в систему администраторов сервиса под неверным паролем."""
         login_payload = {
             'username': admin.email,
-            'password': f'NOT {GOOD_PASSWORD}',
+            'password': f'NOT {AuthData.GOOD_PASSWORD}',
         }
-        response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
+        response = await client.post(Url.ADMIN_LOGIN, data=login_payload)
         assert (
             response.status_code == status.HTTP_400_BAD_REQUEST
         ), f'Не корректный ответ с данными\n{login_payload}\n{response.text}'
@@ -118,7 +110,7 @@ class TestLogoutAdminTabit:
             (admin_token, 'администратора сервиса'),
         )
         for token, text in variants:
-            response = await client.post(URL.ADMIN_LOGOUT, headers=token)
+            response = await client.post(Url.ADMIN_LOGOUT, headers=token)
             assert (
                 response.status_code == status.HTTP_204_NO_CONTENT
             ), f'При выходе из системы {text} должен быть статус ответа 204:\n{response.text}'
@@ -137,7 +129,7 @@ class TestLogoutAdminTabit:
             ({}, 'неавторизованного пользователя'),
         )
         for token, text in variants:
-            response = await client.post(URL.ADMIN_LOGOUT, headers=token)
+            response = await client.post(Url.ADMIN_LOGOUT, headers=token)
             assert (
                 response.status_code == status.HTTP_401_UNAUTHORIZED
             ), f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
@@ -153,7 +145,7 @@ class TestCreateAdminTabit:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'payload',
-        PAYLOAD_FOR_CREATE_ADMIN,
+        AdminPayloads.PAYLOAD_FOR_CREATE_ADMIN,
     )
     async def test_create_admin(
         self,
@@ -169,7 +161,7 @@ class TestCreateAdminTabit:
         Все примеры содержат обязательные поля, но не все необязательные.
         """
         response = await client.post(
-            URL.ADMIN_AUTH,
+            Url.ADMIN_AUTH,
             json=payload,
             headers=superuser_token,
         )
@@ -202,7 +194,7 @@ class TestCreateAdminTabit:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'bad_payload',
-        PAYLOAD_BAD_FOR_CREATE_ADMIN,
+        AdminPayloads.PAYLOAD_BAD_FOR_CREATE_ADMIN,
     )
     async def test_create_admin_bad_request(
         self,
@@ -214,7 +206,7 @@ class TestCreateAdminTabit:
         Тест на ошибку при создании администратора сервиса Tabit, если были переданы не все поля.
         """
         response = await client.post(
-            URL.ADMIN_AUTH,
+            Url.ADMIN_AUTH,
             json=bad_payload,
             headers=superuser_token,
         )
@@ -226,7 +218,7 @@ class TestCreateAdminTabit:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'bad_password',
-        BAD_PASSWORD,
+        AuthData.BAD_PASSWORD,
     )
     async def test_create_admin_bad_password(
         self,
@@ -243,7 +235,7 @@ class TestCreateAdminTabit:
                 'surname': 'string',
             }
             response = await client.post(
-                URL.ADMIN_AUTH,
+                Url.ADMIN_AUTH,
                 json=bad_payload,
                 headers=superuser_token,
             )
@@ -255,7 +247,7 @@ class TestCreateAdminTabit:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'bad_email',
-        BAD_EMAIL,
+        AuthData.BAD_EMAIL,
     )
     async def test_create_admin_bad_email(
         self,
@@ -267,12 +259,12 @@ class TestCreateAdminTabit:
         for email in bad_email:
             bad_payload: dict[str, str] = {
                 'email': email,
-                'password': GOOD_PASSWORD,
+                'password': AuthData.GOOD_PASSWORD,
                 'name': 'string',
                 'surname': 'string',
             }
             response = await client.post(
-                URL.ADMIN_AUTH,
+                Url.ADMIN_AUTH,
                 json=bad_payload,
                 headers=superuser_token,
             )
@@ -289,13 +281,13 @@ class TestCreateAdminTabit:
         """
         payload: dict[str, str] = {
             'email': 'user@example.com',
-            'password': GOOD_PASSWORD,
+            'password': AuthData.GOOD_PASSWORD,
             'name': 'string',
             'surname': 'string',
         }
         for _ in range(2):
             response = await client.post(
-                URL.ADMIN_AUTH,
+                Url.ADMIN_AUTH,
                 json=payload,
                 headers=superuser_token,
             )
@@ -318,7 +310,7 @@ class TestCreateAdminTabit:
         """
         payload: dict[str, str] = {
             'email': 'user10@example.com',
-            'password': GOOD_PASSWORD,
+            'password': AuthData.GOOD_PASSWORD,
             'name': 'string',
             'surname': 'string',
         }
@@ -330,7 +322,7 @@ class TestCreateAdminTabit:
         )
         for token, status_code, text in variants:
             response = await client.post(
-                URL.ADMIN_AUTH,
+                Url.ADMIN_AUTH,
                 json=payload,
                 headers=token,
             )
@@ -352,7 +344,7 @@ class TestGetAdminTabit:
     @pytest.mark.asyncio
     async def test_get_admins(self, client: AsyncClient, superuser_token):
         """Тесты на получение списка администраторов сервиса Tabit."""
-        response = await client.get(URL.ADMIN_AUTH, headers=superuser_token)
+        response = await client.get(Url.ADMIN_AUTH, headers=superuser_token)
         assert response.status_code == status.HTTP_200_OK, response.text
 
         data = response.json()
@@ -398,7 +390,7 @@ class TestGetAdminTabit:
             (employee_token, status.HTTP_401_UNAUTHORIZED, 'пользователем от компании'),
         )
         for token, status_code, text in variants:
-            response = await client.get(URL.ADMIN_AUTH, headers=token)
+            response = await client.get(Url.ADMIN_AUTH, headers=token)
             assert response.status_code == status_code, (
                 f'При попытке получить список администраторов сервиса {text} '
                 f'не было ответа cо статусом {status_code}:\n{response.text}'
@@ -422,7 +414,7 @@ class TestGetMeAdminTabit:
             (admin_token, 'администратором сервиса'),
         )
         for token, text in variants:
-            response = await client.get(URL.ADMIN_ME, headers=token)
+            response = await client.get(Url.ADMIN_ME, headers=token)
             assert response.status_code == status.HTTP_200_OK, (
                 f'При получение личных данных {text} '
                 f'должен быть ответ со статусом 200:\n{response.text}'
@@ -466,7 +458,7 @@ class TestGetMeAdminTabit:
             (employee_token, status.HTTP_401_UNAUTHORIZED, 'пользователем от компании'),
         )
         for token, status_code, text in variants:
-            response = await client.get(URL.ADMIN_AUTH, headers=token)
+            response = await client.get(Url.ADMIN_AUTH, headers=token)
             assert response.status_code == status_code, (
                 f'При попытке получить личные данные {text} '
                 f'не было ответа cо статусом {status_code}:\n{response.text}'
@@ -485,7 +477,7 @@ class TestPatchMeAdminTabit:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'payload',
-        PAYLOAD_FOR_PATCH_ADMIN,
+        AdminPayloads.PAYLOAD_FOR_PATCH_ADMIN,
     )
     async def test_patch_me_admin(
         self,
@@ -501,12 +493,12 @@ class TestPatchMeAdminTabit:
         )
         for token, text in variants:
             response_get = await client.get(
-                URL.ADMIN_ME,
+                Url.ADMIN_ME,
                 headers=token,
             )
             data_before = response_get.json()
             response_patch = await client.patch(
-                URL.ADMIN_ME,
+                Url.ADMIN_ME,
                 json=payload,
                 headers=token,
             )
@@ -549,7 +541,7 @@ class TestPatchMeAdminTabit:
         )
         for token, status_code, text in variants:
             response = await client.patch(
-                URL.ADMIN_ME,
+                Url.ADMIN_ME,
                 json=payload,
                 headers=token,
             )
@@ -575,7 +567,7 @@ class TestGetIdAdminTabit:
             (admin, 'администратора сервиса'),
         )
         for user, text in variants:
-            url = URL.ADMIN_AUTH + str(user.id)
+            url = Url.ADMIN_AUTH + str(user.id)
             response = await client.get(url, headers=superuser_token)
             assert response.status_code == status.HTTP_200_OK, (
                 f'При получение личных данных {text} по его id'
@@ -622,7 +614,7 @@ class TestGetIdAdminTabit:
             (moderator_token, status.HTTP_401_UNAUTHORIZED, 'модератором от компании'),
             (employee_token, status.HTTP_401_UNAUTHORIZED, 'пользователем от компании'),
         )
-        url = URL.ADMIN_AUTH + str(admin.id)
+        url = Url.ADMIN_AUTH + str(admin.id)
         for token, status_code, text in variants:
             response = await client.get(url, headers=token)
             assert response.status_code == status_code, (
@@ -643,7 +635,7 @@ class TestPatchIdAdminTabit:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'payload',
-        PAYLOAD_FOR_PATCH_ADMIN,
+        AdminPayloads.PAYLOAD_FOR_PATCH_ADMIN,
     )
     async def test_patch_id_admin(
         self,
@@ -659,7 +651,7 @@ class TestPatchIdAdminTabit:
             (admin, 'администратора сервиса'),
         )
         for user, text in variants:
-            url = URL.ADMIN_AUTH + str(user.id)
+            url = Url.ADMIN_AUTH + str(user.id)
             response_get = await client.get(
                 url,
                 headers=superuser_token,
@@ -704,7 +696,7 @@ class TestPatchIdAdminTabit:
         если создавать попытается не суперпользователь.
         """
         payload: dict[str, str] = {'name': 'Киширика', 'surname': 'Киширису'}
-        url = URL.ADMIN_AUTH + str(admin.id)
+        url = Url.ADMIN_AUTH + str(admin.id)
         variants: tuple = (
             ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
             (admin_token, status.HTTP_403_FORBIDDEN, 'администратором сервиса'),
@@ -740,7 +732,7 @@ class TestDeleteIdAdminTabit:
         admin,
     ):
         """Тест удаления администратора сервиса Tabit по его id."""
-        url = URL.ADMIN_AUTH + str(admin.id)
+        url = Url.ADMIN_AUTH + str(admin.id)
         response_delete = await client.delete(
             url,
             headers=superuser_token,
@@ -766,7 +758,7 @@ class TestDeleteIdAdminTabit:
         superuser,
     ):
         """Тест на ошибку удаления суперпользователя Tabit по его id."""
-        url = URL.ADMIN_AUTH + str(superuser.id)
+        url = Url.ADMIN_AUTH + str(superuser.id)
         response_delete = await client.delete(
             url,
             headers=superuser_token,
@@ -799,7 +791,7 @@ class TestDeleteIdAdminTabit:
         Тест на ошибку при удалении администраторов сервиса Tabit по его id,
         если создавать попытается не суперпользователь.
         """
-        url = URL.ADMIN_AUTH + str(admin.id)
+        url = Url.ADMIN_AUTH + str(admin.id)
         variants: tuple = (
             ({}, status.HTTP_401_UNAUTHORIZED, 'неавторизованным пользователем'),
             (admin_token, status.HTTP_403_FORBIDDEN, 'администратором сервиса'),
@@ -845,7 +837,7 @@ class TestRefreshTokenAdminTabit:
             (admin_refresh_token, 'администратором сервиса'),
         )
         for token, text in variants:
-            response = await client.post(URL.ADMIN_REFRESH, headers=token)
+            response = await client.post(Url.ADMIN_REFRESH, headers=token)
             assert (
                 response.status_code == status.HTTP_200_OK
             ), f'При получение токена {text} у ответа должен быть статус 200:\n{response.text}'
@@ -871,7 +863,7 @@ class TestRefreshTokenAdminTabit:
             (employee_refresh_token, 'пользователем от компании'),
         )
         for token, text in variants:
-            response = await client.post(URL.ADMIN_REFRESH, headers=token)
+            response = await client.post(Url.ADMIN_REFRESH, headers=token)
             assert response.status_code == status.HTTP_401_UNAUTHORIZED, (
                 f'При попытке получения токена {text} у ответа должен быть статус 401:\n'
                 f'{response.text}'

@@ -2,7 +2,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from tests.constants import URL
+from config.constants.tests import Url
 
 
 def get_test_problem_data():
@@ -35,7 +35,7 @@ class TestCreateProblem:
         test_member = await employee_of_company({'company_id': test_company.id})
         test_data = get_test_problem_data()
         test_data['members'] = [f'{test_member.id}']
-        url = URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
+        url = Url.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
         response = await client.post(
             url, json=test_data, headers=await get_token_for_user(test_owner)
         )
@@ -66,7 +66,7 @@ class TestCreateProblem:
         """
         test_owner, test_company = await employee_of_company(return_company=True)
         test_data = get_test_problem_data()
-        url = URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
+        url = Url.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
         response = await client.post(
             url, json=test_data, headers=await get_token_for_user(test_owner)
         )
@@ -93,7 +93,7 @@ class TestCreateProblem:
 
         """
         test_owner, test_company = await employee_of_company(return_company=True)
-        url = URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
+        url = Url.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
         test_data = get_test_problem_data()
         for field_name in test_data:
             response = await client.post(
@@ -115,7 +115,7 @@ class TestCreateProblem:
         """
         test_owner = await employee_of_company()
         test_data = get_test_problem_data()
-        url = URL.PROBLEMS_ENDPOINT.format(company_slug='company_that_doesnt_exist')
+        url = Url.PROBLEMS_ENDPOINT.format(company_slug='company_that_doesnt_exist')
         response = await client.post(
             url, json=test_data, headers=await get_token_for_user(test_owner)
         )
@@ -135,7 +135,7 @@ class TestCreateProblem:
         """
         test_company = await company_for_test()
         test_data = get_test_problem_data()
-        url = URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
+        url = Url.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
         response = await client.post(url, json=test_data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -151,7 +151,7 @@ class TestCreateProblem:
         test_company = await company_for_test()
         test_user = await employee_of_company()
         test_data = get_test_problem_data()
-        url = URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
+        url = Url.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
         response = await client.post(
             url, json=test_data, headers=await get_token_for_user(test_user)
         )
@@ -171,7 +171,7 @@ class TestCreateProblem:
         user_not_from_company = await employee_of_company()
         test_data = get_test_problem_data()
         test_data['members'] = [f'{user_not_from_company.id}']
-        url = URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
+        url = Url.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug)
         response = await client.post(
             url, json=test_data, headers=await get_token_for_user(test_owner)
         )
@@ -201,7 +201,7 @@ class TestGetProblem:
         ]
         await problem_for_test()
         response = await client.get(
-            URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug),
+            Url.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug),
             headers=await get_token_for_user(test_owner),
         )
         assert response.status_code == status.HTTP_200_OK
@@ -237,7 +237,7 @@ class TestGetProblem:
         """
         test_user = await employee_of_company()
         response = await client.get(
-            URL.PROBLEMS_ENDPOINT.format(company_slug='company_that_doesnt_exist'),
+            Url.PROBLEMS_ENDPOINT.format(company_slug='company_that_doesnt_exist'),
             headers=await get_token_for_user(test_user),
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -253,7 +253,7 @@ class TestGetProblem:
 
         """
         _, _, test_company = await problem_for_test(return_all_objects=True)
-        response = await client.get(URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug))
+        response = await client.get(Url.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug))
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     @pytest.mark.asyncio
@@ -269,7 +269,7 @@ class TestGetProblem:
         _, _, test_company = await problem_for_test(return_all_objects=True)
         test_user = await employee_of_company()
         response = await client.get(
-            URL.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug),
+            Url.PROBLEMS_ENDPOINT.format(company_slug=test_company.slug),
             headers=await get_token_for_user(test_user),
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -300,7 +300,7 @@ class TestGetProblem:
             'updated_at',
         }
         response = await client.get(
-            URL.PROBLEM_ENDPOINT.format(
+            Url.PROBLEM_ENDPOINT.format(
                 company_slug=test_company.slug, problem_id=test_problem.id
             ),
             headers=await get_token_for_user(test_employee),
@@ -322,7 +322,7 @@ class TestGetProblem:
         """
         _, test_user, test_company = await problem_for_test(return_all_objects=True)
         response = await client.get(
-            URL.PROBLEM_ENDPOINT.format(company_slug=test_company.slug, problem_id=0),
+            Url.PROBLEM_ENDPOINT.format(company_slug=test_company.slug, problem_id=0),
             headers=await get_token_for_user(test_user),
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -339,7 +339,7 @@ class TestGetProblem:
         """
         test_problem, test_user, _ = await problem_for_test(return_all_objects=True)
         response = await client.get(
-            URL.PROBLEM_ENDPOINT.format(
+            Url.PROBLEM_ENDPOINT.format(
                 company_slug='company_doesnt_exist', problem_id=test_problem.id
             ),
             headers=await get_token_for_user(test_user),
@@ -356,7 +356,7 @@ class TestGetProblem:
         """
         test_problem, _, test_company = await problem_for_test(return_all_objects=True)
         response = await client.get(
-            URL.PROBLEM_ENDPOINT.format(company_slug=test_company.slug, problem_id=test_problem.id)
+            Url.PROBLEM_ENDPOINT.format(company_slug=test_company.slug, problem_id=test_problem.id)
         )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -373,7 +373,7 @@ class TestGetProblem:
         test_problem, _, test_company = await problem_for_test(return_all_objects=True)
         test_user = await employee_of_company()
         response = await client.get(
-            URL.PROBLEMS_ENDPOINT.format(
+            Url.PROBLEMS_ENDPOINT.format(
                 company_slug=test_company.slug, problem_id=test_problem.id
             ),
             headers=await get_token_for_user(test_user),
@@ -407,7 +407,7 @@ class TestPatchProblem:
             'members': [str(member_for_updating.id)],
         }
         response = await client.patch(
-            URL.PROBLEM_ENDPOINT.format(
+            Url.PROBLEM_ENDPOINT.format(
                 company_slug=test_company.slug, problem_id=test_problem.id
             ),
             json=data_for_updating,
@@ -443,7 +443,7 @@ class TestPatchProblem:
             'type': 'Взаимодействие в коллективе',
             'members': [str(member_for_updating.id)],
         }
-        url = URL.PROBLEM_ENDPOINT.format(
+        url = Url.PROBLEM_ENDPOINT.format(
             company_slug=test_company.slug,
             problem_id=test_problem.id,
         )
@@ -471,7 +471,7 @@ class TestPatchProblem:
         test_problem, test_owner, _ = await problem_for_test(return_all_objects=True)
         data_for_updating = {'name': 'обновленная проблема'}
         response = await client.patch(
-            URL.PROBLEM_ENDPOINT.format(
+            Url.PROBLEM_ENDPOINT.format(
                 company_slug='company_that_doesnt_exist', problem_id=test_problem.id
             ),
             json=data_for_updating,
@@ -492,7 +492,7 @@ class TestPatchProblem:
         _, test_owner, test_company = await problem_for_test(return_all_objects=True)
         data_for_updating = {'name': 'обновленная проблема'}
         response = await client.patch(
-            URL.PROBLEM_ENDPOINT.format(company_slug=test_company.slug, problem_id=0),
+            Url.PROBLEM_ENDPOINT.format(company_slug=test_company.slug, problem_id=0),
             json=data_for_updating,
             headers=await get_token_for_user(test_owner),
         )
@@ -510,7 +510,7 @@ class TestPatchProblem:
         test_problem, _, test_company = await problem_for_test(return_all_objects=True)
         test_user = await employee_of_company()
         data_for_updating = {'name': 'обновлённая проблема'}
-        url = URL.PROBLEM_ENDPOINT.format(
+        url = Url.PROBLEM_ENDPOINT.format(
             company_slug=test_company.slug, problem_id=test_problem.id
         )
         response = await client.patch(
@@ -530,7 +530,7 @@ class TestPatchProblem:
         test_problem, _, test_company = await problem_for_test(return_all_objects=True)
         test_user = await employee_of_company({'company_id': test_company.id})
         data_for_updating = {'name': 'обновлённая проблема'}
-        url = URL.PROBLEM_ENDPOINT.format(
+        url = Url.PROBLEM_ENDPOINT.format(
             company_slug=test_company.slug, problem_id=test_problem.id
         )
         response = await client.patch(
@@ -552,7 +552,7 @@ class TestPatchProblem:
             {'status': 'Завершена', 'owner_id': test_owner.id, 'company_id': test_company.id}
         )
         data_for_updating = {'name': 'обновлённая проблема'}
-        url = url = URL.PROBLEM_ENDPOINT.format(
+        url = url = Url.PROBLEM_ENDPOINT.format(
             company_slug=test_company.slug, problem_id=test_problem.id
         )
         response = await client.patch(
@@ -574,7 +574,7 @@ class TestDeleteProblem:
         """
         test_problem, test_owner, test_company = await problem_for_test(return_all_objects=True)
         response = await client.delete(
-            URL.PROBLEM_ENDPOINT.format(
+            Url.PROBLEM_ENDPOINT.format(
                 company_slug=test_company.slug, problem_id=test_problem.id
             ),
             headers=await get_token_for_user(test_owner),
@@ -593,7 +593,7 @@ class TestDeleteProblem:
         """
         test_problem, test_owner, _ = await problem_for_test(return_all_objects=True)
         response = await client.delete(
-            URL.PROBLEM_ENDPOINT.format(
+            Url.PROBLEM_ENDPOINT.format(
                 company_slug='company_that_doesnt_exist', problem_id=test_problem.id
             ),
             headers=await get_token_for_user(test_owner),
@@ -612,7 +612,7 @@ class TestDeleteProblem:
         """
         _, test_owner, test_company = await problem_for_test(return_all_objects=True)
         response = await client.delete(
-            URL.PROBLEM_ENDPOINT.format(company_slug=test_company.slug, problem_id=0),
+            Url.PROBLEM_ENDPOINT.format(company_slug=test_company.slug, problem_id=0),
             headers=await get_token_for_user(test_owner),
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -628,7 +628,7 @@ class TestDeleteProblem:
         """
         test_problem, _, test_company = await problem_for_test(return_all_objects=True)
         response = await client.delete(
-            URL.PROBLEM_ENDPOINT.format(company_slug=test_company.slug, problem_id=test_problem.id)
+            Url.PROBLEM_ENDPOINT.format(company_slug=test_company.slug, problem_id=test_problem.id)
         )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -644,7 +644,7 @@ class TestDeleteProblem:
         test_problem, _, test_company = await problem_for_test(return_all_objects=True)
         user_not_from_company = await employee_of_company()
         response = await client.delete(
-            URL.PROBLEM_ENDPOINT.format(
+            Url.PROBLEM_ENDPOINT.format(
                 company_slug=test_company.slug, problem_id=test_problem.id
             ),
             headers=await get_token_for_user(user_not_from_company),
@@ -663,7 +663,7 @@ class TestDeleteProblem:
         test_problem, _, test_company = await problem_for_test(return_all_objects=True)
         not_author_user = await employee_of_company()
         response = await client.delete(
-            URL.PROBLEM_ENDPOINT.format(
+            Url.PROBLEM_ENDPOINT.format(
                 company_slug=test_company.slug, problem_id=test_problem.id
             ),
             headers=await get_token_for_user(not_author_user),
@@ -684,7 +684,7 @@ class TestDeleteProblem:
             {'status': 'Завершена', 'owner_id': test_owner.id, 'company_id': test_company.id}
         )
         response = await client.delete(
-            URL.PROBLEM_ENDPOINT.format(
+            Url.PROBLEM_ENDPOINT.format(
                 company_slug=test_company.slug, problem_id=test_problem.id
             ),
             headers=await get_token_for_user(test_owner),

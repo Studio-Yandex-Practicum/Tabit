@@ -3,10 +3,10 @@ from uuid import UUID
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from fake_data_factories.constants import ColorCPrint
+from config.constants.fake_data_factories import ColorCPrint
 from fake_data_factories.utils import start_and_end
-from src.database.sc_db_session import sc_session
-from src.problems.models.association_models import AssociationUserProblem
+from src.core.database.sc_db_session import sc_session
+from src.models import AssociationUserProblem
 
 
 class AssociationUserProblemFactory(AsyncSQLAlchemyFactory):
@@ -15,7 +15,7 @@ class AssociationUserProblemFactory(AsyncSQLAlchemyFactory):
 
     Поля:
         - `left_id`: Обязательное поле. Ссылка на пользователя Tabit. \
-            Должен быть создан объект `UserTabit`, чтобы передать полю id (типа uuid).
+            Должен быть создан объект `CompanyUser`, чтобы передать полю id (типа uuid).
         - `right_id`: Обязательное поле. Ссылка на проблему. \
             Должен быть создан объект `Problem`, чтобы передать полю id.
         - `status`: Обязательное поле. Значение по умолчанию - True.

@@ -6,11 +6,11 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from fake_data_factories.constants import FAKER_COMPANY_COUNT, ColorCPrint
+from config.constants.fake_data_factories import ColorCPrint, Faker
 from fake_data_factories.utils import start_and_end
-from src.database.alembic_models import Company
-from src.database.sc_db_session import sc_session
-from src.logger import fake_db_logger
+from src.core.config.logging import fake_db_logger
+from src.core.database.sc_db_session import sc_session
+from src.models import Company
 
 
 class CompanyFactory(AsyncSQLAlchemyFactory):
@@ -52,7 +52,7 @@ class CompanyFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_companies(count: int = FAKER_COMPANY_COUNT, **kwargs) -> None:
+async def create_companies(count: int = Faker.COMPANY_COUNT, **kwargs) -> None:
     """
     Функция для наполнения таблицы бд Company.
     """

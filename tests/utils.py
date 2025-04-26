@@ -6,7 +6,7 @@ from sqlalchemy import and_, select
 from sqlalchemy.engine import ChunkedIteratorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.problems.models import AssociationUserComment
+from src.models import AssociationUserComment
 
 
 def is_valid_uuid(value: Any) -> bool:
@@ -23,7 +23,6 @@ async def update_object(session: AsyncSession, db_obj) -> dict:
     Обновляет атрибуты передаваемого объекта модели в рамках одной сессии и возвращает
     его словарное предстваление.
     """
-    # db_obj = await session.merge(db_obj)
     session.expire(db_obj)
     await session.refresh(db_obj)
     return jsonable_encoder(db_obj)

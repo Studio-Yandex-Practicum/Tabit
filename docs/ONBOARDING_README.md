@@ -4,16 +4,16 @@
 
 ## О проекте Tabit
 
+**Tabit** — онлайн-сервис для HR-специалистов и собственников компаний, предоставляющий возможности для управления развитием компании и коллектива.
 Подробное описание проекта можно найти в [README.md](../README.md).
 
 ## Основные ресурсы для командной работы
 
-- **Общая информация**: [Общие сведения о проекте](https://app.pachca.com/chats/17645724?message=427153532)
 - **Командный чат**: [Информация о каналах связи](https://app.pachca.com/chats/17645724)
 - **GitHub репозиторий**: [URL репозитория](https://github.com/Studio-Yandex-Practicum/Tabit)
 - **Архитектура проекта**: [Актуальная ERD диаграмма](https://app.erdlab.io/designer/schema/1736745715-tabit)
-- **Backlog проекта**: [URL доски с задачами](https://github.com/orgs/Studio-Yandex-Practicum/projects/55/)
-- **Трекер задач**: Kaiten [URL доски с задачами](https://irinastarodubtseva2897.kaiten.ru/documents/g/d6b1906e-cb6d-451b-9dcd-935442095752)
+- **Backlog проекта**: [URL доски с задачами бэкенда](https://github.com/orgs/Studio-Yandex-Practicum/projects/55/)
+- **Трекер задач**: [Информация о Tabit в Kaiten](https://irinastarodubtseva2897.kaiten.ru/documents/g/d6b1906e-cb6d-451b-9dcd-935442095752)
 
 ## Архитектура проекта
 
@@ -262,7 +262,7 @@
 
 ### Использование логирования в коде:
 ```python
-from src.logger import logger
+from src.core.config.logging import logger
 
 # Различные уровни логирования
 logger.info('Информационное сообщение')
