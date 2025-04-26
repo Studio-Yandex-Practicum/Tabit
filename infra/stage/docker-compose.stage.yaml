@@ -26,7 +26,7 @@ services:
       - db
     volumes:
       - app_media:/app/media
-    restart: always
+    restart: no
 
   pgadmin:
     container_name: ${PGADMIN_CONTAINER_NAME}
