@@ -13,6 +13,7 @@ RUN pip install --no-cache-dir poetry==${POETRY_VERSION}
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true \
     PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH" \
+    PYTHONPATH=/app \
     APP_PORT=${APP_PORT} \
     APP_VERSION=${APP_VERSION}
 
