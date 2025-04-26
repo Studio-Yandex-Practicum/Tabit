@@ -1,5 +1,3 @@
-version: '${COMPOSE_VERSION}'
-
 services:
   db_test:
     container_name: ${TEST_DB_CONTAINER_NAME}
