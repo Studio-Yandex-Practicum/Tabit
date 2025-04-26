@@ -7,11 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import CRUDBase, UserCreateMixin
-from src.crud.constants import (
-    ERROR_INVALID_PASSWORD,
-    ERROR_USER_ALREADY_EXISTS,
-    ERROR_USER_NOT_EXISTS,
-)
+from src.crud.constants import TextError
 from src.models import CompanyUser
 from src.schemas import (
     CompanyAdminCreateSchema,
@@ -57,11 +53,12 @@ class CRUDModeratorUser(UserCreateMixin, CRUDBase):
             created_admin_user = await user_manager.create(create_data)
         except UserAlreadyExists:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ERROR_USER_ALREADY_EXISTS
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=TextError.USER_ALREADY_EXISTS,
             )
         except InvalidPasswordException:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ERROR_INVALID_PASSWORD
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=TextError.INVALID_PASSWORD
             )
         return created_admin_user
 
@@ -92,15 +89,16 @@ class CRUDModeratorUser(UserCreateMixin, CRUDBase):
             admin_user = await user_manager.update(update_data, admin_user)
         except UserNotExists:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_USER_NOT_EXISTS
+                status_code=status.HTTP_404_NOT_FOUND, detail=TextError.USER_NOT_EXISTS
             )
         except UserAlreadyExists:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ERROR_USER_ALREADY_EXISTS
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=TextError.USER_ALREADY_EXISTS,
             )
         except InvalidPasswordException:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ERROR_INVALID_PASSWORD
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=TextError.INVALID_PASSWORD
             )
         return admin_user
 
@@ -119,7 +117,7 @@ class CRUDModeratorUser(UserCreateMixin, CRUDBase):
             await user_manager.delete(admin_user)
         except UserNotExists:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_USER_NOT_EXISTS
+                status_code=status.HTTP_404_NOT_FOUND, detail=TextError.USER_NOT_EXISTS
             )
 
 
