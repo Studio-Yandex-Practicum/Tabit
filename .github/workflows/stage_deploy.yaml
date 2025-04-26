@@ -96,6 +96,16 @@ jobs:
           target: "/home/${{ secrets.SERVER_USERNAME }}/tabit/"
           rm: false
 
+      - name: Copy config via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "config/"
+          target: "/home/${{ secrets.SERVER_USERNAME }}/tabit/"
+          rm: false
+
       - name: Deploy systemd service file
         uses: appleboy/ssh-action@master
         with:
