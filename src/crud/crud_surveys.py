@@ -149,7 +149,7 @@ class CRUDSurveysSchedule(CRUDBase):
                         SurveyScheduleCycle(
                             cycle_number=new_cycle.cycle_number,
                             date_start=new_cycle.date_start,
-                            survey_schedule_id=1,
+                            survey_schedule_id=db_obj.id,
                         )
                     )
 
