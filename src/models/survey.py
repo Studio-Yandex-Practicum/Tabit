@@ -36,7 +36,7 @@ class SurveySchedule(BaseTabitModel):
     )
 
     cycles: Mapped[List['SurveyScheduleCycle']] = relationship(
-        back_populates='survey_schedule', cascade='all, delete-orphan'
+        back_populates='survey_schedule', cascade='all, delete-orphan', lazy='joined'
     )
 
 

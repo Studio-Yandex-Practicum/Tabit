@@ -29,8 +29,7 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
 )
 async def get_schedule_list(
-    company_slug: str,
-    session: AsyncSession = Depends(get_async_session)
+    company_slug: str, session: AsyncSession = Depends(get_async_session)
 ) -> List[SurveyScheduleRead]:
     """
     Возвращает список всех опросов компании.
@@ -161,7 +160,7 @@ async def get_schedule(
     summary='Изменить расписание опросов',
     description='Внести изменение в расписание опросов. '
     'Права доступа: Tabit Admin, Tabit Superuser.',
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def update_survey_schedule(
     company_slug: str,
@@ -251,7 +250,6 @@ async def delete_survey_schedule(
     await surveys_schedule_crud.remove(session=session, db_object=schedule)
 
 
-
 @router.get(
     '/{user_id:uuid}',
     response_model=List[SurveyDataRead],
@@ -267,7 +265,7 @@ async def get_employee_survey_history(
 ) -> List[SurveyDataRead]:
     """
     Получает историю опросов сотрудника компании.
-    
+
     Назначение:
         Для получения истории опросов сотрудника компании.
     Параметры декоратора:
@@ -303,7 +301,7 @@ async def get_employee_survey_history(
     summary='Получить информацию об опросе сотрудника компании',
     description='Позволяет получить информацию о конкретном опросе'
     ' пользователя. Права доступа: Company User.',
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def get_employee_survey_info(
     company_slug: str,

@@ -22,10 +22,7 @@ class SurveyScheduleCycleCreate(BaseModel):
     @classmethod
     def check_datetime(cls, value: datetime) -> datetime:
         if value <= datetime.now():
-            raise ValueError(
-                'Дата начала тестирования  '
-                'не может быть меньше текущего времени'
-            )
+            raise ValueError('Дата начала тестирования  ' 'не может быть меньше текущего времени')
         return value
 
 
@@ -39,7 +36,8 @@ class SurveyScheduleCycleRead(BaseModel):
         cycle_number: номер цикла в расписании (6 циклов максимум).
         date_start: дата начала тестирования.
     """
-    cycle_number: int 
+
+    cycle_number: int
     date_start: datetime
 
     model_config = ConfigDict(from_attributes=True)

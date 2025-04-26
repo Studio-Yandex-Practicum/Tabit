@@ -75,10 +75,9 @@ class CRUDSurveysSchedule(CRUDBase):
         Возвращает расписание.
         """
         result = await session.execute(
-            select(self.model)
-            .where(
-                (self.model.company_slug == obj_slug) & (self.model.id == obj_id))
-            .options(selectinload(self.model.cycles))
+            select(self.model).where(
+                (self.model.company_slug == obj_slug) & (self.model.id == obj_id)
+            )
         )
         obj_model = result.scalars().first()
         if not obj_model and raise_404:
@@ -114,10 +113,7 @@ class CRUDSurveysSchedule(CRUDBase):
         return obj_model
 
     async def update_shedule(
-        self,
-        session: AsyncSession,
-        db_obj: SurveySchedule,
-        obj_in: SurveyScheduleUpdate
+        self, session: AsyncSession, db_obj: SurveySchedule, obj_in: SurveyScheduleUpdate
     ):
         """
         Обновляет расписание.
@@ -129,16 +125,33 @@ class CRUDSurveysSchedule(CRUDBase):
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
 
-        # TODO : нужно подумать правильно ли удалять все циклы и заного записывать
         if obj_in.cycles is not None:
-            db_obj.cycles.clear()
+            new_cycles = {cycle.cycle_number: cycle for cycle in obj_in.cycles}
 
-            for cycle_data in obj_in.cycles:
-                db_obj.cycles.append(SurveyScheduleCycle(
-                    cycle_number=cycle_data.cycle_number,
-                    date_start=cycle_data.date_start,
-                    survey_schedule_id=db_obj.id,
-                    ))
+            cycles_to_remove = []
+            for existing_cycle in db_obj.cycles:
+                if existing_cycle.cycle_number in new_cycles:
+                    setattr(
+                        existing_cycle,
+                        'date_start',
+                        new_cycles[existing_cycle.cycle_number].date_start,
+                    )
+                else:
+                    cycles_to_remove.append(existing_cycle)
+
+            for cycle in cycles_to_remove:
+                db_obj.cycles.remove(cycle)
+
+            existing_numbers = {cycle.cycle_number for cycle in db_obj.cycles}
+            for cycle_number, new_cycle in new_cycles.items():
+                if cycle_number not in existing_numbers:
+                    db_obj.cycles.append(
+                        SurveyScheduleCycle(
+                            cycle_number=new_cycle.cycle_number,
+                            date_start=new_cycle.date_start,
+                            survey_schedule_id=1,
+                        )
+                    )
 
         try:
             session.add(db_obj)
