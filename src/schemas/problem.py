@@ -73,7 +73,7 @@ class ProblemResponseSchema(ProblemBaseSchema):
         updated_at: Время обновления.
     """
 
-    id: int = Field(..., title=Title.ID)
+    id: int = Field(..., title=Title.PROBLEM_ID)
     name: str = Field(..., title=Title.PROBLEM_NAME)
     color: ProblemColor = Field(..., title=Title.PROBLEM_COLOR)
     type: ProblemType = Field(..., title=Title.PROBLEM_TYPE)

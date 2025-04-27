@@ -96,7 +96,7 @@ class Length(LengthBase):
     MIN_DESCRIPTION: int = 2
     MIN_NAME: int = 2
     MIN_TELEGRAMM_USERNAME: int = 5
-    MAX_PHONE_LENGTH: int = 12
+    MAX_PHONE_LENGTH: int = 100
     MAX_ADDRESS_LENGTH: int = 1000
     MAX_FILE_LINK_LENGTH: int = 255
     MAX_COMMENT_TEXT_LENGTH: int = 1000
@@ -264,6 +264,7 @@ class Title(TitleBase):
     SURNAME_MODERATOR: str = 'Фамилия модератора сервиса'
     SURNAME_USER: str = 'Фамилия пользователя сервиса'
     TELEGRAM_USERNAME: str = 'Имя пользователя в Telegram'
+    WHATSAPP_USERNAME: str = 'Имя пользователя в Whatsapp'
     TERM_LICENSE: str = 'Срок действия лицензии в днях'
     UPDATE_COMMENTS_TEXT: str = 'Обновить комментарий к треду.'
     UPDATED_AT_USER: str = 'Дата обновления профиля пользователя'
@@ -271,6 +272,7 @@ class Title(TitleBase):
     MEETING_RESULT: str = "Результат встречи"
     PARTICIPANT_ENGAGEMENT: str = "Участие в встрече"
     PROBLEM_SOLUTION: str = "Решение проблемы"
+    MEETING_ID: str = "Идентификатор встречи"
     MEETING_FEEDBACK: str = "Отзыв о встрече"
     MEETING_PLACE: str = "Место проведения встречи"
     MEETING_DATE: str = "Дата проведения встречи"
@@ -286,6 +288,7 @@ class Title(TitleBase):
     MEETING_CREATED_AT: str = "Дата создания"
     MEETING_UPDATED_AT: str = "Дата обновления"
     MEETING_MEMBER_ID: str = "Идентификатор участника"
+    PROBLEM_ID: str = "Идентификатор проблемы"
     PROBLEM_NAME: str = "Название проблемы"
     PROBLEM_DESCRIPTION: str = "Описание проблемы"
     PROBLEM_COLOR: str = "Цвет проблемы"
@@ -300,6 +303,7 @@ class Title(TitleBase):
     PROBLEM_MEMBER_STATUS: str = "Статус участия"
     SKIP: str = "Пропустить n объектов"
     LIMIT: str = "Лимитировать список объектов"
+    TASK_ID: str = "Идентификатор задачи"
     TASK_NAME: str = "Название задачи"
     TASK_DESCRIPTION: str = "Описание задачи"
     TASK_DATE_COMPLETION: str = "Дата выполнения"

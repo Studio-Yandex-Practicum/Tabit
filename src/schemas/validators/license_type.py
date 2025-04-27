@@ -18,6 +18,7 @@ def validate_string(value: str) -> str:
     """
     if value != value.strip():
         raise ValueError(TextError.FIELD_START_OR_END_SPACE)
+        raise ValueError(TextError.FIELD_START_OR_END_SPACE)
     return value
 
 def validate_license_term(value: int | str) -> timedelta | str:

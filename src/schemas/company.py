@@ -25,11 +25,11 @@ from src.schemas.validators.company import (
 
 CompanyNameField = Annotated[
     str,
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_COMPANY)
 ]
 OptionalCompanyNameField = Annotated[
     Optional[str],
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_COMPANY)
 ]
 DescriptionField = Annotated[
     Optional[str],

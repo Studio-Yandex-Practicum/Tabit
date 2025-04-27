@@ -67,7 +67,7 @@ class MemberResponseSchema(BaseModel):
 
 class MeetingResponseSchema(MeetingBaseSchema):
     """Pydantic-схема для данных о встрече из БД."""
-    id: int = Field(..., title=Title.ID)
+    id: int = Field(..., title=Title.MEETING_ID)
     title: TitleStr = Field(..., title=Title.MEETING_TITLE)
     problem_id: int = Field(..., title=Title.MEETING_PROBLEM_ID)
     owner_id: UUID = Field(..., title=Title.MEETING_OWNER_ID)

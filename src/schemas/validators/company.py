@@ -77,6 +77,7 @@ def check_license_fields_none(values: Self) -> Self:
         or (all((not values.license_id, not values.start_license_time)))
     ):
         raise ValueError(TextError.LICENSE_FIELDS)
+        raise ValueError(TextError.LICENSE_FIELDS)
     return values
 
 def validate_logo(logo: Optional[str]) -> Optional[str]:
@@ -120,5 +121,6 @@ def validate_string(value: str) -> str:
         ValueError: Если строка содержит пробелы в начале или в конце.
     """
     if value != value.strip():
+        raise ValueError(TextError.FIELD_START_OR_END_SPACE)
         raise ValueError(TextError.FIELD_START_OR_END_SPACE)
     return value

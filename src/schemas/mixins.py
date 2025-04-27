@@ -9,20 +9,20 @@ from src.schemas.constants import Length, Title
 
 NameField = Annotated[
     Optional[str],
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE),
 ]
 PhoneNumberField = Annotated[
     Optional[str],
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_PHONE_LENGTH),
 ]
 TelegramUsernameField = Annotated[
     Optional[str],
-    StringConstraints(min_length=Length.MIN_TELEGRAM_USERNAME, max_length=Length.MAX_TELEGRAM_USERNAME)
+    StringConstraints(
+        min_length=Length.MIN_TELEGRAMM_USERNAME, max_length=Length.MAX_TELEGRAM_USERNAME
+    ),
 ]
-AvatarLinkField = Annotated[
-    Optional[str],
-    StringConstraints(max_length=Length.FILE_LINK)
-]
+AvatarLinkField = Annotated[Optional[str], StringConstraints(max_length=Length.FILE_LINK)]
+
 
 class GetterSlugMixin:
     """Миксин для генерации поля slug."""
@@ -36,6 +36,7 @@ class GetterSlugMixin:
         if isinstance(data, dict):
             data['slug'] = data['name']
         return data
+
 
 class UserSchemaMixin:
     """Миксин для схем пользователей сервиса.
@@ -53,6 +54,7 @@ class UserSchemaMixin:
         department_transition_date: Дата перехода в отдел (опционально).
         employee_position: Должность (опционально).
     """
+
     patronymic: NameField = Field(None, title=Title.PATRONYMIC_USER)
     phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
     birthday: Optional[date] = Field(None, title=Title.BIRTHDAY_USER)  # TODO: валидация даты

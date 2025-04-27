@@ -29,7 +29,7 @@ class LandingPageBaseSchema(BaseModel):
     phone_number_3: Optional[PhoneStr] = Field(None, title=Title.PHONE_NUMBER_USER)
     address: Optional[AddressStr] = Field(None, title=Title.NAME_COMPANY)
     email: Optional[EmailStr] = Field(None, title=Title.EMAIL_USER)
-    whatsapp: Optional[TextStr] = Field(None, title=Title.TELEGRAM_USERNAME)
+    whatsapp: Optional[TextStr] = Field(None, title=Title.WHATSAPP_USERNAME)
     telegram: Optional[TextStr] = Field(None, title=Title.TELEGRAM_USERNAME)
     vk: Optional[TextStr] = Field(None, title=Title.NAME_USER)
     price_1: Optional[TextStr] = Field(None, title=Title.NAME_LICENSE)

@@ -70,7 +70,7 @@ class TaskResponseSchema(TaskBaseSchema):
         transfer_counter: Счетчик переноса даты.
     """
 
-    id: int = Field(..., title=Title.ID)
+    id: int = Field(..., title=Title.TASK_ID)
     name: str = Field(..., title=Title.TASK_NAME)
     date_completion: date = Field(..., title=Title.TASK_DATE_COMPLETION)
     owner_id: UUID = Field(..., title=Title.TASK_OWNER_ID)

@@ -5,14 +5,8 @@ on:
     secrets:
       GHCR_PAT:
         required: true
-      SSH_PRIVATE_KEY:
+      ENV_FILE:
         required: true
-      USERNAME:
-        required: true
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: studio-yandex-practicum/tabit
 
 jobs:
   build_and_push:
@@ -20,27 +14,23 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Check required secrets
+      - name: Create .env file from secret
         run: |
-          if [ -z "${{ secrets.GHCR_PAT }}" ]; then
-            echo "Error: Secret GHCR_PAT is not set!"
-            exit 1
-          fi
-          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
-            echo "Error: Secret SSH_PRIVATE_KEY is not set!"
-            exit 1
-          fi
-          if [ -z "${{ secrets.USERNAME }}" ]; then
-            echo "Error: Secret USERNAME is not set!"
-            exit 1
-          fi
+          echo "${{ secrets.ENV_FILE }}" > .env
+        shell: bash
+
+      - name: Load variables to GitHub env
+        run: |
+          grep -v '^#' .env | while read -r line; do
+            echo "$line" >> $GITHUB_ENV
+          done
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
           logout: false
@@ -49,7 +39,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_PATH }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -57,9 +47,14 @@ jobs:
           pull: true
           context: .
           file: infra/stage/stage.Dockerfile
+          build-args: |
+            APP_PORT=${{ env.APP_PORT }}
+            APP_VERSION=${{ env.APP_VERSION }}
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+            POETRY_VERSION=${{ env.POETRY_VERSION }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_PATH }}:latest
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=registry,ref=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_PATH }}:latest
           cache-to: type=inline

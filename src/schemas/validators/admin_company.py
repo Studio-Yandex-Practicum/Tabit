@@ -11,11 +11,14 @@ def check_phone_number(phone_number: str) -> str:
     """
     if not re.fullmatch(Validation.PHONE_NUMBER_PATTERN, phone_number):
         raise ValueError(TextError.INVALID_PHONE_NUMBER)
+    if not re.fullmatch(Validation.PHONE_NUMBER_PATTERN, phone_number):
+        raise ValueError(TextError.INVALID_PHONE_NUMBER)
     return phone_number
 
 def check_date_earlier_than_today(input_date: date) -> date:
     """Функция проверяет, что введённая дата младше сегодняшней."""
     if input_date > date.today():
+        raise ValueError(TextError.INVALID_DATE)
         raise ValueError(TextError.INVALID_DATE)
     return input_date
 
@@ -30,10 +33,13 @@ def check_telegram_username(username: str) -> str:
     """
     if not re.fullmatch(Validation.TELEGRAM_USERNAME_PATTERN, username, flags=re.ASCII):
         raise ValueError(TextError.INVALID_TELEGRAM_USERNAME)
+    if not re.fullmatch(Validation.TELEGRAM_USERNAME_PATTERN, username, flags=re.ASCII):
+        raise ValueError(TextError.INVALID_TELEGRAM_USERNAME)
     return username
 
 def check_password_is_ascii(password: str) -> str:
     """Функция проверяет, что введённый пароль состоит только из символов ASCII."""
     if not password.isascii():
+        raise ValueError(TextError.INVALID_PASSWORD)
         raise ValueError(TextError.INVALID_PASSWORD)
     return password
