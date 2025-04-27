@@ -2,13 +2,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.schemas.constants import (
-    DEFAULT_LIMIT,
-    DEFAULT_SKIP,
-    FILTER_NAME_DESCRIPTION,
-    MAX_PAGE_SIZE,
-    SORTING_DESCRIPTION,
-)
+from src.schemas.constants import Default, MiscConstants, Title
 
 BASE_CONFIG = ConfigDict(
     extra="forbid",
@@ -20,14 +14,14 @@ class BaseFilterSchema(BaseModel):
     """
     Базовая схема для обработки query-параметров: пагинация, сортировка, фильтрация.
     """
-    skip: int = Field(DEFAULT_SKIP, ge=0, title="Пропустить n объектов")
+    skip: int = Field(Default.SKIP, ge=0, title=Title.SKIP)
     limit: int = Field(
-        DEFAULT_LIMIT, ge=1, le=MAX_PAGE_SIZE, title="Лимитировать список объектов"
+        Default.LIMIT, ge=1, le=Default.MAX_PAGE_SIZE, title=Title.LIMIT
     )
-    name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
+    name: Optional[str] = Field(None, description=MiscConstants.FILTER_NAME_DESCRIPTION)
     ordering: Optional[
         Literal["name", "-name", "created_at", "-created_at", "updated_at", "-updated_at"]
-    ] = Field(None, description=SORTING_DESCRIPTION)
+    ] = Field(None, description=MiscConstants.SORTING_DESCRIPTION)
 
     model_config = BASE_CONFIG
 

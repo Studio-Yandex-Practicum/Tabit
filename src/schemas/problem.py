@@ -1,10 +1,30 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from src.models import ProblemColor, ProblemStatus, ProblemType
+from src.schemas.constants import Length, Title
+
+NameStr = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE
+    ),
+]
+OptionalNameStr = Annotated[
+    Optional[str],
+    StringConstraints(
+        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE
+    ),
+]
+DescriptionStr = Annotated[
+    Optional[str],
+    StringConstraints(
+        min_length=Length.MIN_DESCRIPTION, max_length=Length.MAX_DESCRIPTION_COMPANY
+    ),
+]
 
 
 class ProblemBaseSchema(BaseModel):
@@ -14,7 +34,8 @@ class ProblemBaseSchema(BaseModel):
     Поля:
         description: Описание проблемы (опционально).
     """
-    description: str | None = None
+
+    description: DescriptionStr = Field(None, title=Title.PROBLEM_DESCRIPTION)
     # TODO: Реализовать добавление файлов в проблему
 
     model_config = ConfigDict(extra='forbid')
@@ -28,8 +49,9 @@ class MemberResponseSchema(BaseModel):
         status: Статус участия в решении проблемы.
         member_id: UUID участника.
     """
-    status: bool | None
-    member_id: UUID = Field(validation_alias='left_id')
+
+    status: bool | None = Field(None, title=Title.PROBLEM_MEMBER_STATUS)
+    member_id: UUID = Field(validation_alias='left_id', title=Title.PROBLEM_MEMBER_ID)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -50,16 +72,17 @@ class ProblemResponseSchema(ProblemBaseSchema):
         created_at: Время создания.
         updated_at: Время обновления.
     """
-    id: int
-    name: str
-    color: ProblemColor
-    type: ProblemType
-    status: ProblemStatus
-    owner_id: UUID
-    company_id: int
-    members: list[MemberResponseSchema]
-    created_at: datetime
-    updated_at: datetime
+
+    id: int = Field(..., title=Title.ID)
+    name: str = Field(..., title=Title.PROBLEM_NAME)
+    color: ProblemColor = Field(..., title=Title.PROBLEM_COLOR)
+    type: ProblemType = Field(..., title=Title.PROBLEM_TYPE)
+    status: ProblemStatus = Field(..., title=Title.PROBLEM_STATUS)
+    owner_id: UUID = Field(..., title=Title.PROBLEM_OWNER_ID)
+    company_id: int = Field(..., title=Title.PROBLEM_COMPANY_ID)
+    members: list[MemberResponseSchema] = Field(..., title=Title.PROBLEM_MEMBERS)
+    created_at: datetime = Field(..., title=Title.PROBLEM_CREATED_AT)
+    updated_at: datetime = Field(..., title=Title.PROBLEM_UPDATED_AT)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -74,10 +97,11 @@ class ProblemCreateSchema(ProblemBaseSchema):
         type: Тип проблемы.
         members: Список UUID участников (опционально).
     """
-    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
-    color: ProblemColor
-    type: ProblemType
-    members: list[UUID] | None = []
+
+    name: NameStr = Field(..., title=Title.PROBLEM_NAME)
+    color: ProblemColor = Field(..., title=Title.PROBLEM_COLOR)
+    type: ProblemType = Field(..., title=Title.PROBLEM_TYPE)
+    members: list[UUID] | None = Field(default=[], title=Title.PROBLEM_MEMBERS)
 
     model_config = ConfigDict(extra='forbid')
 
@@ -93,10 +117,11 @@ class ProblemUpdateSchema(ProblemBaseSchema):
         status: Статус (опционально).
         members: Список UUID участников (опционально).
     """
-    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)] | None = None
-    color: ProblemColor | None = None
-    type: ProblemType | None = None
-    status: ProblemStatus | None = None
-    members: list[UUID] | None = None
+
+    name: OptionalNameStr = Field(None, title=Title.PROBLEM_NAME)
+    color: ProblemColor | None = Field(None, title=Title.PROBLEM_COLOR)
+    type: ProblemType | None = Field(None, title=Title.PROBLEM_TYPE)
+    status: ProblemStatus | None = Field(None, title=Title.PROBLEM_STATUS)
+    members: list[UUID] | None = Field(None, title=Title.PROBLEM_MEMBERS)
 
     model_config = ConfigDict(extra='forbid')

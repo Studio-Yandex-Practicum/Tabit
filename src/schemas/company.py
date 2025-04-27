@@ -12,26 +12,7 @@ from pydantic import (
 )
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
-from src.schemas.constants import (
-    FILTER_NAME_DESCRIPTION,
-    LENGTH_DESCRIPTION_COMPANY,
-    LENGTH_NAME_COMPANY,
-    LENGTH_NAME_USER,
-    LENGTH_TELEGRAM_USERNAME,
-    MIN_DESCRIPTION_NAME,
-    MIN_LENGTH_NAME,
-    SORTING_DESCRIPTION,
-    TITLE_LICENSE_ID_COMPANY,
-    TITLE_LOGO_COMPANY,
-    TITLE_NAME_COMPANY,
-    TITLE_NAME_DEPARTMENT,
-    TITLE_NAME_USER,
-    TITLE_PHONE_NUMBER_USER,
-    TITLE_SLUG_COMPANY,
-    TITLE_START_LICENSE_TIME_COMPANY,
-    TITLE_SURNAME_USER,
-    TITLE_TELEGRAM_USERNAME_USER,
-)
+from src.schemas.constants import Length, MiscConstants, Title
 from src.schemas.user import UserUpdateSchema
 from src.schemas.validators.company import (
     check_license_fields_none,
@@ -42,32 +23,34 @@ from src.schemas.validators.company import (
     validate_surname_characters,
 )
 
-# Типизация для повторяющихся полей
 CompanyNameField = Annotated[
     str,
-    StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_COMPANY)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
 ]
 OptionalCompanyNameField = Annotated[
     Optional[str],
-    StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_COMPANY)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
 ]
 DescriptionField = Annotated[
     Optional[str],
-    StringConstraints(min_length=MIN_DESCRIPTION_NAME, max_length=LENGTH_DESCRIPTION_COMPANY)
+    StringConstraints(min_length=Length.MIN_DESCRIPTION, max_length=Length.MAX_DESCRIPTION_COMPANY)
 ]
 UserNameField = Annotated[
     Optional[str],
-    StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
 ]
 PhoneNumberField = Annotated[
     Optional[PhoneNumber],
-    StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_PHONE_LENGTH)
 ]
 TelegramUsernameField = Annotated[
     Optional[str],
-    StringConstraints(max_length=LENGTH_TELEGRAM_USERNAME)
+    StringConstraints(max_length=Length.MAX_NAME_LICENSE)
 ]
-
+FeedbackQuestionField = Annotated[
+    str,
+    StringConstraints(max_length=Length.MAX_ADDRESS_LENGTH)
+]
 
 class CompanyUpdateForUserSchema(BaseModel):
     """Схема для обновления компании пользователем-админом.
@@ -76,8 +59,8 @@ class CompanyUpdateForUserSchema(BaseModel):
         description: Описание компании (опционально).
         logo: Логотип компании (опционально).
     """
-    description: DescriptionField = Field(None, title=TITLE_NAME_COMPANY)
-    logo: Optional[str] = Field(None, title=TITLE_LOGO_COMPANY)
+    description: DescriptionField = Field(None, title=Title.NAME_COMPANY)
+    logo: Optional[str] = Field(None, title=Title.LOGO_COMPANY)
 
     model_config = ConfigDict(extra='forbid')
 
@@ -86,7 +69,6 @@ class CompanyUpdateForUserSchema(BaseModel):
     def validate_description(cls, value: str) -> str:
         """Проверяет отсутствие пробелов в начале или конце описания."""
         return validate_string(value)
-
 
 class CompanyUpdateSchema(CompanyUpdateForUserSchema):
     """Схема для обновления компании админом сервиса.
@@ -99,11 +81,11 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         start_license_time: Дата начала лицензии (опционально).
         end_license_time: Дата окончания лицензии (опционально).
     """
-    name: OptionalCompanyNameField = Field(None, title=TITLE_NAME_COMPANY)
-    license_id: Optional[int] = Field(None, title=TITLE_LICENSE_ID_COMPANY)
+    name: OptionalCompanyNameField = Field(None, title=Title.NAME_COMPANY)
+    license_id: Optional[int] = Field(None, title=Title.LICENSE_ID_COMPANY)
     start_license_time: Optional[datetime] = Field(
         None,
-        title=TITLE_START_LICENSE_TIME_COMPANY,
+        title=Title.START_LICENSE_TIME_COMPANY,
     )
     end_license_time: Optional[datetime] = None
 
@@ -118,7 +100,6 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         """Проверяет корректность заполнения полей лицензии."""
         return check_license_fields_none(self)
 
-
 class CompanyCreateSchema(CompanyUpdateSchema):
     """Схема для создания компании.
 
@@ -131,15 +112,14 @@ class CompanyCreateSchema(CompanyUpdateSchema):
         end_license_time: Дата окончания лицензии (опционально).
         slug: Короткая строка для пути (опционально).
     """
-    name: CompanyNameField = Field(..., title=TITLE_NAME_COMPANY)
-    slug: Optional[str] = Field(None, title=TITLE_SLUG_COMPANY)
+    name: CompanyNameField = Field(..., title=Title.NAME_COMPANY)
+    slug: Optional[str] = Field(None, title=Title.SLUG_COMPANY)
 
     @field_validator('slug')
     @classmethod
     def check_slug(cls, slug: Optional[str]) -> Optional[str]:
         """Проверяет формат slug (латинские буквы, цифры, дефисы)."""
         return validate_slug(slug)
-
 
 class CompanyResponseSchema(BaseModel):
     """Схема компании для ответа.
@@ -175,7 +155,6 @@ class CompanyResponseSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class CompanyTypeFilterSchema(BaseModel):
     """Схема фильтрации списка компаний.
 
@@ -183,13 +162,12 @@ class CompanyTypeFilterSchema(BaseModel):
         name: Фильтр по названию компании (опционально).
         ordering: Сортировка по полям (опционально).
     """
-    name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
+    name: Optional[str] = Field(None, description=MiscConstants.FILTER_NAME_DESCRIPTION)
     ordering: Optional[
         Literal['name', '-name', 'created_at', '-created_at', 'updated_at', '-updated_at']
-    ] = Field(None, description=SORTING_DESCRIPTION)
+    ] = Field(None, description=MiscConstants.SORTING_DESCRIPTION)
 
     model_config = ConfigDict(extra='forbid')
-
 
 class CompanyDepartmentUpdateSchema(BaseModel):
     """Схема для обновления отдела.
@@ -197,10 +175,9 @@ class CompanyDepartmentUpdateSchema(BaseModel):
     Поля:
         name: Название отдела (обязательно).
     """
-    name: CompanyNameField = Field(..., title=TITLE_NAME_DEPARTMENT)
+    name: CompanyNameField = Field(..., title=Title.NAME_DEPARTMENT)
 
     model_config = ConfigDict(extra='forbid')
-
 
 class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
     """Схема для создания отдела.
@@ -209,7 +186,6 @@ class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
         name: Название отдела (обязательно).
     """
     model_config = ConfigDict(extra='forbid', from_attributes=True)
-
 
 class CompanyDepartmentResponseSchema(BaseModel):
     """Схема для ответа с данными отдела.
@@ -227,7 +203,6 @@ class CompanyDepartmentResponseSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class CompanyEmployeeUpdateSchema(UserUpdateSchema):
     """Схема для обновления сотрудника админом компании.
 
@@ -241,7 +216,6 @@ class CompanyEmployeeUpdateSchema(UserUpdateSchema):
         validate_surname_characters(self.surname)
         return self
 
-
 class UserCompanyUpdateSchema(BaseModel):
     """Схема для редактирования профиля сотрудником компании.
 
@@ -252,11 +226,11 @@ class UserCompanyUpdateSchema(BaseModel):
         email: Электронная почта (опционально).
         telegram_username: Имя в Telegram (опционально).
     """
-    name: UserNameField = Field(None, title=TITLE_NAME_USER)
-    surname: UserNameField = Field(None, title=TITLE_SURNAME_USER)
-    phone_number: PhoneNumberField = Field(None, title=TITLE_PHONE_NUMBER_USER)
+    name: UserNameField = Field(None, title=Title.NAME_USER)
+    surname: UserNameField = Field(None, title=Title.SURNAME_USER)
+    phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
     email: Optional[EmailStr] = None
-    telegram_username: TelegramUsernameField = Field(None, title=TITLE_TELEGRAM_USERNAME_USER)
+    telegram_username: TelegramUsernameField = Field(None, title=Title.TELEGRAM_USERNAME)
 
     @model_validator(mode='after')
     def validate_fields(self) -> Self:
@@ -266,13 +240,12 @@ class UserCompanyUpdateSchema(BaseModel):
         validate_surname_characters(self.surname)
         return self
 
-
 class CompanyFeedbackCreateSchema(BaseModel):
     """Схема для создания обратной связи.
 
     Поля:
         question: Вопрос для обратной связи (обязательно).
     """
-    question: str = Field(..., title='Задать вопрос для обратной связи')
+    question: FeedbackQuestionField = Field(..., title='Задать вопрос для обратной связи')
 
     model_config = ConfigDict(from_attributes=True)

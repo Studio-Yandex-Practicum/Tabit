@@ -7,13 +7,7 @@ from typing import Optional, Self
 
 from pydantic import HttpUrl
 
-from src.schemas.validators.constants import (
-    ERROR_FIELD_START_OR_END_SPACE,
-    TEST_ERROR_INVALID_CHARACTERS_NAME,
-    TEST_ERROR_INVALID_CHARACTERS_SURNAME,
-    TEST_ERROR_LICENSE_FIELDS,
-    TEST_ERROR_UNIQUE_NAME_SURNAME,
-)
+from src.schemas.constants import TextError
 
 
 def validate_name_surname_unique(name: Optional[str], surname: Optional[str]) -> None:
@@ -26,8 +20,7 @@ def validate_name_surname_unique(name: Optional[str], surname: Optional[str]) ->
         ValueError: Если имя совпадает с фамилией, вызывается ошибка.
     """
     if name and surname and name == surname:
-        raise ValueError(TEST_ERROR_UNIQUE_NAME_SURNAME)
-
+        raise ValueError(TextError.UNIQUE_NAME_SURNAME)
 
 def validate_name_characters(name: Optional[str]) -> None:
     """
@@ -39,8 +32,7 @@ def validate_name_characters(name: Optional[str]) -> None:
         вызывается ошибка.
     """
     if name and not name.isalpha():
-        raise ValueError(TEST_ERROR_INVALID_CHARACTERS_NAME)
-
+        raise ValueError(TextError.INVALID_CHARACTERS_NAME)
 
 def validate_surname_characters(surname: Optional[str]) -> None:
     """
@@ -52,8 +44,7 @@ def validate_surname_characters(surname: Optional[str]) -> None:
         вызывается ошибка.
     """
     if surname and not surname.isalpha():
-        raise ValueError(TEST_ERROR_INVALID_CHARACTERS_SURNAME)
-
+        raise ValueError(TextError.INVALID_CHARACTERS_SURNAME)
 
 def validate_slug(slug: Optional[str]) -> Optional[str]:
     """
@@ -70,7 +61,6 @@ def validate_slug(slug: Optional[str]) -> Optional[str]:
         raise ValueError('Slug может содержать только латинские буквы, цифры и дефисы.')
     return slug
 
-
 def check_license_fields_none(values: Self) -> Self:
     """
     Проверяет корректность заполнения полей лицензии.
@@ -86,9 +76,8 @@ def check_license_fields_none(values: Self) -> Self:
         all((values.license_id, values.start_license_time))
         or (all((not values.license_id, not values.start_license_time)))
     ):
-        raise ValueError(TEST_ERROR_LICENSE_FIELDS)
+        raise ValueError(TextError.LICENSE_FIELDS)
     return values
-
 
 def validate_logo(logo: Optional[str]) -> Optional[str]:
     """
@@ -117,7 +106,6 @@ def validate_logo(logo: Optional[str]) -> Optional[str]:
             raise ValueError('Логотип должен быть валидным URL-адресом.')
     return logo
 
-
 def validate_string(value: str) -> str:
     """
     Проверяет строковое поле на наличие пробелов в начале или конце.
@@ -132,5 +120,5 @@ def validate_string(value: str) -> str:
         ValueError: Если строка содержит пробелы в начале или в конце.
     """
     if value != value.strip():
-        raise ValueError(ERROR_FIELD_START_OR_END_SPACE)
+        raise ValueError(TextError.FIELD_START_OR_END_SPACE)
     return value

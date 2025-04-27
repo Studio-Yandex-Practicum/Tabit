@@ -4,12 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from typing_extensions import Annotated
 
-from src.schemas.constants import (
-    LENGTH_NAME_USER,
-    MIN_LENGTH_NAME,
-    TITLE_COMPANY_ID_TAG,
-    TITLE_NAME_TAG,
-)
+from src.schemas.constants import Length, Title
 
 BASE_CONFIG = ConfigDict(
     extra="forbid",
@@ -18,19 +13,19 @@ BASE_CONFIG = ConfigDict(
 )
 
 TagNameStr = Annotated[
-    str, StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER)
+    str, StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
 ]
 
 class TagBaseSchema(BaseModel):
     """Базовая схема для тегов пользователей."""
-    name: TagNameStr = Field(..., title=TITLE_NAME_TAG)
-    company_id: Optional[int] = Field(None, ge=1, title=TITLE_COMPANY_ID_TAG)
+    name: TagNameStr = Field(..., title=Title.NAME_TAG)
+    company_id: Optional[int] = Field(None, ge=1, title=Title.COMPANY_ID_TAG)
 
     model_config = BASE_CONFIG
 
 class UserTagCreateSchema(TagBaseSchema):
     """Схема для создания тегов пользователей."""
-    company_id: int = Field(..., ge=1, title=TITLE_COMPANY_ID_TAG)
+    company_id: int = Field(..., ge=1, title=Title.COMPANY_ID_TAG)
 
     model_config = BASE_CONFIG
 

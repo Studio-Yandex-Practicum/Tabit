@@ -3,18 +3,23 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from typing_extensions import Annotated
 
+from src.schemas.constants import Length, Title
+
 BASE_CONFIG = ConfigDict(
     extra="forbid",
     str_strip_whitespace=True,
     from_attributes=True,
 )
 
-VotingText = Annotated[str, StringConstraints(min_length=1, max_length=1000)]
+VotingText = Annotated[
+    str,
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_FEEDBACK_QUESTION_LENGTH)
+]
 
 class VotingBase(BaseModel):
     """Базовая схема для голосования."""
-    text: VotingText = Field(..., title="Текст голосования")
-    message_id: int = Field(..., ge=1, title="ID сообщения")
+    text: VotingText = Field(..., title=Title.VOTING_TEXT)
+    message_id: int = Field(..., ge=1, title=Title.VOTING_MESSAGE_ID)
 
     model_config = BASE_CONFIG
 
@@ -24,14 +29,14 @@ class VotingCreate(VotingBase):
 
 class VotingInDB(VotingBase):
     """Схема голосования в базе данных."""
-    id: int = Field(..., title="ID голосования")
+    id: int = Field(..., title=Title.VOTING_ID)
 
     model_config = BASE_CONFIG
 
 class VotingByUserBase(BaseModel):
     """Базовая схема для голосования пользователя."""
-    user_id: UUID = Field(..., title="ID пользователя")
-    voting_id: int = Field(..., ge=1, title="ID голосования")
+    user_id: UUID = Field(..., title=Title.VOTING_USER_ID)
+    voting_id: int = Field(..., ge=1, title=Title.VOTING_ID)
 
     model_config = BASE_CONFIG
 
@@ -41,6 +46,6 @@ class VotingByUserCreate(VotingByUserBase):
 
 class VotingByUserInDB(VotingByUserBase):
     """Схема голосования пользователя в базе данных."""
-    id: int = Field(..., title="ID записи")
+    id: int = Field(..., title=Title.VOTING_RECORD_ID)
 
     model_config = BASE_CONFIG

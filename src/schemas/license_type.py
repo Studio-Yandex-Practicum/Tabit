@@ -3,54 +3,36 @@ from typing import Annotated, List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
-from src.schemas.constants import (
-    DEFAULT_LICENSE_TERM,
-    DEFAULT_PAGE,
-    DEFAULT_PAGE_SIZE,
-    FILTER_NAME_DESCRIPTION,
-    LENGTH_NAME_LICENSE,
-    MAX_PAGE_SIZE,
-    MIN_LENGTH_NAME,
-    MIN_PAGE_SIZE,
-    PAGE_DESCRIPTION,
-    PAGE_SIZE_DESCRIPTION,
-    SORTING_DESCRIPTION,
-    TITLE_LICENSE_TERM,
-    TITLE_MAX_EMPLOYEES_COUNT,
-    TITLE_MAX_MODERATORS_COUNT,
-    TITLE_NAME_LICENSE,
-    ZERO,
-)
+from src.schemas.constants import Default, Length, MiscConstants, Title
 from src.schemas.validators.license_type import (
     validate_license_term,
     validate_string,
 )
 
-# Типизация для повтор RENAMING полей
+# Типизация для повторяющихся полей
 LicenseNameField = Annotated[
     str,
-    StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_LICENSE)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
 ]
 OptionalLicenseNameField = Annotated[
     Optional[str],
-    StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_LICENSE)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
 ]
 LicenseTermField = Annotated[
     timedelta,
-    Field(ge=timedelta(**DEFAULT_LICENSE_TERM))
+    Field(ge=timedelta(**Default.LICENSE_TERM))
 ]
 OptionalLicenseTermField = Annotated[
     Optional[timedelta],
-    Field(ge=timedelta(**DEFAULT_LICENSE_TERM))
+    Field(ge=timedelta(**Default.LICENSE_TERM))
 ]
-CountField = Annotated[int, Field(gt=ZERO)]
-OptionalCountField = Annotated[Optional[int], Field(gt=ZERO)]
-PageField = Annotated[Optional[int], Field(ge=MIN_PAGE_SIZE)]
+CountField = Annotated[int, Field(gt=MiscConstants.ZERO)]
+OptionalCountField = Annotated[Optional[int], Field(gt=MiscConstants.ZERO)]
+PageField = Annotated[Optional[int], Field(ge=Default.MIN_PAGE_SIZE)]
 PageSizeField = Annotated[
     Optional[int],
-    Field(ge=MIN_PAGE_SIZE, le=MAX_PAGE_SIZE)
+    Field(ge=Default.MIN_PAGE_SIZE, le=Default.MAX_PAGE_SIZE)
 ]
-
 
 class LicenseTypeBaseSchema(BaseModel):
     """Базовая схема лицензии.
@@ -71,7 +53,6 @@ class LicenseTypeBaseSchema(BaseModel):
         """Проверяет и конвертирует срок действия лицензии в timedelta."""
         return validate_license_term(value)
 
-
 class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
     """Схема для создания лицензии.
 
@@ -81,11 +62,10 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
         max_admins_count: Максимальное количество администраторов (обязательно).
         max_employees_count: Максимальное количество сотрудников (обязательно).
     """
-    name: LicenseNameField = Field(..., title=TITLE_NAME_LICENSE)
-    license_term: LicenseTermField = Field(..., title=TITLE_LICENSE_TERM)
-    max_admins_count: CountField = Field(..., title=TITLE_MAX_MODERATORS_COUNT)
-    max_employees_count: CountField = Field(..., title=TITLE_MAX_EMPLOYEES_COUNT)
-
+    name: LicenseNameField = Field(..., title=Title.NAME_LICENSE)
+    license_term: LicenseTermField = Field(..., title=Title.TERM_LICENSE)
+    max_admins_count: CountField = Field(..., title=Title.MAX_MODERATORS_COUNT)
+    max_employees_count: CountField = Field(..., title=Title.MAX_EMPLOYEES_COUNT)
 
 class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
     """Схема для частичного обновления лицензии.
@@ -96,13 +76,12 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
         max_admins_count: Максимальное количество администраторов (опционально).
         max_employees_count: Максимальное количество сотрудников (опционально).
     """
-    name: OptionalLicenseNameField = Field(None, title=TITLE_NAME_LICENSE)
-    license_term: OptionalLicenseTermField = Field(None, title=TITLE_LICENSE_TERM)
-    max_admins_count: OptionalCountField = Field(None, title=TITLE_MAX_MODERATORS_COUNT)
-    max_employees_count: OptionalCountField = Field(None, title=TITLE_MAX_EMPLOYEES_COUNT)
+    name: OptionalLicenseNameField = Field(None, title=Title.NAME_LICENSE)
+    license_term: OptionalLicenseTermField = Field(None, title=Title.TERM_LICENSE)
+    max_admins_count: OptionalCountField = Field(None, title=Title.MAX_MODERATORS_COUNT)
+    max_employees_count: OptionalCountField = Field(None, title=Title.MAX_EMPLOYEES_COUNT)
 
     model_config = ConfigDict(extra='forbid')
-
 
 class LicenseTypeResponseSchema(BaseModel):
     """Схема лицензии для ответа.
@@ -126,7 +105,6 @@ class LicenseTypeResponseSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class LicenseTypeListResponseSchema(BaseModel):
     """Схема ответа для списка лицензий с пагинацией.
 
@@ -143,7 +121,6 @@ class LicenseTypeListResponseSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class LicenseTypeFilterSchema(BaseModel):
     """Схема фильтрации списка лицензий.
 
@@ -153,11 +130,11 @@ class LicenseTypeFilterSchema(BaseModel):
         page: Номер страницы (по умолчанию 1).
         page_size: Количество записей на странице (по умолчанию 10).
     """
-    name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
+    name: Optional[str] = Field(None, description=MiscConstants.FILTER_NAME_DESCRIPTION)
     ordering: Optional[
         Literal['name', '-name', 'created_at', '-created_at', 'updated_at', '-updated_at']
-    ] = Field(None, description=SORTING_DESCRIPTION)
-    page: PageField = Field(DEFAULT_PAGE, description=PAGE_DESCRIPTION)
-    page_size: PageSizeField = Field(DEFAULT_PAGE_SIZE, description=PAGE_SIZE_DESCRIPTION)
+    ] = Field(None, description=MiscConstants.SORTING_DESCRIPTION)
+    page: PageField = Field(Default.PAGE, description=Default.PAGE_DESCRIPTION)
+    page_size: PageSizeField = Field(Default.PAGE_SIZE, description=Default.PAGE_SIZE_DESCRIPTION)
 
     model_config = ConfigDict(extra='forbid')

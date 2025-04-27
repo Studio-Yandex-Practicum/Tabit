@@ -15,26 +15,7 @@ from pydantic import (
 )
 
 from src.models import CompanyUserRole
-from src.schemas.constants import (
-    LENGTH_FILE_LINK,
-    LENGTH_NAME_USER,
-    LENGTH_TELEGRAM_USERNAME,
-    MIN_LENGTH_NAME,
-    MIN_LENGTH_TELEGRAM_USERNAME,
-    TITLE_AVATAR_LINK_USER,
-    TITLE_BIRTHDAY_USER,
-    TITLE_COMPANY_ID_USER,
-    TITLE_CURRENT_DEPARTMENT_ID_USER,
-    TITLE_EMPLOYEE_POSITION_USER,
-    TITLE_END_DATE_EMPLOYMENT_USER,
-    TITLE_NAME_USER,
-    TITLE_PATRONYMIC_USER,
-    TITLE_PHONE_NUMBER_USER,
-    TITLE_PREVIOUS_DEPARTMENT_ID_USER,
-    TITLE_START_DATE_EMPLOYMENT_USER,
-    TITLE_SURNAME_USER,
-    TITLE_TELEGRAM_USERNAME_USER,
-)
+from src.schemas.constants import Length, Title
 from src.schemas.validators.admin_company import (
     check_date_earlier_than_today,
     check_password_is_ascii,
@@ -48,25 +29,24 @@ date_and_validation = Annotated[date, AfterValidator(check_date_earlier_than_tod
 url_to_string = Annotated[HttpUrl, AfterValidator(str)]
 NameField = Annotated[
     str,
-    StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
 ]
 OptionalNameField = Annotated[
     Optional[str],
-    StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
 ]
 PhoneNumberField = Annotated[
     Optional[str],
-    StringConstraints(min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER)
+    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_PHONE_LENGTH)
 ]
 TelegramUsernameField = Annotated[
     Optional[str],
-    StringConstraints(min_length=MIN_LENGTH_TELEGRAM_USERNAME, max_length=LENGTH_TELEGRAM_USERNAME)
+    StringConstraints(min_length=Length.MIN_TELEGRAMM_USERNAME, max_length=Length.MAX_NAME_LICENSE)
 ]
 AvatarLinkField = Annotated[
     Optional[url_to_string],
-    Field(max_length=LENGTH_FILE_LINK)
+    Field(max_length=Length.MAX_FILE_LINK_LENGTH)
 ]
-
 
 class AdminCompanyResponseSchema(BaseModel):
     """Схема компании для ответа админам сервиса.
@@ -102,21 +82,20 @@ class AdminCompanyResponseSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class CompanyAdminSchemaMixin:
     """Миксин для схем модераторов от компаний.
 
     Определяет общие поля и валидаторы.
     """
-    patronymic: OptionalNameField = Field(None, title=TITLE_PATRONYMIC_USER)
-    phone_number: PhoneNumberField = Field(None, title=TITLE_PHONE_NUMBER_USER)
-    birthday: Annotated[Optional[date_and_validation], Field(None, title=TITLE_BIRTHDAY_USER)]
-    telegram_username: TelegramUsernameField = Field(None, title=TITLE_TELEGRAM_USERNAME_USER)
-    start_date_employment: Optional[date] = Field(None, title=TITLE_START_DATE_EMPLOYMENT_USER)
-    end_date_employment: Optional[date] = Field(None, title=TITLE_END_DATE_EMPLOYMENT_USER)
-    avatar_link: AvatarLinkField = Field(None, title=TITLE_AVATAR_LINK_USER)
-    previous_department_id: Optional[int] = Field(None, title=TITLE_PREVIOUS_DEPARTMENT_ID_USER)
-    employee_position: Optional[str] = Field(None, title=TITLE_EMPLOYEE_POSITION_USER)
+    patronymic: OptionalNameField = Field(None, title=Title.PATRONYMIC_USER)
+    phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
+    birthday: Annotated[Optional[date_and_validation], Field(None, title=Title.BIRTHDAY_USER)]
+    telegram_username: TelegramUsernameField = Field(None, title=Title.TELEGRAM_USERNAME)
+    start_date_employment: Optional[date] = Field(None, title=Title.START_DATE_EMPLOYMENT_USER)
+    end_date_employment: Optional[date] = Field(None, title=Title.END_DATE_EMPLOYMENT_USER)
+    avatar_link: AvatarLinkField = Field(None, title=Title.AVATAR_LINK_USER)
+    previous_department_id: Optional[int] = Field(None, title=Title.PREVIOUS_DEPARTMENT_ID_USER)
+    employee_position: Optional[str] = Field(None, title=Title.EMPLOYEE_POSITION_USER)
 
     model_config = ConfigDict(extra='forbid')
 
@@ -145,7 +124,6 @@ class CompanyAdminSchemaMixin:
             self.start_date_employment, self.end_date_employment
         )
         return self
-
 
 class CompanyAdminReadSchema(BaseUser[UUID]):
     """Схема для чтения данных модераторов от компаний.
@@ -193,7 +171,6 @@ class CompanyAdminReadSchema(BaseUser[UUID]):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
     """Схема для полного обновления модераторов от компаний (PUT).
 
@@ -214,11 +191,10 @@ class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
         previous_department_id: Предыдущий отдел (опционально).
         employee_position: Должность (опционально).
     """
-    name: NameField = Field(..., title=TITLE_NAME_USER)
-    surname: NameField = Field(..., title=TITLE_SURNAME_USER)
+    name: NameField = Field(..., title=Title.NAME_USER)
+    surname: NameField = Field(..., title=Title.SURNAME_USER)
     role: CompanyUserRole
-    current_department_id: int = Field(..., title=TITLE_CURRENT_DEPARTMENT_ID_USER)
-
+    current_department_id: int = Field(..., title=Title.CURRENT_DEPARTMENT_ID_USER)
 
 class CompanyAdminCreateSchema(CompanyAdminPutSchema):
     """Схема для создания модераторов от компаний.
@@ -242,8 +218,7 @@ class CompanyAdminCreateSchema(CompanyAdminPutSchema):
         employee_position: Должность (опционально).
     """
     role: Literal[CompanyUserRole.MODERATOR]
-    company_id: int = Field(..., title=TITLE_COMPANY_ID_USER)
-
+    company_id: int = Field(..., title=Title.COMPANY_ID_USER)
 
 class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
     """Схема для частичного обновления модераторов от компаний (PATCH).
@@ -265,7 +240,7 @@ class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
         previous_department_id: Предыдущий отдел (опционально).
         employee_position: Должность (опционально).
     """
-    name: OptionalNameField = Field(None, title=TITLE_NAME_USER)
-    surname: OptionalNameField = Field(None, title=TITLE_SURNAME_USER)
+    name: OptionalNameField = Field(None, title=Title.NAME_USER)
+    surname: OptionalNameField = Field(None, title=Title.SURNAME_USER)
     role: Optional[CompanyUserRole] = None
-    current_department_id: Optional[int] = Field(None, title=TITLE_CURRENT_DEPARTMENT_ID_USER)
+    current_department_id: Optional[int] = Field(None, title=Title.CURRENT_DEPARTMENT_ID_USER)

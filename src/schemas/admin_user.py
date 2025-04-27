@@ -5,32 +5,26 @@ from uuid import UUID
 from fastapi_users.schemas import CreateUpdateDictModel
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints
 
-from src.schemas.constants import (
-    LENGTH_NAME_USER,
-    MIN_LENGTH_NAME,
-    TITLE_EMAIL,
-    TITLE_IS_SUPERUSER_ADMIN,
-    TITLE_NAME_MODERATOR,
-    TITLE_PASSWORD,
-    TITLE_PATRONYMIC_MODERATOR,
-    TITLE_PHONE_NUMBER_MODERATOR,
-    TITLE_SURNAME_MODERATOR,
-)
+from src.schemas.constants import Length, Title
 
-# Типизация для повторяющихся полей
 NameField = Annotated[
     str,
     StringConstraints(
-        strip_whitespace=True, min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER
+        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE
     ),
 ]
 OptionalNameField = Annotated[
     Optional[str],
     StringConstraints(
-        strip_whitespace=True, min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER
+        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE
     ),
 ]
-
+PhoneField = Annotated[
+    Optional[str],
+    StringConstraints(
+        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_PHONE_LENGTH
+    ),
+]
 
 class AdminBaseSchema(BaseModel):
     """Базовая схема администратора.
@@ -43,13 +37,12 @@ class AdminBaseSchema(BaseModel):
         phone_number: Номер телефона (опционально).
     """
 
-    name: NameField = Field(..., title=TITLE_NAME_MODERATOR)
-    surname: NameField = Field(..., title=TITLE_SURNAME_MODERATOR)
-    patronymic: OptionalNameField = Field(None, title=TITLE_PATRONYMIC_MODERATOR)
-    phone_number: OptionalNameField = Field(None, title=TITLE_PHONE_NUMBER_MODERATOR)
+    name: NameField = Field(..., title=Title.NAME_MODERATOR)
+    surname: NameField = Field(..., title=Title.SURNAME_MODERATOR)
+    patronymic: OptionalNameField = Field(None, title=Title.PATRONYMIC_MODERATOR)
+    phone_number: PhoneField = Field(None, title=Title.PHONE_NUMBER_MODERATOR)
 
     model_config = ConfigDict(extra='forbid')
-
 
 class AdminReadSchema(CreateUpdateDictModel):
     """Схема администратора для ответа.
@@ -76,7 +69,6 @@ class AdminReadSchema(CreateUpdateDictModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class AdminCreateSchema(CreateUpdateDictModel, AdminBaseSchema):
     """Схема для создания администратора.
 
@@ -89,9 +81,8 @@ class AdminCreateSchema(CreateUpdateDictModel, AdminBaseSchema):
         phone_number: Номер телефона (опционально).
     """
 
-    email: EmailStr = Field(..., title=TITLE_EMAIL)
-    password: str = Field(..., title=TITLE_PASSWORD)
-
+    email: EmailStr = Field(..., title=Title.EMAIL_USER)
+    password: str = Field(..., title=Title.PASSWORD_USER)
 
 class AdminUpdateSchema(AdminBaseSchema):
     """Схема для обновления администратора.
@@ -103,9 +94,8 @@ class AdminUpdateSchema(AdminBaseSchema):
         phone_number: Номер телефона (опционально).
     """
 
-    name: OptionalNameField = Field(None, title=TITLE_NAME_MODERATOR)
-    surname: OptionalNameField = Field(None, title=TITLE_SURNAME_MODERATOR)
-
+    name: OptionalNameField = Field(None, title=Title.NAME_MODERATOR)
+    surname: OptionalNameField = Field(None, title=Title.SURNAME_MODERATOR)
 
 class AdminCreateFirstSchema(AdminCreateSchema):
     """Схема для создания первого суперпользователя.
@@ -120,4 +110,4 @@ class AdminCreateFirstSchema(AdminCreateSchema):
         is_superuser: Флаг суперпользователя (по умолчанию True).
     """
 
-    is_superuser: bool = Field(True, title=TITLE_IS_SUPERUSER_ADMIN)
+    is_superuser: bool = Field(True, title=Title.IS_SUPERUSER_ADMIN)
