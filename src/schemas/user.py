@@ -1,34 +1,21 @@
 from datetime import date, datetime
-from typing import Annotated, Optional
+from typing import Optional
 from uuid import UUID
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.models import CompanyUserRole
 from src.schemas import UserSchemaMixin
-from src.schemas.constants import Length, Title
+from src.schemas.constants import Title
+from src.schemas.types import (
+    AvatarLinkField,
+    NameField,
+    OptionalNameField,
+    PhoneNumberField,
+    TelegramUsernameField,
+)
 
-NameField = Annotated[
-    str,
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
-]
-OptionalNameField = Annotated[
-    Optional[str],
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
-]
-PhoneNumberField = Annotated[
-    Optional[str],
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_PHONE_LENGTH)
-]
-TelegramUsernameField = Annotated[
-    Optional[str],
-    StringConstraints(min_length=Length.MIN_TELEGRAMM_USERNAME, max_length=Length.MAX_NAME_LICENSE)
-]
-AvatarLinkField = Annotated[
-    Optional[str],
-    StringConstraints(max_length=Length.MAX_FILE_LINK_LENGTH)
-]
 
 class UserReadSchema(BaseUser[UUID]):
     """Схема пользователя сервиса для ответов.

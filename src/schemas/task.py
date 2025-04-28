@@ -1,30 +1,12 @@
 from datetime import date
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.models import TaskStatus
-from src.schemas.constants import Length, Title
-
-NameStr = Annotated[
-    str,
-    StringConstraints(
-        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE
-    ),
-]
-OptionalNameStr = Annotated[
-    Optional[str],
-    StringConstraints(
-        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE
-    ),
-]
-DescriptionStr = Annotated[
-    Optional[str],
-    StringConstraints(
-        min_length=Length.MIN_DESCRIPTION, max_length=Length.MAX_DESCRIPTION_COMPANY
-    ),
-]
+from src.schemas.constants import Title
+from src.schemas.types import DescriptionField, NameField, OptionalNameField
 
 
 class TaskBaseSchema(BaseModel):
@@ -35,7 +17,7 @@ class TaskBaseSchema(BaseModel):
         description: Описание задачи (опционально).
     """
 
-    description: DescriptionStr = Field(None, title=Title.TASK_DESCRIPTION)
+    description: DescriptionField = Field(None, title=Title.TASK_DESCRIPTION)
     # TODO: Реализовать добавление файлов в задачу
 
     model_config = ConfigDict(extra='forbid')
@@ -94,7 +76,7 @@ class TaskCreateSchema(TaskBaseSchema):
         executors: Список UUID исполнителей (опционально).
     """
 
-    name: NameStr = Field(..., title=Title.TASK_NAME)
+    name: NameField = Field(..., title=Title.TASK_NAME)
     date_completion: Annotated[date, Field(..., ge=date.today(), title=Title.TASK_DATE_COMPLETION)]
     executors: list[UUID] | None = Field(default=[], title=Title.TASK_EXECUTORS)
 
@@ -113,7 +95,7 @@ class TaskUpdateSchema(TaskBaseSchema):
         status: Статус задачи (опционально).
     """
 
-    name: OptionalNameStr = Field(None, title=Title.TASK_NAME)
+    name: OptionalNameField = Field(None, title=Title.TASK_NAME)
     date_completion: (
         Annotated[date, Field(None, ge=date.today(), title=Title.TASK_DATE_COMPLETION)] | None
     ) = None

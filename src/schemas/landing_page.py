@@ -1,9 +1,9 @@
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from src.schemas.constants import Length, Title, Validation
+from src.schemas.constants import Title
+from src.schemas.types import AddressField, PhoneNumberField, TextField
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -11,29 +11,22 @@ BASE_CONFIG = ConfigDict(
     from_attributes=True,
 )
 
-PhoneStr = Annotated[
-    str,
-    StringConstraints(
-        pattern=Validation.PHONE_NUMBER_PATTERN, max_length=Length.MIN_TELEGRAMM_USERNAME
-    ),
-]
-TextStr = Annotated[str, StringConstraints(max_length=Length.MAX_DESCRIPTION_COMPANY)]
-AddressStr = Annotated[str, StringConstraints(max_length=Length.MAX_DESCRIPTION_COMPANY)]
+
 
 
 class LandingPageBaseSchema(BaseModel):
     """Базовая схема для управления контентом лендинга."""
 
-    phone_number_1: Optional[PhoneStr] = Field(None, title=Title.PHONE_NUMBER_USER)
-    phone_number_2: Optional[PhoneStr] = Field(None, title=Title.PHONE_NUMBER_USER)
-    phone_number_3: Optional[PhoneStr] = Field(None, title=Title.PHONE_NUMBER_USER)
-    address: Optional[AddressStr] = Field(None, title=Title.NAME_COMPANY)
+    phone_number_1: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
+    phone_number_2: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
+    phone_number_3: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
+    address: Optional[AddressField] = Field(None, title=Title.NAME_COMPANY)
     email: Optional[EmailStr] = Field(None, title=Title.EMAIL_USER)
-    whatsapp: Optional[TextStr] = Field(None, title=Title.WHATSAPP_USERNAME)
-    telegram: Optional[TextStr] = Field(None, title=Title.TELEGRAM_USERNAME)
-    vk: Optional[TextStr] = Field(None, title=Title.NAME_USER)
-    price_1: Optional[TextStr] = Field(None, title=Title.NAME_LICENSE)
-    price_2: Optional[TextStr] = Field(None, title=Title.NAME_LICENSE)
+    whatsapp: Optional[TextField] = Field(None, title=Title.WHATSAPP_USERNAME)
+    telegram: Optional[TextField] = Field(None, title=Title.TELEGRAM_USERNAME)
+    vk: Optional[TextField] = Field(None, title=Title.NAME_USER)
+    price_1: Optional[TextField] = Field(None, title=Title.NAME_LICENSE)
+    price_2: Optional[TextField] = Field(None, title=Title.NAME_LICENSE)
 
     model_config = BASE_CONFIG
 

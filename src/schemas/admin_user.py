@@ -1,30 +1,13 @@
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Optional
 from uuid import UUID
 
 from fastapi_users.schemas import CreateUpdateDictModel
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from src.schemas.constants import Length, Title
+from src.schemas.constants import Title
+from src.schemas.types import NameField, OptionalNameField, PhoneNumberField
 
-NameField = Annotated[
-    str,
-    StringConstraints(
-        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE
-    ),
-]
-OptionalNameField = Annotated[
-    Optional[str],
-    StringConstraints(
-        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE
-    ),
-]
-PhoneField = Annotated[
-    Optional[str],
-    StringConstraints(
-        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_PHONE_LENGTH
-    ),
-]
 
 class AdminBaseSchema(BaseModel):
     """Базовая схема администратора.
@@ -40,7 +23,7 @@ class AdminBaseSchema(BaseModel):
     name: NameField = Field(..., title=Title.NAME_MODERATOR)
     surname: NameField = Field(..., title=Title.SURNAME_MODERATOR)
     patronymic: OptionalNameField = Field(None, title=Title.PATRONYMIC_MODERATOR)
-    phone_number: PhoneField = Field(None, title=Title.PHONE_NUMBER_MODERATOR)
+    phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_MODERATOR)
 
     model_config = ConfigDict(extra='forbid')
 

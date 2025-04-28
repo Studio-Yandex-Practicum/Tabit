@@ -167,5 +167,5 @@ class ValidationBase(ConstantsBase.Validation):
 
     EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     # TODO: Откорректировать формат телефона о требованию фронтэнда
-    PHONE_NUMBER_PATTERN: str = r'^\+?[\d\-\(\) ]+\d[\d\-\(\) ]*$'
+    PHONE_NUMBER_PATTERN: str = r'^(?!.*([\-\(\) ])\1)(?=.*\d)\+*[\d\-\(\) ]+$'
     TELEGRAM_USERNAME_PATTERN = r'\w+'

@@ -1,27 +1,12 @@
 """Модуль миксинов для схем приложения company."""
 
 from datetime import date
-from typing import Annotated, Any, Optional
+from typing import Any, Optional
 
-from pydantic import ConfigDict, Field, StringConstraints, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
-from src.schemas.constants import Length, Title
-
-NameField = Annotated[
-    Optional[str],
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE),
-]
-PhoneNumberField = Annotated[
-    Optional[str],
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_PHONE_LENGTH),
-]
-TelegramUsernameField = Annotated[
-    Optional[str],
-    StringConstraints(
-        min_length=Length.MIN_TELEGRAMM_USERNAME, max_length=Length.MAX_TELEGRAM_USERNAME
-    ),
-]
-AvatarLinkField = Annotated[Optional[str], StringConstraints(max_length=Length.FILE_LINK)]
+from src.schemas.constants import Title
+from src.schemas.types import AvatarLinkField, NameField, PhoneNumberField, TelegramUsernameField
 
 
 class GetterSlugMixin:

@@ -1,30 +1,11 @@
 from datetime import datetime
-from typing import Annotated, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.models import ProblemColor, ProblemStatus, ProblemType
-from src.schemas.constants import Length, Title
-
-NameStr = Annotated[
-    str,
-    StringConstraints(
-        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE
-    ),
-]
-OptionalNameStr = Annotated[
-    Optional[str],
-    StringConstraints(
-        strip_whitespace=True, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE
-    ),
-]
-DescriptionStr = Annotated[
-    Optional[str],
-    StringConstraints(
-        min_length=Length.MIN_DESCRIPTION, max_length=Length.MAX_DESCRIPTION_COMPANY
-    ),
-]
+from src.schemas.constants import Title
+from src.schemas.types import DescriptionField, NameField, OptionalNameField
 
 
 class ProblemBaseSchema(BaseModel):
@@ -35,7 +16,7 @@ class ProblemBaseSchema(BaseModel):
         description: Описание проблемы (опционально).
     """
 
-    description: DescriptionStr = Field(None, title=Title.PROBLEM_DESCRIPTION)
+    description: DescriptionField = Field(None, title=Title.PROBLEM_DESCRIPTION)
     # TODO: Реализовать добавление файлов в проблему
 
     model_config = ConfigDict(extra='forbid')
@@ -98,7 +79,7 @@ class ProblemCreateSchema(ProblemBaseSchema):
         members: Список UUID участников (опционально).
     """
 
-    name: NameStr = Field(..., title=Title.PROBLEM_NAME)
+    name: NameField = Field(..., title=Title.PROBLEM_NAME)
     color: ProblemColor = Field(..., title=Title.PROBLEM_COLOR)
     type: ProblemType = Field(..., title=Title.PROBLEM_TYPE)
     members: list[UUID] | None = Field(default=[], title=Title.PROBLEM_MEMBERS)
@@ -118,7 +99,7 @@ class ProblemUpdateSchema(ProblemBaseSchema):
         members: Список UUID участников (опционально).
     """
 
-    name: OptionalNameStr = Field(None, title=Title.PROBLEM_NAME)
+    name: OptionalNameField = Field(None, title=Title.PROBLEM_NAME)
     color: ProblemColor | None = Field(None, title=Title.PROBLEM_COLOR)
     type: ProblemType | None = Field(None, title=Title.PROBLEM_TYPE)
     status: ProblemStatus | None = Field(None, title=Title.PROBLEM_STATUS)

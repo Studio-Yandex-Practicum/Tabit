@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field
 
-from src.schemas.constants import Length, Title
+from src.schemas.constants import Title
+from src.schemas.types import VotingTextField
 
 BASE_CONFIG = ConfigDict(
     extra="forbid",
@@ -11,14 +11,10 @@ BASE_CONFIG = ConfigDict(
     from_attributes=True,
 )
 
-VotingText = Annotated[
-    str,
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_FEEDBACK_QUESTION_LENGTH)
-]
 
 class VotingBase(BaseModel):
     """Базовая схема для голосования."""
-    text: VotingText = Field(..., title=Title.VOTING_TEXT)
+    text: VotingTextField = Field(..., title=Title.VOTING_TEXT)
     message_id: int = Field(..., ge=1, title=Title.VOTING_MESSAGE_ID)
 
     model_config = BASE_CONFIG

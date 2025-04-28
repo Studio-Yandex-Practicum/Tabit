@@ -2,15 +2,15 @@ from datetime import date
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.models import (
     MeetingResultEngagementEnum,
     MeetingResultEnum,
     MeetingResultSolutionEnum,
 )
-from src.schemas.constants import Length, Title
+from src.schemas.constants import Title
+from src.schemas.types import FeedbackField, PlaceField
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -18,8 +18,6 @@ BASE_CONFIG = ConfigDict(
     from_attributes=True,
 )
 
-FeedbackStr = Annotated[str, StringConstraints(max_length=Length.MAX_FEEDBACK_QUESTION_LENGTH)]
-PlaceStr = Annotated[str, StringConstraints(min_length=Length.MIN_NAME)]
 
 
 class MeetingResultBaseSchema(BaseModel):
@@ -32,7 +30,7 @@ class MeetingResultBaseSchema(BaseModel):
     problem_solution: Optional[MeetingResultSolutionEnum] = Field(
         None, title=Title.PROBLEM_SOLUTION
     )
-    meeting_feedback: Optional[FeedbackStr] = Field(None, title=Title.MEETING_FEEDBACK)
+    meeting_feedback: Optional[FeedbackField] = Field(None, title=Title.MEETING_FEEDBACK)
 
     model_config = BASE_CONFIG
 
@@ -52,7 +50,7 @@ class MeetingResultCreateSchema(MeetingResultBaseSchema):
 class MeetingResultSchema(BaseModel):
     """Схема для данных о встрече из связанной модели Meeting."""
 
-    place: PlaceStr = Field(..., title=Title.MEETING_PLACE)
+    place: PlaceField = Field(..., title=Title.MEETING_PLACE)
     date_meeting: date = Field(..., title=Title.MEETING_DATE)
 
     model_config = BASE_CONFIG

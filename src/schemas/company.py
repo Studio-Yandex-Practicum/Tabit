@@ -1,18 +1,25 @@
 from datetime import datetime
-from typing import Annotated, Literal, Optional, Self
+from typing import Literal, Optional, Self
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     EmailStr,
     Field,
-    StringConstraints,
     field_validator,
     model_validator,
 )
-from pydantic_extra_types.phone_numbers import PhoneNumber
 
-from src.schemas.constants import Length, MiscConstants, Title
+from src.schemas.constants import MiscConstants, Title
+from src.schemas.types import (
+    CompanyNameField,
+    DescriptionField,
+    FeedbackQuestionField,
+    NameField,
+    OptionalCompanyNameField,
+    PhoneNumberField,
+    TelegramUsernameField,
+)
 from src.schemas.user import UserUpdateSchema
 from src.schemas.validators.company import (
     check_license_fields_none,
@@ -23,34 +30,6 @@ from src.schemas.validators.company import (
     validate_surname_characters,
 )
 
-CompanyNameField = Annotated[
-    str,
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_COMPANY)
-]
-OptionalCompanyNameField = Annotated[
-    Optional[str],
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_COMPANY)
-]
-DescriptionField = Annotated[
-    Optional[str],
-    StringConstraints(min_length=Length.MIN_DESCRIPTION, max_length=Length.MAX_DESCRIPTION_COMPANY)
-]
-UserNameField = Annotated[
-    Optional[str],
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_NAME_LICENSE)
-]
-PhoneNumberField = Annotated[
-    Optional[PhoneNumber],
-    StringConstraints(min_length=Length.MIN_NAME, max_length=Length.MAX_PHONE_LENGTH)
-]
-TelegramUsernameField = Annotated[
-    Optional[str],
-    StringConstraints(max_length=Length.MAX_NAME_LICENSE)
-]
-FeedbackQuestionField = Annotated[
-    str,
-    StringConstraints(max_length=Length.MAX_ADDRESS_LENGTH)
-]
 
 class CompanyUpdateForUserSchema(BaseModel):
     """Схема для обновления компании пользователем-админом.
@@ -226,8 +205,8 @@ class UserCompanyUpdateSchema(BaseModel):
         email: Электронная почта (опционально).
         telegram_username: Имя в Telegram (опционально).
     """
-    name: UserNameField = Field(None, title=Title.NAME_USER)
-    surname: UserNameField = Field(None, title=Title.SURNAME_USER)
+    name: NameField = Field(None, title=Title.NAME_USER)
+    surname: NameField = Field(None, title=Title.SURNAME_USER)
     phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
     email: Optional[EmailStr] = None
     telegram_username: TelegramUsernameField = Field(None, title=Title.TELEGRAM_USERNAME)
