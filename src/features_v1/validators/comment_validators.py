@@ -2,13 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import comment_crud, user_comment_association_crud
-from src.crud.constants import (
-    VALID_COMMENT_NOT_OWNER,
-    VALID_LIKE_OWN_COMMENT,
-    VALID_NOT_LIKED_COMMENT,
-    VALID_REPEATED_LIKE,
-    VALID_WRONG_COMMENT,
-)
+from src.features_v1.constants import TextError
 from src.models import AssociationUserComment, CommentFeed
 
 from .problem_validators import (
@@ -41,18 +35,20 @@ class BaseCommentValidator:
 
     def ensure_comment_in_feed(self, comment: CommentFeed, message_feed_id: int) -> None:
         if comment.message_id != message_feed_id:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=VALID_WRONG_COMMENT)
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=TextError.WRONG_COMMENT
+            )
 
     def ensure_not_owner(self, comment: CommentFeed, user_id: int) -> None:
         if comment.owner_id == user_id:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=VALID_LIKE_OWN_COMMENT
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.LIKE_OWN_COMMENT
             )
 
     def ensure_is_owner(self, comment: CommentFeed, user_id: int) -> None:
         if comment.owner_id != user_id:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail=VALID_COMMENT_NOT_OWNER
+                status_code=status.HTTP_403_FORBIDDEN, detail=TextError.COMMENT_NOT_OWNER
             )
 
     async def get_user_like(self, user_id: int, comment_id: int) -> AssociationUserComment | None:
@@ -61,7 +57,7 @@ class BaseCommentValidator:
     def ensure_like_absent(self, like_obj: AssociationUserComment | None) -> None:
         if like_obj:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=VALID_REPEATED_LIKE
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.REPEATED_LIKE
             )
 
     def ensure_like_present(
@@ -69,7 +65,7 @@ class BaseCommentValidator:
     ) -> AssociationUserComment:
         if not like_obj:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=VALID_NOT_LIKED_COMMENT
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.NOT_LIKED_COMMENT
             )
         return like_obj
 

@@ -21,7 +21,7 @@ from src.core.auth.managers import get_admin_manager
 from src.core.auth.protocol import StrategyT
 from src.core.database.db_depends import get_async_session
 from src.crud import admin_user_crud
-from src.features_v1.constants import OPENAPI_EXTRA_ADMIN_AUTH, Description, Summary
+from src.features_v1.constants import Description, MiscConstants, Summary
 from src.features_v1.validators import (
     check_user_is_active,
     validator_check_not_is_superuser,
@@ -37,9 +37,9 @@ router = APIRouter()
     '/',
     response_model=list[AdminReadSchema],
     dependencies=[Depends(current_superuser)],
-    summary=Summary.TABIT_ADMIN_AUTH_LIST,
-    description=Description.TABIT_ADMIN_AUTH_LIST,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.LIST_ADMIN_AUTH,
+    description=Description.LIST_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_tabit_admin(
     session: AsyncSession = Depends(get_async_session),
@@ -62,9 +62,9 @@ async def get_tabit_admin(
 @router.get(
     '/me',
     response_model=AdminReadSchema,
-    summary=Summary.TABIT_ADMIN_AUTH_GET_ME,
-    description=Description.TABIT_ADMIN_AUTH_GET_ME,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.GET_ME_ADMIN_AUTH,
+    description=Description.GET_ME_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_me_tabit_admin(
     session: AsyncSession = Depends(get_async_session),
@@ -89,9 +89,9 @@ async def get_me_tabit_admin(
 @router.patch(
     '/me',
     response_model=AdminReadSchema,
-    summary=Summary.TABIT_ADMIN_AUTH_PATCH_ME,
-    description=Description.TABIT_ADMIN_AUTH_PATCH_ME,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.PATCH_ME_ADMIN_AUTH,
+    description=Description.PATCH_ME_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_me_tabit_admin(
     user_in: AdminUpdateSchema,
@@ -119,9 +119,9 @@ async def update_me_tabit_admin(
     '/{user_id}',
     response_model=AdminReadSchema,
     dependencies=[Depends(current_superuser)],
-    summary=Summary.TABIT_ADMIN_AUTH_GET_BY_ID,
-    description=Description.TABIT_ADMIN_AUTH_GET_BY_ID,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.GET_BY_ID_ADMIN_AUTH,
+    description=Description.GET_BY_ID_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_tabit_admin_by_id(
     user_id: UUID,
@@ -147,9 +147,9 @@ async def get_tabit_admin_by_id(
     '/{user_id}',
     response_model=AdminReadSchema,
     dependencies=[Depends(current_superuser)],
-    summary=Summary.TABIT_ADMIN_AUTH_PATCH_BY_ID,
-    description=Description.TABIT_ADMIN_AUTH_PATCH_BY_ID,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.PATCH_BY_ID_ADMIN_AUTH,
+    description=Description.PATCH_BY_ID_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_tabit_admin_by_id(
     user_id: UUID,
@@ -183,9 +183,9 @@ async def update_tabit_admin_by_id(
     '/{user_id}',
     dependencies=[Depends(current_superuser)],
     status_code=HTTPStatus.NO_CONTENT,
-    summary=Summary.TABIT_ADMIN_AUTH_DELETE_BY_ID,
-    description=Description.TABIT_ADMIN_AUTH_DELETE_BY_ID,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.DELETE_BY_ID_ADMIN_AUTH,
+    description=Description.DELETE_BY_ID_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def delete_tabit_admin_by_id(
     user_id: UUID,
@@ -228,9 +228,9 @@ router.include_router(  # форгот и резет пассворд
 @router.post(
     '/refresh-token',
     response_model=TokenReadSchemas,
-    summary=Summary.TABIT_ADMIN_AUTH_REFRESH_TOKEN,
-    description=Description.TABIT_ADMIN_AUTH_REFRESH_TOKEN,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.REFRESH_TOKEN_ADMIN_AUTH,
+    description=Description.REFRESH_TOKEN_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def refresh_token_tabit_admin(
     user_and_refresh_token: tuple[TabitAdminUser, str] = Depends(get_current_admin_refresh_token),
@@ -268,9 +268,9 @@ async def refresh_token_tabit_admin(
     response_model=AdminReadSchema,
     dependencies=[Depends(current_superuser)],
     status_code=HTTPStatus.CREATED,
-    summary=Summary.TABIT_ADMIN_AUTH_CREATE,
-    description=Description.TABIT_ADMIN_AUTH_CREATE,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.CREATE_ADMIN_AUTH,
+    description=Description.CREATE_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def create_tabit_admin(
     request: Request,
@@ -303,8 +303,8 @@ async def create_tabit_admin(
 @router.post(
     '/login',
     response_model=TokenReadSchemas,
-    summary=Summary.TABIT_ADMIN_AUTH_LOGIN,
-    description=Description.TABIT_ADMIN_AUTH_LOGIN,
+    summary=Summary.LOGIN_ADMIN_AUTH,
+    description=Description.LOGIN_ADMIN_AUTH,
 )
 async def login(
     credentials: OAuth2PasswordRequestForm = Depends(),
@@ -340,9 +340,9 @@ async def login(
 # TODO: Либо упростить (возвращает None, status_code=204), либо добавить логику в backend.
 @router.post(
     '/logout',
-    summary=Summary.TABIT_ADMIN_AUTH_LOGOUT,
-    description=Description.TABIT_ADMIN_AUTH_LOGOUT,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=Summary.LOGOUT_ADMIN_AUTH,
+    description=Description.LOGOUT_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def logout(
     user_and_access_token: tuple[models.UP, str] = Depends(get_current_admin_token),

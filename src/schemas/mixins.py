@@ -5,23 +5,7 @@ from typing import Any, Optional
 
 from pydantic import ConfigDict, Field, model_validator
 
-from src.schemas.constants import (
-    LENGTH_FILE_LINK,
-    LENGTH_NAME_USER,
-    LENGTH_TELEGRAM_USERNAME,
-    MIN_LENGTH_NAME,
-    TITLE_AVATAR_LINK_USER,
-    TITLE_BIRTHDAY_USER,
-    TITLE_CURRENT_DEPARTMENT_ID_USER,
-    TITLE_DEPARTMENT_TRANSITION_DATE_USER,
-    TITLE_EMPLOYEE_POSITION_USER,
-    TITLE_END_DATE_EMPLOYMENT_USER,
-    TITLE_PATRONYMIC_USER,
-    TITLE_PHONE_NUMBER_USER,
-    TITLE_PREVIOUS_DEPARTMENT_ID_USER,
-    TITLE_START_DATE_EMPLOYMENT_USER,
-    TITLE_TELEGRAM_USERNAME_USER,
-)
+from src.schemas.constants import Length, Title
 
 
 class GetterSlugMixin:
@@ -44,56 +28,56 @@ class UserSchemaMixin:
 
     patronymic: Optional[str] = Field(
         None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_PATRONYMIC_USER,
+        min_length=Length.MIN_NAME,
+        max_length=Length.MAX_NAME,
+        title=Title.PATRONYMIC_USER,
     )
     phone_number: Optional[str] = Field(
         None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_PHONE_NUMBER_USER,
+        min_length=Length.MIN_NAME,
+        max_length=Length.MAX_NAME,
+        title=Title.PHONE_NUMBER_USER,
     )
     birthday: Optional[date] = Field(
         None,
         # TODO: проверка на корректность даты рождения.
-        title=TITLE_BIRTHDAY_USER,
+        title=Title.BIRTHDAY_USER,
     )
     telegram_username: Optional[str] = Field(
         None,
-        max_length=LENGTH_TELEGRAM_USERNAME,
-        title=TITLE_TELEGRAM_USERNAME_USER,
+        max_length=Length.MAX_TELEGRAM_USERNAME,
+        title=Title.TELEGRAM_USERNAME,
     )
     start_date_employment: Optional[date] = Field(
         None,
         # TODO: проверка на корректность даты рождения.
-        title=TITLE_START_DATE_EMPLOYMENT_USER,
+        title=Title.START_DATE_EMPLOYMENT_USER,
     )
     end_date_employment: Optional[date] = Field(
         None,
         # TODO: проверка на корректность даты рождения.
-        title=TITLE_END_DATE_EMPLOYMENT_USER,
+        title=Title.END_DATE_EMPLOYMENT_USER,
     )
     avatar_link: Optional[str] = Field(
         None,
-        max_length=LENGTH_FILE_LINK,
-        title=TITLE_AVATAR_LINK_USER,
+        max_length=Length.FILE_LINK,
+        title=Title.AVATAR_LINK_USER,
     )
     current_department_id: Optional[int] = Field(
         None,
-        title=TITLE_CURRENT_DEPARTMENT_ID_USER,
+        title=Title.CURRENT_DEPARTMENT_ID_USER,
     )
     previous_department_id: Optional[int] = Field(
         None,
-        title=TITLE_PREVIOUS_DEPARTMENT_ID_USER,
+        title=Title.PREVIOUS_DEPARTMENT_ID_USER,
     )
     department_transition_date: Optional[date] = Field(
         None,
         # TODO: проверка на корректность даты рождения.
-        title=TITLE_DEPARTMENT_TRANSITION_DATE_USER,
+        title=Title.DEPARTMENT_TRANSITION_DATE_USER,
     )
     employee_position: Optional[str] = Field(
         None,
-        title=TITLE_EMPLOYEE_POSITION_USER,
+        title=Title.EMPLOYEE_POSITION_USER,
     )
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)

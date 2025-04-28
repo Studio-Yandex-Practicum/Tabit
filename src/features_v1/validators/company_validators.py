@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database.db_depends import get_async_session
 from src.crud import company_crud, department_crud
-from src.features_v1.constants import LENGTH_SLUG, VALID_WRONG_COMPANY, TextError
+from src.features_v1.constants import Length, TextError
 from src.models import Company, Department
 
 
@@ -31,7 +31,7 @@ async def check_department_name_duplicate(
     if departments:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=TextError.DEPARTMENT_EXIST_ERROR_MESSAGE,
+            detail=TextError.DEPARTMENT_EXIST,
         )
 
 
@@ -45,11 +45,11 @@ async def check_slug_duplicate(
         db_obj (Department | Company): объект отдела или компании.
         session (AsyncSession): Асинхронная сессия SQLAlchemy.
     """
-    base_slug = slugify(db_obj.name)[:LENGTH_SLUG]
+    base_slug = slugify(db_obj.name)[: Length.SLUG]
     new_slug = base_slug
     crud = department_crud if isinstance(db_obj, Department) else company_crud
     while await crud.get_multi(session=session, filters={'slug': new_slug}):
-        new_slug = f'{base_slug[: LENGTH_SLUG - 6]}-{random.randint(1000, 9999)}'
+        new_slug = f'{base_slug[: Length.SLUG - 6]}-{random.randint(1000, 9999)}'
     return new_slug
 
 
@@ -66,7 +66,7 @@ async def check_user_company(
 
     company = await company_crud.get_or_404(session, user_company_id)
     if company.slug != company_slug:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=VALID_WRONG_COMPANY)
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=TextError.WRONG_COMPANY)
 
 
 async def check_company_and_department(

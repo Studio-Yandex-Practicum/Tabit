@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
-from src.crud import admin_company_crud, admin_user_crud
-from src.features_v1.constants import OPENAPI_EXTRA_ADMIN_AUTH
+from src.crud import admin_company_crud, moderator_crud
+from src.features_v1.constants import MiscConstants
 from src.features_v1.validators import (
     check_company_and_department,
     check_telegram_username_for_duplicates,
@@ -31,7 +31,7 @@ router = APIRouter()
     response_model=list[AdminCompanyResponseSchema],
     dependencies=[Depends(current_admin_tabit)],
     summary='Получить общую информацию по компаниям.',
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_all_info(
     session: AsyncSession = Depends(get_async_session),
@@ -55,7 +55,7 @@ async def get_all_info(
     response_model=list[CompanyAdminReadSchema],
     dependencies=[Depends(current_admin_tabit)],
     summary='Получить информацию по всем сотрудникам компаний.',
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_all_staff(
     session: AsyncSession = Depends(get_async_session),
@@ -71,7 +71,7 @@ async def get_all_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
-    return await admin_user_crud.get_multi(session, query_params.skip, query_params.limit)
+    return await moderator_crud.get_multi(session, query_params.skip, query_params.limit)
 
 
 @router.post(
@@ -79,13 +79,13 @@ async def get_all_staff(
     dependencies=[Depends(current_admin_tabit)],
     summary='Создать нового сотрудника компании.',
     response_model=CompanyAdminReadSchema,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def create_staff(
     create_data: CompanyAdminCreateSchema,
     session: AsyncSession = Depends(get_async_session),
     user_manager: BaseUserManager = Depends(get_user_manager),
-) -> CompanyAdminCreateSchema:
+) -> CompanyAdminReadSchema:
     """
     Создает нового пользователя-админа компании.
     Параметры:
@@ -104,7 +104,7 @@ async def create_staff(
         create_data.company_id, create_data.current_department_id, session
     )
     await check_telegram_username_for_duplicates(create_data.telegram_username, session)
-    return await admin_user_crud.create(create_data, user_manager)
+    return await moderator_crud.create(create_data, user_manager)
 
 
 @router.get(
@@ -112,10 +112,10 @@ async def create_staff(
     summary='Получить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_staff(
-    user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)
+    user_id: UUID, session: AsyncSession = Depends(get_async_session)
 ) -> CompanyAdminReadSchema:
     """
     Получает информацию об администраторе с указанным UUID или возвращает HTTP 404.
@@ -125,7 +125,7 @@ async def get_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
-    return await admin_user_crud.get_or_404(user_id, user_manager)
+    return await moderator_crud.get_or_404(session, user_id)
 
 
 @router.put(
@@ -133,7 +133,7 @@ async def get_staff(
     summary='Полностью изменить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def full_update_staff(
     user_id: UUID,
@@ -152,10 +152,10 @@ async def full_update_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
-    user = await admin_user_crud.get_or_404(user_id, user_manager)
+    user = await moderator_crud.get_or_404(session, user_id)
     await check_company_and_department(user.company_id, update_data.current_department_id, session)
     await check_telegram_username_for_duplicates(update_data.telegram_username, session)
-    return await admin_user_crud.update(user_id, update_data, user_manager)
+    return await moderator_crud.update(user_id, update_data, user_manager)
 
 
 @router.patch(
@@ -163,7 +163,7 @@ async def full_update_staff(
     summary='Частично изменить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_staff(
     user_id: UUID,
@@ -182,10 +182,10 @@ async def update_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
-    user = await admin_user_crud.get_or_404(user_id, user_manager)
+    user = await moderator_crud.get_or_404(session, user_id)
     await check_company_and_department(user.company_id, update_data.current_department_id, session)
     await check_telegram_username_for_duplicates(update_data.telegram_username, session)
-    return await admin_user_crud.update(user_id, update_data, user_manager)
+    return await moderator_crud.update(user_id, update_data, user_manager)
 
 
 @router.delete(
@@ -193,7 +193,7 @@ async def update_staff(
     summary='Удалить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
     status_code=status.HTTP_204_NO_CONTENT,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
     """
@@ -205,7 +205,7 @@ async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(ge
 
     Эндпоинт доступен только админам сервиса.
     """
-    await admin_user_crud.remove(user_id, user_manager)
+    await moderator_crud.remove(user_id, user_manager)
     return status.HTTP_204_NO_CONTENT
 
 
@@ -216,7 +216,7 @@ async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(ge
     '/staff/{user_id}/resetpassword',
     dependencies=[Depends(current_admin_tabit)],
     summary='Сброс пароля администратора. Не работает',
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def reset_password_staff(
     user_id: UUID,

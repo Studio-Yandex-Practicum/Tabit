@@ -2,10 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import meeting_crud, result_meeting_crud
-from src.features_v1.constants import (
-    ERROR_MEETING_NOT_FOUND,
-    VALID_NOT_UNIQUE_RESULT_MEETING,
-)
+from src.features_v1.constants import TextError
 from src.models import CompanyUser
 
 
@@ -25,7 +22,9 @@ async def check_meeting_exists(meeting_id: int, session: AsyncSession):
     try:
         await meeting_crud.get_or_404(session, meeting_id)
     except HTTPException:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_MEETING_NOT_FOUND)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=TextError.MEETING_NOT_FOUND
+        )
 
 
 async def check_result_meeting_unique(meeting_id: int, owner: CompanyUser, session: AsyncSession):
@@ -45,5 +44,5 @@ async def check_result_meeting_unique(meeting_id: int, owner: CompanyUser, sessi
         filters={'meeting_id': meeting_id, 'owner_id': owner.id}, session=session
     ):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=VALID_NOT_UNIQUE_RESULT_MEETING
+            status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.NOT_UNIQUE_RESULT_MEETING
         )

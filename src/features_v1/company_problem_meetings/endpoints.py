@@ -33,8 +33,8 @@ router = APIRouter()
     '/',
     response_model=list[MeetingResponseSchema],
     response_model_exclude_none=True,
-    summary=Summary.MEETING_LIST,
-    description=Description.MEETING_LIST,
+    summary=Summary.LIST_MEETING,
+    description=Description.LIST_MEETING,
     status_code=status.HTTP_200_OK,
 )
 async def get_meetings_for_user(
@@ -81,8 +81,8 @@ async def get_meetings_for_user(
     '/',
     response_model=MeetingResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.MEETING_CREATE,
-    description=Description.MEETING_CREATE,
+    summary=Summary.CREATE_MEETING,
+    description=Description.CREATE_MEETING,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_meeting(
@@ -133,8 +133,8 @@ async def create_meeting(
     '/{meeting_id}',
     response_model=MeetingResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.MEETING,
-    description=Description.MEETING,
+    summary=Summary.GET_MEETING,
+    description=Description.GET_MEETING,
     status_code=status.HTTP_200_OK,
 )
 async def get_meeting(
@@ -179,8 +179,8 @@ async def get_meeting(
     '/{meeting_id}',
     response_model=MeetingResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.MEETING_UPDATE,
-    description=Description.MEETING_UPDATE,
+    summary=Summary.UPDATE_MEETING,
+    description=Description.UPDATE_MEETING,
     status_code=status.HTTP_200_OK,
 )
 async def update_meeting(
@@ -236,8 +236,8 @@ async def update_meeting(
 
 @router.delete(
     '/{meeting_id}',
-    summary=Summary.MEETING_DELETE,
-    description=Description.MEETING_DELETE,
+    summary=Summary.DELETE_MEETING,
+    description=Description.DELETE_MEETING,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_meeting(
@@ -286,7 +286,8 @@ async def delete_meeting(
     '/{meeting_id}/result',
     response_model=MeetingResultResponseSchema,
     response_model_exclude_none=True,
-    summary='Создать результат встречи',
+    summary=Summary.CREATE_RESULT_MEETING,
+    description=Description.CREATE_RESULT_MEETING,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_meeting_result(
@@ -323,7 +324,8 @@ async def create_meeting_result(
     '/{meeting_id}/result/{result_id}',
     response_model=MeetingResultResponseSchema,
     response_model_exclude_none=True,
-    summary='Результат встречи',
+    summary=Summary.GET_RESULT_MEETING,
+    description=Description.GET_RESULT_MEETING,
     status_code=status.HTTP_200_OK,
 )
 async def get_meeting_result(
@@ -357,7 +359,8 @@ async def get_meeting_result(
     '/{meeting_id}/result/{result_id}',
     response_model=MeetingResultResponseSchema,
     response_model_exclude_none=True,
-    summary='Обновить результат встречи',
+    summary=Summary.UPDATE_RESULT_MEETING,
+    description=Description.UPDATE_RESULT_MEETING,
     status_code=status.HTTP_200_OK,
 )
 async def patch_meeting_result(

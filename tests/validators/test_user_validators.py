@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from fastapi import HTTPException, status
 
-from src.features_v1.constants import ERROR_INVALID_TELEGRAM_USERNAME, TextError
+from src.features_v1.constants import TextError
 from src.features_v1.validators.user_validators import (
     BaseUserValidator,
     check_telegram_username_for_duplicates,
@@ -46,17 +46,13 @@ async def test_check_telegram_username_for_duplicates_raises():
     validator = BaseUserValidator(session=session)
     validator.check_telegram_username_exists = AsyncMock(return_value=True)
 
-    # Патчим метод класса
-    from src.features_v1.validators import user_validators
-
-    user_validators.BaseUserValidator.check_telegram_username_exists = (
-        validator.check_telegram_username_exists
-    )
+    # directly use the mocked method
+    BaseUserValidator.check_telegram_username_exists = validator.check_telegram_username_exists
 
     with pytest.raises(HTTPException) as exc:
         await check_telegram_username_for_duplicates('existing_user', session)
     assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
-    assert exc.value.detail == ERROR_INVALID_TELEGRAM_USERNAME
+    assert exc.value.detail == TextError.EXISTS_USERNAME
 
 
 @pytest.mark.asyncio
@@ -65,9 +61,7 @@ async def test_validate_field_members_invalid_user():
     validator = BaseUserValidator(session=session)
     validator.get_user_by_uuid = AsyncMock(return_value=None)
 
-    from src.features_v1.validators import user_validators
-
-    user_validators.BaseUserValidator.get_user_by_uuid = validator.get_user_by_uuid
+    BaseUserValidator.get_user_by_uuid = validator.get_user_by_uuid
 
     with pytest.raises(HTTPException) as exc:
         await validate_field_members(session, [1], company_id=1)
@@ -81,9 +75,7 @@ async def test_validate_field_members_not_from_company():
     validator = BaseUserValidator(session=session)
     validator.get_user_by_uuid = AsyncMock(return_value=user)
 
-    from src.features_v1.validators import user_validators
-
-    user_validators.BaseUserValidator.get_user_by_uuid = validator.get_user_by_uuid
+    BaseUserValidator.get_user_by_uuid = validator.get_user_by_uuid
 
     with pytest.raises(HTTPException) as exc:
         await validate_field_members(session, [1], company_id=1)

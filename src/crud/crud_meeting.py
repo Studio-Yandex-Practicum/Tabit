@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config.logging import logger
 from src.crud import CRUDBaseWithAssociations
-from src.crud.constants import ZERO, TextError
+from src.crud.constants import MiscConstants, TextError
 from src.models import (
     AssociationUserMeeting,
     CompanyUser,
@@ -47,7 +47,7 @@ class CRUDMeeting(CRUDBaseWithAssociations):
             'problem_id': problem.id,
             'owner_id': owner.id,
             'status': MeetingStatus.NEW,
-            'transfer_counter': ZERO,
+            'transfer_counter': MiscConstants.ZERO,
         }
         meeting_data.update(default_data)
         meeting_db = self.model(**meeting_data)
@@ -72,7 +72,7 @@ class CRUDMeeting(CRUDBaseWithAssociations):
             await session.refresh(meeting_db)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return meeting_db
 
@@ -148,7 +148,7 @@ class CRUDMeeting(CRUDBaseWithAssociations):
 
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
 
         return meeting_db

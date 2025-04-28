@@ -34,6 +34,7 @@ class TestCompanyValidators:
         with pytest.raises(HTTPException) as exc:
             await check_department_name_duplicate(company.id, department.name, async_session)
         assert exc.value.status_code == 400
+        await async_session.close()
 
     async def test_check_department_name_duplicate_passes(
         self, async_session: AsyncSession, company_for_test
@@ -50,6 +51,7 @@ class TestCompanyValidators:
         """
         company, department = await company_for_test(with_department=True)
         await check_department_name_duplicate(company.id, 'unique-name', async_session)
+        await async_session.close()
 
     async def test_check_slug_duplicate_unique(self, async_session: AsyncSession):
         """
@@ -64,6 +66,7 @@ class TestCompanyValidators:
         company = Company(name='Unique Company Name')
         slug = await check_slug_duplicate(company, async_session)
         assert slug.startswith('unique-company-name')
+        await async_session.close()
 
     async def test_check_user_company_valid(self, async_session: AsyncSession, company_for_test):
         """
@@ -78,6 +81,7 @@ class TestCompanyValidators:
         """
         company = await company_for_test({'name': 'Компания тест'})
         await check_user_company(company.id, company.slug, async_session)
+        await async_session.close()
 
     async def test_check_user_company_invalid(self, async_session: AsyncSession, company_for_test):
         """
@@ -95,6 +99,7 @@ class TestCompanyValidators:
         with pytest.raises(HTTPException) as exc:
             await check_user_company(company.id, 'wrong-slug', async_session)
         assert exc.value.status_code == 403
+        await async_session.close()
 
     async def test_check_company_and_department_valid(
         self, async_session: AsyncSession, company_for_test
@@ -111,6 +116,7 @@ class TestCompanyValidators:
         """
         company, department = await company_for_test(with_department=True)
         await check_company_and_department(company.id, department.id, async_session)
+        await async_session.close()
 
     async def test_check_company_and_department_invalid_department(
         self, async_session: AsyncSession, company_for_test
@@ -132,6 +138,7 @@ class TestCompanyValidators:
             await check_company_and_department(company.id, 999999, async_session)
         assert exc.value.status_code == 422
         assert exc.value.detail == TextError.DEPARTMENT_NOT_FOUND
+        await async_session.close()
 
     async def test_validate_company_slug_duplicate(
         self, async_session: AsyncSession, company_for_test
@@ -151,6 +158,7 @@ class TestCompanyValidators:
         with pytest.raises(HTTPException) as exc:
             await validate_company_slug(async_session, company.slug)
         assert exc.value.status_code == 400
+        await async_session.close()
 
     async def test_validate_company_slug_unique(self, async_session: AsyncSession):
         """
@@ -163,3 +171,4 @@ class TestCompanyValidators:
             - Проверка, что валидация проходит без исключений.
         """
         await validate_company_slug(async_session, 'totally-unique-slug')
+        await async_session.close()

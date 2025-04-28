@@ -3,13 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from fastapi import HTTPException, status
 
-from src.crud.constants import MAX_NUMBER_PROBLEM
-from src.features_v1.constants import (
-    ERROR_PROBLEM_NOT_FOUND,
-    ERROR_PROBLEM_NUMBER,
-    VALID_WRONG_MESSAGE_FEED,
-    VALID_WRONG_PROBLEM,
-)
+from src.features_v1.constants import TextError
 from src.features_v1.validators import problem_validators
 
 
@@ -24,7 +18,7 @@ async def test_check_company_problem_wrong_company_raises():
     with pytest.raises(HTTPException) as exc:
         await problem_validators.check_company_problem(1, 123, session)
     assert exc.value.status_code == status.HTTP_403_FORBIDDEN
-    assert exc.value.detail == VALID_WRONG_PROBLEM
+    assert exc.value.detail == TextError.WRONG_PROBLEM
 
 
 @pytest.mark.asyncio
@@ -37,20 +31,7 @@ async def test_check_message_feed_and_problem_invalid_feed():
     with pytest.raises(HTTPException) as exc:
         await problem_validators.check_message_feed_and_problem(1, problem_id, session)
     assert exc.value.status_code == status.HTTP_404_NOT_FOUND
-    assert exc.value.detail == VALID_WRONG_MESSAGE_FEED
-
-
-@pytest.mark.asyncio
-async def test_check_max_number_problems_exceeded():
-    session = AsyncMock()
-    user = MagicMock()
-    problem_validators.problem_crud.get_all_open_problem_from_association_by_user_id = AsyncMock(
-        return_value=[1] * MAX_NUMBER_PROBLEM
-    )
-    with pytest.raises(HTTPException) as exc:
-        await problem_validators.check_max_number_problems(session, user)
-    assert exc.value.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-    assert ERROR_PROBLEM_NUMBER.format(MAX_NUMBER_PROBLEM) in str(exc.value.detail)
+    assert exc.value.detail == TextError.WRONG_MESSAGE_FEED
 
 
 @pytest.mark.asyncio
@@ -63,4 +44,4 @@ async def test_check_problem_exists_not_found():
     with pytest.raises(HTTPException) as exc:
         await problem_validators.check_problem_exists(42, session)
     assert exc.value.status_code == status.HTTP_404_NOT_FOUND
-    assert exc.value.detail == ERROR_PROBLEM_NOT_FOUND
+    assert exc.value.detail == TextError.PROBLEM_NOT_FOUND

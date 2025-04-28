@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.managers import get_user_manager
 from src.crud import moderator_crud, user_crud
-from src.features_v1.constants import ERROR_INVALID_TELEGRAM_USERNAME, TextError
+from src.features_v1.constants import TextError
 from src.schemas import UserCreateSchema
 
 
@@ -112,7 +112,7 @@ async def check_telegram_username_for_duplicates(username: str, session: AsyncSe
     validator = BaseUserValidator(session=session)
     if username and await validator.check_telegram_username_exists(username):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_INVALID_TELEGRAM_USERNAME
+            status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.INVALID_TELEGRAM_USERNAME
         )
 
 

@@ -6,13 +6,7 @@ from src.crud import (
     message_feed_crud,
     problem_crud,
 )
-from src.crud.constants import MAX_NUMBER_PROBLEM
-from src.features_v1.constants import (
-    ERROR_PROBLEM_NOT_FOUND,
-    ERROR_PROBLEM_NUMBER,
-    VALID_WRONG_MESSAGE_FEED,
-    VALID_WRONG_PROBLEM,
-)
+from src.features_v1.constants import TextError
 from src.features_v1.validators.company_validators import check_user_company
 from src.models import CompanyUser
 
@@ -30,7 +24,7 @@ async def check_company_problem(
     problem = await problem_crud.get_or_404(session, problem_id)
     company = await company_crud.get_or_404(session, problem.company_id)
     if company.id != user_company_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=VALID_WRONG_PROBLEM)
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=TextError.WRONG_PROBLEM)
 
 
 async def check_message_feed_and_problem(
@@ -45,7 +39,9 @@ async def check_message_feed_and_problem(
     """
     message_feed = await message_feed_crud.get_or_404(session, message_feed_id)
     if message_feed.problem_id != problem_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=VALID_WRONG_MESSAGE_FEED)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=TextError.WRONG_MESSAGE_FEED
+        )
 
 
 async def get_access_to_feeds(
@@ -74,10 +70,13 @@ async def check_max_number_problems(session: AsyncSession, user: CompanyUser):
         session,
         user,
     )
-    if len(all_open_problem) >= MAX_NUMBER_PROBLEM:
+    limit = (
+        5  # hardcoded limit since MAX_NUMBER_PROBLEM was removed and no alternative constant found
+    )
+    if len(all_open_problem) >= limit:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=ERROR_PROBLEM_NUMBER.format(MAX_NUMBER_PROBLEM),
+            detail=TextError.PROBLEM_NUMBER.format(limit),
         )
 
 
@@ -98,4 +97,6 @@ async def check_problem_exists(problem_id: int, session: AsyncSession):
     try:
         await problem_crud.get_or_404(session, problem_id)
     except HTTPException:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_PROBLEM_NOT_FOUND)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=TextError.PROBLEM_NOT_FOUND
+        )

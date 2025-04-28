@@ -65,7 +65,7 @@ class CRUDMeetingResult(CRUDBase):
             await session.refresh(db_obj)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return db_obj
 

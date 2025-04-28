@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from src.crud import CRUDBase
-from src.crud.constants import DEFAULT_AUTO_COMMIT, Directory
+from src.crud.constants import Default, Directory
 from src.models import Company, LicenseType
 from src.schemas import CompanyCreateSchema, CompanyUpdateSchema
 from src.utils.base64_image import base64image
@@ -98,7 +98,7 @@ class CRUDCompany(CRUDBase):
         self,
         session: AsyncSession,
         company_in: CompanyCreateSchema,
-        auto_commit: bool = DEFAULT_AUTO_COMMIT,
+        auto_commit: bool = Default.AUTO_COMMIT,
     ) -> Company:
         """
         Создаёт запись в таблице "Компания".
@@ -115,7 +115,7 @@ class CRUDCompany(CRUDBase):
         session: AsyncSession,
         company_db: Company,
         company_in: CompanyUpdateSchema,
-        auto_commit: bool = DEFAULT_AUTO_COMMIT,
+        auto_commit: bool = Default.AUTO_COMMIT,
     ) -> Company:
         """
         Изменит запись в таблице "Компания".

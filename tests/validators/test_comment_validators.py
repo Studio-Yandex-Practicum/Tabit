@@ -24,6 +24,7 @@ class TestCommentValidators:
         result = await check_comment_and_message_feed(comment.id, feed.id, async_session)
         assert isinstance(result, CommentFeed)
         assert result.id == comment.id
+        await async_session.close()
 
     async def test_check_comment_and_message_feed_invalid(
         self, async_session: AsyncSession, comment_for_test
@@ -35,6 +36,7 @@ class TestCommentValidators:
         with pytest.raises(HTTPException) as exc:
             await check_comment_and_message_feed(comment.id, 999999, async_session)
         assert exc.value.status_code == 404
+        await async_session.close()
 
     async def test_check_comment_owner_like_mode_raises(self, comment_for_test):
         """
@@ -64,6 +66,7 @@ class TestCommentValidators:
         with pytest.raises(HTTPException) as exc:
             await check_comment_has_likes_from_user(str(uuid.uuid4()), comment.id, async_session)
         assert exc.value.status_code == 400
+        await async_session.close()
 
     async def test_check_comment_has_likes_present_like_raises(
         self, async_session: AsyncSession, comment_for_test
@@ -77,3 +80,4 @@ class TestCommentValidators:
                 comment.owner_id, comment.id, async_session, like_mode=True
             )
         assert exc.value.status_code == 400
+        await async_session.close()
