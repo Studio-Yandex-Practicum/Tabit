@@ -59,6 +59,8 @@ from src.models.enum import CompanyUserRole
 
 load_dotenv()
 
+type type_token = dict[str, str]
+
 
 class AuthData:
     """
