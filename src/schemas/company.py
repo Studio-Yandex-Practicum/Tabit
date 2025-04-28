@@ -20,7 +20,6 @@ from src.schemas.user import UserUpdateSchema
 from src.schemas.validators.company import (
     check_license_fields_none,
     validate_name_characters,
-    validate_name_surname_unique,
     validate_slug,
     validate_string,
     validate_surname_characters,
@@ -211,7 +210,6 @@ class CompanyEmployeeUpdateSchema(UserUpdateSchema):
     @model_validator(mode='after')
     def validate_fields(self) -> Self:
         """Валидатор полей схемы."""
-        validate_name_surname_unique(self.name, self.surname)
         validate_name_characters(self.name)
         validate_surname_characters(self.surname)
         return self
@@ -256,7 +254,6 @@ class UserCompanyUpdateSchema(BaseModel):
     @model_validator(mode='after')
     def validate_fields(self) -> Self:
         """Валидатор полей схемы."""
-        validate_name_surname_unique(self.name, self.surname)
         validate_name_characters(self.name)
         validate_surname_characters(self.surname)
         return self
