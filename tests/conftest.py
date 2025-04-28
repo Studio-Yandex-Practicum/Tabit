@@ -860,6 +860,76 @@ async def meeting_for_test(async_session: AsyncSession, problem_for_test):
 
 
 @pytest_asyncio.fixture
+async def task_for_test(async_session: AsyncSession, meeting_for_test):
+    """
+    Фикстура, создающая задачу с возможностью изменения полей.
+
+    Параметры:
+        - task_data (dict, optional): Данные для создания задачи. Если не переданы,
+          используются значения по умолчанию.
+        - return_all_objects (bool, optional): Если True, возвращает кортеж
+          (задача, встреча, проблема, сотрудник, компания).
+
+    Возвращает:
+        - Task: Объект созданной задачи.
+        - (Task, Meeting, Problem, CompanyUser, Company): Если `return_all_objects=True`,
+           возвращает кортеж (встреча, проблема, сотрудник, компания).
+
+    Примеры использования:
+        # Создание задачи только с обязательными полями
+        task = await task_for_test()
+
+        # Создание задачи с кастомными параметрами
+        task = await task_for_test({
+            'title': 'Важная задача',
+            'date_task': datetime.now().date(),
+            'status': 'Завершена'
+        })
+
+        # Получение задачи, встречи, проблемы, сотрудника и компании
+        task, meeting, problem, employee, company = await task_for_test(return_all_objects=True)
+    """
+
+    async def _create_task(task_data=None, return_all_objects=False):
+        """Функция-обёртка для создания задачи с изменяемыми параметрами."""
+        employee = None
+        company = None
+        problem = None
+        meeting = None
+
+        if not task_data or ('owner_id' not in task_data and 'problem_id' not in task_data):
+            task, problem, employee, company = await problem_for_test(return_all_objects=True)
+
+        owner_id = (
+            task_data.get('owner_id') if task_data and 'owner_id' in task_data else employee.id
+        )
+        problem_id = (
+            task_data.get('problem_id')
+            if task_data and 'problem_id' in task_data
+            else problem.task_data
+        )
+
+        default_data = {
+            'title': f'Test Task {uuid.uuid4().hex[:8]}',
+            'date_task': (datetime.now() + timedelta(days=1)).date(),
+            'status': 'Новая',
+            'place': 'place',
+            'problem_id': problem_id,
+            'owner_id': owner_id,
+        }
+        if task_data:
+            default_data.update(task_data)
+
+        task = await make_entry_in_table(async_session, default_data, Meeting)
+
+        if return_all_objects:
+            return task, meeting, problem, employee, company
+        return task
+
+    return _create_task
+
+
+@pytest_asyncio.fixture
 async def department_for_test(async_session: AsyncSession, company_for_test):
     """
     Фикстура, создающая департамент с возможностью изменения полей.
