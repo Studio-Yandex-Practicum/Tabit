@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import CRUDBase
 
+
 async def validator_check_object_exists(
     session: AsyncSession,
     model_crud: CRUDBase,

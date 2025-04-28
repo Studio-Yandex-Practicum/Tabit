@@ -11,12 +11,13 @@ import pytest_asyncio
 from fastapi_users.password import PasswordHelper
 from httpx import ASGITransport, AsyncClient
 from slugify import slugify
-from sqlalchemy import NullPool
+from sqlalchemy import NullPool, insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.core.database.db_depends import get_async_session
 from src.main import app_v1
 from src.models import (
+    AssociationUserComment,
     BaseTabitModel,
     CommentFeed,
     Company,
@@ -33,9 +34,6 @@ from src.models import (
     TabitAdminUser,
 )
 from tests.constants import GOOD_PASSWORD, TEST_DATABASE_URL, URL
-
-from sqlalchemy import insert
-from src.models import AssociationUserComment
 
 
 def pytest_collection_modifyitems(items):
@@ -269,8 +267,10 @@ async def company_for_test(async_session, license_for_test):
         - company_data (dict, optional): Данные для создания компании. Если не переданы,
           используются значения по умолчанию.
         - all_fields (bool, optional): Если True, создаётся компания со всеми возможными полями.
-        - return_license (bool, optional): Если True, возвращает объект лицензии вместе с компанией.
-        - with_department (bool, optional): Если True, создаётся также департамент и возвращается вместе с компанией.
+        - return_license (bool, optional): Если True, возвращает объект лицензии
+          вместе с компанией.
+        - with_department (bool, optional): Если True, создаётся также департамент
+          и возвращается вместе с компанией.
 
     Возвращает:
         - Company: Объект созданной компании.
@@ -293,8 +293,9 @@ async def company_for_test(async_session, license_for_test):
         company, license_instance = await company_for_test(return_license=True)
     """
 
-    async def _create_company(company_data=None, all_fields=False, return_license=False,
-                              with_department=False):
+    async def _create_company(
+        company_data=None, all_fields=False, return_license=False, with_department=False
+    ):
         """Функция-обёртка для создания компании с изменяемыми параметрами."""
         license_instance = None
 
@@ -776,8 +777,7 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
         )
     """
 
-    async def _create_comment(comment_data=None, return_all_objects=False,
-                              with_like=False):
+    async def _create_comment(comment_data=None, return_all_objects=False, with_like=False):
         """Функция-обёртка для создания комментария с изменяемыми параметрами."""
         employee = None
         company = None
@@ -813,9 +813,7 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
         comment = await make_entry_in_table(async_session, default_data, CommentFeed)
         if with_like:
             await async_session.execute(
-                insert(AssociationUserComment).values(
-                    left_id=owner_id, right_id=comment.id
-                )
+                insert(AssociationUserComment).values(left_id=owner_id, right_id=comment.id)
             )
             await async_session.commit()
 

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database.db_depends import get_async_session
 from src.crud import company_crud, department_crud
-from src.features_v1.constants import LENGTH_SLUG, TextError, VALID_WRONG_COMPANY
+from src.features_v1.constants import LENGTH_SLUG, VALID_WRONG_COMPANY, TextError
 from src.models import Company, Department
 
 

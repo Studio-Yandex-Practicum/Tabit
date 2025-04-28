@@ -13,8 +13,8 @@ from src.features_v1.constants import (
     VALID_WRONG_MESSAGE_FEED,
     VALID_WRONG_PROBLEM,
 )
-from src.models import CompanyUser, Problem, ProblemStatus
 from src.features_v1.validators.company_validators import check_user_company
+from src.models import CompanyUser
 
 
 async def check_company_problem(

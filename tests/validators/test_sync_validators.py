@@ -2,17 +2,22 @@
 # В данном модуле собраны тесты для синхронных валидаторов,
 # которые в будущем будут переписаны в асинхронном виде
 
-import pytest
-from fastapi import HTTPException, status
 from unittest.mock import MagicMock
 
-from src.features_v1.validators.sync_validators import (
-    validate_close_problem, validate_meeting_was_held,
-    validate_is_member_problem, validate_owner_object,
-    validate_task_completed, check_user_is_active,
-    validator_check_not_is_superuser, validate_user_from_company,
-)
+import pytest
+from fastapi import HTTPException, status
+
 from src.features_v1.constants import TextError
+from src.features_v1.validators.sync_validators import (
+    check_user_is_active,
+    validate_close_problem,
+    validate_is_member_problem,
+    validate_meeting_was_held,
+    validate_owner_object,
+    validate_task_completed,
+    validate_user_from_company,
+    validator_check_not_is_superuser,
+)
 from src.models import Meeting, MeetingStatus, ProblemStatus, TaskStatus
 
 
@@ -138,7 +143,7 @@ def test_validator_check_not_is_superuser_valid():
 
 def test_validate_user_from_company_raises():
     user = MagicMock(company_id=1)
-    company = MagicMock(id=2, name="Company X")
+    company = MagicMock(id=2, name='Company X')
     with pytest.raises(HTTPException) as exc:
         validate_user_from_company(user, company)
     assert exc.value.status_code == status.HTTP_403_FORBIDDEN
@@ -147,5 +152,5 @@ def test_validate_user_from_company_raises():
 
 def test_validate_user_from_company_valid():
     user = MagicMock(company_id=1)
-    company = MagicMock(id=1, name="Company X")
+    company = MagicMock(id=1, name='Company X')
     assert validate_user_from_company(user, company) is None

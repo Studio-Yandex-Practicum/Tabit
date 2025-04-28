@@ -1,7 +1,8 @@
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from unittest.mock import AsyncMock, MagicMock
 
 from src.features_v1.validators.meeting_validators import (
     check_meeting_exists,
@@ -14,8 +15,8 @@ from src.models import CompanyUser
 async def test_check_meeting_exists_found(mocker):
     session = mocker.Mock(spec=AsyncSession)
     mock_get_or_404 = mocker.patch(
-        "src.features_v1.validators.meeting_validators.meeting_crud.get_or_404",
-        new_callable=AsyncMock
+        'src.features_v1.validators.meeting_validators.meeting_crud.get_or_404',
+        new_callable=AsyncMock,
     )
     await check_meeting_exists(1, session)
     mock_get_or_404.assert_awaited_once_with(session, 1)
@@ -25,9 +26,9 @@ async def test_check_meeting_exists_found(mocker):
 async def test_check_meeting_exists_not_found(mocker):
     session = mocker.Mock(spec=AsyncSession)
     mocker.patch(
-        "src.features_v1.validators.meeting_validators.meeting_crud.get_or_404",
+        'src.features_v1.validators.meeting_validators.meeting_crud.get_or_404',
         new_callable=AsyncMock,
-        side_effect=HTTPException(status_code=404)
+        side_effect=HTTPException(status_code=404),
     )
     with pytest.raises(HTTPException) as exc:
         await check_meeting_exists(1, session)
@@ -40,9 +41,9 @@ async def test_check_result_meeting_unique_raises(mocker):
     owner = MagicMock(spec=CompanyUser)
     owner.id = 5
     mocker.patch(
-        "src.features_v1.validators.meeting_validators.result_meeting_crud.get_multi",
+        'src.features_v1.validators.meeting_validators.result_meeting_crud.get_multi',
         new_callable=AsyncMock,
-        return_value=[object()]
+        return_value=[object()],
     )
     with pytest.raises(HTTPException) as exc:
         await check_result_meeting_unique(1, owner, session)
@@ -55,8 +56,8 @@ async def test_check_result_meeting_unique_valid(mocker):
     owner = MagicMock(spec=CompanyUser)
     owner.id = 5
     mocker.patch(
-        "src.features_v1.validators.meeting_validators.result_meeting_crud.get_multi",
+        'src.features_v1.validators.meeting_validators.result_meeting_crud.get_multi',
         new_callable=AsyncMock,
-        return_value=[]
+        return_value=[],
     )
     await check_result_meeting_unique(1, owner, session)

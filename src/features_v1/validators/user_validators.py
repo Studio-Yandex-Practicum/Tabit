@@ -1,14 +1,14 @@
-from sqlalchemy import UUID
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from fastapi import Depends, HTTPException, status
 from fastapi_users.exceptions import InvalidPasswordException
 from fastapi_users.manager import BaseUserManager
+from sqlalchemy import UUID
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.auth.managers import get_user_manager
-from src.features_v1.constants import TextError, ERROR_INVALID_TELEGRAM_USERNAME
 from src.crud import moderator_crud, user_crud
+from src.features_v1.constants import ERROR_INVALID_TELEGRAM_USERNAME, TextError
 from src.schemas import UserCreateSchema
+
 
 class BaseUserValidator:
     """
@@ -31,33 +31,32 @@ class BaseUserValidator:
         В функциях валидации, зависящих от `user_manager` или `session`, для чистого и
         предсказуемого взаимодействия с внешними ресурсами (БД, менеджерами).
     """
-    def __init__(self, session: AsyncSession | None = None,
-                 user_manager: BaseUserManager | None = None):
+
+    def __init__(
+        self, session: AsyncSession | None = None, user_manager: BaseUserManager | None = None
+    ):
         self.session = session
         self.user_manager = user_manager
 
     async def check_user_exists_by_email(self, email: str) -> bool:
         if not self.user_manager:
-            raise ValueError("user_manager is required")
+            raise ValueError('user_manager is required')
         user = await self.user_manager.user_db.get_by_email(email)
         return user is not None
 
-    async def check_user_password_valid(self, password: str,
-                                        user_data: UserCreateSchema) -> None:
+    async def check_user_password_valid(self, password: str, user_data: UserCreateSchema) -> None:
         if not self.user_manager:
-            raise ValueError("user_manager is required")
+            raise ValueError('user_manager is required')
         await self.user_manager.validate_password(password, user_data)
 
     async def check_telegram_username_exists(self, username: str) -> bool:
         if not self.session:
-            raise ValueError("session is required")
-        return await moderator_crud.get_by_telegram_username(
-            username,self.session
-        ) is not None
+            raise ValueError('session is required')
+        return await moderator_crud.get_by_telegram_username(username, self.session) is not None
 
     async def get_user_by_uuid(self, uuid: UUID):
         if not self.session:
-            raise ValueError("session is required")
+            raise ValueError('session is required')
         return await user_crud.get(self.session, uuid)
 
 
@@ -76,9 +75,7 @@ async def validate_user_not_exists(
     """
     validator = BaseUserValidator(user_manager=user_manager)
     if user_data.email and await validator.check_user_exists_by_email(user_data.email):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.EXISTS_EMAIL
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.EXISTS_EMAIL)
 
 
 async def validate_password(

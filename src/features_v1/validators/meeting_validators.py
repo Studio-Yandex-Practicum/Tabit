@@ -47,22 +47,3 @@ async def check_result_meeting_unique(meeting_id: int, owner: CompanyUser, sessi
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=VALID_NOT_UNIQUE_RESULT_MEETING
         )
-
-
-async def check_meeting_exists(meeting_id: int, session: AsyncSession):
-    """Проверяет существование встречи по ID.
-
-    Назначение:
-        Валидирует, что встреча существует в базе данных по заданному ID.
-    Параметры:
-        meeting_id: Целое число, представляющее ID встречи для проверки.
-        session: Асинхронная сессия базы данных.
-    Возвращаемое значение:
-        Проверенная встреча, если она существует.
-    Исключения:
-        HTTPException: Если встреча не найдена.
-    """
-    try:
-        await meeting_crud.get_or_404(session, meeting_id)
-    except HTTPException:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ERROR_MEETING_NOT_FOUND)

@@ -1,14 +1,15 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 from fastapi import HTTPException, status
 
-from src.features_v1.constants import TextError, ERROR_INVALID_TELEGRAM_USERNAME
+from src.features_v1.constants import ERROR_INVALID_TELEGRAM_USERNAME, TextError
 from src.features_v1.validators.user_validators import (
     BaseUserValidator,
-    validate_user_not_exists,
-    validate_password,
     check_telegram_username_for_duplicates,
     validate_field_members,
+    validate_password,
+    validate_user_not_exists,
 )
 
 
@@ -16,7 +17,7 @@ from src.features_v1.validators.user_validators import (
 async def test_validate_user_not_exists_raises():
     mock_user_manager = MagicMock()
     mock_user_manager.user_db.get_by_email = AsyncMock(return_value=True)
-    user_data = MagicMock(email="test@example.com")
+    user_data = MagicMock(email='test@example.com')
     with pytest.raises(HTTPException) as exc:
         await validate_user_not_exists(user_data, mock_user_manager)
     assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
@@ -27,7 +28,7 @@ async def test_validate_user_not_exists_raises():
 async def test_validate_user_not_exists_valid():
     mock_user_manager = MagicMock()
     mock_user_manager.user_db.get_by_email = AsyncMock(return_value=None)
-    user_data = MagicMock(email="test@example.com")
+    user_data = MagicMock(email='test@example.com')
     assert await validate_user_not_exists(user_data, mock_user_manager) is None
 
 
@@ -35,7 +36,7 @@ async def test_validate_user_not_exists_valid():
 async def test_validate_password_valid():
     mock_user_manager = MagicMock()
     mock_user_manager.validate_password = AsyncMock(return_value=None)
-    user_data = MagicMock(password="validpassword")
+    user_data = MagicMock(password='validpassword')
     assert await validate_password(user_data, mock_user_manager) is None
 
 
@@ -47,10 +48,13 @@ async def test_check_telegram_username_for_duplicates_raises():
 
     # Патчим метод класса
     from src.features_v1.validators import user_validators
-    user_validators.BaseUserValidator.check_telegram_username_exists = validator.check_telegram_username_exists
+
+    user_validators.BaseUserValidator.check_telegram_username_exists = (
+        validator.check_telegram_username_exists
+    )
 
     with pytest.raises(HTTPException) as exc:
-        await check_telegram_username_for_duplicates("existing_user", session)
+        await check_telegram_username_for_duplicates('existing_user', session)
     assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
     assert exc.value.detail == ERROR_INVALID_TELEGRAM_USERNAME
 
@@ -62,6 +66,7 @@ async def test_validate_field_members_invalid_user():
     validator.get_user_by_uuid = AsyncMock(return_value=None)
 
     from src.features_v1.validators import user_validators
+
     user_validators.BaseUserValidator.get_user_by_uuid = validator.get_user_by_uuid
 
     with pytest.raises(HTTPException) as exc:
@@ -77,6 +82,7 @@ async def test_validate_field_members_not_from_company():
     validator.get_user_by_uuid = AsyncMock(return_value=user)
 
     from src.features_v1.validators import user_validators
+
     user_validators.BaseUserValidator.get_user_by_uuid = validator.get_user_by_uuid
 
     with pytest.raises(HTTPException) as exc:

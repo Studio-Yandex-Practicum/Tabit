@@ -1,15 +1,16 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 from fastapi import HTTPException, status
 
-from src.features_v1.validators import problem_validators
 from src.crud.constants import MAX_NUMBER_PROBLEM
 from src.features_v1.constants import (
     ERROR_PROBLEM_NOT_FOUND,
+    ERROR_PROBLEM_NUMBER,
     VALID_WRONG_MESSAGE_FEED,
     VALID_WRONG_PROBLEM,
-    ERROR_PROBLEM_NUMBER,
 )
+from src.features_v1.validators import problem_validators
 
 
 @pytest.mark.asyncio
@@ -55,7 +56,9 @@ async def test_check_max_number_problems_exceeded():
 @pytest.mark.asyncio
 async def test_check_problem_exists_not_found():
     session = AsyncMock()
-    problem_validators.problem_crud.get_or_404 = AsyncMock(side_effect=HTTPException(status_code=404))
+    problem_validators.problem_crud.get_or_404 = AsyncMock(
+        side_effect=HTTPException(status_code=404)
+    )
 
     with pytest.raises(HTTPException) as exc:
         await problem_validators.check_problem_exists(42, session)

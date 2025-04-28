@@ -1,10 +1,10 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.crud import CRUDBase
 from src.features_v1.validators.common_validators import (
     validator_check_object_exists,
 )
-from src.crud import CRUDBase
 
 
 @pytest.mark.asyncio
@@ -29,7 +29,7 @@ async def test_validator_check_object_exists_by_slug(mocker):
     expected_obj = object()
     model_crud.get_by_slug = mocker.AsyncMock(return_value=expected_obj)
 
-    result = await validator_check_object_exists(session, model_crud, object_slug="test-slug")
+    result = await validator_check_object_exists(session, model_crud, object_slug='test-slug')
 
     assert result is expected_obj
-    model_crud.get_by_slug.assert_awaited_once_with(session, "test-slug", raise_404=True)
+    model_crud.get_by_slug.assert_awaited_once_with(session, 'test-slug', raise_404=True)

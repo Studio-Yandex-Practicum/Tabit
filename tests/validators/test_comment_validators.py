@@ -1,20 +1,21 @@
-import pytest
 import uuid
+
+import pytest
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models import CommentFeed
 from src.features_v1.validators.comment_validators import (
     check_comment_and_message_feed,
+    check_comment_has_likes_from_user,
     check_comment_owner,
-    check_comment_has_likes_from_user
 )
+from src.models import CommentFeed
 
 
 @pytest.mark.asyncio
 class TestCommentValidators:
     async def test_check_comment_and_message_feed_valid(
-            self, async_session: AsyncSession, comment_for_test
+        self, async_session: AsyncSession, comment_for_test
     ):
         """
         Проверка успешной валидации принадлежности комментария к треду.
@@ -25,7 +26,7 @@ class TestCommentValidators:
         assert result.id == comment.id
 
     async def test_check_comment_and_message_feed_invalid(
-            self, async_session: AsyncSession, comment_for_test
+        self, async_session: AsyncSession, comment_for_test
     ):
         """
         Проверка ошибки при несоответствии комментария и треда.
@@ -54,7 +55,7 @@ class TestCommentValidators:
         assert exc.value.status_code == 403
 
     async def test_check_comment_has_likes_absent_like_raises(
-            self, async_session: AsyncSession, comment_for_test
+        self, async_session: AsyncSession, comment_for_test
     ):
         """
         Проверка ошибки, если пользователь не лайкал комментарий, а от него ожидается лайк.
@@ -65,12 +66,14 @@ class TestCommentValidators:
         assert exc.value.status_code == 400
 
     async def test_check_comment_has_likes_present_like_raises(
-            self, async_session: AsyncSession, comment_for_test
+        self, async_session: AsyncSession, comment_for_test
     ):
         """
         Проверка ошибки, если пользователь пытается лайкнуть комментарий повторно.
         """
         comment = await comment_for_test(with_like=True)
         with pytest.raises(HTTPException) as exc:
-            await check_comment_has_likes_from_user(comment.owner_id, comment.id, async_session, like_mode=True)
+            await check_comment_has_likes_from_user(
+                comment.owner_id, comment.id, async_session, like_mode=True
+            )
         assert exc.value.status_code == 400

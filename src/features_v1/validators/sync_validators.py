@@ -7,10 +7,14 @@ from fastapi import HTTPException, status
 
 from src.features_v1.constants import TextError
 from src.models import (
-    Company, CompanyUser,
-    Meeting, MeetingStatus,
-    Problem, ProblemStatus,
-    Task, TaskStatus
+    Company,
+    CompanyUser,
+    Meeting,
+    MeetingStatus,
+    Problem,
+    ProblemStatus,
+    Task,
+    TaskStatus,
 )
 
 
