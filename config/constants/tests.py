@@ -574,8 +574,8 @@ class Test_Database_URL:
 
     USER: str = os.getenv('TEST_POSTGRES_USER', 'test_user')
     PASSWORD: str = os.getenv('TEST_POSTGRES_PASSWORD', 'test_password')
-    HOST: str = os.getenv('TEST_POSTGRES_HOST', 'localhost')
-    PORT: int = int(os.getenv('TEST_POSTGRES_PORT', 54333))
+    HOST: str = os.getenv('TEST_DB_HOST', 'localhost')
+    PORT: int = int(os.getenv('TEST_DB_PORT', 54333))
     DBNAME: str = os.getenv('TEST_POSTGRES_DB', 'test_db')
 
 
