@@ -621,6 +621,8 @@ class Url:
     - MEETINGS_ENDPOINT: URL для работы со списком встреч
     - MEETINGS_SINGLE: URL для работы с конкретной встречей
     - MESSAGE_FEED_URL: URL для работы с лентой сообщений
+    - PROBLEMS_ENDPOINT:URL для работы с проблемами
+    - PROBLEM_ENDPOINT: URL для работы с конкретной проблемой
     - UNLIKE_URL: URL для снятия лайка с комментария
     - USER_LOGIN: URL для входа пользователя
     - USER_LOGOUT: URL для выхода пользователя
@@ -666,6 +668,9 @@ class Url:
     ADMIN_GET_COMPANIES: str = '/api/v1/admin/'
     ADMIN_MOD_DATA_URL: str = '/api/v1/admin/staff/{user_id}'
     ADMIN_MODS_URL: str = '/api/v1/admin/staff'
+
+    PROBLEMS_ENDPOINT: str = '/api/v1/{company_slug}/problems/'
+    PROBLEM_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}'
 
 
 class UserPayloads:
