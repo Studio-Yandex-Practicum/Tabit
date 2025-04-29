@@ -7,7 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database.db_depends import get_async_session
 from src.crud.crud_company import company_crud
 from src.crud.crud_surveys import surveys_data_crud, surveys_schedule_crud
-from src.features_v1.validators import validator_check_object_exists
+from src.features_v1.validators import (
+    validator_check_object_exists,
+    validate_employee_survey_history
+)
 from src.schemas.survey import (
     SurveyDataCreate,
     SurveyDataRead,
@@ -292,6 +295,7 @@ async def get_employee_survey_history(
     survey_data = await surveys_data_crud.get_all_user_survey(
         session=session, company_slug=company_slug, user_id=user_id
     )
+    validate_employee_survey_history(survey_data)
     return survey_data
 
 

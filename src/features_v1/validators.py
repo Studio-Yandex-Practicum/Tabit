@@ -695,3 +695,10 @@ async def validate_license_name(session: AsyncSession, license_name: str):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Лицензия с именем '{license_name}' уже существует.",
         )
+
+
+def validate_employee_survey_history(obj: list):
+    if len(obj) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Истории нет")
