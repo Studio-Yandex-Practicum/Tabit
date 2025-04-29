@@ -55,7 +55,7 @@ class SurveyScheduleCycle(BaseTabitModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     cycle_number: Mapped[int] = mapped_column(Integer)
-    date_start: Mapped[Date] = mapped_column(DateTime)
+    date_start: Mapped[Date] = mapped_column(Date)
     survey_schedule_id: Mapped[int] = mapped_column(
         ForeignKey('surveyschedule.id', ondelete='CASCADE'), nullable=False
     )
