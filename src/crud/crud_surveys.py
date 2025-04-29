@@ -8,7 +8,13 @@ from sqlalchemy.orm import selectinload
 from src.core.config.logging import logger
 from src.crud.constants import TextError
 from src.crud.crud_base import CRUDBase
-from src.models.survey import SurveyAnswer, SurveyData, SurveySchedule, SurveyScheduleCycle
+from src.models.survey import (
+    SurveyAnswer,
+    SurveyData,
+    SurveyList,
+    SurveySchedule,
+    SurveyScheduleCycle,
+)
 from src.schemas.survey import (
     SurveyAnswerCreate,
     SurveyDataCreate,
@@ -248,5 +254,11 @@ class CRUDSurveysData(CRUDBase):
         return result.scalars().all()
 
 
+class CRUDSurveysList(CRUDBase):
+    """CRUD для работы со списком тестов."""
+    pass
+
+
+surveys_list_crud = CRUDSurveysList(SurveyList)
 surveys_data_crud = CRUDSurveysData(SurveyData)
 surveys_schedule_crud = CRUDSurveysSchedule(SurveySchedule)
