@@ -11,14 +11,13 @@ import pytest_asyncio
 from fastapi_users.password import PasswordHelper
 from httpx import ASGITransport, AsyncClient
 from slugify import slugify
-from sqlalchemy import NullPool
+from sqlalchemy import NullPool, insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from config.constants.tests import AuthData, Test_Database_URL, Url
 from src.core.database.db_depends import get_async_session
 from src.main import app_v1
 from src.models import (
-    AssociationUserProblem,
     BaseTabitModel,
     CommentFeed,
     Company,
@@ -267,12 +266,17 @@ async def company_for_test(async_session, license_for_test):
         - company_data (dict, optional): Данные для создания компании. Если не переданы,
           используются значения по умолчанию.
         - all_fields (bool, optional): Если True, создаётся компания со всеми возможными полями.
-        - return_license (bool, optional): Если True, возвращает объект лицензии вместе с компанией
+        - return_license (bool, optional): Если True, возвращает объект лицензии
+          вместе с компанией.
+        - with_department (bool, optional): Если True, создаётся также департамент
+          и возвращается вместе с компанией.
 
     Возвращает:
         - Company: Объект созданной компании.
         - (Company, LicenseType): Если `return_license=True`,
            возвращает кортеж (компания, лицензия).
+        - (Company, Department): Если `with_department=True`,
+           возвращает кортеж (компания, департамент).
 
     Примеры использования:
         # Создание компании только с обязательными полями
@@ -288,7 +292,9 @@ async def company_for_test(async_session, license_for_test):
         company, license_instance = await company_for_test(return_license=True)
     """
 
-    async def _create_company(company_data=None, all_fields=False, return_license=False):
+    async def _create_company(
+        company_data=None, all_fields=False, return_license=False, with_department=False
+    ):
         """Функция-обёртка для создания компании с изменяемыми параметрами."""
         license_instance = None
 
@@ -319,7 +325,20 @@ async def company_for_test(async_session, license_for_test):
             default_data.update(company_data)
         company = await make_entry_in_table(async_session, default_data, Company)
 
-        return (company, license_instance) if return_license else company
+        department = None
+        if with_department:
+            department_data = {
+                'name': f'Department {uuid.uuid4().hex[:8]}',
+                'company_id': company.id,
+                'slug': slugify(f'Department {uuid.uuid4().hex[:8]}'),
+            }
+            department = await make_entry_in_table(async_session, department_data, Department)
+
+        if return_license:
+            return company, license_instance
+        if with_department:
+            return company, department
+        return company
 
     return _create_company
 
@@ -738,6 +757,7 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
           используются значения по умолчанию.
         - return_all_objects (bool, optional): Если True, возвращает кортеж
           (комментарий, тред, проблема, сотрудник, компания).
+        - with_like (bool, optional): Если True, создаётся лайк к коментарию.
 
     Возвращает:
         - CommentFeed: Объект созданного комментария.
@@ -761,7 +781,7 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
         )
     """
 
-    async def _create_comment(comment_data=None, return_all_objects=False):
+    async def _create_comment(comment_data=None, return_all_objects=False, with_like=False):
         """Функция-обёртка для создания комментария с изменяемыми параметрами."""
         employee = None
         company = None
@@ -795,6 +815,11 @@ async def comment_for_test(async_session: AsyncSession, message_feed_for_test):
             default_data.update(comment_data)
 
         comment = await make_entry_in_table(async_session, default_data, CommentFeed)
+        if with_like:
+            await async_session.execute(
+                insert(AssociationUserComment).values(left_id=owner_id, right_id=comment.id)
+            )
+            await async_session.commit()
 
         if return_all_objects:
             return comment, message_feed, problem, employee, company

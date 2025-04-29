@@ -295,6 +295,7 @@ class TextError(TextErrorBase):
     - DATE_MEETING_ALREADY_IN_USE (str): Сообщение о занятой дате встречи.
     - DEPARTMENT_EXIST (str): Сообщение о существующем отделе с таким именем.
     - DEPARTMENT_NOT_FOUND (str): Сообщение о некорректном ID отдела.
+    - EXISTS_USERNAME (str): Сообщение о существовании пользователь с указанным Telegram username
     - FORBIDDEN_FROM_COMPANY (str): Сообщение о доступе только для пользователей компании.
     - FORBIDDEN_NOT_MEMBER (str): Сообщение о доступе только для участников проблемы.
     - FORBIDDEN_OWNER (str): Сообщение о доступе только для создателя объекта.
@@ -331,6 +332,7 @@ class TextError(TextErrorBase):
     DATE_MEETING_ALREADY_IN_USE: str = 'Дата встречи уже занята.'
     DEPARTMENT_EXIST: str = 'Объект с таким именем уже существует.'
     DEPARTMENT_NOT_FOUND: str = 'Указан некорректный id отдела.'
+    EXISTS_USERNAME: str = 'Пользователь с указанным Telegram username уже существует.'
     FORBIDDEN_FROM_COMPANY: str = 'Доступно только пользователю, из компании: {}.'
     FORBIDDEN_NOT_MEMBER: str = 'Только участники проблемы могут создавать встречи.'
     FORBIDDEN_OWNER: str = 'Доступно только пользователю, создавшему объект.'
