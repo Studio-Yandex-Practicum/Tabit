@@ -3,8 +3,8 @@ from typing import List
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.schemas.validators.problem_meeting import validate_date
 from src.models.enum import SurveysStatus, SurveysTags
+from src.schemas.validators.problem_meeting import validate_date
 
 
 class SurveyScheduleCycleCreate(BaseModel):
