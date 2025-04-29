@@ -8,8 +8,8 @@ from src.core.database.db_depends import get_async_session
 from src.crud.crud_company import company_crud
 from src.crud.crud_surveys import surveys_data_crud, surveys_schedule_crud
 from src.features_v1.validators import (
+    validate_employee_survey_history,
     validator_check_object_exists,
-    validate_employee_survey_history
 )
 from src.schemas.survey import (
     SurveyDataCreate,
@@ -326,7 +326,7 @@ async def get_employee_survey_info(
         status_code: статус ответа.
     Параметры функции:
         company_slug: слаг компании, полученный из пути.
-        survey_id: идентификатор расписания, полученный из пути.
+        survey_id: идентификатор записи о прохождении, полученный из пути.
         user_id: идентификатор пользователя полученный из пути.
         session: асинхронная сессия через зависимость.
     Возвращаемое значение:
@@ -336,11 +336,12 @@ async def get_employee_survey_info(
         - существует ли компания с таким slug;
     """
     # TODO: Проверить существование сотрудника
-    # TODO: Проверить существование пройденого теста
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
     )
-
+    await validator_check_object_exists(
+        session=session, model_crud=surveys_data_crud, object_id=survey_id
+    )
     survey_data = await surveys_data_crud.get_user_survey(
         session=session, company_slug=company_slug, survey_data_id=survey_id, user_id=user_id
     )
@@ -386,10 +387,10 @@ async def add_employee_survey_info(
         - существует ли компания с таким slug;
     """
     # TODO: Проверить существование сотрудника
-    # TODO: Проверить сущестрование номера теста
     await validator_check_object_exists(
         session=session, model_crud=company_crud, object_slug=company_slug
     )
+
     survey_data = await surveys_data_crud.create_survey_data(
         session=session, data=data, user_id=user_id, company_slug=company_slug
     )
@@ -397,7 +398,12 @@ async def add_employee_survey_info(
     survey_data_id = survey_data.id
 
     for item in data.answers:
+        await validator_check_object_exists(
+            session=session, model_crud=surveys_data_crud, object_id=item.survey_list_id
+        )
+
         result = Surveys(item=item).survey_type()
+
         await surveys_data_crud.create_survay_answers(
             session=session, survey_data_id=survey_data_id, item=item, result=result
         )
