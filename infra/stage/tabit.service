@@ -5,12 +5,12 @@ Requires=docker.service
 
 [Service]
 Restart=always
-ExecStartPre=-/usr/bin/docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
-ExecStart=/usr/bin/docker compose -f /home/${{ secrets.USERNAME }}/tabit/infra/stage/docker-compose.stage.yaml up -d
-ExecStop=/usr/bin/docker compose -f /home/${{ secrets.USERNAME }}/tabit/infra/stage/docker-compose.stage.yaml down
-WorkingDirectory=/home/dev_deploy/tabit/infra/stage/
-User=dev_deploy
-Group=dev_deploy
+ExecStartPre=-/usr/bin/docker pull ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+ExecStart=/usr/bin/docker compose -f /home/${{ secrets.SERVER_USERNAME }}/tabit/infra/stage/docker-compose.stage.yaml up -d
+ExecStop=/usr/bin/docker compose -f /home/${{ secrets.SERVER_USERNAME }}/tabit/infra/stage/docker-compose.stage.yaml down
+WorkingDirectory=/home/${{ secrets.SERVER_USERNAME }}/tabit/infra/stage/
+User=${{ secrets.SERVER_USERNAME }}
+Group=${{ secrets.SERVER_USERNAME }}
 
 [Install]
 WantedBy=multi-user.target

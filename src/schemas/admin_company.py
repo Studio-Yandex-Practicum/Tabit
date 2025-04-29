@@ -14,26 +14,7 @@ from pydantic import (
 )
 
 from src.models import CompanyUserRole
-from src.schemas.constants import (
-    LENGTH_FILE_LINK,
-    LENGTH_NAME_USER,
-    LENGTH_TELEGRAM_USERNAME,
-    MIN_LENGTH_NAME,
-    MIN_LENGTH_TELEGRAM_USERNAME,
-    TITLE_AVATAR_LINK_USER,
-    TITLE_BIRTHDAY_USER,
-    TITLE_COMPANY_ID_USER,
-    TITLE_CURRENT_DEPARTMENT_ID_USER,
-    TITLE_EMPLOYEE_POSITION_USER,
-    TITLE_END_DATE_EMPLOYMENT_USER,
-    TITLE_NAME_USER,
-    TITLE_PATRONYMIC_USER,
-    TITLE_PHONE_NUMBER_USER,
-    TITLE_PREVIOUS_DEPARTMENT_ID_USER,
-    TITLE_START_DATE_EMPLOYMENT_USER,
-    TITLE_SURNAME_USER,
-    TITLE_TELEGRAM_USERNAME_USER,
-)
+from src.schemas.constants import Length, Title
 from src.schemas.validators.admin_company import (
     check_date_earlier_than_today,
     check_password_is_ascii,
@@ -47,12 +28,28 @@ url_to_string = Annotated[HttpUrl, AfterValidator(str)]
 
 
 class AdminCompanyResponseSchema(BaseModel):
-    """Схема компании для ответов админам сервиса."""
+    """
+    Схема компании для ответов админам сервиса.
+    Параметры:
+    - id: идентификатор компании (обязательно).
+    - name: название компании (обязательно).
+    - description: Описание компании (опционально).
+    - logo: логотип (опционально).
+    - license_id: номер лицензии (опционально).
+    - max_admins_count: максимальное кол-во администраторов (обязательно).
+    - max_employees_count: максимальное кол-во сотрудников (обязательно)
+    - start_license_time: дата начала лицензии (опционально).
+    - end_license_time: дата окончания действия лицензии (опционально).
+    - is_active: bool - активна ли лицензия (обязательно).
+    - slug: короткая строка для пути к эндпоинту компании (автозаполнение).
+    - created_at: дата создания записи в таблице (автозаполнение).
+    - updated_at: дата изменения записи в таблице (автозаполнение).
+    """
 
     id: int
     name: str
     description: Optional[str]
-    logo: Optional[HttpUrl]
+    logo: Optional[str]
     license_id: Optional[int]
     max_admins_count: int
     max_employees_count: int
@@ -70,33 +67,33 @@ class CompanyAdminSchemaMixin:
     """Схема-миксин для модераторов от компаний."""
 
     patronymic: Optional[str] = Field(
-        None, min_length=MIN_LENGTH_NAME, max_length=LENGTH_NAME_USER, title=TITLE_PATRONYMIC_USER
+        None, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME, title=Title.PATRONYMIC_USER
     )
     phone_number: Optional[str] = Field(
         None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_PHONE_NUMBER_USER,
+        min_length=Length.MIN_NAME,
+        max_length=Length.MAX_NAME,
+        title=Title.PHONE_NUMBER_USER,
     )
-    birthday: Annotated[Optional[date_and_validation], Field(None, title=TITLE_BIRTHDAY_USER)]
+    birthday: Annotated[Optional[date_and_validation], Field(None, title=Title.BIRTHDAY_USER)]
     telegram_username: Optional[str] = Field(
         None,
-        min_length=MIN_LENGTH_TELEGRAM_USERNAME,
-        max_length=LENGTH_TELEGRAM_USERNAME,
-        title=TITLE_TELEGRAM_USERNAME_USER,
+        min_length=Length.MIN_TELEGRAMM_USERNAME,
+        max_length=Length.MAX_TELEGRAM_USERNAME,
+        title=Title.TELEGRAM_USERNAME,
     )
-    start_date_employment: Optional[date] = Field(None, title=TITLE_START_DATE_EMPLOYMENT_USER)
-    end_date_employment: Optional[date] = Field(None, title=TITLE_END_DATE_EMPLOYMENT_USER)
+    start_date_employment: Optional[date] = Field(None, title=Title.START_DATE_EMPLOYMENT_USER)
+    end_date_employment: Optional[date] = Field(None, title=Title.END_DATE_EMPLOYMENT_USER)
     avatar_link: Annotated[
-        url_to_string, Field(None, max_length=LENGTH_FILE_LINK, title=TITLE_AVATAR_LINK_USER)
+        url_to_string, Field(None, max_length=Length.FILE_LINK, title=Title.AVATAR_LINK_USER)
     ]
     previous_department_id: Optional[int] = Field(
         None,
-        title=TITLE_PREVIOUS_DEPARTMENT_ID_USER,
+        title=Title.PREVIOUS_DEPARTMENT_ID_USER,
     )
     employee_position: Optional[str] = Field(
         None,
-        title=TITLE_EMPLOYEE_POSITION_USER,
+        title=Title.EMPLOYEE_POSITION_USER,
     )
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
@@ -144,6 +141,7 @@ class CompanyAdminReadSchema(BaseUser[UUID]):
     employee_position: Optional[str]
     created_at: datetime
     updated_at: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -152,20 +150,20 @@ class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
 
     name: str = Field(
         ...,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_NAME_USER,
+        min_length=Length.MIN_NAME,
+        max_length=Length.MAX_NAME,
+        title=Title.NAME_USER,
     )
     surname: str = Field(
         ...,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_SURNAME_USER,
+        min_length=Length.MIN_NAME,
+        max_length=Length.MAX_NAME,
+        title=Title.SURNAME_USER,
     )
     role: CompanyUserRole
     current_department_id: int = Field(
         ...,
-        title=TITLE_CURRENT_DEPARTMENT_ID_USER,
+        title=Title.CURRENT_DEPARTMENT_ID_USER,
     )
 
 
@@ -175,7 +173,7 @@ class CompanyAdminCreateSchema(CompanyAdminPutSchema):
     role: Literal[CompanyUserRole.MODERATOR]
     company_id: int = Field(
         ...,
-        title=TITLE_COMPANY_ID_USER,
+        title=Title.COMPANY_ID_USER,
     )
 
 
@@ -184,18 +182,18 @@ class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
 
     name: Optional[str] = Field(
         None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_NAME_USER,
+        min_length=Length.MIN_NAME,
+        max_length=Length.MAX_NAME,
+        title=Title.NAME_USER,
     )
     surname: Optional[str] = Field(
         None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_SURNAME_USER,
+        min_length=Length.MIN_NAME,
+        max_length=Length.MAX_NAME,
+        title=Title.SURNAME_USER,
     )
     role: Optional[CompanyUserRole] = None
     current_department_id: Optional[int] = Field(
         None,
-        title=TITLE_CURRENT_DEPARTMENT_ID_USER,
+        title=Title.CURRENT_DEPARTMENT_ID_USER,
     )

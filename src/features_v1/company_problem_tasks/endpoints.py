@@ -27,8 +27,8 @@ router = APIRouter()
     '/',
     response_model=list[TaskResponseSchema],
     response_model_exclude_none=True,
-    summary=Summary.TASK_LIST,
-    description=Description.TASK_LIST,
+    summary=Summary.LIST_TASK,
+    description=Description.LIST_TASK,
     status_code=status.HTTP_200_OK,
 )
 async def get_tasks_for_user(
@@ -76,8 +76,8 @@ async def get_tasks_for_user(
     '/',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.TASK_CREATE,
-    description=Description.TASK_CREATE,
+    summary=Summary.CREATE_TASK,
+    description=Description.CREATE_TASK,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_task(
@@ -129,8 +129,8 @@ async def create_task(
     '/{task_id}',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.TASK,
-    description=Description.TASK,
+    summary=Summary.GET_TASK,
+    description=Description.GET_TASK,
     status_code=status.HTTP_200_OK,
 )
 async def get_task(
@@ -176,8 +176,8 @@ async def get_task(
     '/{task_id}',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.TASK_UPDATE,
-    description=Description.TASK_UPDATE,
+    summary=Summary.UPDATE_TASK,
+    description=Description.UPDATE_TASK,
     status_code=status.HTTP_200_OK,
 )
 async def update_task(
@@ -234,8 +234,8 @@ async def update_task(
 
 @router.delete(
     '/{task_id}',
-    summary=Summary.TASK_DELETE,
-    description=Description.TASK_DELETE,
+    summary=Summary.DELETE_TASK,
+    description=Description.DELETE_TASK,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_task(

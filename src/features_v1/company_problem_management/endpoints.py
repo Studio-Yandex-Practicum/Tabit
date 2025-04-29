@@ -26,8 +26,8 @@ router = APIRouter()
     '/',
     response_model=list[ProblemResponseSchema],
     response_model_exclude_unset=True,
-    summary=Summary.PROBLEM_LIST,
-    description=Description.PROBLEM_LIST,
+    summary=Summary.LIST_PROBLEM,
+    description=Description.LIST_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def get_problems_for_user(
@@ -38,24 +38,24 @@ async def get_problems_for_user(
     """Получает список всех проблем.
 
     Назначение:
-        Возвращает список всех проблем для указанной компании.
+    - Возвращает список всех проблем для указанной компании.
     Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        response_model_exclude_unset: позволяет исключить из ответа значения по умолчанию.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
+    - path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+    - response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+    - response_model_exclude_unset: позволяет исключить из ответа значения по умолчанию.
+    - summary: краткое описание.
+    - description: подробное описание.
+    - status_code: статус ответа.
     Параметры функции:
-        company_slug: слаг компании, полученный из пути.
-        user: получение пользователя через зависимости.
-        session: асинхронная сессия через зависимость.
+    - company_slug: слаг компании, полученный из пути.
+    - user: получение пользователя через зависимости.
+    - session: асинхронная сессия через зависимость.
     Возвращаемое значение:
-        Список объектов ProblemResponseSchema.
+    - Список объектов ProblemResponseSchema.
 
     Проверки:
-        - существует ли компания с таким slug;
-        - пользователь, сделавший запрос, из этой компании.
+    - существует ли компания с таким slug;
+    - пользователь, сделавший запрос, из этой компании.
     """
     company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
     validate_user_from_company(user, company)  # type: ignore
@@ -70,8 +70,8 @@ async def get_problems_for_user(
     '/',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.PROBLEM_CREATE,
-    description=Description.PROBLEM_CREATE,
+    summary=Summary.CREATE_PROBLEM,
+    description=Description.CREATE_PROBLEM,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_problem(
@@ -83,27 +83,27 @@ async def create_problem(
     """Создание проблемы.
 
     Назначение:
-        Создает новую проблему для указанной компании.
+    - Создает новую проблему для указанной компании.
     Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        response_model_exclude_unset: позволяет исключить из ответа значения по умолчанию.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
+    - path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+    - response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+    - response_model_exclude_unset: позволяет исключить из ответа значения по умолчанию.
+    - summary: краткое описание.
+    - description: подробное описание.
+    - status_code: статус ответа.
     Параметры функции:
-        problem_in: данные в виде схемы, для создания новой записи в БД.
-        company_slug: слаг компании, полученный из пути.
-        user: получение пользователя через зависимости.
-        session: асинхронная сессия через зависимость.
+    - problem_in: данные в виде схемы, для создания новой записи в БД.
+    - company_slug: слаг компании, полученный из пути.
+    - user: получение пользователя через зависимости.
+    - session: асинхронная сессия через зависимость.
     Возвращаемое значение:
-        Созданный объект ProblemResponseSchema.
+    - Созданный объект ProblemResponseSchema.
 
     Проверки:
-        - существует ли компания с таким slug;
-        - пользователь, сделавший запрос, из этой компании;
-        - проверит, что переданные UUID в поле members корректны
-          и принадлежат сотрудникам данной компании.
+    - существует ли компания с таким slug;
+    - пользователь, сделавший запрос, из этой компании;
+    - проверит, что переданные UUID в поле members корректны
+      и принадлежат сотрудникам данной компании.
     """
     company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
     validate_user_from_company(user, company)  # type: ignore
@@ -120,8 +120,8 @@ async def create_problem(
     '/{problem_id}',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.PROBLEM,
-    description=Description.PROBLEM,
+    summary=Summary.GET_PROBLEM,
+    description=Description.GET_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def get_problem(
@@ -133,25 +133,25 @@ async def get_problem(
     """Получение информации о проблеме по ID.
 
     Назначение:
-        Возвращает информацию о конкретной проблеме по её ID.
+    - Возвращает информацию о конкретной проблеме по её ID.
     Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        response_model_exclude_unset: позволяет исключить из ответа значения по умолчанию.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
+    - path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+    - response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+    - response_model_exclude_unset: позволяет исключить из ответа значения по умолчанию.
+    - summary: краткое описание.
+    - description: подробное описание.
+    - status_code: статус ответа.
     Параметры функции:
-        problem_id: id проблемы, полученный из пути.
-        company_slug: слаг компании, полученный из пути.
-        user: получение пользователя через зависимости.
-        session: асинхронная сессия через зависимость.
+    - problem_id: id проблемы, полученный из пути.
+    - company_slug: слаг компании, полученный из пути.
+    - user: получение пользователя через зависимости.
+    - session: асинхронная сессия через зависимость.
     Возвращаемое значение:
-        Объект ProblemResponseSchema.
+    - Объект ProblemResponseSchema.
 
     Проверки:
-        - существует ли компания с таким slug;
-        - пользователь, сделавший запрос, из этой компании.
+    - существует ли компания с таким slug;
+    - пользователь, сделавший запрос, из этой компании.
     """
     company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
     validate_user_from_company(user, company)  # type: ignore
@@ -162,8 +162,8 @@ async def get_problem(
     '/{problem_id}',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.PROBLEM_UPDATE,
-    description=Description.PROBLEM_UPDATE,
+    summary=Summary.UPDATE_PROBLEM,
+    description=Description.UPDATE_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def update_problem(
@@ -176,30 +176,30 @@ async def update_problem(
     """Обновление проблемы.
 
     Назначение:
-        Обновляет информацию о существующей проблеме.
+    - Обновляет информацию о существующей проблеме.
     Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
+    - path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+    - response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+    - summary: краткое описание.
+    - description: подробное описание.
+    - status_code: статус ответа.
     Параметры функции:
-        problem_in: данные в виде схемы, для изменения записи в БД.
-        company_slug: слаг компании, полученный из пути.
-        problem_id: идентификатор проблемы, которую планируется менять.
-        user: получение пользователя через зависимости.
-        session: асинхронная сессия через зависимость.
+    - problem_in: данные в виде схемы, для изменения записи в БД.
+    - company_slug: слаг компании, полученный из пути.
+    - problem_id: идентификатор проблемы, которую планируется менять.
+    - user: получение пользователя через зависимости.
+    - session: асинхронная сессия через зависимость.
     Возвращаемое значение:
-        Обновленный объект ProblemResponseSchema.
+    - Обновленный объект ProblemResponseSchema.
 
     Проверки:
-        - существует ли компания с таким slug;
-        - пользователь, сделавший запрос, из этой компании;
-        - существует ли проблема с данным id;
-        - не решена ли эта проблема;
-        - является ли пользователь автором данной проблемы;
-        - проверит, что переданные UUID в поле members корректны
-          и принадлежат сотрудникам данной компании.
+    - существует ли компания с таким slug;
+    - пользователь, сделавший запрос, из этой компании;
+    - существует ли проблема с данным id;
+    - не решена ли эта проблема;
+    - является ли пользователь автором данной проблемы;
+    - проверит, что переданные UUID в поле members корректны
+      и принадлежат сотрудникам данной компании.
     """
     company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
     validate_user_from_company(user, company)
@@ -212,7 +212,8 @@ async def update_problem(
 
 @router.delete(
     '/{problem_id}',
-    summary='Удалить проблему',
+    summary=Summary.DELETE_PROBLEM,
+    description=Description.DELETE_PROBLEM,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_problem(
@@ -224,26 +225,26 @@ async def delete_problem(
     """Удаление проблемы.
 
     Назначение:
-        Удаляет проблему по её ID.
+    - Удаляет проблему по её ID.
     Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
+    - path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+    - summary: краткое описание.
+    - description: подробное описание.
+    - status_code: статус ответа.
     Параметры функции:
-        company_slug: слаг компании, полученный из пути.
-        problem_id: идентификатор проблемы, которую планируется удалять.
-        user: получение пользователя через зависимости.
-        session: асинхронная сессия через зависимость.
+    - company_slug: слаг компании, полученный из пути.
+    - problem_id: идентификатор проблемы, которую планируется удалять.
+    - user: получение пользователя через зависимости.
+    - session: асинхронная сессия через зависимость.
     Возвращаемое значение:
-        None
+    - None
 
     Проверки:
-        - существует ли компания с таким slug;
-        - пользователь, сделавший запрос, из этой компании;
-        - существует ли проблема с данным id;
-        - не решена ли эта проблема;
-        - является ли пользователь автором данной проблемы.
+    - существует ли компания с таким slug;
+    - пользователь, сделавший запрос, из этой компании;
+    - существует ли проблема с данным id;
+    - не решена ли эта проблема;
+    - является ли пользователь автором данной проблемы.
     """
     company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
     validate_user_from_company(user, company)
@@ -258,8 +259,8 @@ async def delete_problem(
     '/{problem_id}/confirm',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.PROBLEM_CONFIRM,
-    description=Description.PROBLEM_CONFIRM,
+    summary=Summary.CONFIRM_PROBLEM,
+    description=Description.CONFIRM_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def confirm_participation_in_problem(
@@ -271,28 +272,27 @@ async def confirm_participation_in_problem(
     """Подтвердить активное участие в решения проблемы.
 
     Назначение:
-        Пользователь должен подтвердить своё участие в решение проблемы.
+    - Пользователь должен подтвердить своё участие в решение проблемы.
     Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        response_model_exclude_unset: позволяет исключить из ответа значения по умолчанию.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
+    - path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
+    - response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
+    - response_model_exclude_unset: позволяет исключить из ответа значения по умолчанию.
+    - summary: краткое описание.
+    - description: подробное описание.
+    - status_code: статус ответа.
     Параметры функции:
-        company_slug: слаг компании, полученный из пути.
-        problem_id: идентификатор проблемы, которую планируется менять.
-        user: получение пользователя через зависимости.
-        session: асинхронная сессия через зависимость.
+    - company_slug: слаг компании, полученный из пути.
+    - problem_id: идентификатор проблемы, которую планируется менять.
+    - user: получение пользователя через зависимости.
+    - session: асинхронная сессия через зависимость.
     Возвращаемое значение:
-        Измененная проблема.
+    - Измененная проблема.
 
     Проверки:
-        - существует ли компания с таким slug;
-        - существует ли проблема с данным id;
-        - не решена ли эта проблема;
-        - не превысит ли максимально возможное количество одновременных участвований в решении
-          проблем.
+    - существует ли компания с таким slug;
+    - существует ли проблема с данным id;
+    - не решена ли эта проблема;
+    - не превысит ли максимально возможное количество одновременных участвований в решении проблем.
     """
     await company_crud.get_by_slug(session, company_slug, raise_404=True)
     problem = await problem_crud.get_or_404(session, problem_id)

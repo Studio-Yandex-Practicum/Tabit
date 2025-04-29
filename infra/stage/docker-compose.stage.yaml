@@ -1,50 +1,80 @@
 services:
   db:
-    container_name: postgres_local
-    image: postgres:${POSTGRES_VERSION:-17.2-alpine}
-    restart: always
+    container_name: ${DB_CONTAINER_NAME}
+    image: postgres:${POSTGRES_VERSION}
     env_file:
-      - /home/dev_deploy/tabit/infra/stage/.env
+      - /home/${SERVER_USERNAME}/tabit/infra/stage/.env
+    ports:
+      - ${DB_PORT}:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    restart: always
 
   app:
-    image: ${IMAGE_NAME}:latest
-    container_name: tabit
-    restart: always
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
+    container_name: ${APP_CONTAINER_NAME}
+    image: ${IMAGE_REGISTRY}/${IMAGE_PATH}:latest
     env_file:
-      - /home/dev_deploy/tabit/infra/stage/.env
-    volumes:
-      - app_media:/app/media
+      - /home/${SERVER_USERNAME}/tabit/infra/stage/.env
     environment:
       - POETRY_VIRTUALENVS_IN_PROJECT=true
       - PATH="/app/.venv/bin:$PATH"
+    ports:
+      - "${APP_PORT}:8000"
+    depends_on:
+      - db
+    volumes:
+      - app_media:/app/media
+    restart: on-failure:3
 
   pgadmin:
-    container_name: pgadmin_local
-    image: dpage/pgadmin4:${PGADMIN_VERSION:-8.14}
-    restart: always
+    container_name: ${PGADMIN_CONTAINER_NAME}
+    image: dpage/pgadmin4:${PGADMIN_VERSION}
     env_file:
-      - /home/dev_deploy/tabit/infra/stage/.env
+      - /home/${SERVER_USERNAME}/tabit/infra/stage/.env
     ports:
-      - "5600:80"
+      - "${PGADMIN_PORT}:80"
     depends_on:
       - db
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-      - /home/dev_deploy/tabit/pgadmin/servers.json:/pgadmin4/servers.json
-      - /home/dev_deploy/tabit/pgadmin/config_local.py:/pgadmin4/config_local.py
-      - /home/dev_deploy/tabit/pgadmin/.pgpass:/pgadmin4/.pgpass
-      - /home/dev_deploy/tabit/pgadmin/create-admin-folder.sh:/create-admin-folder.sh
+      - /home/${SERVER_USERNAME}/tabit/pgadmin/config_local.py:/pgadmin4/config_local.py
+      - /home/${SERVER_USERNAME}/tabit/pgadmin/create-admin-folder.sh:/create-admin-folder.sh
+    configs:
+      - source: servers.json
+        target: /pgadmin4/servers.json
+      - source: pgpass
+        target: /pgadmin4/.pgpass
     entrypoint: ["/bin/sh", "/create-admin-folder.sh"]
+    restart: always
+
+configs:
+  servers.json:
+    content: |
+      {
+        "Servers": {
+          "${PGADMIN_SERVER_ID_TABIT}": {
+            "Name": "${PGADMIN_SERVER_NAME_TABIT}",
+            "Group": "${PGADMIN_SERVER_GROUP_TABIT}",
+            "Host": "${DB_CONTAINER_NAME}",
+            "Port": ${DB_PORT},
+            "SSLMode": "${SSL_MODE}",
+            "MaintenanceDB": "${POSTGRES_DB}",
+            "Username": "${POSTGRES_USER}",
+            "PassFile": "/.pgpass"
+          }
+        }
+      }
+  pgpass:
+    content: |
+        ${DB_CONTAINER_NAME}:5432:*:${POSTGRES_USER}:${POSTGRES_PASSWORD}
 
 volumes:
   postgres_data:
+    driver: local
+    name: ${DB_VOLUME_NAME}
   pgadmin_data:
+    driver: local
+    name: ${PGADMIN_VOLUME_NAME}
   app_media:
+    driver: local
+    name: ${MEDIA_VOLUME_NAME}

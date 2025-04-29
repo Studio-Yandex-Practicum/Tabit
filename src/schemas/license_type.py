@@ -3,24 +3,7 @@ from typing import List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.schemas.constants import (
-    DEFAULT_LICENSE_TERM,
-    DEFAULT_PAGE,
-    DEFAULT_PAGE_SIZE,
-    FILTER_NAME_DESCRIPTION,
-    LENGTH_NAME_LICENSE,
-    MAX_PAGE_SIZE,
-    MIN_LENGTH_NAME,
-    MIN_PAGE_SIZE,
-    PAGE_DESCRIPTION,
-    PAGE_SIZE_DESCRIPTION,
-    SORTING_DESCRIPTION,
-    TITLE_LICENSE_TERM,
-    TITLE_MAX_EMPLOYEES_COUNT,
-    TITLE_MAX_MODERATORS_COUNT,
-    TITLE_NAME_LICENSE,
-    ZERO,
-)
+from src.schemas.constants import Default, Length, MiscConstants, Title
 from src.schemas.validators.license_type import (
     validate_license_term,
     validate_string,
@@ -46,24 +29,24 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
 
     name: str = Field(
         ...,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_LICENSE,
-        title=TITLE_NAME_LICENSE,
+        min_length=Length.MIN_NAME,
+        max_length=Length.MAX_NAME_LICENSE,
+        title=Title.NAME_LICENSE,
     )
     license_term: timedelta = Field(
         ...,
-        ge=timedelta(**DEFAULT_LICENSE_TERM),
-        title=TITLE_LICENSE_TERM,
+        ge=timedelta(**Default.LICENSE_TERM),
+        title=Title.TERM_LICENSE,
     )
     max_admins_count: int = Field(
         ...,
-        gt=ZERO,
-        title=TITLE_MAX_MODERATORS_COUNT,
+        gt=MiscConstants.ZERO,
+        title=Title.MAX_MODERATORS_COUNT,
     )
     max_employees_count: int = Field(
         ...,
-        gt=ZERO,
-        title=TITLE_MAX_EMPLOYEES_COUNT,
+        gt=MiscConstants.ZERO,
+        title=Title.MAX_EMPLOYEES_COUNT,
     )
 
 
@@ -72,23 +55,23 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
 
     name: Optional[str] = Field(
         None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_LICENSE,
-        title=TITLE_NAME_LICENSE,
+        min_length=Length.MIN_NAME,
+        max_length=Length.MAX_NAME_LICENSE,
+        title=Title.NAME_LICENSE,
     )
     license_term: Optional[timedelta] = Field(
         None,
-        title=TITLE_LICENSE_TERM,
+        title=Title.TERM_LICENSE,
     )
     max_admins_count: Optional[int] = Field(
         None,
-        gt=ZERO,
-        title=TITLE_MAX_MODERATORS_COUNT,
+        gt=MiscConstants.ZERO,
+        title=Title.MAX_MODERATORS_COUNT,
     )
     max_employees_count: Optional[int] = Field(
         None,
-        gt=ZERO,
-        title=TITLE_MAX_EMPLOYEES_COUNT,
+        gt=MiscConstants.ZERO,
+        title=Title.MAX_EMPLOYEES_COUNT,
     )
 
     model_config = ConfigDict(extra='forbid')
@@ -136,13 +119,18 @@ class LicenseTypeFilterSchema(BaseModel):
         page_size (Optional[int]): Количество записей на странице.
     """
 
-    name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
+    name: Optional[str] = Field(None, description=MiscConstants.FILTER_NAME_DESCRIPTION)
 
     ordering: Optional[
         Literal['name', '-name', 'created_at', '-created_at', 'updated_at', '-updated_at']
-    ] = Field(None, description=SORTING_DESCRIPTION)
+    ] = Field(None, description=MiscConstants.SORTING_DESCRIPTION)
 
-    page: Optional[int] = Field(DEFAULT_PAGE, ge=MIN_PAGE_SIZE, description=PAGE_DESCRIPTION)
+    page: Optional[int] = Field(
+        Default.PAGE, ge=Default.MIN_PAGE_SIZE, description=Default.PAGE_DESCRIPTION
+    )
     page_size: Optional[int] = Field(
-        DEFAULT_PAGE_SIZE, ge=MIN_PAGE_SIZE, le=MAX_PAGE_SIZE, description=PAGE_SIZE_DESCRIPTION
+        Default.PAGE_SIZE,
+        ge=Default.MIN_PAGE_SIZE,
+        le=Default.MAX_PAGE_SIZE,
+        description=Default.PAGE_SIZE_DESCRIPTION,
     )
