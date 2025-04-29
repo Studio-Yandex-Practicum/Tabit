@@ -1,6 +1,8 @@
+# Запрет копирования в контейнер с приложением всех файлов, кроме ниже перечисленных.
 *
 !alembic
 !alembic.ini
+!config
 !scripts
 !src
 !poetry.lock
