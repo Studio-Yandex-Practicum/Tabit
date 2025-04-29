@@ -39,6 +39,5 @@ async def create_associations(
 
     # Создаем список ассоциаций для массовой вставки
     associations = [{'left_id': left_id, **base_data} for left_id in left_ids]
-
     # Выполняем массовую вставку
     await session.execute(association_model.__table__.insert(), associations)

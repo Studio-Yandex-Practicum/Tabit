@@ -7,7 +7,6 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    HttpUrl,
     field_validator,
     model_validator,
 )
@@ -52,10 +51,11 @@ class AdminCompanyResponseSchema(BaseModel):
         updated_at (datetime): Время обновления.
     """
 
+
     id: int
     name: str
     description: Optional[str]
-    logo: Optional[HttpUrl]
+    logo: Optional[str]
     license_id: Optional[int]
     max_admins_count: int
     max_employees_count: int
