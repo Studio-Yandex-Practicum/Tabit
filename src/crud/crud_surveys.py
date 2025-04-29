@@ -75,7 +75,6 @@ class CRUDSurveysSchedule(CRUDBase):
         obj_id: int,
         obj_slug: str,
         raise_404: bool = False,
-        message: str | None = None,
     ):
         """
         Возвращает расписание.
@@ -87,11 +86,10 @@ class CRUDSurveysSchedule(CRUDBase):
         )
         obj_model = result.scalars().first()
         if not obj_model and raise_404:
-            if message is None:
-                message = TextError.NOT_FOUND_BY_SLUG.format(
-                    obj=self.model.__name__, slug=obj_slug
-                )
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Расписание не найдено'
+            )
         return obj_model
 
     async def get_all_shedules(
@@ -99,7 +97,6 @@ class CRUDSurveysSchedule(CRUDBase):
         session: AsyncSession,
         obj_slug: str,
         raise_404: bool = False,
-        message: str | None = None,
     ):
         """
         Возвращает список всех расписаний.
@@ -111,11 +108,10 @@ class CRUDSurveysSchedule(CRUDBase):
         )
         obj_model = result.scalars().all()
         if not obj_model and raise_404:
-            if message is None:
-                message = TextError.NOT_FOUND_BY_SLUG.format(
-                    obj=self.model.__name__, slug=obj_slug
-                )
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Расписаний не найдено'
+            )
         return obj_model
 
     async def update_shedule(
@@ -168,6 +164,29 @@ class CRUDSurveysSchedule(CRUDBase):
             logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return db_obj
+
+    async def get_cycle(
+            self,
+            session: AsyncSession,
+            cycle_id: int,
+            shedule_id: int,
+            raise_404: bool = False
+    ):
+        """
+        Возвращает объект цикла из расписания.
+        """
+        result = await session.execute(
+            select(SurveyScheduleCycle)
+            .where(
+                (SurveyScheduleCycle.survey_schedule_id == shedule_id) &
+                (SurveyScheduleCycle.cycle_number == cycle_id))
+        )
+        obj_model = result.scalars().first()
+        if not obj_model and raise_404:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f'Цикл с id {cycle_id} не найден.')
+        return obj_model
 
 
 class CRUDSurveysData(CRUDBase):
