@@ -5,16 +5,18 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.models import TaskStatus
+from src.schemas.annotations import DescriptionField, NameField, OptionalNameField
 from src.schemas.constants import Title
-from src.schemas.types import DescriptionField, NameField, OptionalNameField
 
 
 class TaskBaseSchema(BaseModel):
-    """Базовая схема задачи.
+    """
+    Базовая схема задачи.
 
-    Определяет базовые поля задачи.
-    Поля:
-        description: Описание задачи (опционально).
+    Определяет общие поля для схем задач.
+
+    Атрибуты:
+        description (Optional[str]): Описание задачи.
     """
 
     description: DescriptionField = Field(None, title=Title.TASK_DESCRIPTION)
@@ -24,11 +26,13 @@ class TaskBaseSchema(BaseModel):
 
 
 class ExecutorsResponseSchema(BaseModel):
-    """Схема исполнителя задачи.
+    """
+    Схема исполнителя задачи.
 
-    Определяет данные исполнителя для ответа.
-    Поля:
-        executor_id: UUID исполнителя.
+    Используется для представления данных об исполнителе задачи в ответах API.
+
+    Атрибуты:
+        executor_id (UUID): Идентификатор исполнителя.
     """
 
     executor_id: UUID = Field(validation_alias='left_id', title=Title.TASK_EXECUTOR_ID)
@@ -37,19 +41,23 @@ class ExecutorsResponseSchema(BaseModel):
 
 
 class TaskResponseSchema(TaskBaseSchema):
-    """Схема задачи для ответа.
+    """
+    Схема задачи для ответа.
 
-    Определяет данные задачи из БД.
-    Поля:
-        id: Идентификатор задачи.
-        name: Название задачи.
-        description: Описание (опционально).
-        date_completion: Дата выполнения.
-        owner_id: UUID создателя.
-        problem_id: ID проблемы.
-        executors: Список исполнителей.
-        status: Статус задачи.
-        transfer_counter: Счетчик переноса даты.
+    Используется для возврата данных о задаче из базы данных через API.
+
+    Атрибуты:
+        id (int): Идентификатор задачи.
+        name (str): Название задачи.
+        description (Optional[str]): Описание задачи.
+        date_completion (date): Дата выполнения задачи.
+        owner_id (UUID): Идентификатор создателя задачи.
+        problem_id (int): Идент
+        executors (list[ExecutorsResponseSchema]): Список исполнителей задачи.
+        status (TaskStatus): Статус задачи.
+        transfer_counter (int): Счетчик переноса даты выполнения.
+        created_at (date): Дата создания задачи.
+        updated_at (date): Дата последнего обновления задачи.
     """
 
     id: int = Field(..., title=Title.TASK_ID)
@@ -67,13 +75,16 @@ class TaskResponseSchema(TaskBaseSchema):
 
 
 class TaskCreateSchema(TaskBaseSchema):
-    """Схема для создания задачи.
+    """
+    Схема для создания задачи.
 
-    Определяет данные для создания задачи.
-    Поля:
-        name: Название (не пустое, без пробелов).
-        date_completion: Дата выполнения (в будущем).
-        executors: Список UUID исполнителей (опционально).
+    Используется для добавления новой задачи через API.
+
+    Атрибуты:
+        name (str): Название задачи.
+        date_completion (date): Дата выполнения задачи (должна быть в будущем).
+        executors (Optional[list[UUID]]): Список идентификаторов исполнителей.
+        description (Optional[str]): Описание задачи.
     """
 
     name: NameField = Field(..., title=Title.TASK_NAME)
@@ -84,15 +95,17 @@ class TaskCreateSchema(TaskBaseSchema):
 
 
 class TaskUpdateSchema(TaskBaseSchema):
-    """Схема для обновления задачи.
+    """
+    Схема для обновления задачи.
 
-    Определяет данные для обновления задачи.
-    Поля:
-        name: Название (опционально, не пустое, без пробелов).
-        description: Описание (опционально).
-        date_completion: Дата выполнения (опционально, в будущем).
-        executors: Список UUID исполнителей (опционально).
-        status: Статус задачи (опционально).
+    Используется для изменения данных задачи через API.
+
+    Атрибуты:
+        name (Optional[str]): Название задачи.
+        description (Optional[str]): Описание задачи.
+        date_completion (Optional[date]): Дата выполнения задачи (должна быть в будущем).
+        executors (Optional[list[UUID]]): Список идентификаторов исполнителей.
+        status (Optional[TaskStatus]): Статус задачи.
     """
 
     name: OptionalNameField = Field(None, title=Title.TASK_NAME)

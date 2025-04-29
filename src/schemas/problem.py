@@ -4,16 +4,18 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.models import ProblemColor, ProblemStatus, ProblemType
+from src.schemas.annotations import DescriptionField, NameField, OptionalNameField
 from src.schemas.constants import Title
-from src.schemas.types import DescriptionField, NameField, OptionalNameField
 
 
 class ProblemBaseSchema(BaseModel):
-    """Базовая схема проблемы.
+    """
+    Базовая схема проблемы.
 
-    Определяет базовую структуру данных для проблемы.
-    Поля:
-        description: Описание проблемы (опционально).
+    Определяет общие поля для схем проблем.
+
+    Атрибуты:
+        description (Optional[str]): Описание проблемы.
     """
 
     description: DescriptionField = Field(None, title=Title.PROBLEM_DESCRIPTION)
@@ -23,12 +25,14 @@ class ProblemBaseSchema(BaseModel):
 
 
 class MemberResponseSchema(BaseModel):
-    """Схема участника проблемы.
+    """
+    Схема участника проблемы.
 
-    Определяет данные участника для ответа.
-    Поля:
-        status: Статус участия в решении проблемы.
-        member_id: UUID участника.
+    Используется для представления данных об участнике проблемы в ответах API.
+
+    Атрибуты:
+        status (Optional[bool]): Статус участия в решении проблемы.
+        member_id (UUID): Идентификатор участника.
     """
 
     status: bool | None = Field(None, title=Title.PROBLEM_MEMBER_STATUS)
@@ -38,20 +42,23 @@ class MemberResponseSchema(BaseModel):
 
 
 class ProblemResponseSchema(ProblemBaseSchema):
-    """Схема проблемы для ответа.
+    """
+    Схема проблемы для ответа.
 
-    Определяет данные проблемы для ответа.
-    Поля:
-        id: Уникальный идентификатор.
-        name: Название проблемы.
-        color: Цвет проблемы.
-        type: Тип проблемы.
-        status: Статус проблемы.
-        owner_id: UUID владельца.
-        company_id: ID компании.
-        members: Список участников.
-        created_at: Время создания.
-        updated_at: Время обновления.
+    Используется для возврата данных о проблеме через API.
+
+    Атрибуты:
+        id (int): Уникальный идентификатор проблемы.
+        name (str): Название проблемы.
+        color (ProblemColor): Цвет проблемы.
+        type (ProblemType): Тип проблемы.
+        status (ProblemStatus): Статус проблемы.
+        owner_id (UUID): Идентификатор владельца проблемы.
+        company_id (int): Идентификатор компании.
+        members (list[MemberResponseSchema]): Список участников проблемы.
+        created_at (datetime): Время создания проблемы.
+        updated_at (datetime): Время последнего обновления проблемы.
+        description (Optional[str]): Описание проблемы.
     """
 
     id: int = Field(..., title=Title.PROBLEM_ID)
@@ -69,14 +76,17 @@ class ProblemResponseSchema(ProblemBaseSchema):
 
 
 class ProblemCreateSchema(ProblemBaseSchema):
-    """Схема для создания проблемы.
+    """
+    Схема для создания проблемы.
 
-    Определяет данные для создания проблемы.
-    Поля:
-        name: Название (не пустое, без пробелов).
-        color: Цвет проблемы.
-        type: Тип проблемы.
-        members: Список UUID участников (опционально).
+    Используется для добавления новой проблемы через API.
+
+    Атрибуты:
+        name (str): Название проблемы.
+        color (ProblemColor): Цвет проблемы.
+        type (ProblemType): Тип проблемы.
+        members (Optional[list[UUID]]): Список идентификаторов участников.
+        description (Optional[str]): Описание проблемы.
     """
 
     name: NameField = Field(..., title=Title.PROBLEM_NAME)
@@ -88,15 +98,18 @@ class ProblemCreateSchema(ProblemBaseSchema):
 
 
 class ProblemUpdateSchema(ProblemBaseSchema):
-    """Схема для обновления проблемы.
+    """
+    Схема для обновления проблемы.
 
-    Определяет данные для обновления проблемы.
-    Поля:
-        name: Название (опционально, не пустое, без пробелов).
-        color: Цвет (опционально).
-        type: Тип (опционально).
-        status: Статус (опционально).
-        members: Список UUID участников (опционально).
+    Используется для изменения данных проблемы через API.
+
+    Атрибуты:
+        name (Optional[str]): Название проблемы.
+        color (Optional[ProblemColor]): Цвет проблемы.
+        type (Optional[ProblemType]): Тип проблемы.
+        status (Optional[ProblemStatus]): Статус проблемы.
+        members (Optional[list[UUID]]): Список идентификаторов участников.
+        description (Optional[str]): Описание проблемы.
     """
 
     name: OptionalNameField = Field(None, title=Title.PROBLEM_NAME)

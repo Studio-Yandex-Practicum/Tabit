@@ -250,6 +250,7 @@ class Title(TitleBase):
     - ROLE_USER (str): Заголовок для роли пользователя.
     - SKIP (str): Заголовок для пропуска n объектов.
     - SLUG_COMPANY (str): Заголовок для slug компании.
+    - SLUG_USER (str): Заголовок для slug пользователя.
     - START_DATE_EMPLOYMENT_USER (str): Заголовок для даты начала работы.
     - START_LICENSE_TIME_COMPANY (str): Заголовок для даты начала лицензии.
     - SURNAME_MODERATOR (str): Заголовок для фамилии модератора.
@@ -343,6 +344,7 @@ class Title(TitleBase):
     ROLE_USER: str = 'Роль пользователя компании.'
     SKIP: str = 'Пропустить n объектов'
     SLUG_COMPANY: str = 'Slug компании'
+    SLUG_USER: str = 'Slug пользователя'
     START_DATE_EMPLOYMENT_USER: str = 'Дата начало работы сотрудника в компании'
     START_LICENSE_TIME_COMPANY: str = 'Дата начала действия лицензии'
     SURNAME_MODERATOR: str = 'Фамилия модератора сервиса'

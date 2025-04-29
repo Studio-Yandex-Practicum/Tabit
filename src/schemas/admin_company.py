@@ -13,8 +13,7 @@ from pydantic import (
 )
 
 from src.models.enum import CompanyUserRole
-from src.schemas.constants import Title
-from src.schemas.types import (
+from src.schemas.annotations import (
     AvatarLinkField,
     NameField,
     OptionalNameField,
@@ -22,6 +21,7 @@ from src.schemas.types import (
     TelegramUsernameField,
     date_and_validation,
 )
+from src.schemas.constants import Title
 from src.schemas.validators.admin_company import (
     check_password_is_ascii,
     check_phone_number,
@@ -31,23 +31,27 @@ from src.schemas.validators.admin_company import (
 
 
 class AdminCompanyResponseSchema(BaseModel):
-    """Схема компании для ответа админам сервиса.
-
-    Поля:
-        id: Идентификатор компании.
-        name: Название компании.
-        description: Описание компании (опционально).
-        logo: Логотип компании (опционально).
-        license_id: Номер лицензии (опционально).
-        max_admins_count: Максимальное количество администраторов.
-        max_employees_count: Максимальное количество сотрудников.
-        start_license_time: Дата начала лицензии (опционально).
-        end_license_time: Дата окончания лицензии (опционально).
-        is_active: Активность лицензии.
-        slug: Короткая строка для пути.
-        created_at: Время создания.
-        updated_at: Время обновления.
     """
+    Схема для возврата данных о компании администраторам сервиса Табит.
+
+    Используется для возврата данных о компании в API для администраторов сервиса.
+
+    Атрибуты:
+        id (int): Идентификатор компании.
+        name (str): Название компании.
+        description (Optional[str]): Описание компании.
+        logo (Optional[HttpUrl]): Логотип компании.
+        license_id (Optional[int]): Номер лицензии.
+        max_admins_count (int): Максимальное количество администраторов.
+        max_employees_count (int): Максимальное количество сотрудников.
+        start_license_time (Optional[datetime]): Дата начала лицензии.
+        end_license_time (Optional[datetime]): Дата окончания лицензии.
+        is_active (bool): Активность лицензии.
+        slug (str): Короткая строка для пути.
+        created_at (datetime): Время создания.
+        updated_at (datetime): Время обновления.
+    """
+
     id: int
     name: str
     description: Optional[str]
@@ -64,11 +68,31 @@ class AdminCompanyResponseSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-class CompanyAdminSchemaMixin:
-    """Миксин для схем модераторов от компаний.
 
-    Определяет общие поля и валидаторы.
+class CompanyAdminSchemaMixin:
     """
+    Базовый миксин для схем администраторов компаний в сервисе Табит.
+
+    Определяет общие поля и валидаторы для схем модераторов компаний.
+
+    Атрибуты:
+        patronymic (Optional[str]): Отчество модератора.
+        phone_number (Optional[str]): Номер телефона.
+        birthday (Optional[date]): Дата рождения.
+        telegram_username (Optional[str]): Имя в Telegram.
+        start_date_employment (Optional[date]): Дата начала работы.
+        end_date_employment (Optional[date]): Дата окончания работы.
+        avatar_link (Optional[str]): Ссылка на аватар.
+        previous_department_id (Optional[int]): Идентификатор предыдущего отдела.
+        employee_position (Optional[str]): Должность.
+
+    Валидаторы:
+        validate_phone_number: Проверяет формат номера телефона.
+        validate_telegram_username: Проверяет формат имени в Telegram.
+        validate_password: Проверяет, что пароль состоит из ASCII-символов.
+        validate_start_date_end_date: Проверяет, что дата начала раньше даты окончания.
+    """
+
     patronymic: OptionalNameField = Field(None, title=Title.PATRONYMIC_USER)
     phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
     birthday: Annotated[Optional[date_and_validation], Field(None, title=Title.BIRTHDAY_USER)]
@@ -107,31 +131,36 @@ class CompanyAdminSchemaMixin:
         )
         return self
 
-class CompanyAdminReadSchema(BaseUser[UUID]):
-    """Схема для чтения данных модераторов от компаний.
 
-    Поля:
-        id: Идентификатор пользователя.
-        email: Электронная почта.
-        name: Имя модератора.
-        surname: Фамилия модератора.
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        is_active: Активность пользователя.
-        birthday: Дата рождения (опционально).
-        telegram_username: Имя в Telegram (опционально).
-        role: Роль в компании.
-        start_date_employment: Дата начала работы (опционально).
-        end_date_employment: Дата окончания работы (опционально).
-        avatar_link: Ссылка на аватар (опционально).
-        company_id: Идентификатор компании.
-        current_department_id: Текущий отдел (опционально).
-        previous_department_id: Предыдущий отдел (опционально).
-        department_transition_date: Дата перехода в отдел (опционально).
-        employee_position: Должность (опционально).
-        created_at: Время создания.
-        updated_at: Время обновления.
+class CompanyAdminReadSchema(BaseUser[UUID]):
     """
+    Схема для чтения данных администратора компании (GET).
+
+    Используется для возврата данных о модераторах компаний в API.
+
+    Атрибуты:
+        id (UUID): Идентификатор пользователя.
+        email (str): Электронная почта.
+        name (str): Имя модератора.
+        surname (str): Фамилия модератора.
+        patronymic (Optional[str]): Отчество.
+        phone_number (Optional[str]): Номер телефона.
+        is_active (bool): Активность пользователя.
+        birthday (Optional[date]): Дата рождения.
+        telegram_username (Optional[str]): Имя в Telegram.
+        role (str): Роль в компании.
+        start_date_employment (Optional[date]): Дата начала работы.
+        end_date_employment (Optional[date]): Дата окончания работы.
+        avatar_link (Optional[str]): Ссылка на аватар.
+        company_id (int): Идентификатор компании.
+        current_department_id (Optional[int]): Идентификатор текущего отдела.
+        previous_department_id (Optional[int]): Идентификатор предыдущего отдела.
+        department_transition_date (Optional[date]): Дата перехода в отдел.
+        employee_position (Optional[str]): Должность.
+        created_at (datetime): Время создания.
+        updated_at (datetime): Время обновления.
+    """
+
     name: str
     surname: str
     patronymic: Optional[str]
@@ -153,75 +182,99 @@ class CompanyAdminReadSchema(BaseUser[UUID]):
 
     model_config = ConfigDict(from_attributes=True)
 
-class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
-    """Схема для полного обновления модераторов от компаний (PUT).
 
-    Поля:
-        name: Имя модератора (обязательно).
-        surname: Фамилия модератора (обязательно).
-        email: Электронная почта (обязательно).
-        password: Пароль (обязательно).
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        birthday: Дата рождения (опционально).
-        telegram_username: Имя в Telegram (опционально).
-        role: Роль в компании (обязательно).
-        current_department_id: Текущий отдел (обязательно).
-        start_date_employment: Дата начала работы (опционально).
-        end_date_employment: Дата окончания работы (опционально).
-        avatar_link: Ссылка на аватар (опционально).
-        previous_department_id: Предыдущий отдел (опционально).
-        employee_position: Должность (опционально).
+class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
     """
+    Схема для полного обновления администратора компании (PUT).
+
+    Используется для обновления всех данных модератора компании через API.
+
+    Атрибуты:
+        name (str): Имя модератора.
+        surname (str): Фамилия модератора.
+        email (str): Электронная почта.
+        password (str): Пароль.
+        patronymic (Optional[str]): Отчество.
+        phone_number (Optional[str]): Номер телефона.
+        birthday (Optional[date]): Дата рождения.
+        telegram_username (Optional[str]): Имя в Telegram.
+        role (CompanyUserRole): Роль в компании.
+        current_department_id (int): Идентификатор текущего отдела.
+        start_date_employment (Optional[date]): Дата начала работы.
+        end_date_employment (Optional[date]): Дата окончания работы.
+        avatar_link (Optional[str]): Ссылка на аватар.
+        previous_department_id (Optional[int]): Идентификатор предыдущего отдела.
+        employee_position (Optional[str]): Должность.
+
+    Валидаторы:
+        Наследуются от CompanyAdminSchemaMixin.
+    """
+
     name: NameField = Field(..., title=Title.NAME_USER)
     surname: NameField = Field(..., title=Title.SURNAME_USER)
     role: CompanyUserRole
     current_department_id: int = Field(..., title=Title.CURRENT_DEPARTMENT_ID_USER)
 
-class CompanyAdminCreateSchema(CompanyAdminPutSchema):
-    """Схема для создания модераторов от компаний.
 
-    Поля:
-        name: Имя модератора (обязательно).
-        surname: Фамилия модератора (обязательно).
-        email: Электронная почта (обязательно).
-        password: Пароль (обязательно).
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        birthday: Дата рождения (опционально).
-        telegram_username: Имя в Telegram (опционально).
-        role: Роль в компании (MODERATOR).
-        current_department_id: Текущий отдел (обязательно).
-        company_id: Идентификатор компании (обязательно).
-        start_date_employment: Дата начала работы (опционально).
-        end_date_employment: Дата окончания работы (опционально).
-        avatar_link: Ссылка на аватар (опционально).
-        previous_department_id: Предыдущий отдел (опционально).
-        employee_position: Должность (опционально).
+class CompanyAdminCreateSchema(CompanyAdminPutSchema):
     """
+    Схема для создания нового администратора компании (POST).
+
+    Используется для создания нового модератора компании через API.
+
+    Атрибуты:
+        name (str): Имя модератора.
+        surname (str): Фамилия модератора.
+        email (str): Электронная почта.
+        password (str): Пароль.
+        patronymic (Optional[str]): Отчество.
+        phone_number (Optional[str]): Номер телефона.
+        birthday (Optional[date]): Дата рождения.
+        telegram_username (Optional[str]): Имя в Telegram.
+        role (Literal[CompanyUserRole.MODERATOR]): Роль в компании (MODERATOR).
+        current_department_id (int): Идентификатор текущего отдела.
+        company_id (int): Идентификатор компании.
+        start_date_employment (Optional[date]): Дата начала работы.
+        end_date_employment (Optional[date]): Дата окончания работы.
+        avatar_link (Optional[str]): Ссылка на аватар.
+        previous_department_id (Optional[int]): Идентификатор предыдущего отдела.
+        employee_position (Optional[str]): Должность.
+
+    Валидаторы:
+        Наследуются от CompanyAdminSchemaMixin.
+    """
+
     role: Literal[CompanyUserRole.MODERATOR]
     company_id: int = Field(..., title=Title.COMPANY_ID_USER)
 
-class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
-    """Схема для частичного обновления модераторов от компаний (PATCH).
 
-    Поля:
-        name: Имя модератора (опционально).
-        surname: Фамилия модератора (опционально).
-        email: Электронная почта (опционально).
-        password: Пароль (опционально).
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        birthday: Дата рождения (опционально).
-        telegram_username: Имя в Telegram (опционально).
-        role: Роль в компании (опционально).
-        current_department_id: Текущий отдел (опционально).
-        start_date_employment: Дата начала работы (опционально).
-        end_date_employment: Дата окончания работы (опционально).
-        avatar_link: Ссылка на аватар (опционально).
-        previous_department_id: Предыдущий отдел (опционально).
-        employee_position: Должность (опционально).
+class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
     """
+    Схема для частичного обновления администратора компании (PATCH).
+
+    Используется для частичного обновления данных модератора компании через API.
+
+    Атрибуты:
+        name (Optional[str]): Имя модератора.
+        surname (Optional[str]): Фамилия модератора.
+        email (Optional[str]): Электронная почта.
+        password (Optional[str]): Пароль.
+        patronymic (Optional[str]): Отчество.
+        phone_number (Optional[str]): Номер телефона.
+        birthday (Optional[date]): Дата рождения.
+        telegram_username (Optional[str]): Имя в Telegram.
+        role (Optional[CompanyUserRole]): Роль в компании.
+        current_department_id (Optional[int]): Идентификатор текущего отдела.
+        start_date_employment (Optional[date]): Дата начала работы.
+        end_date_employment (Optional[date]): Дата окончания работы.
+        avatar_link (Optional[str]): Ссылка на аватар.
+        previous_department_id (Optional[int]): Идентификатор предыдущего отдела.
+        employee_position (Optional[str]): Должность.
+
+    Валидаторы:
+        Наследуются от CompanyAdminSchemaMixin.
+    """
+
     name: OptionalNameField = Field(None, title=Title.NAME_USER)
     surname: OptionalNameField = Field(None, title=Title.SURNAME_USER)
     role: Optional[CompanyUserRole] = None

@@ -1,43 +1,37 @@
 """Модуль миксинов для схем приложения company."""
 
 from datetime import date
-from typing import Any, Optional
+from typing import Optional
 
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field
 
+from src.schemas.annotations import (
+    AvatarLinkField,
+    NameField,
+    PhoneNumberField,
+    TelegramUsernameField,
+)
 from src.schemas.constants import Title
-from src.schemas.types import AvatarLinkField, NameField, PhoneNumberField, TelegramUsernameField
-
-
-class GetterSlugMixin:
-    """Миксин для генерации поля slug."""
-
-    @model_validator(mode='before')
-    @classmethod
-    def get_slug(cls, data: Any) -> Any:
-        """Формирует `slug` на основе `name`."""
-        # TODO: реализовать нормальное создание slug
-        # TODO: проверить уникальность slug
-        if isinstance(data, dict):
-            data['slug'] = data['name']
-        return data
 
 
 class UserSchemaMixin:
-    """Миксин для схем пользователей сервиса.
+    """
+    Миксин для схем пользователей сервиса.
 
-    Поля:
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        birthday: Дата рождения (опционально).
-        telegram_username: Имя в Telegram (опционально).
-        start_date_employment: Дата начала работы (опционально).
-        end_date_employment: Дата окончания работы (опционально).
-        avatar_link: Ссылка на аватар (опционально).
-        current_department_id: Текущий отдел (опционально).
-        previous_department_id: Предыдущий отдел (опционально).
-        department_transition_date: Дата перехода в отдел (опционально).
-        employee_position: Должность (опционально).
+    Определяет дополнительные поля для схем пользователей компании.
+
+    Атрибуты:
+        patronymic (Optional[str]): Отчество пользователя.
+        phone_number (Optional[str]): Номер телефона.
+        birthday (Optional[date]): Дата рождения.
+        telegram_username (Optional[str]): Имя в Telegram.
+        start_date_employment (Optional[date]): Дата начала работы.
+        end_date_employment (Optional[date]): Дата окончания работы.
+        avatar_link (Optional[str]): Ссылка на аватар.
+        current_department_id (Optional[int]): Идентификатор текущего отдела.
+        previous_department_id (Optional[int]): Идентификатор предыдущего отдела.
+        department_transition_date (Optional[date]): Дата перехода в отдел.
+        employee_position (Optional[str]): Должность.
     """
 
     patronymic: NameField = Field(None, title=Title.PATRONYMIC_USER)

@@ -3,8 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.schemas.annotations import CommentTextField
 from src.schemas.constants import Title
-from src.schemas.types import CommentTextField
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -14,7 +14,14 @@ BASE_CONFIG = ConfigDict(
 
 
 class CommentBase(BaseModel):
-    """Базовая схема для комментариев."""
+    """
+    Базовая схема для комментариев.
+
+    Определяет общие поля для схем комментариев.
+
+    Атрибуты:
+        text (str): Текст комментария.
+    """
 
     text: CommentTextField = Field(..., title=Title.CREATE_COMMENTS_TEXT)
 
@@ -22,13 +29,27 @@ class CommentBase(BaseModel):
 
 
 class CommentCreate(CommentBase):
-    """Схема для создания комментария к треду."""
+    """
+    Схема для создания комментария к треду.
+
+    Используется для добавления нового комментария через API.
+
+    Атрибуты:
+        text (str): Текст комментария.
+    """
 
     model_config = BASE_CONFIG
 
 
 class CommentUpdate(CommentBase):
-    """Схема для обновления комментария."""
+    """
+    Схема для обновления комментария.
+
+    Используется для изменения текста существующего комментария через API.
+
+    Атрибуты:
+        text (str): Текст комментария.
+    """
 
     text: CommentTextField = Field(..., title=Title.UPDATE_COMMENTS_TEXT)
 
@@ -36,7 +57,20 @@ class CommentUpdate(CommentBase):
 
 
 class CommentRead(CommentBase):
-    """Схема комментария для ответов API."""
+    """
+    Схема комментария для ответов API.
+
+    Используется для возврата данных о комментарии в API.
+
+    Атрибуты:
+        id (int): Идентификатор комментария.
+        message_id (int): Идентификатор сообщения, к которому относится комментарий.
+        owner_id (UUID): Идентификатор владельца комментария.
+        rating (int): Рейтинг комментария.
+        created_at (datetime): Время создания комментария.
+        updated_at (datetime): Время последнего обновления комментария.
+        text (str): Текст комментария.
+    """
 
     id: int
     message_id: int

@@ -1,47 +1,72 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from src.models import CompanyUserRole
 from src.schemas import UserSchemaMixin
-from src.schemas.constants import Title
-from src.schemas.types import (
+from src.schemas.annotations import (
     AvatarLinkField,
     NameField,
     OptionalNameField,
     PhoneNumberField,
     TelegramUsernameField,
 )
+from src.schemas.constants import Title
+
+
+class GetterSlugMixin:
+    """
+    Миксин для генерации поля slug.
+
+    Формирует поле `slug` на основе значения поля `name`.
+
+    Валидаторы:
+        get_slug: Генерирует slug из имени, если данные представлены в виде словаря.
+    """
+
+    @model_validator(mode='before')
+    @classmethod
+    def get_slug(cls, data: Any) -> Any:
+        """Формирует `slug` на основе `name`."""
+        # TODO: реализовать нормальное создание slug
+        # TODO: проверить уникальность slug
+        if isinstance(data, dict):
+            data['slug'] = data['name']
+        return data
 
 
 class UserReadSchema(BaseUser[UUID]):
-    """Схема пользователя сервиса для ответов.
-
-    Поля:
-        id: Идентификатор пользователя.
-        email: Электронная почта.
-        name: Имя пользователя.
-        surname: Фамилия пользователя.
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        is_active: Активность пользователя.
-        birthday: Дата рождения (опционально).
-        telegram_username: Имя в Telegram (опционально).
-        role: Роль в компании.
-        start_date_employment: Дата начала работы (опционально).
-        end_date_employment: Дата окончания работы (опционально).
-        avatar_link: Ссылка на аватар (опционально).
-        company_id: Идентификатор компании.
-        current_department_id: Текущий отдел (опционально).
-        previous_department_id: Предыдущий отдел (опционально).
-        department_transition_date: Дата перехода в отдел (опционально).
-        employee_position: Должность (опционально).
-        created_at: Время создания (опционально).
-        updated_at: Время обновления (опционально).
     """
+    Схема пользователя сервиса для ответов.
+
+    Используется для возврата данных о пользователе через API.
+
+    Атрибуты:
+        id (UUID): Идентификатор пользователя.
+        email (str): Электронная почта.
+        name (str): Имя пользователя.
+        surname (str): Фамилия пользователя.
+        patronymic (Optional[str]): Отчество пользователя.
+        phone_number (Optional[str]): Номер телефона.
+        is_active (bool): Активность пользователя.
+        birthday (Optional[date]): Дата рождения.
+        telegram_username (Optional[str]): Имя в Telegram.
+        role (str): Роль в компании.
+        start_date_employment (Optional[date]): Дата начала работы.
+        end_date_employment (Optional[date]): Дата окончания работы.
+        avatar_link (Optional[str]): Ссылка на аватар.
+        company_id (int): Идентификатор компании.
+        current_department_id (Optional[int]): Идентификатор текущего отдела.
+        previous_department_id (Optional[int]): Идентификатор предыдущего отдела.
+        department_transition_date (Optional[date]): Дата перехода в отдел.
+        employee_position (Optional[str]): Должность.
+        created_at (Optional[datetime]): Время создания записи.
+        updated_at (Optional[datetime]): Время последнего обновления записи.
+    """
+
     name: str = Field(..., title=Title.NAME_USER)
     surname: str = Field(..., title=Title.SURNAME_USER)
     patronymic: Optional[str] = Field(None, title=Title.PATRONYMIC_USER)
@@ -65,82 +90,102 @@ class UserReadSchema(BaseUser[UUID]):
 
     model_config = ConfigDict(from_attributes=True)
 
-class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
-    """Схема для создания пользователя сервиса.
 
-    Поля:
-        name: Имя пользователя (обязательно).
-        surname: Фамилия пользователя (обязательно).
-        email: Электронная почта (обязательно).
-        password: Пароль (обязательно).
-        role: Роль в компании (по умолчанию EMPLOYEE).
-        company_id: Идентификатор компании (обязательно).
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        birthday: Дата рождения (опционально).
-        telegram_username: Имя в Telegram (опционально).
-        start_date_employment: Дата начала работы (опционально).
-        end_date_employment: Дата окончания работы (опционально).
-        avatar_link: Ссылка на аватар (опционально).
-        current_department_id: Текущий отдел (опционально).
-        previous_department_id: Предыдущий отдел (опционально).
-        department_transition_date: Дата перехода в отдел (опционально).
-        employee_position: Должность (опционально).
+class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
     """
+    Схема для создания пользователя сервиса.
+
+    Используется для добавления нового пользователя через API.
+
+    Атрибуты:
+        name (str): Имя пользователя.
+        surname (str): Фамилия пользователя.
+        email (str): Электронная почта.
+        password (str): Пароль.
+        role (CompanyUserRole): Роль в компании (по умолчанию EMPLOYEE).
+        company_id (int): Идентификатор компании.
+        patronymic (Optional[str]): Отчество пользователя.
+        phone_number (Optional[str]): Номер телефона.
+        birthday (Optional[date]): Дата рождения.
+        telegram_username (Optional[str]): Имя в Telegram.
+        start_date_employment (Optional[date]): Дата начала работы.
+        end_date_employment (Optional[date]): Дата окончания работы.
+        avatar_link (Optional[str]): Ссылка на аватар.
+        current_department_id (Optional[int]): Идентификатор текущего отдела.
+        previous_department_id (Optional[int]): Идентификатор предыдущего отдела.
+        department_transition_date (Optional[date]): Дата перехода в отдел.
+        employee_position (Optional[str]): Должность.
+    """
+
     name: NameField = Field(..., title=Title.NAME_USER)
     surname: NameField = Field(..., title=Title.SURNAME_USER)
     role: CompanyUserRole = Field(CompanyUserRole.EMPLOYEE, title=Title.ROLE_USER)
     company_id: int = Field(..., title=Title.COMPANY_ID_USER)
 
-class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
-    """Схема для изменения данных пользователя сервиса.
 
-    Поля:
-        name: Имя пользователя (опционально).
-        surname: Фамилия пользователя (опционально).
-        email: Электронная почта (опционально).
-        password: Пароль (опционально).
-        role: Роль в компании (опционально).
-        company_id: Идентификатор компании (опционально).
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        birthday: Дата рождения (опционально).
-        telegram_username: Имя в Telegram (опционально).
-        start_date_employment: Дата начала работы (опционально).
-        end_date_employment: Дата окончания работы (опционально).
-        avatar_link: Ссылка на аватар (опционально).
-        current_department_id: Текущий отдел (опционально).
-        previous_department_id: Предыдущий отдел (опционально).
-        department_transition_date: Дата перехода в отдел (опционально).
-        employee_position: Должность (опционально).
+class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
     """
+    Схема для изменения данных пользователя сервиса.
+
+    Используется для обновления данных пользователя через API.
+
+    Атрибуты:
+        name (Optional[str]): Имя пользователя.
+        surname (Optional[str]): Фамилия пользователя.
+        email (Optional[str]): Электронная почта.
+        password (Optional[str]): Пароль.
+        role (Optional[CompanyUserRole]): Роль в компании.
+        company_id (Optional[int]): Идентификатор компании.
+        patronymic (Optional[str]): Отчество пользователя.
+        phone_number (Optional[str]): Номер телефона.
+        birthday (Optional[date]): Дата рождения.
+        telegram_username (Optional[str]): Имя в Telegram.
+        start_date_employment (Optional[date]): Дата начала работы.
+        end_date_employment (Optional[date]): Дата окончания работы.
+        avatar_link (Optional[str]): Ссылка на аватар.
+        current_department_id (Optional[int]): Идентификатор текущего отдела.
+        previous_department_id (Optional[int]): Идентификатор предыдущего отдела.
+        department_transition_date (Optional[date]): Дата перехода в отдел.
+        employee_position (Optional[str]): Должность.
+    """
+
     name: OptionalNameField = Field(None, title=Title.NAME_USER)
     surname: OptionalNameField = Field(None, title=Title.SURNAME_USER)
     role: Optional[CompanyUserRole] = Field(None, title=Title.ROLE_USER)
     company_id: Optional[int] = Field(None, title=Title.COMPANY_ID_USER)
 
-class ResetPasswordByAdmin(BaseModel):
-    """Схема для сброса пароля администратором.
 
-    Поля:
-        password: Новый пароль.
+class ResetPasswordByAdmin(BaseModel):
     """
+    Схема для сброса пароля администратором.
+
+    Используется для задания нового пароля пользователю администратором через API.
+
+    Атрибуты:
+        password (str): Новый пароль.
+    """
+
     password: str
 
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
-class UserForUserUpdateSchema(BaseModel):
-    """Схема для обновления данных пользователя сервиса.
 
-    Поля:
-        name: Имя пользователя (опционально).
-        surname: Фамилия пользователя (опционально).
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        birthday: Дата рождения (опционально).
-        telegram_username: Имя в Telegram (опционально).
-        avatar_link: Ссылка на аватар (опционально).
+class UserForUserUpdateSchema(BaseModel):
     """
+    Схема для обновления данных пользователя сервиса.
+
+    Используется для изменения личных данных пользователя самим пользователем через API.
+
+    Атрибуты:
+        name (Optional[str]): Имя пользователя.
+        surname (Optional[str]): Фамилия пользователя.
+        patronymic (Optional[str]): Отчество пользователя.
+        phone_number (Optional[str]): Номер телефона.
+        birthday (Optional[date]): Дата рождения.
+        telegram_username (Optional[str]): Имя в Telegram.
+        avatar_link (Optional[str]): Ссылка на аватар.
+    """
+
     name: OptionalNameField = Field(None, title=Title.NAME_USER)
     surname: OptionalNameField = Field(None, title=Title.SURNAME_USER)
     patronymic: OptionalNameField = Field(None, title=Title.PATRONYMIC_USER)

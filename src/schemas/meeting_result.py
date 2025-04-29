@@ -9,8 +9,8 @@ from src.models import (
     MeetingResultEnum,
     MeetingResultSolutionEnum,
 )
+from src.schemas.annotations import FeedbackField, PlaceField
 from src.schemas.constants import Title
-from src.schemas.types import FeedbackField, PlaceField
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -19,9 +19,19 @@ BASE_CONFIG = ConfigDict(
 )
 
 
-
 class MeetingResultBaseSchema(BaseModel):
-    """Базовая схема для результатов встреч."""
+    """
+    Базовая схема для результатов встреч.
+
+    Определяет общие поля для схем результатов встреч.
+
+    Атрибуты:
+        meeting_result (Optional[MeetingResultEnum]): Результат встречи.
+        participant_engagement (Optional[MeetingResultEngagementEnum]): Уровень
+            вовлеченности участников.
+        problem_solution (Optional[MeetingResultSolutionEnum]): Решение проблемы.
+        meeting_feedback (Optional[str]): Обратная связь по встрече.
+    """
 
     meeting_result: Optional[MeetingResultEnum] = Field(None, title=Title.MEETING_RESULT)
     participant_engagement: Optional[MeetingResultEngagementEnum] = Field(
@@ -36,7 +46,18 @@ class MeetingResultBaseSchema(BaseModel):
 
 
 class MeetingResultCreateSchema(MeetingResultBaseSchema):
-    """Схема для создания результатов встреч."""
+    """
+    Схема для создания результатов встреч.
+
+    Используется для добавления новых результатов встречи через API.
+
+    Атрибуты:
+        meeting_result (MeetingResultEnum): Результат встречи.
+        participant_engagement (MeetingResultEngagementEnum): Уровень
+            вовлеченности участников.
+        problem_solution (MeetingResultSolutionEnum): Решение проблемы.
+        meeting_feedback (Optional[str]): Обратная связь по встрече.
+    """
 
     meeting_result: MeetingResultEnum = Field(..., title=Title.MEETING_RESULT)
     participant_engagement: MeetingResultEngagementEnum = Field(
@@ -48,7 +69,15 @@ class MeetingResultCreateSchema(MeetingResultBaseSchema):
 
 
 class MeetingResultSchema(BaseModel):
-    """Схема для данных о встрече из связанной модели Meeting."""
+    """
+    Схема для данных о встрече из связанной модели Meeting.
+
+    Используется для представления данных о встрече.
+
+    Атрибуты:
+        place (str): Место проведения встречи.
+        date_meeting (date): Дата проведения встречи.
+    """
 
     place: PlaceField = Field(..., title=Title.MEETING_PLACE)
     date_meeting: date = Field(..., title=Title.MEETING_DATE)
@@ -57,7 +86,21 @@ class MeetingResultSchema(BaseModel):
 
 
 class MeetingResultResponseSchema(MeetingResultBaseSchema):
-    """Схема для данных о результатах встречи из БД."""
+    """
+    Схема для данных о результатах встречи из БД.
+
+    Используется для возврата данных о результатах встречи через API.
+
+    Атрибуты:
+        id (int): Идентификатор результата встречи.
+        owner_id (UUID): Идентификатор владельца результата.
+        meeting (MeetingResultSchema): Данные о встрече.
+        meeting_result (MeetingResultEnum): Результат встречи.
+        participant_engagement (MeetingResultEngagementEnum): Уровень
+            вовлеченности участников.
+        problem_solution (MeetingResultSolutionEnum): Решение проблемы.
+        meeting_feedback (Optional[str]): Обратная связь по встрече.
+    """
 
     id: int
     owner_id: UUID
@@ -72,6 +115,17 @@ class MeetingResultResponseSchema(MeetingResultBaseSchema):
 
 
 class MeetingResultUpdateSchema(MeetingResultBaseSchema):
-    """Схема для обновления результатов встреч."""
+    """
+    Схема для обновления результатов встреч.
+
+    Используется для изменения данных о результатах встречи через API.
+
+    Атрибуты:
+        meeting_result (Optional[MeetingResultEnum]): Результат встречи.
+        participant_engagement (Optional[MeetingResultEngagementEnum]): Уровень
+            вовлеченности участников.
+        problem_solution (Optional[MeetingResultSolutionEnum]): Решение проблемы.
+        meeting_feedback (Optional[str]): Обратная связь по встрече.
+    """
 
     model_config = BASE_CONFIG

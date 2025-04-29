@@ -5,19 +5,21 @@ from uuid import UUID
 from fastapi_users.schemas import CreateUpdateDictModel
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from src.schemas.annotations import NameField, OptionalNameField, PhoneNumberField
 from src.schemas.constants import Title
-from src.schemas.types import NameField, OptionalNameField, PhoneNumberField
 
 
 class AdminBaseSchema(BaseModel):
-    """Базовая схема администратора.
+    """
+    Базовая схема администратора.
 
-    Определяет общие поля администратора.
-    Поля:
-        name: Имя администратора.
-        surname: Фамилия администратора.
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
+    Определяет общие поля для схем администраторов.
+
+    Атрибуты:
+        name (str): Имя администратора.
+        surname (str): Фамилия администратора.
+        patronymic (Optional[str]): Отчество администратора.
+        phone_number (Optional[str]): Номер телефона администратора.
     """
 
     name: NameField = Field(..., title=Title.NAME_MODERATOR)
@@ -27,18 +29,22 @@ class AdminBaseSchema(BaseModel):
 
     model_config = ConfigDict(extra='forbid')
 
-class AdminReadSchema(CreateUpdateDictModel):
-    """Схема администратора для ответа.
 
-    Поля:
-        id: UUID администратора.
-        email: Электронная почта.
-        name: Имя администратора.
-        surname: Фамилия администратора.
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        created_at: Время создания.
-        updated_at: Время обновления.
+class AdminReadSchema(CreateUpdateDictModel):
+    """
+    Схема администратора для ответа.
+
+    Используется для возврата данных об администраторе в API.
+
+    Атрибуты:
+        id (UUID): Идентификатор администратора.
+        email (EmailStr): Электронная почта администратора.
+        name (str): Имя администратора.
+        surname (str): Фамилия администратора.
+        patronymic (Optional[str]): Отчество администратора.
+        phone_number (Optional[str]): Номер телефона администратора.
+        created_at (datetime): Время создания записи.
+        updated_at (datetime): Время последнего обновления записи.
     """
 
     id: UUID
@@ -52,45 +58,57 @@ class AdminReadSchema(CreateUpdateDictModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-class AdminCreateSchema(CreateUpdateDictModel, AdminBaseSchema):
-    """Схема для создания администратора.
 
-    Поля:
-        email: Электронная почта (обязательно).
-        password: Пароль (обязательно).
-        name: Имя администратора.
-        surname: Фамилия администратора.
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
+class AdminCreateSchema(CreateUpdateDictModel, AdminBaseSchema):
+    """
+    Схема для создания администратора.
+
+    Используется для создания нового администратора через API.
+
+    Атрибуты:
+        email (EmailStr): Электронная почта администратора.
+        password (str): Пароль администратора.
+        name (str): Имя администратора.
+        surname (str): Фамилия администратора.
+        patronymic (Optional[str]): Отчество администратора.
+        phone_number (Optional[str]): Номер телефона администратора.
     """
 
     email: EmailStr = Field(..., title=Title.EMAIL_USER)
     password: str = Field(..., title=Title.PASSWORD_USER)
 
-class AdminUpdateSchema(AdminBaseSchema):
-    """Схема для обновления администратора.
 
-    Поля:
-        name: Имя администратора (опционально).
-        surname: Фамилия администратора (опционально).
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
+class AdminUpdateSchema(AdminBaseSchema):
+    """
+    Схема для обновления администратора.
+
+    Используется для частичного обновления данных администратора через API.
+
+    Атрибуты:
+        name (Optional[str]): Имя администратора.
+        surname (Optional[str]): Фамилия администратора.
+        patronymic (Optional[str]): Отчество администратора.
+        phone_number (Optional[str]): Номер телефона администратора.
     """
 
     name: OptionalNameField = Field(None, title=Title.NAME_MODERATOR)
     surname: OptionalNameField = Field(None, title=Title.SURNAME_MODERATOR)
 
-class AdminCreateFirstSchema(AdminCreateSchema):
-    """Схема для создания первого суперпользователя.
 
-    Поля:
-        email: Электронная почта (обязательно).
-        password: Пароль (обязательно).
-        name: Имя администратора.
-        surname: Фамилия администратора.
-        patronymic: Отчество (опционально).
-        phone_number: Номер телефона (опционально).
-        is_superuser: Флаг суперпользователя (по умолчанию True).
+class AdminCreateFirstSchema(AdminCreateSchema):
+    """
+    Схема для создания первого суперпользователя.
+
+    Используется для создания суперпользователя с повышенными привилегиями.
+
+    Атрибуты:
+        email (EmailStr): Электронная почта суперпользователя.
+        password (str): Пароль суперпользователя.
+        name (str): Имя суперпользователя.
+        surname (str): Фамилия суперпользователя.
+        patronymic (Optional[str]): Отчество суперпользователя.
+        phone_number (Optional[str]): Номер телефона суперпользователя.
+        is_superuser (bool): Флаг суперпользователя (по умолчанию True).
     """
 
     is_superuser: bool = Field(True, title=Title.IS_SUPERUSER_ADMIN)

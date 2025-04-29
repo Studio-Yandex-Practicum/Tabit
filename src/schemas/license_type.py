@@ -3,8 +3,7 @@ from typing import List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.schemas.constants import Default, MiscConstants, Title
-from src.schemas.types import (
+from src.schemas.annotations import (
     CountField,
     LicenseNameField,
     LicenseTermField,
@@ -14,6 +13,7 @@ from src.schemas.types import (
     PageField,
     PageSizeField,
 )
+from src.schemas.constants import Default, MiscConstants, Title
 from src.schemas.validators.license_type import (
     validate_license_term,
     validate_string,
@@ -21,9 +21,18 @@ from src.schemas.validators.license_type import (
 
 
 class LicenseTypeBaseSchema(BaseModel):
-    """Базовая схема лицензии.
+    """
+    Базовая схема лицензии.
 
-    Определяет базовые поля и валидаторы для лицензии.
+    Определяет общие поля и валидаторы для схем лицензий.
+
+    Атрибуты:
+        name (str): Название лицензии.
+        license_term (timedelta): Срок действия лицензии.
+
+    Валидаторы:
+        validate_name: Проверяет отсутствие пробелов в начале или конце названия.
+        validate_license_term: Проверяет и конвертирует срок действия лицензии в timedelta.
     """
 
     model_config = ConfigDict(extra='forbid')
@@ -42,13 +51,20 @@ class LicenseTypeBaseSchema(BaseModel):
 
 
 class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
-    """Схема для создания лицензии.
+    """
+    Схема для создания лицензии.
 
-    Поля:
-        name: Название лицензии (обязательно).
-        license_term: Срок действия лицензии (обязательно).
-        max_admins_count: Максимальное количество администраторов (обязательно).
-        max_employees_count: Максимальное количество сотрудников (обязательно).
+    Используется для добавления новой лицензии через API.
+
+    Атрибуты:
+        name (str): Название лицензии.
+        license_term (timedelta): Срок действия лицензии.
+        max_admins_count (int): Максимальное количество администраторов.
+        max_employees_count (int): Максимальное количество сотрудников.
+
+    Валидаторы:
+        validate_name: Проверяет отсутствие пробелов в начале или конце названия.
+        validate_license_term: Проверяет и конвертирует срок действия лицензии в timedelta.
     """
 
     name: LicenseNameField = Field(..., title=Title.NAME_LICENSE)
@@ -58,13 +74,20 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
 
 
 class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
-    """Схема для частичного обновления лицензии.
+    """
+    Схема для частичного обновления лицензии.
 
-    Поля:
-        name: Название лицензии (опционально).
-        license_term: Срок действия лицензии (опционально).
-        max_admins_count: Максимальное количество администраторов (опционально).
-        max_employees_count: Максимальное количество сотрудников (опционально).
+    Используется для изменения данных лицензии через API.
+
+    Атрибуты:
+        name (Optional[str]): Название лицензии.
+        license_term (Optional[timedelta]): Срок действия лицензии.
+        max_admins_count (Optional[int]): Максимальное количество администраторов.
+        max_employees_count (Optional[int]): Максимальное количество сотрудников.
+
+    Валидаторы:
+        validate_name: Проверяет отсутствие пробелов в начале или конце названия.
+        validate_license_term: Проверяет и конвертирует срок действия лицензии в timedelta.
     """
 
     name: OptionalLicenseNameField = Field(None, title=Title.NAME_LICENSE)
@@ -76,16 +99,19 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
 
 
 class LicenseTypeResponseSchema(BaseModel):
-    """Схема лицензии для ответа.
+    """
+    Схема лицензии для ответа.
 
-    Поля:
-        id: Идентификатор лицензии.
-        name: Название лицензии.
-        license_term: Срок действия лицензии.
-        max_admins_count: Максимальное количество администраторов.
-        max_employees_count: Максимальное количество сотрудников.
-        created_at: Время создания.
-        updated_at: Время обновления.
+    Используется для возврата данных о лицензии через API.
+
+    Атрибуты:
+        id (int): Идентификатор лицензии.
+        name (str): Название лицензии.
+        license_term (timedelta): Срок действия лицензии.
+        max_admins_count (int): Максимальное количество администраторов.
+        max_employees_count (int): Максимальное количество сотрудников.
+        created_at (datetime): Время создания лицензии.
+        updated_at (datetime): Время последнего обновления лицензии.
     """
 
     id: int
@@ -100,13 +126,16 @@ class LicenseTypeResponseSchema(BaseModel):
 
 
 class LicenseTypeListResponseSchema(BaseModel):
-    """Схема ответа для списка лицензий с пагинацией.
+    """
+    Схема ответа для списка лицензий с пагинацией.
 
-    Поля:
-        items: Список лицензий.
-        total: Общее количество записей.
-        page: Текущая страница.
-        page_size: Количество записей на странице.
+    Используется для возврата списка лицензий с информацией о пагинации через API.
+
+    Атрибуты:
+        items (List[LicenseTypeResponseSchema]): Список лицензий.
+        total (int): Общее количество записей.
+        page (int): Текущая страница.
+        page_size (int): Количество записей на странице.
     """
 
     items: List[LicenseTypeResponseSchema]
@@ -118,13 +147,17 @@ class LicenseTypeListResponseSchema(BaseModel):
 
 
 class LicenseTypeFilterSchema(BaseModel):
-    """Схема фильтрации списка лицензий.
+    """
+    Схема фильтрации списка лицензий.
 
-    Поля:
-        name: Фильтр по названию лицензии (опционально).
-        ordering: Сортировка по полям (опционально).
-        page: Номер страницы (по умолчанию 1).
-        page_size: Количество записей на странице (по умолчанию 10).
+    Используется для фильтрации и сортировки списка лицензий через API.
+
+    Атрибуты:
+        name (Optional[str]): Фильтр по названию лицензии.
+        ordering (Optional[str]): Сортировка по полям 
+            (name, created_at, updated_at, с префиксом '-' для обратной сортировки).
+        page (int): Номер страницы (по умолчанию 1).
+        page_size (int): Количество записей на странице (по умолчанию 10).
     """
 
     name: Optional[str] = Field(None, description=MiscConstants.FILTER_NAME_DESCRIPTION)

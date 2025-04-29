@@ -2,7 +2,7 @@
 # 1. Импортируем миксины
 # 2. Импортируем все схемы из других файлов
 
-from .mixins import GetterSlugMixin, UserSchemaMixin
+from .mixins import UserSchemaMixin
 from .admin_company import (
     AdminCompanyResponseSchema,
     CompanyAdminCreateSchema,
@@ -107,7 +107,6 @@ from .voting import (
 )
 
 __all__ = [
-    'GetterSlugMixin',
     'UserSchemaMixin',
     'AdminCompanyResponseSchema',
     'CompanyAdminCreateSchema',
