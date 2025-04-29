@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.core.config.logging import logger
-from src.core.constants import TextError
+from src.crud.constants import TextError
 from src.crud.crud_base import CRUDBase
 from src.models.survey import SurveyAnswer, SurveyData, SurveySchedule, SurveyScheduleCycle
 from src.schemas.survey import (
@@ -60,7 +60,7 @@ class CRUDSurveysSchedule(CRUDBase):
 
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
 
     async def get_shedule(
@@ -159,7 +159,7 @@ class CRUDSurveysSchedule(CRUDBase):
             await session.refresh(db_obj)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return db_obj
 
@@ -188,7 +188,7 @@ class CRUDSurveysData(CRUDBase):
             await session.refresh(survey_data)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return survey_data
 
@@ -215,7 +215,7 @@ class CRUDSurveysData(CRUDBase):
             await session.refresh(answer)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return answer
 
