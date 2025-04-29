@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -11,16 +12,16 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    app_title: str = 'Tabit'
+    app_title: str = os.getenv('APP_TITLE')
     description: str = 'Tabit platform'
     version: str = '1.0.0'
     db_type: str = 'postgresql'
     db_api: str = 'asyncpg'
-    db_host: str = 'localhost'
-    db_port: str = '5432'
-    postgres_user: str = 'postgres_admin_user'
-    postgres_password: str = 'Postgres_P@ssw0rd'
-    postgres_db: str = 'tabit'
+    db_host: str = os.getenv('DB_HOST')
+    db_port: str = os.getenv('DB_PORT')
+    postgres_user: str = os.getenv('POSTGRES_USER')
+    postgres_password: str = os.getenv('POSTGRES_PASSWORD')
+    postgres_db: str = os.getenv('POSTGRES_DB')
     log_level: str = 'DEBUG'
     app_serve_static: bool = False
 
