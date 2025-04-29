@@ -7,11 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config.logging import logger
 from src.core.database.db_depends import get_async_session
+from src.crud import surveys_data_crud, surveys_list_crud, surveys_schedule_crud, user_crud
 from src.crud.constants import TextError
-from src.crud.crud_company import company_crud
-from src.crud.crud_surveys import surveys_data_crud, surveys_list_crud, surveys_schedule_crud
 from src.features_v1.validators import (
+    check_company_exists,
     validate_employee_survey_history,
+    validate_user_from_company,
     validator_check_object_exists,
 )
 from src.schemas.survey import (
@@ -58,9 +59,7 @@ async def get_schedule_list(
         - существует ли компания с таким slug;
         - существуют ли расписания у данной компании.
     """
-    await validator_check_object_exists(
-        session=session, model_crud=company_crud, object_slug=company_slug
-    )
+    await check_company_exists(session=session, company_slug=company_slug)
 
     schedule = await surveys_schedule_crud.get_all_shedules(
         session=session,
@@ -104,9 +103,7 @@ async def create_schedule(
     Проверки:
         - существует ли компания с таким slug
     """
-    await validator_check_object_exists(
-        session=session, model_crud=company_crud, object_slug=company_slug
-    )
+    await check_company_exists(session=session, company_slug=company_slug)
 
     schedule = await surveys_schedule_crud.create_surveys_schedule(
         session=session, slug=company_slug, schedule_in=data
@@ -147,9 +144,7 @@ async def get_schedule(
         - существует ли компания с таким slug;
         - существует ли расписание с данным id.
     """
-    await validator_check_object_exists(
-        session=session, model_crud=company_crud, object_slug=company_slug
-    )
+    await check_company_exists(session=session, company_slug=company_slug)
 
     schedule = await surveys_schedule_crud.get_shedule(
         session=session,
@@ -197,9 +192,7 @@ async def update_survey_schedule(
         - существует ли компания с таким slug;
         - существует ли расписание с данным id;
     """
-    await validator_check_object_exists(
-        session=session, model_crud=company_crud, object_slug=company_slug
-    )
+    await check_company_exists(session=session, company_slug=company_slug)
     schedule = await surveys_schedule_crud.get_shedule(
         session=session,
         obj_id=schedule_id,
@@ -246,9 +239,7 @@ async def delete_survey_schedule(
         - существует ли компания с таким slug;
         - существует ли расписание с данным id;
     """
-    await validator_check_object_exists(
-        session=session, model_crud=company_crud, object_slug=company_slug
-    )
+    await check_company_exists(session=session, company_slug=company_slug)
 
     schedule = await validator_check_object_exists(
         session=session, model_crud=surveys_schedule_crud, object_id=schedule_id
@@ -289,11 +280,11 @@ async def get_employee_survey_history(
 
     Проверки:
         - существует ли компания с таким slug;
+        - существует ли пользователь с таким UUID
     """
-    # TODO: Проверить существование сотрудника
-    await validator_check_object_exists(
-        session=session, model_crud=company_crud, object_slug=company_slug
-    )
+
+    await check_company_exists(session=session, company_slug=company_slug)
+    await user_crud.get_or_404(session=session, obj_id=user_id)
 
     survey_data = await surveys_data_crud.get_all_user_survey(
         session=session, company_slug=company_slug, user_id=user_id
@@ -336,12 +327,12 @@ async def get_employee_survey_info(
         Объект SurveyDataRead.
 
     Проверки:
-        - существует ли компания с таким slug;
+        - существует ли компания с таким slug.
+        - существует ли пользователь с таким UUID.
     """
-    # TODO: Проверить существование сотрудника
-    await validator_check_object_exists(
-        session=session, model_crud=company_crud, object_slug=company_slug
-    )
+
+    await check_company_exists(session=session, company_slug=company_slug)
+    await user_crud.get_or_404(session=session, obj_id=user_id)
     await validator_check_object_exists(
         session=session, model_crud=surveys_data_crud, object_id=survey_id
     )
@@ -387,20 +378,31 @@ async def add_employee_survey_info(
         Объект SurveyDataRead.
 
     Проверки:
-        - существует ли компания с таким slug;
+        - существует ли компания с таким slug.
+        - существует ли user с таким UUID.
+        - есть ли разрешение у пользователя добавлять ответы в опросе этой компании.
+        - существует ли расписание.
+        - существует ли тест.
+        - существует ли цикл в расписании.
 
     Все проверки и записи объединены в одну транзакцию,
     в случае ошибки на любом из этапов будет rollback.
     В случае успеха будет автоматический commit.
     """
-    # TODO: Проверить существование сотрудника
+
     async with session.begin():
         try:
-            await validator_check_object_exists(
-                session=session, model_crud=company_crud, object_slug=company_slug
-            )
+            company = await check_company_exists(session=session, company_slug=company_slug)
+            user = await user_crud.get_or_404(session=session, obj_id=user_id)
+            validate_user_from_company(user, company)
             await validator_check_object_exists(
                 session=session, model_crud=surveys_schedule_crud, object_id=data.survey_shedule_id
+            )
+            await surveys_schedule_crud.get_cycle(
+                session=session,
+                cycle_id=data.cycle_id,
+                shedule_id=data.survey_shedule_id,
+                raise_404=True
             )
             survey_data = await surveys_data_crud.create_survey_data(
                 session=session, data=data, user_id=user_id, company_slug=company_slug
@@ -410,6 +412,7 @@ async def add_employee_survey_info(
                 await validator_check_object_exists(
                     session=session, model_crud=surveys_list_crud, object_id=item.survey_list_id
                 )
+
                 result = Surveys(item=item).survey_type()
                 await surveys_data_crud.create_survay_answers(
                     session=session, survey_data_id=survey_data_id, item=item, result=result

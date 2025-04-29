@@ -545,11 +545,12 @@ async def check_company_exists(company_slug: str, session: AsyncSession):
     Исключения:
         HTTPException: Если компания не найдена.
     """
-
-    if not await company_crud.get_by_company_slug(session, company_slug):
+    company = await company_crud.get_by_company_slug(session, company_slug)
+    if not company:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=TextError.COMPANY_NOT_FOUND
         )
+    return company
 
 
 def validate_is_member_problem(user: CompanyUser, problem: Problem):
