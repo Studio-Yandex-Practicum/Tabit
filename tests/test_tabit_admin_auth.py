@@ -26,9 +26,9 @@ class TestLoginAdminTabit:
                 'password': AuthData.GOOD_PASSWORD,
             }
             response = await client.post(Url.ADMIN_LOGIN, data=login_payload)
-            assert response.status_code == status.HTTP_200_OK, (
-                f'При авторизации {text} у ответа должен быть статус 200:\n{response.text}'
-            )
+            assert (
+                response.status_code == status.HTTP_200_OK
+            ), f'При авторизации {text} у ответа должен быть статус 200:\n{response.text}'
             result = response.json()
             for key in ('access_token', 'refresh_token', 'token_type'):
                 assert key in result, f'В теле ответа нет ключа {key}'
@@ -52,9 +52,9 @@ class TestLoginAdminTabit:
                 'password': AuthData.GOOD_PASSWORD,
             }
             response = await client.post(Url.ADMIN_LOGIN, data=login_payload)
-            assert response.status_code == status.HTTP_400_BAD_REQUEST, (
-                f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
-            )
+            assert (
+                response.status_code == status.HTTP_400_BAD_REQUEST
+            ), f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -74,9 +74,9 @@ class TestLoginAdminTabit:
         )
         for bad_login_payload in bad_login_payloads:
             response = await client.post(Url.ADMIN_LOGIN, data=bad_login_payload)
-            assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
-                f'Не корректный ответ с данными\n{bad_login_payload}\n{response.text}'
-            )
+            assert (
+                response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+            ), f'Не корректный ответ с данными\n{bad_login_payload}\n{response.text}'
             result = response.json()
             assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -88,9 +88,9 @@ class TestLoginAdminTabit:
             'password': f'NOT {AuthData.GOOD_PASSWORD}',
         }
         response = await client.post(Url.ADMIN_LOGIN, data=login_payload)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST, (
-            f'Не корректный ответ с данными\n{login_payload}\n{response.text}'
-        )
+        assert (
+            response.status_code == status.HTTP_400_BAD_REQUEST
+        ), f'Не корректный ответ с данными\n{login_payload}\n{response.text}'
         result = response.json()
         assert 'detail' in result, 'В теле ответа с ошибкой нет ключа detail'
 
@@ -111,9 +111,9 @@ class TestLogoutAdminTabit:
         )
         for token, text in variants:
             response = await client.post(Url.ADMIN_LOGOUT, headers=token)
-            assert response.status_code == status.HTTP_204_NO_CONTENT, (
-                f'При выходе из системы {text} должен быть статус ответа 204:\n{response.text}'
-            )
+            assert (
+                response.status_code == status.HTTP_204_NO_CONTENT
+            ), f'При выходе из системы {text} должен быть статус ответа 204:\n{response.text}'
 
     @pytest.mark.asyncio
     async def test_logout_admin_not_access(
@@ -130,9 +130,9 @@ class TestLogoutAdminTabit:
         )
         for token, text in variants:
             response = await client.post(Url.ADMIN_LOGOUT, headers=token)
-            assert response.status_code == status.HTTP_401_UNAUTHORIZED, (
-                f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
-            )
+            assert (
+                response.status_code == status.HTTP_401_UNAUTHORIZED
+            ), f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
 
 
 class TestCreateAdminTabit:
@@ -181,13 +181,13 @@ class TestCreateAdminTabit:
         assert is_valid_uuid(data['id']), 'Поле id не является uuid.'
         for key in data:
             if key in payload:
-                assert data[key] == payload[key], (
-                    f'Значение ключа {key} не соответствует переданному.'
-                )
+                assert (
+                    data[key] == payload[key]
+                ), f'Значение ключа {key} не соответствует переданному.'
             elif key in ('id', 'created_at', 'updated_at'):
-                assert data[key] is not None, (
-                    f'Значение ключа {key} не должно быть пустым или null.'
-                )
+                assert (
+                    data[key] is not None
+                ), f'Значение ключа {key} не должно быть пустым или null.'
             else:
                 assert data[key] is None, f'Значение ключа {key} должно быть пустым или null.'
 
@@ -363,13 +363,13 @@ class TestGetAdminTabit:
             'updated_at',
         ):
             assert key in data_row, f'Ключа {key} нет в теле ответа:\n{data_row}'
-            assert data_row[key] if key not in ('patronymic', 'phone_number') else True, (
-                f'Значение ключа {key} не должно быть пустым или быть null:\n{data_row}'
-            )
+            assert (
+                data_row[key] if key not in ('patronymic', 'phone_number') else True
+            ), f'Значение ключа {key} не должно быть пустым или быть null:\n{data_row}'
         for key in ('password', 'hashed_password', 'is_active', 'is_superuser', 'is_verified'):
-            assert key not in data_row, (
-                f'Значение ключа {key} не должно быть в теле ответа:\n{data_row}'
-            )
+            assert (
+                key not in data_row
+            ), f'Значение ключа {key} не должно быть в теле ответа:\n{data_row}'
 
     @pytest.mark.asyncio
     async def test_get_admin_not_access(
@@ -509,13 +509,13 @@ class TestPatchMeAdminTabit:
             data_after = response_patch.json()
             for key in data_before:
                 if key in payload:
-                    assert data_after[key] == payload[key], (
-                        f'При изменение своих личных данных {text} значение {key} не поменялось.'
-                    )
+                    assert (
+                        data_after[key] == payload[key]
+                    ), f'При изменение своих личных данных {text} значение {key} не поменялось.'
                 elif key == 'updated_at':
-                    assert data_after[key] != data_before[key], (
-                        f'При изменение своих личных данных {text} значение {key} не поменялось.'
-                    )
+                    assert (
+                        data_after[key] != data_before[key]
+                    ), f'При изменение своих личных данных {text} значение {key} не поменялось.'
                 else:
                     assert data_after[key] == data_before[key], (
                         f'При изменение своих личных данных {text} значение {key} поменялось, '
@@ -669,13 +669,13 @@ class TestPatchIdAdminTabit:
             data_after = response_patch.json()
             for key in data_before:
                 if key in payload:
-                    assert data_after[key] == payload[key], (
-                        f'При изменение данных {text} по его id значение {key} не поменялось.'
-                    )
+                    assert (
+                        data_after[key] == payload[key]
+                    ), f'При изменение данных {text} по его id значение {key} не поменялось.'
                 elif key == 'updated_at':
-                    assert data_after[key] != data_before[key], (
-                        f'При изменение данных {text} по его id значение {key} не поменялось.'
-                    )
+                    assert (
+                        data_after[key] != data_before[key]
+                    ), f'При изменение данных {text} по его id значение {key} не поменялось.'
                 else:
                     assert data_after[key] == data_before[key], (
                         f'При изменение данных {text} по его id значение {key} поменялось, '
@@ -746,9 +746,9 @@ class TestDeleteIdAdminTabit:
             url,
             headers=superuser_token,
         )
-        assert response_get.status_code == status.HTTP_404_NOT_FOUND, (
-            f'Возможно, администратор сервиса не был удален из базы данных:\n{response_get.text}'
-        )
+        assert (
+            response_get.status_code == status.HTTP_404_NOT_FOUND
+        ), f'Возможно, администратор сервиса не был удален из базы данных:\n{response_get.text}'
 
     @pytest.mark.asyncio
     async def test_not_delete_id_superuser(
@@ -812,9 +812,9 @@ class TestDeleteIdAdminTabit:
                 url,
                 headers=superuser_token,
             )
-            assert response_get.status_code == status.HTTP_200_OK, (
-                f'Возможно, администратор сервиса был удален из базы данных:\n{response_get.text}'
-            )
+            assert (
+                response_get.status_code == status.HTTP_200_OK
+            ), f'Возможно, администратор сервиса был удален из базы данных:\n{response_get.text}'
 
 
 class TestRefreshTokenAdminTabit:
@@ -838,9 +838,9 @@ class TestRefreshTokenAdminTabit:
         )
         for token, text in variants:
             response = await client.post(Url.ADMIN_REFRESH, headers=token)
-            assert response.status_code == status.HTTP_200_OK, (
-                f'При получение токена {text} у ответа должен быть статус 200:\n{response.text}'
-            )
+            assert (
+                response.status_code == status.HTTP_200_OK
+            ), f'При получение токена {text} у ответа должен быть статус 200:\n{response.text}'
             result = response.json()
             for key in ('access_token', 'refresh_token', 'token_type'):
                 assert key in result, f'В теле ответа нет ключа {key}'

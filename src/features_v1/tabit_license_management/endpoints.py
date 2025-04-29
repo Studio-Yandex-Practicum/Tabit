@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.auth.dependencies import current_admin_tabit
 from src.core.database.db_depends import get_async_session
 from src.crud.crud_license_type import license_type_crud
 from src.features_v1.constants import Summary
@@ -13,7 +14,7 @@ from src.schemas import (
     LicenseTypeUpdateSchema,
 )
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(current_admin_tabit)])
 
 
 @router.get(

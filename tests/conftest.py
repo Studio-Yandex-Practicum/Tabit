@@ -18,7 +18,6 @@ from config.constants.tests import AuthData, Test_Database_URL, Url
 from src.core.database.db_depends import get_async_session
 from src.main import app_v1
 from src.models import (
-    AssociationUserComment,
     BaseTabitModel,
     CommentFeed,
     Company,
@@ -34,6 +33,17 @@ from src.models import (
     ProblemType,
     TabitAdminUser,
 )
+
+
+def pytest_collection_modifyitems(items):
+    """
+    Добавляет всем тестам параметр loop_scope="session" в декоратор.
+    Подробности: https://github.com/pytest-dev/pytest-asyncio/issues/922
+    """
+    pytest_asyncio_tests = (item for item in items if pytest_asyncio.is_async_test(item))
+    session_scope_marker = pytest.mark.asyncio(loop_scope='session')
+    for async_test in pytest_asyncio_tests:
+        async_test.add_marker(session_scope_marker, append=False)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -69,7 +79,7 @@ def setup_test_db():
         )
 
 
-def wait_for_postgres(host: str, port: int, user: str, password: str, dbname, timeout=30):
+def wait_for_postgres(host: str, port: int, user: str, password: str, dbname, timeout=60):
     """
     Ожидает готовности PostgreSQL перед началом тестов.
 
@@ -652,6 +662,11 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
             default_data.update(problem_data)
 
         problem = await make_entry_in_table(async_session, default_data, Problem)
+
+        # Так как при создании проблемы owner автоматически становится её участником,
+        # делаем запись в связанной таблице.
+        user_problem_data = {'left_id': str(owner_id), 'right_id': problem.id}
+        await make_entry_in_table(async_session, user_problem_data, AssociationUserProblem)
 
         if return_all_objects:
             return problem, employee, company

@@ -86,11 +86,11 @@ class TextError(TextErrorBase):
     Наследует все константы из TextErrorBase.
 
     Атрибуты:
-    - FORBIDDEN_ROLE_ADMIN (str): Сообщение об ошибке доступа для действий,
-      требующих прав администратора компании.
+    - FORBIDDEN_ROLE_MODERATOR (str): Сообщение об ошибке доступа для действий,
+      требующих прав модератора компании.
     """
 
-    FORBIDDEN_ROLE_ADMIN: str = 'Доступно только админам компаний'
+    FORBIDDEN_ROLE_MODERATOR: str = 'Доступно только модераторам компаний'
 
 
 class Validation(ValidationBase):
