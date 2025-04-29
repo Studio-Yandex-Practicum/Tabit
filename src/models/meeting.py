@@ -18,7 +18,7 @@ from src.models.annotations import (
     int_pk,
     int_pk_autoincrement,
     int_zero,
-    name_problem,
+    name_meeting,
     owner,
 )
 from src.models.constants import Length
@@ -61,7 +61,7 @@ class Meeting(BaseTabitModel):
     """
 
     id: Mapped[int_pk]
-    title: Mapped[name_problem]
+    title: Mapped[name_meeting]
     description: Mapped[description]
     problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id'))
     problem: Mapped['Problem'] = relationship(back_populates='meetings')

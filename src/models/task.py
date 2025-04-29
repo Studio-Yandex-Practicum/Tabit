@@ -7,10 +7,10 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import BaseTabitModel, TaskStatus
-from src.models.annotations import description, int_pk, int_zero, name_problem, owner
+from src.models.annotations import description, int_pk, int_zero, name_task, owner
 
 if TYPE_CHECKING:
-    from src.models import AssociationUserTask, CompanyUser, FileTask, Problem
+    from src.models import AssociationUserTask, CompanyUser, FileTask, Meeting, Problem
 
 
 class Task(BaseTabitModel):
@@ -18,7 +18,7 @@ class Task(BaseTabitModel):
     Модель задач.
 
     Назначение:
-        Содержит информацию о установленных задач для решения проблемы.
+        Содержит информацию о задаче ко встрече для решения проблемы.
 
     Поля:
         id: Идентификатор.
@@ -40,13 +40,15 @@ class Task(BaseTabitModel):
     """
 
     id: Mapped[int_pk]
-    name: Mapped[name_problem]
+    name: Mapped[name_task]
     description: Mapped[description]
     date_completion: Mapped[date] = mapped_column(nullable=False)
     owner_id: Mapped[owner]
     owner: Mapped['CompanyUser'] = relationship(back_populates='task_owner')
     problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id', ondelete='CASCADE'))
     problem: Mapped['Problem'] = relationship(back_populates='tasks')
+    meeting_id: Mapped[int] = mapped_column(ForeignKey('meeting.id', ondelete='CASCADE'))
+    meeting: Mapped['Meeting'] = relationship(back_populates='tasks')
     executors: Mapped[List['AssociationUserTask']] = relationship(
         back_populates='task',
         cascade='all, delete-orphan',

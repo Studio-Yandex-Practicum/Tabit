@@ -35,6 +35,8 @@ timestamp_nullable = Annotated[
 owner = Annotated[UUID, mapped_column(ForeignKey('companyuser.id'), nullable=False)]
 int_zero = Annotated[int, mapped_column(Integer, nullable=False, default=MiscConstants.ZERO)]
 name_problem = Annotated[str, mapped_column(String(Length.MAX_NAME_PROBLEM), nullable=False)]
+name_meeting = Annotated[str, mapped_column(String(Length.MAX_NAME_MEETING), nullable=False)]
+name_task = Annotated[str, mapped_column(String(Length.MAX_NAME_TASK), nullable=False)]
 slug = Annotated[str, mapped_column(String(Length.SLUG), nullable=False, unique=True)]
 comment_rating = Annotated[int, mapped_column(Integer, nullable=False, default=MiscConstants.ZERO)]
 int_pk_autoincrement = Annotated[

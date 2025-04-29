@@ -890,7 +890,7 @@ async def task_for_test(async_session: AsyncSession, meeting_for_test):
     Возвращает:
         - Task: Объект созданной задачи.
         - (Task, Meeting, Problem, CompanyUser, Company): Если `return_all_objects=True`,
-           возвращает кортеж (встреча, проблема, сотрудник, компания).
+           возвращает кортеж (задача, встреча, проблема, сотрудник, компания).
 
     Примеры использования:
         # Создание задачи только с обязательными полями
@@ -898,8 +898,9 @@ async def task_for_test(async_session: AsyncSession, meeting_for_test):
 
         # Создание задачи с кастомными параметрами
         task = await task_for_test({
-            'title': 'Важная задача',
-            'date_task': datetime.now().date(),
+            'name': 'Важная задача',
+            'description': 'Разработать перечень предложений для решения проблемы',
+            'date_completion': (datetime.now() + timedelta(days=1)).date()
             'status': 'Завершена'
         })
 

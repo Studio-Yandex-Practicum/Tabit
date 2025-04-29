@@ -58,9 +58,11 @@ class Length(LengthBase):
     - MAX_NAME_PROBLEM (int): Максимальная длина названия проблемы.
     """
 
-    MAX_NAME_DEPARTMENT: int = 255
-    MAX_NAME_MEETING_PLACE: int = 255
-    MAX_NAME_PROBLEM: int = 255
+    MAX_NAME_DEPARTMENT: int = 100
+    MAX_NAME_MEETING_PLACE: int = 100
+    MAX_NAME_PROBLEM: int = 100
+    MAX_NAME_MEETING: int = 100
+    MAX_NAME_TASK: int = 100
 
 
 class MiscConstants(MiscConstantsBase):
