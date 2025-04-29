@@ -188,14 +188,9 @@ class CRUDSurveysData(CRUDBase):
             user_id=user_id,
             company_slug=company_slug,
         )
-        try:
-            session.add(survey_data)
-            await session.commit()
-            await session.refresh(survey_data)
-        except Exception as error:
-            await session.rollback()
-            logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
-            raise error
+        session.add(survey_data)
+        await session.flush()
+        await session.refresh(survey_data)
         return survey_data
 
     async def create_survay_answers(
@@ -215,14 +210,9 @@ class CRUDSurveysData(CRUDBase):
             answer=item.answers,
             result=result,
         )
-        try:
-            session.add(answer)
-            await session.commit()
-            await session.refresh(answer)
-        except Exception as error:
-            await session.rollback()
-            logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
-            raise error
+        session.add(answer)
+        await session.flush() 
+        await session.refresh(answer)
         return answer
 
     async def get_user_survey(

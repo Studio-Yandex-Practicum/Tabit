@@ -1,12 +1,15 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.config.logging import logger
 from src.core.database.db_depends import get_async_session
+from src.crud.constants import TextError
 from src.crud.crud_company import company_crud
-from src.crud.crud_surveys import surveys_data_crud, surveys_schedule_crud
+from src.crud.crud_surveys import surveys_data_crud, surveys_list_crud, surveys_schedule_crud
 from src.features_v1.validators import (
     validate_employee_survey_history,
     validator_check_object_exists,
@@ -385,28 +388,40 @@ async def add_employee_survey_info(
 
     Проверки:
         - существует ли компания с таким slug;
+
+    Все проверки и записи объединены в одну транзакцию,
+    в случае ошибки на любом из этапов будет rollback.
+    В случае успеха будет автоматический commit.
     """
     # TODO: Проверить существование сотрудника
-    await validator_check_object_exists(
-        session=session, model_crud=company_crud, object_slug=company_slug
-    )
-
-    survey_data = await surveys_data_crud.create_survey_data(
-        session=session, data=data, user_id=user_id, company_slug=company_slug
-    )
-
-    survey_data_id = survey_data.id
-
-    for item in data.answers:
-        await validator_check_object_exists(
-            session=session, model_crud=surveys_data_crud, object_id=item.survey_list_id
-        )
-
-        result = Surveys(item=item).survey_type()
-
-        await surveys_data_crud.create_survay_answers(
-            session=session, survey_data_id=survey_data_id, item=item, result=result
-        )
+    async with session.begin():
+        try:
+            await validator_check_object_exists(
+                session=session, model_crud=company_crud, object_slug=company_slug
+            )
+            await validator_check_object_exists(
+                session=session, model_crud=surveys_schedule_crud, object_id=data.survey_shedule_id
+            )
+            survey_data = await surveys_data_crud.create_survey_data(
+                session=session, data=data, user_id=user_id, company_slug=company_slug
+            )
+            survey_data_id = survey_data.id
+            for item in data.answers:
+                await validator_check_object_exists(
+                    session=session, model_crud=surveys_list_crud, object_id=item.survey_list_id
+                )
+                result = Surveys(item=item).survey_type()
+                await surveys_data_crud.create_survay_answers(
+                    session=session, survey_data_id=survey_data_id, item=item, result=result
+                )
+        except SQLAlchemyError as db_error:
+            logger.error(f'Ошибка базы данных при записи результатов опроса: {db_error}')
+            raise HTTPException(
+                status_code=500, detail="Ошибка сервера при работе с базой данных.")
+        except Exception as error:
+            logger.error(
+                f'{TextError.UPDATE_SERVER_LOG} в бд результата опроса: {error}')
+            raise HTTPException(status_code=500, detail="Внутренняя ошибка сервера.")
 
     survey_data = await surveys_data_crud.get_user_survey(
         session=session, company_slug=company_slug, survey_data_id=survey_data_id, user_id=user_id
