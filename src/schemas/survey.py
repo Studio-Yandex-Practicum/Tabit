@@ -4,6 +4,7 @@ from typing import List
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.schemas.validators.problem_meeting import validate_date
+from src.models.enum import SurveysStatus, SurveysTags
 
 
 class SurveyScheduleCycleCreate(BaseModel):
@@ -55,8 +56,8 @@ class SurveyScheduleCreate(BaseModel):
         cycles: список циклов тестирований.
     """
 
-    survey_tag: str = Field(..., description='таг вида тестирования')
-    status: str = Field(..., description='статус расписания')
+    survey_tag: SurveysTags = Field(..., description='таг вида тестирования')
+    status: SurveysStatus = Field(..., description='статус расписания')
     cycles: List[SurveyScheduleCycleCreate] = Field(
         ..., description='список циклов в расписании (6 циклов максимум)'
     )
@@ -86,8 +87,8 @@ class SurveyScheduleUpdate(BaseModel):
         cycles: список циклов тестирований. (Опционально)
     """
 
-    survey_tag: str | None = Field(None, description='таг вида тестирования')
-    status: str | None = Field(None, description='статус расписания')
+    survey_tag: SurveysTags | None = Field(None, description='таг вида тестирования')
+    status: SurveysStatus | None = Field(None, description='статус расписания')
     cycles: List[SurveyScheduleCycleCreate] | None = Field(
         None, description='список циклов в расписании (6 циклов максимум)'
     )
