@@ -2,7 +2,7 @@ import asyncio
 
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, Faker
+from config.constants.fake_data_factories import ColorCPrint, FakerConstants
 from fake_data_factories.base_user_factory import BaseUserFactory
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
@@ -23,7 +23,7 @@ class TabitAdminUserFactory(BaseUserFactory):
 
 
 @start_and_end(__name__)
-async def create_tabit_admin_users(count: int = Faker.USER_COUNT, **kwargs) -> None:
+async def create_tabit_admin_users(count: int = FakerConstants.USER_COUNT, **kwargs) -> None:
     """
     Функция для наполнения таблицы бд TabitAdminUser.
     """
