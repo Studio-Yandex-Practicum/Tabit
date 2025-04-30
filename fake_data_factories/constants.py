@@ -12,10 +12,10 @@ FAKER_MEETINGS_RESULT_COUNT: int = 5  # Число результатов вст
 FAKER_MESSAGE_FEEDS_COUNT: int = 5  # Число лент сообщений для генерации
 FAKER_VOTING_FEEDS_COUNT: int = 5  # Число лент голосований для генерации
 FAKER_TASK_COUNT: int = 5  # Число задач для генерации
-FAKER_COMMENT_COUNT: int = 5  # Число комментариев для генерации
+FAKER_COMMENT_COUNT: int = 2  # Число комментариев для генерации
 FAKER_COMMENT_WORDS_COUNT: int = 7  # Количество слов в комментарии
 FAKER_MIN_COMMENT_RATING: int = 0  # Минимальный рейтинг комментария
-FAKER_MAX_COMMENT_RATING: int = 5  # Максимальный рейтинг комментария
+FAKER_MAX_COMMENT_RATING: int = 3  # Максимальный рейтинг комментария
 FAKER_USER_TAGS_COUNT: int = 3  # Число тэгов для генерации
 AMOUNT_OF_MODERATORS = 1  # Количество модераторов создаваемых для компании за 1 запуск скрипта
 

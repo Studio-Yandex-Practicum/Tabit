@@ -1,4 +1,5 @@
 import asyncio
+from random import randint
 from uuid import UUID
 
 import factory
@@ -7,7 +8,7 @@ from sqlalchemy import select
 from termcolor import cprint
 
 from fake_data_factories.association_user_comment_factory import create_user_comment_associations
-from fake_data_factories.company_user_factories import create_company_users
+from fake_data_factories.company_user_factories import CompanyUserFactory, create_company_users
 from fake_data_factories.constants import (
     FAKER_COMMENT_COUNT,
     FAKER_COMMENT_WORDS_COUNT,
@@ -37,9 +38,7 @@ class CommentFeedFactory(AsyncSQLAlchemyFactory):
     text: str = factory.Faker(
         'sentence', locale='ru_RU', nb_words=FAKER_COMMENT_WORDS_COUNT, variable_nb_words=True
     )
-    rating: int = factory.Faker(
-        'random_int', min=FAKER_MIN_COMMENT_RATING, max=FAKER_MAX_COMMENT_RATING
-    )
+    rating: int
 
     class Meta:
         model = CommentFeed
@@ -56,8 +55,12 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
         owner_id: ID автора комментариев.
         message_id: ID треда, к которому относится комментарий.
 
-    Если не указать owner_id, то создается 5 новых пользователей в той же компании что и автор
-    сообщения, и каждый комментарий будет создан от имени нового автора.
+    Если не указать owner_id, то создаются новые пользователи, количество которых равно count,в той
+    же компании что и автор сообщения, и каждый комментарий будет создан от имени нового автора.
+    Если указать owner_id, то будет созданы комментарии в количестве равным count.
+    Каждому комментарию присваивается рандомный рейтинг в диапазоне
+    [FAKER_MIN_COMMENT_RATING, FAKER_MAX_COMMENT_RATING]. Для полученного числа создаются новые
+    пользователи в той же компании и записи AssociationUserComment (лайки).
     """
     if 'message_id' not in kwargs:
         message = next(iter(await create_message_feeds(count=1)), None)
@@ -76,26 +79,30 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
             count=count, company_id=message_owner.company_id
         )
         comment_owners_ids = [owner.id for owner in comment_owners]
-        comments = [
-            await CommentFeedFactory.create(owner_id=owner_id, **kwargs)
-            for owner_id in comment_owners_ids
-        ]
+        for owner_id in comment_owners_ids:
+            kwargs['rating'] = randint(FAKER_MIN_COMMENT_RATING, FAKER_MAX_COMMENT_RATING)
+            comment = await CommentFeedFactory.create(owner_id=owner_id, **kwargs)
+            for _ in range(kwargs['rating']):
+                user = await CompanyUserFactory.create(company_id=message_owner.company_id)
+                await create_user_comment_associations(user_id=user.id, comment_ids=[comment.id])
         cprint(
             f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}',
             ColorCPrint.green,  # type: ignore
         )
-        for i in range(count):
-            await create_user_comment_associations(
-                user_id=comment_owners_ids[i], comment_ids=[comments[i].id]
-            )
     else:
-        comments = await CommentFeedFactory.create_batch(size=2, **kwargs)
+        user_owner = await sc_session.execute(
+            select(CompanyUser).filter(CompanyUser.id == kwargs['owner_id'])
+        )
+        user_owner = user_owner.scalar()
+        for _ in range(count):
+            kwargs['rating'] = randint(FAKER_MIN_COMMENT_RATING, FAKER_MAX_COMMENT_RATING)
+            comment = await CommentFeedFactory.create(**kwargs)
+            for _ in range(kwargs['rating']):
+                user = await CompanyUserFactory.create(company_id=user_owner.company_id)
+                await create_user_comment_associations(user_id=user.id, comment_ids=[comment.id])
         cprint(
             f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}',
             ColorCPrint.green,  # type: ignore
-        )
-        await create_user_comment_associations(
-            user_id=kwargs['owner_id'], comment_ids=[comment.id for comment in comments]
         )
 
 
