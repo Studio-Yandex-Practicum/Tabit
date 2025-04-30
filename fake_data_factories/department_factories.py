@@ -6,7 +6,7 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, Default, Faker
+from config.constants.fake_data_factories import ColorCPrint, Default, FakerConstants
 from fake_data_factories.company_factories import CompanyFactory
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
@@ -46,7 +46,7 @@ class DeparmentFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_company_department(count=Faker.DEPARTMENT_COUNT, **kwargs):
+async def create_company_department(count=FakerConstants.DEPARTMENT_COUNT, **kwargs):
     """
     Функция для наполнения таблицы бд Department.
     Если функция запускается напрямую из текущего модуля, для этих департаментов создается

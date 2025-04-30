@@ -6,7 +6,7 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, Default, Faker
+from config.constants.fake_data_factories import ColorCPrint, Default, FakerConstants
 from fake_data_factories.association_user_problem_factory import (
     create_user_problem_associations,
 )
@@ -51,7 +51,7 @@ class ProblemFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_problems(count: int = Faker.PROBLEMS_COUNT, **kwargs) -> list[Problem]:
+async def create_problems(count: int = FakerConstants.PROBLEMS_COUNT, **kwargs) -> list[Problem]:
     """
     Создать запись(-и) в таблицу объекта `Problem`.
 
