@@ -418,12 +418,11 @@ async def add_employee_survey_info(
                 )
         except SQLAlchemyError as db_error:
             logger.error(f'Ошибка базы данных при записи результатов опроса: {db_error}')
-            raise HTTPException(
-                status_code=500, detail="Ошибка сервера при работе с базой данных.")
+            raise db_error
         except Exception as error:
             logger.error(
                 f'{TextError.UPDATE_SERVER_LOG} в бд результата опроса: {error}')
-            raise HTTPException(status_code=500, detail="Внутренняя ошибка сервера.")
+            raise error
 
     survey_data = await surveys_data_crud.get_user_survey(
         session=session, company_slug=company_slug, survey_data_id=survey_data_id, user_id=user_id
