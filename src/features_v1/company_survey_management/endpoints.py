@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,7 +11,6 @@ from src.crud import surveys_data_crud, surveys_list_crud, surveys_schedule_crud
 from src.crud.constants import TextError
 from src.features_v1.validators import (
     check_company_exists,
-    validate_employee_survey_history,
     validate_user_from_company,
     validator_check_object_exists,
 )
