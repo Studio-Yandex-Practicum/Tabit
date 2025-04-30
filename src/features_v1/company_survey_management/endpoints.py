@@ -289,7 +289,6 @@ async def get_employee_survey_history(
     survey_data = await surveys_data_crud.get_all_user_survey(
         session=session, company_slug=company_slug, user_id=user_id
     )
-    #validate_employee_survey_history(survey_data)
     return survey_data
 
 
