@@ -10,6 +10,8 @@ services:
       - ${DB_PORT}:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ${NETWORK_NAME}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -23,11 +25,14 @@ services:
       context: ${PWD}/
       dockerfile: infra/stage/stage.Dockerfile
       args:
-        APP_PORT=: ${APP_PORT}
+        APP_PORT: ${APP_PORT}
         APP_VERSION: ${APP_VERSION}
         PYTHON_VERSION: ${PYTHON_VERSION}
         POETRY_VERSION: ${POETRY_VERSION}
+    env_file:
+      - ${PWD}/.env
     environment:
+      - DB_HOST=${DB_CONTAINER_NAME}
       - POETRY_VIRTUALENVS_IN_PROJECT=true
       - PATH="/app/.venv/bin:$PATH"
       - UVICORN_RELOAD=true
@@ -39,6 +44,8 @@ services:
       - ${PWD}/${MEDIA_FOLDER}:/app/media
       - ${PWD}/src:/app/src
       - ${PWD}/alembic:/app/alembic
+    networks:
+      - ${NETWORK_NAME}
     profiles:
       - app_dc
     restart: always
@@ -56,6 +63,8 @@ services:
       - pgadmin_data:/var/lib/pgadmin
       - ${PWD}/pgadmin/config_local.py:/pgadmin4/config_local.py
       - ${PWD}/pgadmin/create-admin-folder.sh:/create-admin-folder.sh
+    networks:
+      - ${NETWORK_NAME}
     configs:
       - source: servers.json
         target: /pgadmin4/servers.json
@@ -95,3 +104,7 @@ volumes:
   pgadmin_data:
     driver: local
     name: ${PGADMIN_VOLUME_NAME}
+
+networks:
+  tabit_network:
+    driver: ${NETWORK_DRIVER}

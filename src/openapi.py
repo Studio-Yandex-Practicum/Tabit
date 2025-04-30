@@ -14,7 +14,7 @@ def get_tabit_openapi(app: FastAPI, settings: Settings) -> Callable:
         if not app.openapi_schema:
             openapi_schema = get_openapi(
                 title=settings.app_title,
-                description=settings.description,
+                description=settings.app_description,
                 version=settings.version,
                 routes=app.routes,
             )

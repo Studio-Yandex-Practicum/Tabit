@@ -6,7 +6,13 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, Default, Faker, Length, MiscConstants
+from config.constants.fake_data_factories import (
+    ColorCPrint,
+    Default,
+    FakerConstants,
+    Length,
+    MiscConstants,
+)
 from fake_data_factories.association_user_task_factory import create_user_task_associations
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
@@ -42,7 +48,7 @@ class TaskFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_tasks(count: int = Faker.TASK_COUNT, **kwargs) -> None:
+async def create_tasks(count: int = FakerConstants.TASK_COUNT, **kwargs) -> None:
     """
     Функция для для пакетного создания задач.
 

@@ -11,7 +11,7 @@
 Структура модуля:
 - ColorCPrint: цвета для форматированного вывода в консоль.
 - Default: параметры по умолчанию для системных настроек.
-- Faker: настройки генератора фейковых данных.
+- FakerConstants: настройки генератора фейковых данных.
 - Length: ограничения длины.
 - MiscConstants: различные технические константы.
 
@@ -30,7 +30,7 @@
 - Значения подобраны для реалистичной генерации тестовых данных.
 
 Пример использования:
-- from config.constants.fake_data_factories import Default, Faker
+- from config.constants.fake_data_factories import Default, FakerConstants
 - dept_name = random.choice(Default.DEPARTMENT_NAMES)
 - user_count = Faker.USER_COUNT
 """
@@ -144,7 +144,7 @@ class Default(ConstantsBase.Default):
     ]
 
 
-class Faker(ConstantsBase.Faker):
+class FakerConstants(ConstantsBase.FakerConstants):
     """
     Класс констант - основных параметров генерации тестовых данных с помощью Faker,
     используемых в пакете `fake_data_factories`.

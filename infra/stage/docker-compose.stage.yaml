@@ -8,6 +8,8 @@ services:
       - ${DB_PORT}:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ${NETWORK_NAME}
     restart: always
 
   app:
@@ -16,6 +18,7 @@ services:
     env_file:
       - /home/${SERVER_USERNAME}/tabit/infra/stage/.env
     environment:
+      - DB_HOST=${DB_CONTAINER_NAME}
       - POETRY_VIRTUALENVS_IN_PROJECT=true
       - PATH="/app/.venv/bin:$PATH"
     ports:
@@ -24,6 +27,8 @@ services:
       - db
     volumes:
       - app_media:/app/media
+    networks:
+      - ${NETWORK_NAME}
     restart: on-failure:3
 
   pgadmin:
@@ -39,6 +44,8 @@ services:
       - pgadmin_data:/var/lib/pgadmin
       - /home/${SERVER_USERNAME}/tabit/pgadmin/config_local.py:/pgadmin4/config_local.py
       - /home/${SERVER_USERNAME}/tabit/pgadmin/create-admin-folder.sh:/create-admin-folder.sh
+    networks:
+      - ${NETWORK_NAME}
     configs:
       - source: servers.json
         target: /pgadmin4/servers.json
@@ -78,3 +85,7 @@ volumes:
   app_media:
     driver: local
     name: ${MEDIA_VOLUME_NAME}
+
+networks:
+  tabit_network:
+    driver: ${NETWORK_DRIVER}
