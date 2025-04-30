@@ -64,7 +64,7 @@ async def get_schedule_list(
     schedule = await surveys_schedule_crud.get_all_shedules(
         session=session,
         obj_slug=company_slug,
-        raise_404=True,
+        raise_404=False,
     )
     return schedule
 
@@ -289,7 +289,7 @@ async def get_employee_survey_history(
     survey_data = await surveys_data_crud.get_all_user_survey(
         session=session, company_slug=company_slug, user_id=user_id
     )
-    validate_employee_survey_history(survey_data)
+    #validate_employee_survey_history(survey_data)
     return survey_data
 
 
