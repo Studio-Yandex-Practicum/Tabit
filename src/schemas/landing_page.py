@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, field_validator
 
-from src.schemas.constants import Validation
+from src.schemas.constants import ValidationConstants
 
 
 class LandingPageBaseSchema(BaseModel):
@@ -31,7 +31,7 @@ class LandingPageBaseSchema(BaseModel):
         - 123-45-67
         - (123) 456 78 90
         """
-        if v and not re.match(Validation.PHONE_NUMBER_PATTERN, v):
+        if v and not re.match(ValidationConstants.PHONE_NUMBER_PATTERN, v):
             raise ValueError(
                 'Номер телефона должен быть в одном из следующих форматов: '
                 ' +7 (123) 456-78-90, 8(123)4567890, 123-45-67, (123) 456 78 90'
@@ -41,7 +41,7 @@ class LandingPageBaseSchema(BaseModel):
     @field_validator('email')
     def validate_email(cls, v: Optional[str]) -> Optional[str]:
         """Проверка формата email."""
-        if v and not re.match(Validation.EMAIL_REGEX, v):
+        if v and not re.match(ValidationConstants.EMAIL_REGEX, v):
             raise ValueError('Некорректный формат email.')
         return v
 

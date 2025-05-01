@@ -16,7 +16,7 @@ from src.core.auth.managers import get_user_manager
 from src.core.auth.protocol import StrategyT
 from src.core.database.db_depends import get_async_session
 from src.crud import user_crud
-from src.features_v1.constants import Description, Summary
+from src.features_v1.constants import DescriptionConstants, SummaryConstants
 from src.features_v1.validators import check_telegram_username_for_duplicates, check_user_is_active
 from src.models import CompanyUser
 from src.schemas import TokenReadSchemas, UserForUserUpdateSchema, UserReadSchema
@@ -27,8 +27,8 @@ router = APIRouter()
 @router.post(
     '/login',
     response_model=TokenReadSchemas,
-    summary=Summary.LOGIN_COMPANY_USER_AUTH,
-    description=Description.LOGIN_COMPANY_USER_AUTH,
+    summary=SummaryConstants.LOGIN_COMPANY_USER_AUTH,
+    description=DescriptionConstants.LOGIN_COMPANY_USER_AUTH,
 )
 async def login(
     credentials: OAuth2PasswordRequestForm = Depends(),
@@ -64,8 +64,8 @@ async def login(
 # TODO: Либо упростить (возвращает None, status_code=204), либо добавить логику в backend.
 @router.post(
     '/logout',
-    summary=Summary.LOGOUT_COMPANY_USER_AUTH,
-    description=Description.LOGOUT_COMPANY_USER_AUTH,
+    summary=SummaryConstants.LOGOUT_COMPANY_USER_AUTH,
+    description=DescriptionConstants.LOGOUT_COMPANY_USER_AUTH,
 )
 async def logout(
     user_token: tuple[models.UP, str] = Depends(get_current_user_token),
@@ -90,8 +90,8 @@ async def logout(
 @router.post(
     '/refresh-token',
     response_model=TokenReadSchemas,
-    summary=Summary.REFRESH_TOKEN_COMPANY_USER_AUTH,
-    description=Description.REFRESH_TOKEN_COMPANY_USER_AUTH,
+    summary=SummaryConstants.REFRESH_TOKEN_COMPANY_USER_AUTH,
+    description=DescriptionConstants.REFRESH_TOKEN_COMPANY_USER_AUTH,
 )
 async def refresh_token_user(
     user_and_refresh_token: tuple[CompanyUser, str] = Depends(get_current_user_refresh_token),
@@ -137,8 +137,8 @@ router.include_router(  # форгот и резет пассворд
 @router.get(
     '/me',
     response_model=UserReadSchema,
-    summary=Summary.GET_ME_USER_AUTH,
-    description=Description.GET_ME_USER_AUTH,
+    summary=SummaryConstants.GET_ME_USER_AUTH,
+    description=DescriptionConstants.GET_ME_USER_AUTH,
 )
 async def get_me_user(
     session: AsyncSession = Depends(get_async_session),
@@ -163,8 +163,8 @@ async def get_me_user(
 @router.patch(
     '/me',
     response_model=UserReadSchema,
-    summary=Summary.PATCH_ME_USER_AUTH,
-    description=Description.PATCH_ME_USER_AUTH,
+    summary=SummaryConstants.PATCH_ME_USER_AUTH,
+    description=DescriptionConstants.PATCH_ME_USER_AUTH,
 )
 async def update_me_user(
     user_in: UserForUserUpdateSchema,
