@@ -1,8 +1,8 @@
 import pytest
 from fastapi import status
 
-from config.constants.tests import ProblemFeedsData, Url
 from src.models import AssociationUserComment
+from tests.constants import ProblemFeedsDataConstants, UrlConstants
 from tests.utils import get_association_objects_iterator
 
 
@@ -28,19 +28,19 @@ class TestGetProblemFeed:
 
         token = await get_token_for_user(employee)
         response = await client.get(
-            Url.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=problem.id),
+            UrlConstants.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=problem.id),
             headers=token,
         )
 
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
 
         result = response.json()
         assert isinstance(result, list)
-        assert len(result) == len(
-            message_feeds
-        ), f'Длина полученного списка должна быть равна {len(message_feeds)}'
+        assert len(result) == len(message_feeds), (
+            f'Длина полученного списка должна быть равна {len(message_feeds)}'
+        )
 
     async def test_get_message_feeds_of_another_company(
         self, client, employee_of_company, get_token_for_user, message_feed_for_test
@@ -50,7 +50,7 @@ class TestGetProblemFeed:
 
         another_user_token = await get_token_for_user(await employee_of_company())
         response = await client.get(
-            Url.MESSAGE_FEED_URL.format(
+            UrlConstants.MESSAGE_FEED_URL.format(
                 company_slug=company.slug, problem_id=message_feed.problem_id
             ),
             headers=another_user_token,
@@ -79,7 +79,7 @@ class TestGetProblemFeed:
         )
 
         response = await client.get(
-            Url.COMMENTS_URL.format(
+            UrlConstants.COMMENTS_URL.format(
                 company_slug=company.slug,
                 problem_id=message_feed.problem_id,
                 message_feed_id=message_feed.id,
@@ -88,14 +88,14 @@ class TestGetProblemFeed:
         )
 
         result = response.json()
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
 
         assert isinstance(result, list)
-        assert len(result) == len(
-            comments
-        ), f'Длина полученного списка должна быть равна {len(comments)}'
+        assert len(result) == len(comments), (
+            f'Длина полученного списка должна быть равна {len(comments)}'
+        )
 
     async def test_get_feed_comments_of_another_company(
         self, client, employee_of_company, get_token_for_user, comment_for_test
@@ -105,7 +105,7 @@ class TestGetProblemFeed:
 
         another_user_token = await get_token_for_user(await employee_of_company())
         response = await client.get(
-            Url.COMMENTS_URL.format(
+            UrlConstants.COMMENTS_URL.format(
                 company_slug=company.slug,
                 problem_id=message_feed.problem_id,
                 message_feed_id=message_feed.id,
@@ -126,7 +126,7 @@ class TestGetProblemFeed:
 
         token = await get_token_for_user(employee)
         response = await client.get(
-            Url.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=999),
+            UrlConstants.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=999),
             headers=token,
         )
 
@@ -140,7 +140,9 @@ class TestGetProblemFeed:
 class TestPostProblemFeed:
     """Класс для тестов POST-эндпоинтов problem_feeds.py"""
 
-    @pytest.mark.parametrize('payload, expected_result', ProblemFeedsData.MESSAGE_FEED_CREATE_NEW)
+    @pytest.mark.parametrize(
+        'payload, expected_result', ProblemFeedsDataConstants.MESSAGE_FEED_CREATE_NEW
+    )
     async def test_successful_create_message_feed(
         self, client, get_token_for_user, problem_for_test, payload, expected_result
     ):
@@ -149,7 +151,7 @@ class TestPostProblemFeed:
 
         token = await get_token_for_user(employee)
         response = await client.post(
-            Url.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=problem.id),
+            UrlConstants.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=problem.id),
             headers=token,
             json=payload,
         )
@@ -160,20 +162,22 @@ class TestPostProblemFeed:
         )
 
         result = response.json()
-        assert (
-            result['text'] == payload['text']
-        ), 'Значение поля "text" созданного объекта не соответствует ожидаемому значению.'
-        assert (
-            result['important'] == expected_result
-        ), 'Значение поля "important" созданного объекта не соответствует ожидаемому значению.'
-        assert result['owner_id'] == str(
-            employee.id
-        ), 'Значение поля "owner_id" созданного объекта не соответствует ожидаемому значению.'
-        assert (
-            result['problem_id'] == problem.id
-        ), 'Значение поля "problem_id" созданного объекта не соответствует ожидаемому значению.'
+        assert result['text'] == payload['text'], (
+            'Значение поля "text" созданного объекта не соответствует ожидаемому значению.'
+        )
+        assert result['important'] == expected_result, (
+            'Значение поля "important" созданного объекта не соответствует ожидаемому значению.'
+        )
+        assert result['owner_id'] == str(employee.id), (
+            'Значение поля "owner_id" созданного объекта не соответствует ожидаемому значению.'
+        )
+        assert result['problem_id'] == problem.id, (
+            'Значение поля "problem_id" созданного объекта не соответствует ожидаемому значению.'
+        )
 
-    @pytest.mark.parametrize('payload, expected_result', ProblemFeedsData.MESSAGE_FEED_CREATE_BAD)
+    @pytest.mark.parametrize(
+        'payload, expected_result', ProblemFeedsDataConstants.MESSAGE_FEED_CREATE_BAD
+    )
     async def test_unsuccessful_create_message_feed(
         self, client, get_token_for_user, problem_for_test, payload, expected_result
     ):
@@ -182,14 +186,14 @@ class TestPostProblemFeed:
 
         token = await get_token_for_user(employee)
         response = await client.post(
-            Url.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=problem.id),
+            UrlConstants.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=problem.id),
             headers=token,
             json=payload,
         )
 
-        assert (
-            response.status_code == expected_result
-        ), f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
+        assert response.status_code == expected_result, (
+            f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
+        )
 
     async def test_create_message_feed_with_mismatched_company_slug(
         self, client, employee_of_company, get_token_for_user, problem_for_test
@@ -203,9 +207,9 @@ class TestPostProblemFeed:
 
         another_user_token = await get_token_for_user(await employee_of_company())
         response = await client.post(
-            Url.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=problem.id),
+            UrlConstants.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=problem.id),
             headers=another_user_token,
-            json=ProblemFeedsData.MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY,
+            json=ProblemFeedsDataConstants.MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY,
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
@@ -226,9 +230,11 @@ class TestPostProblemFeed:
         token = await get_token_for_user(employee)
         another_problem = await problem_for_test()
         response = await client.post(
-            Url.MESSAGE_FEED_URL.format(company_slug=company.slug, problem_id=another_problem.id),
+            UrlConstants.MESSAGE_FEED_URL.format(
+                company_slug=company.slug, problem_id=another_problem.id
+            ),
             headers=token,
-            json=ProblemFeedsData.MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY,
+            json=ProblemFeedsDataConstants.MESSAGE_FEED_CREATE_FOR_ANOTHER_COMPANY,
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
@@ -244,13 +250,13 @@ class TestPostProblemFeed:
 
         token = await get_token_for_user(employee)
         response = await client.post(
-            Url.COMMENTS_URL.format(
+            UrlConstants.COMMENTS_URL.format(
                 company_slug=company.slug,
                 problem_id=message_feed.problem_id,
                 message_feed_id=message_feed.id,
             ),
             headers=token,
-            json=ProblemFeedsData.COMMENT_CREATE_NEW,
+            json=ProblemFeedsDataConstants.COMMENT_CREATE_NEW,
         )
 
         assert response.status_code == status.HTTP_201_CREATED, (
@@ -259,18 +265,20 @@ class TestPostProblemFeed:
         )
 
         result = response.json()
-        assert (
-            result['text'] == ProblemFeedsData.COMMENT_CREATE_NEW['text']
-        ), 'Значение поля "text" созданного объекта не соответствует ожидаемому значению.'
+        assert result['text'] == ProblemFeedsDataConstants.COMMENT_CREATE_NEW['text'], (
+            'Значение поля "text" созданного объекта не соответствует ожидаемому значению.'
+        )
         assert result['rating'] == 0, 'Рейтинг нового комментария должен быть равен 0'
-        assert result['owner_id'] == str(
-            employee.id
-        ), 'Значение поля "owner_id" созданного объекта не соответствует ожидаемому значению.'
-        assert (
-            result['message_id'] == message_feed.id
-        ), 'Значение поля "message_id" созданного объекта не соответствует ожидаемому значению.'
+        assert result['owner_id'] == str(employee.id), (
+            'Значение поля "owner_id" созданного объекта не соответствует ожидаемому значению.'
+        )
+        assert result['message_id'] == message_feed.id, (
+            'Значение поля "message_id" созданного объекта не соответствует ожидаемому значению.'
+        )
 
-    @pytest.mark.parametrize('payload, expected_result', ProblemFeedsData.COMMENT_CREATE_BAD)
+    @pytest.mark.parametrize(
+        'payload, expected_result', ProblemFeedsDataConstants.COMMENT_CREATE_BAD
+    )
     async def test_unsuccessful_create_comment(
         self, client, get_token_for_user, message_feed_for_test, payload, expected_result
     ):
@@ -279,7 +287,7 @@ class TestPostProblemFeed:
 
         token = await get_token_for_user(employee)
         response = await client.post(
-            Url.COMMENTS_URL.format(
+            UrlConstants.COMMENTS_URL.format(
                 company_slug=company.slug,
                 problem_id=message_feed.problem_id,
                 message_feed_id=message_feed.id,
@@ -288,9 +296,9 @@ class TestPostProblemFeed:
             json=payload,
         )
 
-        assert (
-            response.status_code == expected_result
-        ), f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
+        assert response.status_code == expected_result, (
+            f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
+        )
 
     async def test_create_comment_for_wrong_message_feed(
         self, client, get_token_for_user, message_feed_for_test
@@ -305,13 +313,13 @@ class TestPostProblemFeed:
         token = await get_token_for_user(employee)
         wrong_message_feed = await message_feed_for_test()
         response = await client.post(
-            Url.COMMENTS_URL.format(
+            UrlConstants.COMMENTS_URL.format(
                 company_slug=company.slug,
                 problem_id=message_feed.problem_id,
                 message_feed_id=wrong_message_feed.id,
             ),
             headers=token,
-            json=ProblemFeedsData.COMMENT_CREATE_NEW,
+            json=ProblemFeedsDataConstants.COMMENT_CREATE_NEW,
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -328,25 +336,27 @@ class TestPostProblemFeed:
         another_user = await employee_of_company({'company_id': company.id})
         another_user_token = await get_token_for_user(another_user)
         response = await client.post(
-            Url.LIKE_URL.format(company_slug=company.slug, message_feed_id=comment.message_id),
+            UrlConstants.LIKE_URL.format(
+                company_slug=company.slug, message_feed_id=comment.message_id
+            ),
             headers=another_user_token,
         )
 
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
 
         comment = await async_session.merge(comment)
         await async_session.refresh(comment)
         association_obj = await get_association_objects_iterator(
             async_session, AssociationUserComment, another_user.id, comment.id
         )
-        assert (
-            comment.rating == 1
-        ), 'Рейтинг комментария должен был увеличиться на 1 (стать равным 1)'
-        assert (
-            association_obj.scalar_one_or_none() is not None
-        ), 'При лайке комментария в ассоциативной таблице должна появиться связанная запись'
+        assert comment.rating == 1, (
+            'Рейтинг комментария должен был увеличиться на 1 (стать равным 1)'
+        )
+        assert association_obj.scalar_one_or_none() is not None, (
+            'При лайке комментария в ассоциативной таблице должна появиться связанная запись'
+        )
 
     async def test_successful_comment_unlike(
         self, async_session, client, employee_of_company, get_token_for_user, comment_for_test
@@ -357,26 +367,30 @@ class TestPostProblemFeed:
         another_user = await employee_of_company({'company_id': company.id})
         another_user_token = await get_token_for_user(another_user)
         await client.post(
-            Url.LIKE_URL.format(company_slug=company.slug, message_feed_id=comment.message_id),
+            UrlConstants.LIKE_URL.format(
+                company_slug=company.slug, message_feed_id=comment.message_id
+            ),
             headers=another_user_token,
         )
 
         comment = await async_session.merge(comment)
         old_rating = comment.rating
         response = await client.post(
-            Url.UNLIKE_URL.format(company_slug=company.slug, message_feed_id=comment.message_id),
+            UrlConstants.UNLIKE_URL.format(
+                company_slug=company.slug, message_feed_id=comment.message_id
+            ),
             headers=another_user_token,
         )
 
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
 
         comment = await async_session.merge(comment)
         await async_session.refresh(comment)
-        assert (
-            comment.rating == old_rating - 1
-        ), 'Рейтинг комментария должен был уменьшиться на 1 (стать равным 0)'
+        assert comment.rating == old_rating - 1, (
+            'Рейтинг комментария должен был уменьшиться на 1 (стать равным 0)'
+        )
 
     async def test_unsuccessful_comment_like_by_author(
         self, client, get_token_for_user, comment_for_test
@@ -387,7 +401,9 @@ class TestPostProblemFeed:
         token = await get_token_for_user(employee)
         old_rating = comment.rating
         response = await client.post(
-            Url.LIKE_URL.format(company_slug=company.slug, message_feed_id=comment.message_id),
+            UrlConstants.LIKE_URL.format(
+                company_slug=company.slug, message_feed_id=comment.message_id
+            ),
             headers=token,
         )
 
@@ -396,9 +412,9 @@ class TestPostProblemFeed:
             f'получен {response.status_code}'
         )
 
-        assert (
-            comment.rating == old_rating
-        ), 'Рейтинг комментария не должен меняться при неуспешном лайке.'
+        assert comment.rating == old_rating, (
+            'Рейтинг комментария не должен меняться при неуспешном лайке.'
+        )
 
     async def test_unsuccessful_repeated_comment_like(
         self, client, employee_of_company, get_token_for_user, comment_for_test
@@ -409,12 +425,16 @@ class TestPostProblemFeed:
         another_user = await employee_of_company({'company_id': company.id})
         another_user_token = await get_token_for_user(another_user)
         await client.post(
-            Url.LIKE_URL.format(company_slug=company.slug, message_feed_id=comment.message_id),
+            UrlConstants.LIKE_URL.format(
+                company_slug=company.slug, message_feed_id=comment.message_id
+            ),
             headers=another_user_token,
         )
 
         response = await client.post(
-            Url.LIKE_URL.format(company_slug=company.slug, message_feed_id=comment.message_id),
+            UrlConstants.LIKE_URL.format(
+                company_slug=company.slug, message_feed_id=comment.message_id
+            ),
             headers=another_user_token,
         )
 
@@ -432,13 +452,17 @@ class TestPostProblemFeed:
         another_user = await employee_of_company({'company_id': company.id})
         another_user_token = await get_token_for_user(another_user)
         await client.post(
-            Url.LIKE_URL.format(company_slug=company.slug, message_feed_id=comment.message_id),
+            UrlConstants.LIKE_URL.format(
+                company_slug=company.slug, message_feed_id=comment.message_id
+            ),
             headers=another_user_token,
         )
 
         token = await get_token_for_user(employee)
         response = await client.post(
-            Url.UNLIKE_URL.format(company_slug=company.slug, message_feed_id=comment.message_id),
+            UrlConstants.UNLIKE_URL.format(
+                company_slug=company.slug, message_feed_id=comment.message_id
+            ),
             headers=token,
         )
 
@@ -457,7 +481,9 @@ class TestPostProblemFeed:
             await employee_of_company({'company_id': company.id})
         )
         response = await client.post(
-            Url.UNLIKE_URL.format(company_slug=company.slug, message_feed_id=comment.message_id),
+            UrlConstants.UNLIKE_URL.format(
+                company_slug=company.slug, message_feed_id=comment.message_id
+            ),
             headers=another_user_token,
         )
 
@@ -486,7 +512,9 @@ class TestPostProblemFeed:
             {'problem_id': message_feed.problem_id, 'owner_id': another_user.id}
         )
         response = await client.post(
-            Url.LIKE_URL.format(company_slug=company.slug, message_feed_id=wrong_message_feed.id),
+            UrlConstants.LIKE_URL.format(
+                company_slug=company.slug, message_feed_id=wrong_message_feed.id
+            ),
             headers=another_user_token,
         )
 
@@ -512,7 +540,9 @@ class TestPostProblemFeed:
         another_user = await employee_of_company({'company_id': company.id})
         another_user_token = await get_token_for_user(another_user)
         await client.post(
-            Url.LIKE_URL.format(company_slug=company.slug, message_feed_id=comment.message_id),
+            UrlConstants.LIKE_URL.format(
+                company_slug=company.slug, message_feed_id=comment.message_id
+            ),
             headers=another_user_token,
         )
 
@@ -520,7 +550,7 @@ class TestPostProblemFeed:
             {'problem_id': message_feed.problem_id, 'owner_id': another_user.id}
         )
         response = await client.post(
-            Url.UNLIKE_URL.format(
+            UrlConstants.UNLIKE_URL.format(
                 company_slug=company.slug, message_feed_id=wrong_message_feed.id
             ),
             headers=another_user_token,
@@ -542,34 +572,36 @@ class TestPatchProblemFeed:
 
         token = await get_token_for_user(employee)
         response = await client.patch(
-            Url.COMMENTS_PATCH_DELETE_URL.format(
+            UrlConstants.COMMENTS_PATCH_DELETE_URL.format(
                 company_slug=company.slug,
                 message_feed_id=comment.message_id,
                 comment_id=comment.id,
             ),
             headers=token,
-            json=ProblemFeedsData.COMMENT_UPDATE,
+            json=ProblemFeedsDataConstants.COMMENT_UPDATE,
         )
 
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
 
         result = response.json()
-        assert (
-            result['text'] == ProblemFeedsData.COMMENT_UPDATE['text']
-        ), 'Значение поля "text" обновлённого объекта не соответствует ожидаемому значению.'
-        assert (
-            result['rating'] == comment.rating
-        ), 'Рейтинг обновлённого комментария должен меняться'
-        assert result['owner_id'] == str(
-            comment.owner_id
-        ), 'Значение поля "owner_id" обновлённого объекта не соответствует ожидаемому значению.'
-        assert (
-            result['message_id'] == comment.message_id
-        ), 'Значение поля "message_id" обновлённого объекта не соответствует ожидаемому значению.'
+        assert result['text'] == ProblemFeedsDataConstants.COMMENT_UPDATE['text'], (
+            'Значение поля "text" обновлённого объекта не соответствует ожидаемому значению.'
+        )
+        assert result['rating'] == comment.rating, (
+            'Рейтинг обновлённого комментария должен меняться'
+        )
+        assert result['owner_id'] == str(comment.owner_id), (
+            'Значение поля "owner_id" обновлённого объекта не соответствует ожидаемому значению.'
+        )
+        assert result['message_id'] == comment.message_id, (
+            'Значение поля "message_id" обновлённого объекта не соответствует ожидаемому значению.'
+        )
 
-    @pytest.mark.parametrize('payload, expected_result', ProblemFeedsData.COMMENT_UPDATE_BAD)
+    @pytest.mark.parametrize(
+        'payload, expected_result', ProblemFeedsDataConstants.COMMENT_UPDATE_BAD
+    )
     async def test_unsuccessful_patch_comment(
         self, client, get_token_for_user, comment_for_test, payload, expected_result
     ):
@@ -578,7 +610,7 @@ class TestPatchProblemFeed:
 
         token = await get_token_for_user(employee)
         response = await client.patch(
-            Url.COMMENTS_PATCH_DELETE_URL.format(
+            UrlConstants.COMMENTS_PATCH_DELETE_URL.format(
                 company_slug=company.slug,
                 message_feed_id=comment.message_id,
                 comment_id=comment.id,
@@ -587,9 +619,9 @@ class TestPatchProblemFeed:
             json=payload,
         )
 
-        assert (
-            response.status_code == expected_result
-        ), f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
+        assert response.status_code == expected_result, (
+            f'В ответе ожидается status_code {expected_result}, получен {response.status_code}'
+        )
 
     async def test_patch_comment_wrong_owner(
         self, client, employee_of_company, get_token_for_user, comment_for_test
@@ -601,13 +633,13 @@ class TestPatchProblemFeed:
             await employee_of_company({'company_id': company.id})
         )
         response = await client.patch(
-            Url.COMMENTS_PATCH_DELETE_URL.format(
+            UrlConstants.COMMENTS_PATCH_DELETE_URL.format(
                 company_slug=company.slug,
                 message_feed_id=comment.message_id,
                 comment_id=comment.id,
             ),
             headers=another_user_token,
-            json=ProblemFeedsData.COMMENT_UPDATE,
+            json=ProblemFeedsDataConstants.COMMENT_UPDATE,
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN, (
@@ -631,13 +663,13 @@ class TestPatchProblemFeed:
             {'problem_id': message_feed.problem_id, 'owner_id': employee.id}
         )
         response = await client.patch(
-            Url.COMMENTS_PATCH_DELETE_URL.format(
+            UrlConstants.COMMENTS_PATCH_DELETE_URL.format(
                 company_slug=company.slug,
                 message_feed_id=wrong_message_feed.id,
                 comment_id=comment.id,
             ),
             headers=token,
-            json=ProblemFeedsData.COMMENT_UPDATE,
+            json=ProblemFeedsDataConstants.COMMENT_UPDATE,
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -653,14 +685,14 @@ class TestPatchProblemFeed:
 
         token = await get_token_for_user(employee)
         response = await client.patch(
-            Url.COMMENTS_PATCH_DELETE_404_URL.format(
+            UrlConstants.COMMENTS_PATCH_DELETE_404_URL.format(
                 company_slug=company.slug,
                 problem_id=problem.id,
                 message_feed_id=message_feed.id,
                 comment_id=99,
             ),
             headers=token,
-            json=ProblemFeedsData.COMMENT_UPDATE,
+            json=ProblemFeedsDataConstants.COMMENT_UPDATE,
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, (
@@ -679,7 +711,7 @@ class TestDeleteProblemFeeds:
 
         token = await get_token_for_user(employee)
         response = await client.delete(
-            Url.COMMENTS_PATCH_DELETE_URL.format(
+            UrlConstants.COMMENTS_PATCH_DELETE_URL.format(
                 company_slug=company.slug,
                 message_feed_id=comment.message_id,
                 comment_id=comment.id,
@@ -702,7 +734,7 @@ class TestDeleteProblemFeeds:
             await employee_of_company({'company_id': company.id})
         )
         response = await client.delete(
-            Url.COMMENTS_PATCH_DELETE_URL.format(
+            UrlConstants.COMMENTS_PATCH_DELETE_URL.format(
                 company_slug=company.slug,
                 message_feed_id=comment.message_id,
                 comment_id=comment.id,
@@ -731,7 +763,7 @@ class TestDeleteProblemFeeds:
             {'problem_id': message_feed.problem_id, 'owner_id': employee.id}
         )
         response = await client.delete(
-            Url.COMMENTS_PATCH_DELETE_URL.format(
+            UrlConstants.COMMENTS_PATCH_DELETE_URL.format(
                 company_slug=company.slug,
                 message_feed_id=wrong_message_feed.id,
                 comment_id=comment.id,
@@ -752,7 +784,7 @@ class TestDeleteProblemFeeds:
 
         token = await get_token_for_user(employee)
         response = await client.delete(
-            Url.COMMENTS_PATCH_DELETE_404_URL.format(
+            UrlConstants.COMMENTS_PATCH_DELETE_404_URL.format(
                 company_slug=company.slug,
                 problem_id=problem.id,
                 message_feed_id=message_feed.id,

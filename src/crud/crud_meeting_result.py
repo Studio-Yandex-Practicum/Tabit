@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload
 
 from src.core.config.logging import logger
 from src.crud import CRUDBase
-from src.crud.constants import TextError
+from src.crud.constants import TextErrorConstants
 from src.models import (
     CompanyUser,
     MeetingResult,
@@ -65,7 +65,7 @@ class CRUDMeetingResult(CRUDBase):
             await session.refresh(db_obj)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return db_obj
 

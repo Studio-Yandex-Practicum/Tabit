@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 
 class CommentBase(BaseModel):
@@ -16,13 +16,13 @@ class CommentBase(BaseModel):
 class CommentCreate(CommentBase):
     """Схема для создания комментария к треду."""
 
-    text: str = Field(..., title=Title.CREATE_COMMENTS_TEXT)
+    text: str = Field(..., title=TitleConstants.CREATE_COMMENTS_TEXT)
 
 
 class CommentUpdate(CommentBase):
     """Схема для обновления комментария."""
 
-    text: str = Field(..., title=Title.UPDATE_COMMENTS_TEXT)
+    text: str = Field(..., title=TitleConstants.UPDATE_COMMENTS_TEXT)
 
 
 class CommentRead(CommentBase):

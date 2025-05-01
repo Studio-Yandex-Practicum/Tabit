@@ -14,7 +14,7 @@ from pydantic import (
 )
 
 from src.models import CompanyUserRole
-from src.schemas.constants import Length, Title
+from src.schemas.constants import LengthConstants, TitleConstants
 from src.schemas.validators.admin_company import (
     check_date_earlier_than_today,
     check_password_is_ascii,
@@ -67,33 +67,43 @@ class CompanyAdminSchemaMixin:
     """Схема-миксин для модераторов от компаний."""
 
     patronymic: Optional[str] = Field(
-        None, min_length=Length.MIN_NAME, max_length=Length.MAX_NAME, title=Title.PATRONYMIC_USER
+        None,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.PATRONYMIC_USER,
     )
     phone_number: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.PHONE_NUMBER_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.PHONE_NUMBER_USER,
     )
-    birthday: Annotated[Optional[date_and_validation], Field(None, title=Title.BIRTHDAY_USER)]
+    birthday: Annotated[
+        Optional[date_and_validation], Field(None, title=TitleConstants.BIRTHDAY_USER)
+    ]
     telegram_username: Optional[str] = Field(
         None,
-        min_length=Length.MIN_TELEGRAMM_USERNAME,
-        max_length=Length.MAX_TELEGRAM_USERNAME,
-        title=Title.TELEGRAM_USERNAME,
+        min_length=LengthConstants.MIN_TELEGRAMM_USERNAME,
+        max_length=LengthConstants.MAX_TELEGRAM_USERNAME,
+        title=TitleConstants.TELEGRAM_USERNAME,
     )
-    start_date_employment: Optional[date] = Field(None, title=Title.START_DATE_EMPLOYMENT_USER)
-    end_date_employment: Optional[date] = Field(None, title=Title.END_DATE_EMPLOYMENT_USER)
+    start_date_employment: Optional[date] = Field(
+        None, title=TitleConstants.START_DATE_EMPLOYMENT_USER
+    )
+    end_date_employment: Optional[date] = Field(
+        None, title=TitleConstants.END_DATE_EMPLOYMENT_USER
+    )
     avatar_link: Annotated[
-        url_to_string, Field(None, max_length=Length.FILE_LINK, title=Title.AVATAR_LINK_USER)
+        url_to_string,
+        Field(None, max_length=LengthConstants.FILE_LINK, title=TitleConstants.AVATAR_LINK_USER),
     ]
     previous_department_id: Optional[int] = Field(
         None,
-        title=Title.PREVIOUS_DEPARTMENT_ID_USER,
+        title=TitleConstants.PREVIOUS_DEPARTMENT_ID_USER,
     )
     employee_position: Optional[str] = Field(
         None,
-        title=Title.EMPLOYEE_POSITION_USER,
+        title=TitleConstants.EMPLOYEE_POSITION_USER,
     )
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
@@ -150,20 +160,20 @@ class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
 
     name: str = Field(
         ...,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.NAME_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.NAME_USER,
     )
     surname: str = Field(
         ...,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.SURNAME_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.SURNAME_USER,
     )
     role: CompanyUserRole
     current_department_id: int = Field(
         ...,
-        title=Title.CURRENT_DEPARTMENT_ID_USER,
+        title=TitleConstants.CURRENT_DEPARTMENT_ID_USER,
     )
 
 
@@ -173,7 +183,7 @@ class CompanyAdminCreateSchema(CompanyAdminPutSchema):
     role: Literal[CompanyUserRole.MODERATOR]
     company_id: int = Field(
         ...,
-        title=Title.COMPANY_ID_USER,
+        title=TitleConstants.COMPANY_ID_USER,
     )
 
 
@@ -182,18 +192,18 @@ class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
 
     name: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.NAME_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.NAME_USER,
     )
     surname: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.SURNAME_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.SURNAME_USER,
     )
     role: Optional[CompanyUserRole] = None
     current_department_id: Optional[int] = Field(
         None,
-        title=Title.CURRENT_DEPARTMENT_ID_USER,
+        title=TitleConstants.CURRENT_DEPARTMENT_ID_USER,
     )

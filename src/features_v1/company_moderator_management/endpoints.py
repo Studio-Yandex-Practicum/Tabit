@@ -11,7 +11,7 @@ from src.core.auth.dependencies import current_company_moderator
 from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
 from src.crud import company_crud, department_crud, moderator_crud
-from src.features_v1.constants import Summary
+from src.features_v1.constants import SummaryConstants
 from src.features_v1.validators import (
     check_department_name_duplicate,
     check_slug_duplicate,
@@ -36,7 +36,7 @@ router = APIRouter(dependencies=[Depends(current_company_moderator)])
 
 @router.get(
     '/',
-    summary=Summary.GET_COMPANY,
+    summary=SummaryConstants.GET_COMPANY,
     status_code=status.HTTP_200_OK,
     response_model=CompanyResponseSchema,
 )
@@ -80,7 +80,7 @@ async def get_company(
     '/departments',
     response_model=List[CompanyDepartmentResponseSchema],
     status_code=status.HTTP_200_OK,
-    summary=Summary.LIST_COMPANY_DEPARTMENTS,
+    summary=SummaryConstants.LIST_COMPANY_DEPARTMENTS,
 )
 async def get_all_departments(
     company_slug: str,
@@ -117,7 +117,7 @@ async def get_all_departments(
     '/departments',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_201_CREATED,
-    summary=Summary.CREATE_COMPANY_DEPARTMENTS,
+    summary=SummaryConstants.CREATE_COMPANY_DEPARTMENTS,
 )
 async def create_department(
     company_slug: str,
@@ -166,7 +166,7 @@ async def create_department(
 @router.post(
     '/departments/import',
     status_code=status.HTTP_200_OK,
-    summary=Summary.IMPORT_LIST_COMPANY_DEPARTMENTS,
+    summary=SummaryConstants.IMPORT_LIST_COMPANY_DEPARTMENTS,
 )
 async def import_departments(
     company_slug: str,
@@ -197,7 +197,7 @@ async def import_departments(
     '/departments/{department_slug}',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_200_OK,
-    summary=Summary.GET_COMPANY_DEPARTMENT,
+    summary=SummaryConstants.GET_COMPANY_DEPARTMENT,
 )
 async def get_department(
     company_slug: str,
@@ -239,7 +239,7 @@ async def get_department(
     '/departments/{department_slug}',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_200_OK,
-    summary=Summary.UPDATE_COMPANY_DEPARTMENTS,
+    summary=SummaryConstants.UPDATE_COMPANY_DEPARTMENTS,
 )
 async def update_department(
     company_slug: str,
@@ -296,7 +296,7 @@ async def update_department(
 
 @router.delete(
     '/departments/{department_slug}',
-    summary=Summary.DELETE_COMPANY_DEPARTMENTS,
+    summary=SummaryConstants.DELETE_COMPANY_DEPARTMENTS,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_department(
@@ -332,7 +332,7 @@ async def delete_department(
     '/employees',
     response_model=List[UserReadSchema],
     status_code=status.HTTP_200_OK,
-    summary=Summary.LIST_COMPANY_EMPLOYEES,
+    summary=SummaryConstants.LIST_COMPANY_EMPLOYEES,
 )
 async def get_all_employees(
     company_slug: str,
@@ -387,7 +387,7 @@ async def get_all_employees(
     '/employees',
     response_model=UserReadSchema,
     status_code=status.HTTP_201_CREATED,
-    summary=Summary.CREATE_COMPANY_EMPLOYEES,
+    summary=SummaryConstants.CREATE_COMPANY_EMPLOYEES,
 )
 async def create_company_employee(
     company_slug: str,
@@ -447,7 +447,7 @@ async def create_company_employee(
 @router.post(
     '/employees/import',
     status_code=status.HTTP_200_OK,
-    summary=Summary.IMPORT_LIST_COMPANY_EMPLOYEES,
+    summary=SummaryConstants.IMPORT_LIST_COMPANY_EMPLOYEES,
 )
 async def import_employees(
     company_slug: str,
@@ -475,7 +475,7 @@ async def import_employees(
     '/employees/{uuid}',
     response_model=UserReadSchema,
     status_code=status.HTTP_200_OK,
-    summary=Summary.GET_COMPANY_EMPLOYEE,
+    summary=SummaryConstants.GET_COMPANY_EMPLOYEE,
 )
 async def get_employee(
     company_slug: str,
@@ -531,7 +531,7 @@ async def get_employee(
     '/employees/{uuid}',
     response_model=UserReadSchema,
     status_code=status.HTTP_200_OK,
-    summary=Summary.UPDATE_COMPANY_EMPLOYEES,
+    summary=SummaryConstants.UPDATE_COMPANY_EMPLOYEES,
 )
 async def update_company_employee(
     company_slug: str,
@@ -597,7 +597,7 @@ async def update_company_employee(
 @router.delete(
     '/employees/{uuid}',
     status_code=status.HTTP_204_NO_CONTENT,
-    summary=Summary.DELETE_COMPANY_EMPLOYEES,
+    summary=SummaryConstants.DELETE_COMPANY_EMPLOYEES,
 )
 async def delete_company_employee(
     company_slug: str,

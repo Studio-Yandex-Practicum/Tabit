@@ -23,7 +23,7 @@ from sqlalchemy.sql import Select
 from starlette.requests import Request
 
 from src.core.config.logging import logger
-from src.crud.constants import Default, TextError
+from src.crud.constants import DefaultConstants, TextErrorConstants
 
 ModelType = TypeVar('ModelType')
 CreateSchemaType = TypeVar('CreateSchemaType')
@@ -72,7 +72,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj = await self.get(session, obj_id)
         if not obj:
             if message is None:
-                message = TextError.NOT_FOUND.format(obj=self.model.__name__, id=obj_id)
+                message = TextErrorConstants.NOT_FOUND.format(obj=self.model.__name__, id=obj_id)
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
         return obj
 
@@ -93,7 +93,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_model = result.scalars().first()
         if not obj_model and raise_404:
             if message is None:
-                message = TextError.NOT_FOUND_BY_SLUG.format(
+                message = TextErrorConstants.NOT_FOUND_BY_SLUG.format(
                     obj=self.model.__name__, slug=obj_slug
                 )
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message)
@@ -102,8 +102,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     async def get_multi(
         self,
         session: AsyncSession,
-        skip: int = Default.SKIP,
-        limit: int = Default.LIMIT,
+        skip: int = DefaultConstants.SKIP,
+        limit: int = DefaultConstants.LIMIT,
         filters: Dict[str, Any] | None = None,
         order_by: list[str] | None = None,
         unique_filter_rows: bool = False,
@@ -158,7 +158,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         session: AsyncSession,
         obj_in: CreateSchemaType,
-        auto_commit: bool = Default.AUTO_COMMIT,
+        auto_commit: bool = DefaultConstants.AUTO_COMMIT,
     ) -> ModelType:
         """
         Создаёт новый объект в БД.
@@ -173,7 +173,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.refresh(db_obj)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return db_obj
 
@@ -182,7 +182,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         session: AsyncSession,
         db_obj: ModelType,
         obj_in: UpdateSchemaType,
-        auto_commit: bool = Default.AUTO_COMMIT,
+        auto_commit: bool = DefaultConstants.AUTO_COMMIT,
     ) -> ModelType:
         """
         "Обновляет существующий объект (частичное обновление).
@@ -203,12 +203,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.refresh(db_obj)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return db_obj
 
     async def remove(
-        self, session: AsyncSession, db_object: ModelType, auto_commit: bool = Default.AUTO_COMMIT
+        self,
+        session: AsyncSession,
+        db_object: ModelType,
+        auto_commit: bool = DefaultConstants.AUTO_COMMIT,
     ) -> Any:
         """
         Удаляет переданный объект.
@@ -219,7 +222,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 await session.commit()
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.DELETE_SERVER_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.DELETE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
 
     def _apply_filters(self, query: Select, filters: dict[str, Any]) -> Select:
@@ -298,13 +301,13 @@ class UserCreateMixin:
         except exceptions.UserAlreadyExists:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail=TextError.EXISTS_EMAIL,
+                detail=TextErrorConstants.EXISTS_EMAIL,
             )
         except exceptions.InvalidPasswordException as e:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail={
-                    'code': TextError.INVALID_PASSWORD,
+                    'code': TextErrorConstants.INVALID_PASSWORD,
                     'reason': e.reason,
                 },
             )

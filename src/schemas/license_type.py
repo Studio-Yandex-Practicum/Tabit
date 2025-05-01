@@ -3,7 +3,7 @@ from typing import List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from src.schemas.constants import Default, Length, MiscConstants, Title
+from src.schemas.constants import DefaultConstants, LengthConstants, MiscConstants, TitleConstants
 from src.schemas.validators.license_type import (
     validate_license_term,
     validate_string,
@@ -29,24 +29,24 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
 
     name: str = Field(
         ...,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME_LICENSE,
-        title=Title.NAME_LICENSE,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME_LICENSE,
+        title=TitleConstants.NAME_LICENSE,
     )
     license_term: timedelta = Field(
         ...,
-        ge=timedelta(**Default.LICENSE_TERM),
-        title=Title.TERM_LICENSE,
+        ge=timedelta(**DefaultConstants.LICENSE_TERM),
+        title=TitleConstants.TERM_LICENSE,
     )
     max_admins_count: int = Field(
         ...,
         gt=MiscConstants.ZERO,
-        title=Title.MAX_MODERATORS_COUNT,
+        title=TitleConstants.MAX_MODERATORS_COUNT,
     )
     max_employees_count: int = Field(
         ...,
         gt=MiscConstants.ZERO,
-        title=Title.MAX_EMPLOYEES_COUNT,
+        title=TitleConstants.MAX_EMPLOYEES_COUNT,
     )
 
 
@@ -55,23 +55,23 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
 
     name: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME_LICENSE,
-        title=Title.NAME_LICENSE,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME_LICENSE,
+        title=TitleConstants.NAME_LICENSE,
     )
     license_term: Optional[timedelta] = Field(
         None,
-        title=Title.TERM_LICENSE,
+        title=TitleConstants.TERM_LICENSE,
     )
     max_admins_count: Optional[int] = Field(
         None,
         gt=MiscConstants.ZERO,
-        title=Title.MAX_MODERATORS_COUNT,
+        title=TitleConstants.MAX_MODERATORS_COUNT,
     )
     max_employees_count: Optional[int] = Field(
         None,
         gt=MiscConstants.ZERO,
-        title=Title.MAX_EMPLOYEES_COUNT,
+        title=TitleConstants.MAX_EMPLOYEES_COUNT,
     )
 
     model_config = ConfigDict(extra='forbid')
@@ -126,11 +126,13 @@ class LicenseTypeFilterSchema(BaseModel):
     ] = Field(None, description=MiscConstants.SORTING_DESCRIPTION)
 
     page: Optional[int] = Field(
-        Default.PAGE, ge=Default.MIN_PAGE_SIZE, description=Default.PAGE_DESCRIPTION
+        DefaultConstants.PAGE,
+        ge=DefaultConstants.MIN_PAGE_SIZE,
+        description=DefaultConstants.PAGE_DESCRIPTION,
     )
     page_size: Optional[int] = Field(
-        Default.PAGE_SIZE,
-        ge=Default.MIN_PAGE_SIZE,
-        le=Default.MAX_PAGE_SIZE,
-        description=Default.PAGE_SIZE_DESCRIPTION,
+        DefaultConstants.PAGE_SIZE,
+        ge=DefaultConstants.MIN_PAGE_SIZE,
+        le=DefaultConstants.MAX_PAGE_SIZE,
+        description=DefaultConstants.PAGE_SIZE_DESCRIPTION,
     )

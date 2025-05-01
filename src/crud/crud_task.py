@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 
 from src.core.config.logging import logger
 from src.crud import CRUDBaseWithAssociations
-from src.crud.constants import MiscConstants, TextError
+from src.crud.constants import MiscConstants, TextErrorConstants
 from src.models import AssociationUserTask, Company, CompanyUser, Problem, Task, TaskStatus
 from src.schemas import TaskCreateSchema, TaskResponseSchema, TaskUpdateSchema
 
@@ -91,7 +91,7 @@ class CRUDTask(CRUDBaseWithAssociations):
             await session.refresh(task_db)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.DELETE_SERVER_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.DELETE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return task_db
 
@@ -161,7 +161,7 @@ class CRUDTask(CRUDBaseWithAssociations):
 
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
 
         return task_db
