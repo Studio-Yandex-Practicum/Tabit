@@ -9,7 +9,7 @@ from src.openapi import get_tabit_openapi
 
 app_v1 = FastAPI(
     title=settings.app_title,
-    description=settings.description,
+    description=settings.app_description,
     version=settings.version,
     swagger_ui_parameters={'filter': True},
 )

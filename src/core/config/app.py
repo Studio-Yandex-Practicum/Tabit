@@ -1,28 +1,36 @@
 from pathlib import Path
 
-from dotenv import load_dotenv
 from fastapi_mail import ConnectionConfig
 from pydantic import ConfigDict, EmailStr, SecretStr
 from pydantic_settings import BaseSettings
 
 from src.core.constants import MiscBaseConstants
 
-load_dotenv()
-
 
 class Settings(BaseSettings):
-    app_title: str = 'Tabit'
-    description: str = 'Tabit platform'
+    """
+    Определяет конфигурацию проекта.
+
+    В случае отсутствия явного значения параметра - пытается извлечь его значение
+    из переменной окружения с аналогичным названием, но записанной в верхнем регистре,
+    располагающейся в файле с переменными окружения.
+
+    При наличии явного значения параметра и аналогичной переменной окружения в файле
+    с переменными окружения - будет перезаписано значением из файла с переменными окружения.
+    """
+
+    app_title: str
+    app_description: str
     version: str = '1.0.0'
-    db_type: str = 'postgresql'
-    db_api: str = 'asyncpg'
-    db_host: str = 'localhost'
-    db_port: str = '5432'
-    postgres_user: str = 'postgres_admin_user'
-    postgres_password: str = 'Postgres_P@ssw0rd'
-    postgres_db: str = 'tabit'
-    log_level: str = 'DEBUG'
-    app_serve_static: bool = False
+    db_type: str
+    db_api: str
+    db_host: str
+    db_port: str
+    postgres_user: str
+    postgres_password: str
+    postgres_db: str
+    log_level: str
+    app_serve_static: bool
 
     jwt_secret: SecretStr = 'SUPERSECRETKEY'
     jwt_lifetime_seconds: int = 3_600  # 1 час.
