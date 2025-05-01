@@ -25,7 +25,7 @@
 - Сообщения об ошибках содержат параметры для форматирования (например, {}).
 
 Пример использования:
-- from src.features_v1.constants.py import DescriptionConstants, TextErrorConstants
+- from src.features_v1.constants import DescriptionConstants, TextErrorConstants
 - endpoint_description = DescriptionConstants.CREATE_PROBLEM
 - error_message = TextErrorConstants.PROBLEM_NOT_FOUND
 """
