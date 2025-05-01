@@ -896,7 +896,7 @@ async def task_for_test(async_session: AsyncSession, meeting_for_test):
         # Создание задачи только с обязательными полями
         task = await task_for_test()
 
-        # Создание задачи с кастомными параметрами
+        # Создание задачи с кастомными параметрами   # TODO
         task = await task_for_test({
             'name': 'Важная задача',
             'description': 'Разработать перечень предложений для решения проблемы',
@@ -915,24 +915,30 @@ async def task_for_test(async_session: AsyncSession, meeting_for_test):
         problem = None
         meeting = None
 
-        if not task_data or ('owner_id' not in task_data and 'problem_id' not in task_data):
-            task, problem, employee, company = await problem_for_test(return_all_objects=True)
+        if not task_data or {'owner_id', 'problem_id', 'meeting_id'}.isdisjoint(task_data):
+            task, problem, employee, company = await meeting_for_test(return_all_objects=True)
 
         owner_id = (
             task_data.get('owner_id') if task_data and 'owner_id' in task_data else employee.id
         )
         problem_id = (
-            task_data.get('problem_id')
-            if task_data and 'problem_id' in task_data
-            else problem.task_data
+            task_data.get('problem_id') if task_data and 'problem_id' in task_data else problem.id
+        )
+        meeting_id = (
+            task_data.get('meeting_id') if task_data and 'meeting_id' in task_data else meeting.id
+        )
+        date_completion = (
+            task_data.get('date_completion')
+            if task_data and 'date_completion' in task_data
+            else meeting.date_meeting
         )
 
         default_data = {
-            'title': f'Test Task {uuid.uuid4().hex[:8]}',
-            'date_task': (datetime.now() + timedelta(days=1)).date(),
+            'name': f'Test Task {uuid.uuid4().hex[:8]}',
+            'date_completion': date_completion,
             'status': 'Новая',
-            'place': 'place',
             'problem_id': problem_id,
+            'meeting_id': meeting_id,
             'owner_id': owner_id,
         }
         if task_data:

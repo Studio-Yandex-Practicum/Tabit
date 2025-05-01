@@ -27,6 +27,7 @@ class Task(BaseTabitModel):
         date_completion: Крайняя дата исполнения задачи.
         owner_id: Автор задачи. Внешний ключ.
         problem_id: Идентификатор проблемы, к которой относится задача.
+        meeting_id: Идентификатор встречи, к которой относится задача.
         status: Статус выполнения задачи.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
@@ -35,6 +36,7 @@ class Task(BaseTabitModel):
     Связи (атрибут - Модель):
         owner - CompanyUser;
         problem - Problem;
+        meeting - Meeting;
         executors - AssociationUserTask -> CompanyUser: исполнители задачи;
         file - FileTask: к задаче могут быть прикреплены файлы.
     """
@@ -66,6 +68,8 @@ class Task(BaseTabitModel):
             f'{self.__class__.__name__}('
             f'id={self.id!r}, '
             f'name={self.name!r}, '
+            f'problem_id={self.problem_id!r}, '
+            f'meeting_id={self.meeting_id!r}, '
             f'owner_id={self.owner_id!r}, '
             f'status={self.status!r})'
         )
