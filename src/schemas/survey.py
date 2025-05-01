@@ -65,11 +65,11 @@ class SurveyScheduleCreate(BaseModel):
     class Config:
         json_schema_extra = {
             'example': {
-                'survey_tag': 'EMO',
-                'status': 'IN_PROGRESS',
+                'survey_tag': 'Определение эмоционального состояния',
+                'status': 'В работе',
                 'cycles': [
-                    {'cycle_number': 1, 'date_start': '2025-04-22'},
-                    {'cycle_number': 2, 'date_start': '2025-05-22'},
+                    {'cycle_number': 1, 'date_start': date.today()},
+                    {'cycle_number': 2, 'date_start': date.today()},
                 ],
             }
         }
