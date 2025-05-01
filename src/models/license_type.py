@@ -36,7 +36,7 @@ class LicenseType(BaseTabitModel):
     id: Mapped[int_pk]
     name: Mapped[license_name_field]
     license_term: Mapped[Interval] = mapped_column(
-        Interval(day_precision=DefaultConstants.NUMBER_DAY_LICENSE)
+        Interval(day_precision=DefaultConstants.LICENSE_TERM)
     )
     max_admins_count: Mapped[int]
     max_employees_count: Mapped[int]

@@ -36,7 +36,7 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
     license_term: timedelta = Field(
         ...,
         ge=timedelta(**DefaultConstants.LICENSE_TERM),
-        title=TitleConstants.TERM_LICENSE,
+        title=TitleConstants.LICENSE_TERM,
     )
     max_admins_count: int = Field(
         ...,
@@ -61,7 +61,7 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
     )
     license_term: Optional[timedelta] = Field(
         None,
-        title=TitleConstants.TERM_LICENSE,
+        title=TitleConstants.LICENSE_TERM,
     )
     max_admins_count: Optional[int] = Field(
         None,

@@ -26,7 +26,7 @@
 
 Примеры использования:
 - from src.models.constants import DefaultConstants, LengthConstants
-- license_days = DefaultConstants.NUMBER_DAY_LICENSE
+- license_days = DefaultConstants.LICENSE_TERM
 - max_dept_name_len = LengthConstants.MAX_NAME_DEPARTMENT
 """
 
@@ -40,10 +40,10 @@ class DefaultConstants(DefaultBaseConstants):
     Наследует все константы из DefaultBaseConstants.
 
     Атрибуты:
-    - NUMBER_DAY_LICENSE (int): Количество дней действия лицензии по умолчанию.
+    - LICENSE_TERM (int): Количество дней действия лицензии по умолчанию.
     """
 
-    NUMBER_DAY_LICENSE: int = 1
+    LICENSE_TERM: int = 1
 
 
 class LengthConstants(LengthBaseConstants):

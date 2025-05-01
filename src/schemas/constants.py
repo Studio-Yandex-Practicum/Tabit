@@ -58,7 +58,6 @@ class DefaultConstants(DefaultBaseConstants):
     - LICENSE_TERM (dict): Срок действия лицензии по умолчанию в днях.
     - MAX_PAGE_SIZE (int): Максимальный размер страницы для пагинации.
     - MIN_PAGE_SIZE (int): Минимальный размер страницы для пагинации.
-    - NUMBER_DEY_LICENSE (int): Количество дней действия лицензии по умолчанию.
     - PAGE (int): Номер страницы по умолчанию.
     - PAGE_DESCRIPTION (str): Описание поля страницы.
     - PAGE_SIZE_DESCRIPTION (str): Описание поля размера страницы.
@@ -67,7 +66,6 @@ class DefaultConstants(DefaultBaseConstants):
     LICENSE_TERM: dict[str, int] = {'days': 1}
     MAX_PAGE_SIZE: int = 100
     MIN_PAGE_SIZE: int = 1
-    NUMBER_DEY_LICENSE: int = 1
     PAGE: int = 1
     PAGE_DESCRIPTION: str = 'Текущая страница'
     PAGE_SIZE_DESCRIPTION: str = 'Количество записей на странице'
@@ -208,7 +206,7 @@ class TitleConstants(TitleBaseConstants):
     - SURNAME_MODERATOR (str): Заголовок для фамилии модератора.
     - SURNAME_USER (str): Заголовок для фамилии пользователя.
     - TELEGRAM_USERNAME (str): Заголовок для Telegram username.
-    - TERM_LICENSE (str): Заголовок для срока действия лицензии.
+    - LICENSE_TERM (str): Заголовок для срока действия лицензии.
     - UPDATE_COMMENTS_TEXT (str): Заголовок для текста обновления комментария.
     - UPDATED_AT_USER (str): Заголовок для даты обновления пользователя.
     """
@@ -251,7 +249,7 @@ class TitleConstants(TitleBaseConstants):
     SURNAME_MODERATOR: str = 'Фамилия модератора сервиса'
     SURNAME_USER: str = 'Фамилия пользователя сервиса'
     TELEGRAM_USERNAME: str = 'Имя пользователя в Telegram'
-    TERM_LICENSE: str = 'Срок действия лицензии в днях'
+    LICENSE_TERM: str = 'Срок действия лицензии в днях'
     UPDATE_COMMENTS_TEXT: str = 'Обновить комментарий к треду.'
     UPDATED_AT_USER: str = 'Дата обновления профиля пользователя'
 
