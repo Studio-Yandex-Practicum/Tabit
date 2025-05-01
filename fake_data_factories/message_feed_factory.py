@@ -6,7 +6,7 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, Faker
+from config.constants.fake_data_factories import ColorCPrint, FakerConstants
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.problem_factory import create_problems
@@ -40,7 +40,7 @@ class MessageFeedFactory(AsyncSQLAlchemyFactory):
 
 @start_and_end(__name__)
 async def create_message_feeds(
-    count: int = Faker.MESSAGE_FEEDS_COUNT, **kwargs
+    count: int = FakerConstants.MESSAGE_FEEDS_COUNT, **kwargs
 ) -> list[MessageFeed]:
     """
     Создать запись(-и) в таблицу объекта `MessageFeed`.

@@ -6,7 +6,7 @@ from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from sqlalchemy import select
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, Faker
+from config.constants.fake_data_factories import ColorCPrint, FakerConstants
 from fake_data_factories.association_user_comment_factory import create_user_comment_associations
 from fake_data_factories.company_user_factories import create_company_users
 from fake_data_factories.message_feed_factory import create_message_feeds
@@ -29,10 +29,13 @@ class CommentFeedFactory(AsyncSQLAlchemyFactory):
     message_id: int
     owner_id: UUID
     text: str = factory.Faker(
-        'sentence', locale='ru_RU', nb_words=Faker.COMMENT_WORDS_COUNT, variable_nb_words=True
+        'sentence',
+        locale='ru_RU',
+        nb_words=FakerConstants.COMMENT_WORDS_COUNT,
+        variable_nb_words=True,
     )
     rating: int = factory.Faker(
-        'random_int', min=Faker.MIN_COMMENT_RATING, max=Faker.MAX_COMMENT_RATING
+        'random_int', min=FakerConstants.MIN_COMMENT_RATING, max=FakerConstants.MAX_COMMENT_RATING
     )
 
     class Meta:
@@ -41,7 +44,7 @@ class CommentFeedFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_comments(count=Faker.COMMENT_COUNT, **kwargs) -> None:
+async def create_comments(count=FakerConstants.COMMENT_COUNT, **kwargs) -> None:
     """
     Функция для пакетного создания комментариев.
 
