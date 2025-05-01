@@ -10,8 +10,6 @@ services:
       - ${DB_PORT}:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - ${NETWORK_NAME}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -44,8 +42,6 @@ services:
       - ${PWD}/${MEDIA_FOLDER}:/app/media
       - ${PWD}/src:/app/src
       - ${PWD}/alembic:/app/alembic
-    networks:
-      - ${NETWORK_NAME}
     profiles:
       - app_dc
     restart: always
@@ -63,8 +59,6 @@ services:
       - pgadmin_data:/var/lib/pgadmin
       - ${PWD}/pgadmin/config_local.py:/pgadmin4/config_local.py
       - ${PWD}/pgadmin/create-admin-folder.sh:/create-admin-folder.sh
-    networks:
-      - ${NETWORK_NAME}
     configs:
       - source: servers.json
         target: /pgadmin4/servers.json
@@ -104,7 +98,3 @@ volumes:
   pgadmin_data:
     driver: local
     name: ${PGADMIN_VOLUME_NAME}
-
-networks:
-  tabit_network:
-    driver: ${NETWORK_DRIVER}
