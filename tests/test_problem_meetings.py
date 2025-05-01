@@ -6,7 +6,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from config.constants.tests import Url
+from tests.constants import UrlConstants
 
 
 def generate_meeting_data(problem_id=None, owner_id=None, all_fields=False, members=None):
@@ -56,7 +56,9 @@ class TestMeetingsPost:
         meeting_data = generate_meeting_data(all_fields=True)
 
         response_meeting = await client.post(
-            Url.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
+            UrlConstants.MEETINGS_ENDPOINT.format(
+                company_slug=company.slug, problem_id=problem.id
+            ),
             json=meeting_data,
             headers=await get_token_for_user(employee),
         )
@@ -83,7 +85,9 @@ class TestMeetingsPost:
         meeting_data = generate_meeting_data()
 
         response_meeting = await client.post(
-            Url.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
+            UrlConstants.MEETINGS_ENDPOINT.format(
+                company_slug=company.slug, problem_id=problem.id
+            ),
             json=meeting_data,
             headers=await get_token_for_user(employee),
         )
@@ -120,7 +124,9 @@ class TestMeetingsPost:
         meeting_data['date_meeting'] = new_date_meeting
 
         response_meeting = await client.post(
-            Url.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
+            UrlConstants.MEETINGS_ENDPOINT.format(
+                company_slug=company.slug, problem_id=problem.id
+            ),
             json=meeting_data,
             headers=await get_token_for_user(employee),
         )
@@ -149,7 +155,9 @@ class TestMeetingsPost:
         meeting_data['date_meeting'] = new_date_meeting
 
         response_meeting = await client.post(
-            Url.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
+            UrlConstants.MEETINGS_ENDPOINT.format(
+                company_slug=company.slug, problem_id=problem.id
+            ),
             json=meeting_data,
             headers=await get_token_for_user(employee),
         )
@@ -188,7 +196,9 @@ class TestMeetingsPost:
             meeting_data = generate_meeting_data()
 
             response_meeting = await client.post(
-                Url.MEETINGS_ENDPOINT.format(company_slug=company_slug, problem_id=problem_id),
+                UrlConstants.MEETINGS_ENDPOINT.format(
+                    company_slug=company_slug, problem_id=problem_id
+                ),
                 json=meeting_data,
                 headers=await get_token_for_user(employee),
             )
@@ -220,7 +230,9 @@ class TestMeetingsGet:
         )
 
         response = await client.get(
-            Url.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
+            UrlConstants.MEETINGS_ENDPOINT.format(
+                company_slug=company.slug, problem_id=problem.id
+            ),
             headers=await get_token_for_user(employee),
         )
 
@@ -244,7 +256,7 @@ class TestMeetingsGet:
         meeting, problem, employee, company = await meeting_for_test(return_all_objects=True)
 
         response = await client.get(
-            Url.MEETINGS_SINGLE.format(
+            UrlConstants.MEETINGS_SINGLE.format(
                 company_slug=company.slug,
                 problem_id=problem.id,
                 meeting_id=meeting.id,
@@ -274,7 +286,9 @@ class TestMeetingsGet:
         problem, employee, company = await problem_for_test(return_all_objects=True)
 
         response = await client.get(
-            Url.MEETINGS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
+            UrlConstants.MEETINGS_ENDPOINT.format(
+                company_slug=company.slug, problem_id=problem.id
+            ),
             headers=await get_token_for_user(employee),
         )
 
@@ -312,7 +326,7 @@ class TestMeetingsUpdate:
         }
 
         response = await client.patch(
-            Url.MEETINGS_SINGLE.format(
+            UrlConstants.MEETINGS_SINGLE.format(
                 company_slug=company.slug, problem_id=problem.id, meeting_id=meeting.id
             ),
             json=updated_data,
@@ -351,7 +365,7 @@ class TestMeetingsUpdate:
         meeting, problem, employee, company = await meeting_for_test(return_all_objects=True)
 
         response = await client.patch(
-            Url.MEETINGS_SINGLE.format(
+            UrlConstants.MEETINGS_SINGLE.format(
                 company_slug=company.slug, problem_id=problem.id, meeting_id=meeting.id
             ),
             json={field: value},
@@ -378,7 +392,7 @@ class TestMeetingsUpdate:
         meeting_id = random.randint(1, 100)
 
         response_patch = await client.patch(
-            Url.MEETINGS_SINGLE.format(
+            UrlConstants.MEETINGS_SINGLE.format(
                 company_slug=company.slug, problem_id=problem_id, meeting_id=meeting_id
             ),
             json={'title': 'No Matter'},
@@ -409,7 +423,7 @@ class TestMeetingsDelete:
         meeting, problem, employee, company = await meeting_for_test(return_all_objects=True)
 
         response = await client.delete(
-            Url.MEETINGS_SINGLE.format(
+            UrlConstants.MEETINGS_SINGLE.format(
                 company_slug=company.slug, problem_id=problem.id, meeting_id=meeting.id
             ),
             headers=await get_token_for_user(employee),
@@ -431,7 +445,7 @@ class TestMeetingsDelete:
         meeting_id = random.randint(1, 100)
 
         response = await client.delete(
-            Url.MEETINGS_SINGLE.format(
+            UrlConstants.MEETINGS_SINGLE.format(
                 company_slug=company.slug, problem_id=problem.id, meeting_id=meeting_id
             ),
             headers=await get_token_for_user(employee),

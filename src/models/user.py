@@ -9,7 +9,7 @@ from sqlalchemy.sql.schema import UniqueConstraint
 
 from src.models import BaseUser, CompanyUserRole
 from src.models.annotations import url_link_field
-from src.models.constants import Length
+from src.models.constants import LengthConstants
 
 if TYPE_CHECKING:
     from src.models import (
@@ -82,7 +82,7 @@ class CompanyUser(BaseUser):
 
     birthday: Mapped[Optional[date]]
     telegram_username: Mapped[Optional[str]] = mapped_column(
-        String(Length.MAX_TELEGRAM_USERNAME), unique=True, nullable=True
+        String(LengthConstants.MAX_TELEGRAM_USERNAME), unique=True, nullable=True
     )
     role: Mapped['CompanyUserRole']
     start_date_employment: Mapped[Optional[date]]

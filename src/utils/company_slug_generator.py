@@ -4,13 +4,13 @@ from slugify import slugify
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import company_crud
-from src.utils.constants import Length, MiscConstants
+from src.utils.constants import LengthConstants, MiscConstants
 
 
 def generate_unique_slug(base_slug: str) -> str:
     """Метод формирования `slug` объектов Company или Department."""
     return base_slug + ''.join(
-        random.choices(MiscConstants.SHORT_SYMBOLS, k=Length.GENERATED_SLUG_SUFFIX_RANGE)
+        random.choices(MiscConstants.SHORT_SYMBOLS, k=LengthConstants.GENERATED_SLUG_SUFFIX_RANGE)
     )
 
 

@@ -5,7 +5,7 @@ from fastapi_mail import ConnectionConfig
 from pydantic import ConfigDict, EmailStr, SecretStr
 from pydantic_settings import BaseSettings
 
-from src.core.constants import MiscConstants
+from src.core.constants import MiscBaseConstants
 
 load_dotenv()
 
@@ -48,8 +48,8 @@ class Settings(BaseSettings):
     mail_ssl_tls: bool = False  # Для подключения по протоколу TLS / SSL.
     use_credentials: bool = True  # По умолчанию True. Подключаться к SMTP-серверу или нет.
     validate_certs: bool = True  # Cледует ли проверять сертификат почтового сервера.
-    template_folder: Path = MiscConstants.BASE_DIR / 'templates'
-    media_folder: Path = MiscConstants.BASE_DIR / 'media'
+    template_folder: Path = MiscBaseConstants.BASE_DIR / 'templates'
+    media_folder: Path = MiscBaseConstants.BASE_DIR / 'media'
     media_url: str = '/media'
 
     @property

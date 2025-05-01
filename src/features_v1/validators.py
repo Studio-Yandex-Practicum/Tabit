@@ -26,7 +26,7 @@ from src.crud import (
     user_comment_association_crud,
     user_crud,
 )
-from src.features_v1.constants import Length, TextError
+from src.features_v1.constants import LengthConstants, TextErrorConstants
 from src.models import (
     AssociationUserComment,
     CommentFeed,
@@ -64,7 +64,7 @@ async def check_department_name_duplicate(
     if departments:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=TextError.DEPARTMENT_EXIST,
+            detail=TextErrorConstants.DEPARTMENT_EXIST,
         )
 
 
@@ -78,11 +78,11 @@ async def check_slug_duplicate(
         db_obj (Department | Company): объект отдела или компании.
         session (AsyncSession): Асинхронная сессия SQLAlchemy.
     """
-    base_slug = slugify(db_obj.name)[: Length.SLUG]
+    base_slug = slugify(db_obj.name)[: LengthConstants.SLUG]
     new_slug = base_slug
     crud = department_crud if isinstance(db_obj, Department) else company_crud
     while await crud.get_multi(session=session, filters={'slug': new_slug}):
-        new_slug = f'{base_slug[: Length.SLUG - 6]}-{random.randint(1000, 9999)}'
+        new_slug = f'{base_slug[: LengthConstants.SLUG - 6]}-{random.randint(1000, 9999)}'
     return new_slug
 
 
@@ -103,7 +103,7 @@ async def validate_user_not_exists(
         user = await user_manager.user_db.get_by_email(user_data.email)
         if user:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.EXISTS_EMAIL
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextErrorConstants.EXISTS_EMAIL
             )
 
 
@@ -125,7 +125,7 @@ async def validate_password(
             await user_manager.validate_password(user_data.password, user_data)
         except InvalidPasswordException:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.INVALID_PASSWORD
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextErrorConstants.INVALID_PASSWORD
             )
 
 
@@ -134,7 +134,7 @@ async def validator_check_object_exists(
     model_crud: CRUDBase,
     object_id: int | UUID | None = None,
     object_slug: str | None = None,
-    message: str = TextError.NOT_FOUND,
+    message: str = TextErrorConstants.NOT_FOUND,
 ):
     """Проверит наличие и вернет объект из таблицы по id или slug."""
     object_model = (
@@ -156,7 +156,8 @@ async def check_telegram_username_for_duplicates(username: str, session: AsyncSe
     if username:
         if await moderator_crud.get_by_telegram_username(username, session):
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.INVALID_TELEGRAM_USERNAME
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=TextErrorConstants.INVALID_TELEGRAM_USERNAME,
             )
 
 
@@ -173,7 +174,9 @@ async def check_user_company(
 
     company = await company_crud.get_or_404(session, user_company_id)
     if company.slug != company_slug:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=TextError.WRONG_COMPANY)
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail=TextErrorConstants.WRONG_COMPANY
+        )
 
 
 async def check_company_problem(
@@ -189,7 +192,9 @@ async def check_company_problem(
     problem = await problem_crud.get_or_404(session, problem_id)
     company = await company_crud.get_or_404(session, problem.company_id)
     if company.id != user_company_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=TextError.WRONG_PROBLEM)
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail=TextErrorConstants.WRONG_PROBLEM
+        )
 
 
 async def check_message_feed_and_problem(
@@ -205,7 +210,7 @@ async def check_message_feed_and_problem(
     message_feed = await message_feed_crud.get_or_404(session, message_feed_id)
     if message_feed.problem_id != problem_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=TextError.WRONG_MESSAGE_FEED
+            status_code=status.HTTP_404_NOT_FOUND, detail=TextErrorConstants.WRONG_MESSAGE_FEED
         )
 
 
@@ -223,7 +228,9 @@ async def check_comment_and_message_feed(
     """
     comment = await comment_crud.get_or_404(session, comment_id)
     if comment.message_id != message_feed_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=TextError.WRONG_COMMENT)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=TextErrorConstants.WRONG_COMMENT
+        )
     return comment
 
 
@@ -246,12 +253,12 @@ async def check_comment_owner(
     if like_mode:
         if comment.owner_id == user_id:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.LIKE_OWN_COMMENT
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextErrorConstants.LIKE_OWN_COMMENT
             )
     else:
         if comment.owner_id != user_id:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail=TextError.COMMENT_NOT_OWNER
+                status_code=status.HTTP_403_FORBIDDEN, detail=TextErrorConstants.COMMENT_NOT_OWNER
             )
 
 
@@ -299,13 +306,14 @@ async def check_comment_has_likes_from_user(
     if like_mode:
         if await user_comment_association_crud.get(comment_id, user_id, session):
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.REPEATED_LIKE
+                status_code=status.HTTP_400_BAD_REQUEST, detail=TextErrorConstants.REPEATED_LIKE
             )
     else:
         user_comment_obj = await user_comment_association_crud.get(comment_id, user_id, session)
         if not user_comment_obj:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.NOT_LIKED_COMMENT
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=TextErrorConstants.NOT_LIKED_COMMENT,
             )
         return user_comment_obj
 
@@ -325,10 +333,10 @@ async def check_max_number_problems(session: AsyncSession, user: CompanyUser):
         session,
         user,
     )
-    if len(all_open_problem) >= Length.MAX_NUMBER_PROBLEM:
+    if len(all_open_problem) >= LengthConstants.MAX_NUMBER_PROBLEM:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=TextError.PROBLEM_NUMBER.format(Length.MAX_NUMBER_PROBLEM),
+            detail=TextErrorConstants.PROBLEM_NUMBER.format(LengthConstants.MAX_NUMBER_PROBLEM),
         )
 
 
@@ -353,12 +361,12 @@ async def validate_field_members(
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=TextError.UUID_INVALID.format(uuid),
+                detail=TextErrorConstants.UUID_INVALID.format(uuid),
             )
         if company_id is not None and company_id != user.company_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=TextError.USER_NOT_FROM_COMPANY.format(uuid),
+                detail=TextErrorConstants.USER_NOT_FROM_COMPANY.format(uuid),
             )
 
 
@@ -370,7 +378,7 @@ def validate_close_problem(problem: Problem):
     if problem.status == ProblemStatus.COMPLETED:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=TextError.CLOSE_PROBLEM,
+            detail=TextErrorConstants.CLOSE_PROBLEM,
         )
 
 
@@ -382,7 +390,7 @@ def validate_owner_object(user: CompanyUser, row_model):
     if user.id != row_model.owner.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=TextError.FORBIDDEN_OWNER,
+            detail=TextErrorConstants.FORBIDDEN_OWNER,
         )
 
 
@@ -394,7 +402,7 @@ def validate_user_from_company(user: CompanyUser, company: Company):
     if user.company_id != company.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=TextError.FORBIDDEN_FROM_COMPANY.format(company.name),
+            detail=TextErrorConstants.FORBIDDEN_FROM_COMPANY.format(company.name),
         )
 
 
@@ -416,7 +424,7 @@ async def check_problem_exists(problem_id: int, session: AsyncSession):
         await problem_crud.get_or_404(session, problem_id)
     except HTTPException:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=TextError.PROBLEM_NOT_FOUND
+            status_code=status.HTTP_404_NOT_FOUND, detail=TextErrorConstants.PROBLEM_NOT_FOUND
         )
 
 
@@ -434,7 +442,8 @@ async def check_meeting_title_unique(title: str, session: AsyncSession):
 
     if not await meeting_crud.get_meeting(title=title, session=session):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.MEETING_TITLE_ALREADY_IN_USE
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=TextErrorConstants.MEETING_TITLE_ALREADY_IN_USE,
         )
 
 
@@ -452,7 +461,8 @@ async def check_meeting_date_available(date_meeting: str, session: AsyncSession)
 
     if not await meeting_crud.get_meeting(date_meeting=date_meeting, session=session):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.DATE_MEETING_ALREADY_IN_USE
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=TextErrorConstants.DATE_MEETING_ALREADY_IN_USE,
         )
 
 
@@ -473,7 +483,7 @@ async def check_meeting_exists(meeting_id: int, session: AsyncSession):
         await meeting_crud.get_or_404(session, meeting_id)
     except HTTPException:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=TextError.MEETING_NOT_FOUND
+            status_code=status.HTTP_404_NOT_FOUND, detail=TextErrorConstants.MEETING_NOT_FOUND
         )
 
 
@@ -494,7 +504,8 @@ async def check_result_meeting_unique(meeting_id: int, owner: CompanyUser, sessi
         filters={'meeting_id': meeting_id, 'owner_id': owner.id}, session=session
     ):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=TextError.NOT_UNIQUE_RESULT_MEETING
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=TextErrorConstants.NOT_UNIQUE_RESULT_MEETING,
         )
 
 
@@ -508,7 +519,7 @@ async def check_task_exists(task_id: int, session: AsyncSession):
     Raises:
         HTTPException: Если задача не найдена.
     """
-    return await task_crud.get_or_404(session, task_id, message=TextError.TASK_NOT_FOUND)
+    return await task_crud.get_or_404(session, task_id, message=TextErrorConstants.TASK_NOT_FOUND)
 
 
 async def check_tasks_for_company_problem_exist(
@@ -528,7 +539,7 @@ async def check_tasks_for_company_problem_exist(
     if tasks is None or tasks == []:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=TextError.TASK_FOR_PROBLEM_NOT_FOUND,
+            detail=TextErrorConstants.TASK_FOR_PROBLEM_NOT_FOUND,
         )
 
 
@@ -548,7 +559,7 @@ async def check_company_exists(company_slug: str, session: AsyncSession):
 
     if not await company_crud.get_by_company_slug(session, company_slug):
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=TextError.COMPANY_NOT_FOUND
+            status_code=status.HTTP_404_NOT_FOUND, detail=TextErrorConstants.COMPANY_NOT_FOUND
         )
 
 
@@ -560,7 +571,7 @@ def validate_is_member_problem(user: CompanyUser, problem: Problem):
     if user in problem.members:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=TextError.FORBIDDEN_NOT_MEMBER,
+            detail=TextErrorConstants.FORBIDDEN_NOT_MEMBER,
         )
 
 
@@ -572,7 +583,7 @@ def validate_meeting_was_held(meeting: Meeting):
     if meeting.status == MeetingStatus.HELD:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=TextError.MEETING_WAS_HELD,
+            detail=TextErrorConstants.MEETING_WAS_HELD,
         )
 
 
@@ -585,7 +596,7 @@ def validate_task_completed(task: Task):
     if task.status == TaskStatus.COMPLETED:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=TextError.TASK_COMPLETED,
+            detail=TextErrorConstants.TASK_COMPLETED,
         )
 
 
@@ -594,13 +605,13 @@ def check_user_is_active(user):
     if user is None or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=TextError.LOGIN,
+            detail=TextErrorConstants.LOGIN,
         )
 
 
 def validator_check_not_is_superuser(
     user_model_object,
-    message: str = TextError.IS_SUPERUSER,
+    message: str = TextErrorConstants.IS_SUPERUSER,
 ) -> None:
     """
     Проверит, не является ли пользователь суперпользователем.
@@ -626,21 +637,22 @@ async def check_company_and_department(
     """
     if not await company_crud.get(session, company_id):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=TextError.COMPANY_NOT_FOUND
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=TextErrorConstants.COMPANY_NOT_FOUND,
         )
     if department_id:
         department = await department_crud.get(session, department_id)
         if not department:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=TextError.DEPARTMENT_NOT_FOUND,
+                detail=TextErrorConstants.DEPARTMENT_NOT_FOUND,
             )
     else:
         return
     if department.company_id != company_id:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=TextError.WRONG_COMPANY_DEPARTMENT,
+            detail=TextErrorConstants.WRONG_COMPANY_DEPARTMENT,
         )
 
 

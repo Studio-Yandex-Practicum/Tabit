@@ -3,13 +3,13 @@ from random import randint, sample
 
 from termcolor import colored, cprint
 
-from config.constants.fake_data_factories import ColorCPrint, FakerConstants, Length
 from fake_data_factories.association_user_problem_factory import (
     create_user_problem_associations,
 )
 from fake_data_factories.comment_feed_factory import create_comments
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
+from fake_data_factories.constants import ColorCPrintConstants, FakerConstants, LengthConstants
 from fake_data_factories.department_factories import create_company_department
 from fake_data_factories.license_type_factories import create_license_type
 from fake_data_factories.message_feed_factory import create_message_feeds
@@ -42,11 +42,11 @@ async def fill_all_data():
             (количество вариантов выбора пользователя выбирается случайным образом \
             для каждого голосования).
     """
-    color = ColorCPrint.light_cyan
+    color = ColorCPrintConstants.light_cyan
     cprint(
         colored('Начинаем генерацию тестовых данных...', color, attrs=['reverse', 'blink']),
     )
-    license_types = await create_license_type(count=Length.LICENSE_TYPE_COUNT)
+    license_types = await create_license_type(count=LengthConstants.LICENSE_TYPE_COUNT)
     company_license_type = license_types[0]
     companies = await create_companies(
         count=FakerConstants.COMPANY_COUNT, license_id=company_license_type.id

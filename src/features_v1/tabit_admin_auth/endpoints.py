@@ -21,7 +21,7 @@ from src.core.auth.managers import get_admin_manager
 from src.core.auth.protocol import StrategyT
 from src.core.database.db_depends import get_async_session
 from src.crud import admin_user_crud
-from src.features_v1.constants import Description, MiscConstants, Summary
+from src.features_v1.constants import DescriptionConstants, MiscConstants, SummaryConstants
 from src.features_v1.validators import (
     check_user_is_active,
     validator_check_not_is_superuser,
@@ -37,8 +37,8 @@ router = APIRouter()
     '/',
     response_model=list[AdminReadSchema],
     dependencies=[Depends(current_superuser)],
-    summary=Summary.LIST_ADMIN_AUTH,
-    description=Description.LIST_ADMIN_AUTH,
+    summary=SummaryConstants.LIST_ADMIN_AUTH,
+    description=DescriptionConstants.LIST_ADMIN_AUTH,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_tabit_admin(
@@ -62,8 +62,8 @@ async def get_tabit_admin(
 @router.get(
     '/me',
     response_model=AdminReadSchema,
-    summary=Summary.GET_ME_ADMIN_AUTH,
-    description=Description.GET_ME_ADMIN_AUTH,
+    summary=SummaryConstants.GET_ME_ADMIN_AUTH,
+    description=DescriptionConstants.GET_ME_ADMIN_AUTH,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_me_tabit_admin(
@@ -89,8 +89,8 @@ async def get_me_tabit_admin(
 @router.patch(
     '/me',
     response_model=AdminReadSchema,
-    summary=Summary.PATCH_ME_ADMIN_AUTH,
-    description=Description.PATCH_ME_ADMIN_AUTH,
+    summary=SummaryConstants.PATCH_ME_ADMIN_AUTH,
+    description=DescriptionConstants.PATCH_ME_ADMIN_AUTH,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_me_tabit_admin(
@@ -119,8 +119,8 @@ async def update_me_tabit_admin(
     '/{user_id}',
     response_model=AdminReadSchema,
     dependencies=[Depends(current_superuser)],
-    summary=Summary.GET_BY_ID_ADMIN_AUTH,
-    description=Description.GET_BY_ID_ADMIN_AUTH,
+    summary=SummaryConstants.GET_BY_ID_ADMIN_AUTH,
+    description=DescriptionConstants.GET_BY_ID_ADMIN_AUTH,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_tabit_admin_by_id(
@@ -147,8 +147,8 @@ async def get_tabit_admin_by_id(
     '/{user_id}',
     response_model=AdminReadSchema,
     dependencies=[Depends(current_superuser)],
-    summary=Summary.PATCH_BY_ID_ADMIN_AUTH,
-    description=Description.PATCH_BY_ID_ADMIN_AUTH,
+    summary=SummaryConstants.PATCH_BY_ID_ADMIN_AUTH,
+    description=DescriptionConstants.PATCH_BY_ID_ADMIN_AUTH,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_tabit_admin_by_id(
@@ -183,8 +183,8 @@ async def update_tabit_admin_by_id(
     '/{user_id}',
     dependencies=[Depends(current_superuser)],
     status_code=HTTPStatus.NO_CONTENT,
-    summary=Summary.DELETE_BY_ID_ADMIN_AUTH,
-    description=Description.DELETE_BY_ID_ADMIN_AUTH,
+    summary=SummaryConstants.DELETE_BY_ID_ADMIN_AUTH,
+    description=DescriptionConstants.DELETE_BY_ID_ADMIN_AUTH,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def delete_tabit_admin_by_id(
@@ -228,8 +228,8 @@ router.include_router(  # форгот и резет пассворд
 @router.post(
     '/refresh-token',
     response_model=TokenReadSchemas,
-    summary=Summary.REFRESH_TOKEN_ADMIN_AUTH,
-    description=Description.REFRESH_TOKEN_ADMIN_AUTH,
+    summary=SummaryConstants.REFRESH_TOKEN_ADMIN_AUTH,
+    description=DescriptionConstants.REFRESH_TOKEN_ADMIN_AUTH,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def refresh_token_tabit_admin(
@@ -268,8 +268,8 @@ async def refresh_token_tabit_admin(
     response_model=AdminReadSchema,
     dependencies=[Depends(current_superuser)],
     status_code=HTTPStatus.CREATED,
-    summary=Summary.CREATE_ADMIN_AUTH,
-    description=Description.CREATE_ADMIN_AUTH,
+    summary=SummaryConstants.CREATE_ADMIN_AUTH,
+    description=DescriptionConstants.CREATE_ADMIN_AUTH,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def create_tabit_admin(
@@ -303,8 +303,8 @@ async def create_tabit_admin(
 @router.post(
     '/login',
     response_model=TokenReadSchemas,
-    summary=Summary.LOGIN_ADMIN_AUTH,
-    description=Description.LOGIN_ADMIN_AUTH,
+    summary=SummaryConstants.LOGIN_ADMIN_AUTH,
+    description=DescriptionConstants.LOGIN_ADMIN_AUTH,
 )
 async def login(
     credentials: OAuth2PasswordRequestForm = Depends(),
@@ -340,8 +340,8 @@ async def login(
 # TODO: Либо упростить (возвращает None, status_code=204), либо добавить логику в backend.
 @router.post(
     '/logout',
-    summary=Summary.LOGOUT_ADMIN_AUTH,
-    description=Description.LOGOUT_ADMIN_AUTH,
+    summary=SummaryConstants.LOGOUT_ADMIN_AUTH,
+    description=DescriptionConstants.LOGOUT_ADMIN_AUTH,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def logout(

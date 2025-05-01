@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config.logging import logger
 from src.crud import CRUDBaseWithAssociations
-from src.crud.constants import TextError
+from src.crud.constants import TextErrorConstants
 from src.models.association_models import AssociationUserProblem
 from src.models.company import Company
 from src.models.enum import ProblemStatus
@@ -62,7 +62,7 @@ class CRUDProblem(CRUDBaseWithAssociations):
             await session.refresh(problem_db)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
             raise error
         return problem_db
 
@@ -127,7 +127,7 @@ class CRUDProblem(CRUDBaseWithAssociations):
 
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
             raise error
 
         return problem_db
@@ -166,7 +166,7 @@ class CRUDProblem(CRUDBaseWithAssociations):
         else:
             raise HTTPException(
                 status_code=status_.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=TextError.NOT_IS_MEMBERS,
+                detail=TextErrorConstants.NOT_IS_MEMBERS,
             )
 
         try:
@@ -176,7 +176,8 @@ class CRUDProblem(CRUDBaseWithAssociations):
         except Exception as error:
             await session.rollback()
             logger.error(
-                f'{TextError.SERVER_UPDATE_LOG} {self.associations_model.__name__}: {error}'
+                f'{TextErrorConstants.UPDATE_SERVER_LOG} '
+                f'{self.associations_model.__name__}: {error}'
             )
             raise error
 

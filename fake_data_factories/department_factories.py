@@ -6,13 +6,13 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, Default, FakerConstants
 from fake_data_factories.company_factories import CompanyFactory
+from fake_data_factories.constants import ColorCPrintConstants, DefaultConstants, FakerConstants
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
 from src.models import Department
 
-available_departments_names = deepcopy(Default.DEPARTMENT_NAMES)
+available_departments_names = deepcopy(DefaultConstants.DEPARTMENT_NAMES)
 
 
 class DeparmentFactory(AsyncSQLAlchemyFactory):
@@ -59,7 +59,8 @@ async def create_company_department(count=FakerConstants.DEPARTMENT_COUNT, **kwa
         kwargs['company_id'] = company.id
     await DeparmentFactory.create_batch(count, **kwargs)
     cprint(
-        f'Создано {count} департаментов компании c id: {kwargs["company_id"]}', ColorCPrint.green
+        f'Создано {count} департаментов компании c id: {kwargs["company_id"]}',
+        ColorCPrintConstants.green,
     )
 
 

@@ -6,9 +6,9 @@ from typing import Optional
 import factory
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, FakerConstants
 from fake_data_factories.base_user_factory import BaseUserFactory
 from fake_data_factories.company_factories import CompanyFactory
+from fake_data_factories.constants import ColorCPrintConstants, FakerConstants
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
 from src.models import CompanyUser
@@ -70,7 +70,10 @@ async def create_company_users(
     company_users += await CompanyUserFactory.create_batch(
         count - FakerConstants.AMOUNT_OF_MODERATORS, **kwargs
     )
-    cprint(f'Создано {count} работников компании c id: {kwargs["company_id"]}', ColorCPrint.green)
+    cprint(
+        f'Создано {count} работников компании c id: {kwargs["company_id"]}',
+        ColorCPrintConstants.green,
+    )
     return company_users
 
 

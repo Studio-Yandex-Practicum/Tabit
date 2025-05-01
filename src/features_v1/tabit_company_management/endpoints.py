@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.database.db_depends import get_async_session
 from src.crud.crud_company import company_crud
-from src.features_v1.constants import Description, MiscConstants, Summary
+from src.features_v1.constants import DescriptionConstants, MiscConstants, SummaryConstants
 from src.features_v1.validators import (
     validate_company_slug,
     validate_license_exists,
@@ -31,8 +31,8 @@ router = APIRouter()
     '/',
     response_model=list[CompanyResponseSchema],
     dependencies=[Depends(current_admin_tabit)],
-    summary=Summary.LIST_COMPANY,
-    description=Description.LIST_COMPANY,
+    summary=SummaryConstants.LIST_COMPANY,
+    description=DescriptionConstants.LIST_COMPANY,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_companies(
@@ -63,8 +63,8 @@ async def get_companies(
     response_model=CompanyResponseSchema,
     dependencies=[Depends(current_admin_tabit)],
     status_code=HTTPStatus.CREATED,
-    summary=Summary.CREATE_COMPANY,
-    description=Description.CREATE_COMPANY,
+    summary=SummaryConstants.CREATE_COMPANY,
+    description=DescriptionConstants.CREATE_COMPANY,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def create_company(
@@ -99,8 +99,8 @@ async def create_company(
     '/{company_slug}',
     response_model=CompanyResponseSchema,
     dependencies=[Depends(current_admin_tabit)],
-    summary=Summary.UPDATE_COMPANY,
-    description=Description.UPDATE_COMPANY,
+    summary=SummaryConstants.UPDATE_COMPANY,
+    description=DescriptionConstants.UPDATE_COMPANY,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_company(
@@ -138,8 +138,8 @@ async def update_company(
     '/{company_slug}',
     dependencies=[Depends(current_admin_tabit)],
     status_code=HTTPStatus.NO_CONTENT,
-    summary=Summary.DELETE_COMPANY,
-    description=Description.DELETE_COMPANY,
+    summary=SummaryConstants.DELETE_COMPANY,
+    description=DescriptionConstants.DELETE_COMPANY,
     openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def delete_company(
