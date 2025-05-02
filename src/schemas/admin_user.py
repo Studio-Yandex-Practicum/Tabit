@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi_users.schemas import CreateUpdateDictModel
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from src.schemas.constants import Length, Title
+from src.schemas.constants import LengthConstants, TitleConstants
 
 
 class BaseAdminSchema:
@@ -13,15 +13,15 @@ class BaseAdminSchema:
 
     patronymic: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.PATRONYMIC_MODERATOR,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.PATRONYMIC_MODERATOR,
     )
     phone_number: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.PHONE_NUMBER_MODERATOR,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.PHONE_NUMBER_MODERATOR,
     )
 
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
@@ -47,24 +47,24 @@ class AdminCreateSchema(CreateUpdateDictModel, BaseAdminSchema):
 
     email: EmailStr = Field(
         ...,
-        title=Title.EMAIL_USER,
+        title=TitleConstants.EMAIL_USER,
     )
     password: str = Field(
         ...,
-        title=Title.PASSWORD_USER,
+        title=TitleConstants.PASSWORD_USER,
     )
 
     name: str = Field(
         ...,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.NAME_MODERATOR,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.NAME_MODERATOR,
     )
     surname: str = Field(
         ...,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.SURNAME_MODERATOR,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.SURNAME_MODERATOR,
     )
 
 
@@ -73,15 +73,15 @@ class AdminUpdateSchema(BaseAdminSchema, BaseModel):
 
     name: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.NAME_MODERATOR,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.NAME_MODERATOR,
     )
     surname: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.SURNAME_MODERATOR,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.SURNAME_MODERATOR,
     )
 
 
@@ -90,5 +90,5 @@ class AdminCreateFirstSchema(AdminCreateSchema):
 
     is_superuser: bool = Field(
         True,
-        title=Title.IS_SUPERUSER_ADMIN,
+        title=TitleConstants.IS_SUPERUSER_ADMIN,
     )

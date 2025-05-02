@@ -6,7 +6,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from config.constants.tests import Directory, Images, MiscConstants, Url
+from tests.constants import DirectoryConstants, ImagesConstants, MiscConstants, UrlConstants
 
 
 def generate_company_data(all_fields=False, license_id=None):
@@ -22,7 +22,7 @@ def generate_company_data(all_fields=False, license_id=None):
         data.update(
             {
                 'description': f'Описание компании {random_string(15)}',
-                'logo': Images.BASE64_PNG,
+                'logo': ImagesConstants.BASE64_PNG,
                 'license_id': license_id,
                 'start_license_time': '2025-02-15T07:57:45.058Z',
                 'slug': f'company-{random_string(8).lower()}',
@@ -34,7 +34,7 @@ def generate_company_data(all_fields=False, license_id=None):
 
 def get_path_logo(slug: str, expansion: str = 'png') -> str:
     """Генерирует путь логотипа по переданному слагу."""
-    return f'{Directory.MEDIA}/{Directory.LOGO}/{slug}.{expansion}'
+    return f'{DirectoryConstants.MEDIA}/{DirectoryConstants.LOGO}/{slug}.{expansion}'
 
 
 class TestCreateCompany:
@@ -49,7 +49,7 @@ class TestCreateCompany:
         payload = generate_company_data()
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -77,7 +77,7 @@ class TestCreateCompany:
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -103,14 +103,14 @@ class TestCreateCompany:
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
         assert response.status_code == status.HTTP_201_CREATED, response.text
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -135,7 +135,7 @@ class TestCreateCompany:
         del payload['name']
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -162,7 +162,7 @@ class TestCreateCompany:
         payload['name'] = '1'
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -190,7 +190,7 @@ class TestCreateCompany:
         payload['name'] = 's' * 256
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -215,7 +215,7 @@ class TestCreateCompany:
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
         )
 
@@ -236,7 +236,7 @@ class TestCreateCompany:
         invalid_token = {'Authorization': 'Bearer invalid_token_123'}
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=invalid_token,
         )
@@ -259,7 +259,7 @@ class TestCreateCompany:
         payload['description'] = 1
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -285,7 +285,7 @@ class TestCreateCompany:
         payload['logo'] = ['invalid_logo_url']
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -311,7 +311,7 @@ class TestCreateCompany:
         payload['start_license_time'] = 'invalid_date'
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -340,7 +340,7 @@ class TestCreateCompany:
         payload['description'] = 'A'
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -369,7 +369,7 @@ class TestCreateCompany:
         payload['description'] = 'A' * 256
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -397,7 +397,7 @@ class TestCreateCompany:
 
         payload_1 = {'name': company_name}
         response_1 = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload_1,
             headers=jwt_token,
         )
@@ -406,7 +406,7 @@ class TestCreateCompany:
 
         payload_2 = {'name': company_name}
         response_2 = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload_2,
             headers=jwt_token,
         )
@@ -414,14 +414,14 @@ class TestCreateCompany:
         second_company_slug = response_2.json()['slug']
 
         assert first_company_slug != second_company_slug, 'Слаг должен быть уникальным'
-        assert second_company_slug.startswith(
-            first_company_slug.split('-')[0]
-        ), 'Слаг должен базироваться на названии'
+        assert second_company_slug.startswith(first_company_slug.split('-')[0]), (
+            'Слаг должен базироваться на названии'
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'invalid_value, message',
-        Images.INVALID,
+        ImagesConstants.INVALID,
     )
     async def test_create_company_invalid_logo_url(
         self,
@@ -442,7 +442,7 @@ class TestCreateCompany:
         payload['logo'] = invalid_value
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -451,9 +451,9 @@ class TestCreateCompany:
         error_detail = response.json()
         assert 'detail' in error_detail, response.text
         assert message == error_detail['detail']
-        assert message == (
-            detail := error_detail['detail']
-        ), f'Ожидалось:\n{message}\nПолучили\n{detail}'
+        assert message == (detail := error_detail['detail']), (
+            f'Ожидалось:\n{message}\nПолучили\n{detail}'
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -485,7 +485,7 @@ class TestCreateCompany:
         payload[field] = invalid_value
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -511,7 +511,7 @@ class TestCreateCompany:
         payload = generate_company_data()
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -535,7 +535,7 @@ class TestCreateCompany:
         del payload['start_license_time']
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -565,7 +565,7 @@ class TestCreateCompany:
         del payload['license_id']
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
@@ -599,13 +599,13 @@ class TestCreateCompany:
         jwt_token = superuser_token
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=jwt_token,
         )
-        assert (
-            response.status_code == 400
-        ), 'Статус-код должен быть 400 при попытки создать компанию с несуществующей license'
+        assert response.status_code == 400, (
+            'Статус-код должен быть 400 при попытки создать компанию с несуществующей license'
+        )
         assert response.json()['detail'] == f'Лицензия с id {payload["license_id"]} не найдена.'
 
     @pytest.mark.asyncio
@@ -622,13 +622,13 @@ class TestCreateCompany:
         payload = generate_company_data(all_fields=True, license_id=new_license.id)
 
         response = await client.post(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             json=payload,
             headers=superuser_token,
         )
-        assert (
-            response.status_code == status.HTTP_201_CREATED
-        ), 'Статус-код должен быть 201 при попытки создать компанию с существующей license'
+        assert response.status_code == status.HTTP_201_CREATED, (
+            'Статус-код должен быть 201 при попытки создать компанию с существующей license'
+        )
         data = response.json()
         assert data['license_id'] == payload['license_id']
 
@@ -653,7 +653,7 @@ class TestGetCompany:
         await company_for_test({'name': 'Компания 2'})
 
         response = await client.get(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             headers=superuser_token,
         )
 
@@ -680,9 +680,9 @@ class TestGetCompany:
         }
 
         for company in companies:
-            assert expected_fields.issubset(
-                company.keys()
-            ), f'Компания должна содержать поля: {expected_fields}'
+            assert expected_fields.issubset(company.keys()), (
+                f'Компания должна содержать поля: {expected_fields}'
+            )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -716,7 +716,7 @@ class TestGetCompany:
         (await company_for_test({'name': 'Gamma'}),)
 
         response = await client.get(
-            f'{Url.COMPANIES_ENDPOINT}?ordering={ordering}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}?ordering={ordering}',
             headers=superuser_token,
         )
 
@@ -739,7 +739,7 @@ class TestGetCompany:
         """
 
         response = await client.get(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
         )
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED, response.text
@@ -757,7 +757,7 @@ class TestGetCompany:
         invalid_token = {'Authorization': 'Bearer invalid_token_123'}
 
         response = await client.get(
-            Url.COMPANIES_ENDPOINT,
+            UrlConstants.COMPANIES_ENDPOINT,
             headers=invalid_token,
         )
 
@@ -769,7 +769,7 @@ class TestGetCompany:
         'update_data, expected_field, expected_value',
         [
             ({'description': 'Новое описание'}, 'description', 'Новое описание'),
-            ({'logo': Images.BASE64_JPG}, 'logo', ''),
+            ({'logo': ImagesConstants.BASE64_JPG}, 'logo', ''),
             ({'name': 'Новое имя'}, 'name', 'Новое имя'),
             ({'license_id': 1, 'start_license_time': datetime.now().isoformat()}, 'license_id', 1),
         ],
@@ -793,7 +793,7 @@ class TestGetCompany:
         company = await company_for_test()
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -825,14 +825,14 @@ class TestGetCompany:
 
         update_data = {
             'description': 'Обновленное описание',
-            'logo': Images.BASE64_JPG,
+            'logo': ImagesConstants.BASE64_JPG,
             'name': 'Обновленное имя',
             'license_id': new_license.id,
             'start_license_time': datetime.now(timezone.utc).isoformat(),
         }
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -843,17 +843,17 @@ class TestGetCompany:
         for key, value in update_data.items():
             if 'time' in key and value:
                 actual_time = datetime.fromisoformat(data[key]).isoformat()
-                assert (
-                    actual_time == value
-                ), f'Ожидалось значение {value} в поле {key}, но получено {actual_time}'
+                assert actual_time == value, (
+                    f'Ожидалось значение {value} в поле {key}, но получено {actual_time}'
+                )
             elif 'logo' == key:
-                assert data[key] == get_path_logo(
-                    company.slug, 'jpg'
-                ), f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                assert data[key] == get_path_logo(company.slug, 'jpg'), (
+                    f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                )
             else:
-                assert (
-                    data[key] == value
-                ), f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                assert data[key] == value, (
+                    f'Ожидалось значение {value} в поле {key}, но получено {data[key]}'
+                )
 
     @pytest.mark.asyncio
     async def test_patch_company_name_too_short(
@@ -870,7 +870,7 @@ class TestGetCompany:
         update_data = {'name': 'A'}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -899,7 +899,7 @@ class TestGetCompany:
         update_data = {'name': 's' * 256}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -928,7 +928,7 @@ class TestGetCompany:
         update_data = {'name': 'Новое имя'}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
         )
 
@@ -950,7 +950,7 @@ class TestGetCompany:
         invalid_token = {'Authorization': 'Bearer invalid_token_123'}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=invalid_token,
         )
@@ -971,7 +971,7 @@ class TestPatchCompanyValidation:
         update_data = {'description': 1}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -987,7 +987,7 @@ class TestPatchCompanyValidation:
         update_data = {'logo': ['invalid_logo_url']}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1003,7 +1003,7 @@ class TestPatchCompanyValidation:
         update_data = {'license_id': 'invalid_id'}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1019,7 +1019,7 @@ class TestPatchCompanyValidation:
         update_data = {'start_license_time': 'invalid_date'}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1035,7 +1035,7 @@ class TestPatchCompanyValidation:
         update_data = {'description': 'A'}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1051,7 +1051,7 @@ class TestPatchCompanyValidation:
         update_data = {'description': 'A' * 256}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1061,7 +1061,7 @@ class TestPatchCompanyValidation:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'invalid_value, message',
-        Images.INVALID,
+        ImagesConstants.INVALID,
     )
     async def test_patch_company_invalid_logo_url(
         self,
@@ -1081,7 +1081,7 @@ class TestPatchCompanyValidation:
         update_data = {'logo': invalid_value}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1089,9 +1089,9 @@ class TestPatchCompanyValidation:
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
         error_detail = response.json()
         assert 'detail' in error_detail, response.text
-        assert message == (
-            detail := error_detail['detail']
-        ), f'Ожидалось:\n{message}\nПолучили\n{detail}'
+        assert message == (detail := error_detail['detail']), (
+            f'Ожидалось:\n{message}\nПолучили\n{detail}'
+        )
 
     @pytest.mark.asyncio
     async def test_patch_company_field_with_leading_or_trailing_spaces(
@@ -1102,7 +1102,7 @@ class TestPatchCompanyValidation:
         update_data = {'name': ' Company'}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1118,7 +1118,7 @@ class TestPatchCompanyValidation:
         update_data = {'license_id': 99999}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1134,7 +1134,7 @@ class TestPatchCompanyValidation:
         update_data = {'license_id': 1}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1150,7 +1150,7 @@ class TestPatchCompanyValidation:
         update_data = {'start_license_time': '2025-02-15T07:57:45.058Z'}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1174,7 +1174,7 @@ class TestPatchCompanyValidation:
         }
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1182,9 +1182,9 @@ class TestPatchCompanyValidation:
         assert response.status_code == status.HTTP_200_OK, response.text
         data = response.json()
 
-        assert (
-            data['end_license_time'] is None
-        ), f'Ожидалось null в поле end_license_time, но получено {data["end_license_time"]}'
+        assert data['end_license_time'] is None, (
+            f'Ожидалось null в поле end_license_time, но получено {data["end_license_time"]}'
+        )
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize('license_term_days', [30, 60, 365])
@@ -1213,7 +1213,7 @@ class TestPatchCompanyValidation:
         update_data = {'license_id': new_license.id, 'start_license_time': start_time}
 
         response = await client.patch(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             json=update_data,
             headers=superuser_token,
         )
@@ -1244,7 +1244,7 @@ class TestDeleteCompany:
         company = await company_for_test()
 
         response = await client.delete(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             headers=superuser_token,
             follow_redirects=False,
         )
@@ -1262,7 +1262,7 @@ class TestDeleteCompany:
 
         nonexistent_slug = 'nonexistent-slug'
         response = await client.delete(
-            f'{Url.COMPANIES_ENDPOINT}{nonexistent_slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{nonexistent_slug}',
             headers=superuser_token,
         )
 
@@ -1285,14 +1285,14 @@ class TestDeleteCompany:
 
         # Первое удаление - успешно
         response = await client.delete(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             headers=superuser_token,
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, response.text
 
         # Повторное удаление - должно вернуть status.HTTP_404_NOT_FOUND
         response = await client.delete(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             headers=superuser_token,
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
@@ -1311,7 +1311,7 @@ class TestDeleteCompany:
         company = await company_for_test()
 
         response = await client.delete(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
         )
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED, response.text
@@ -1330,7 +1330,7 @@ class TestDeleteCompany:
         invalid_token = {'Authorization': 'Bearer invalid_token_123'}
 
         response = await client.delete(
-            f'{Url.COMPANIES_ENDPOINT}{company.slug}',
+            f'{UrlConstants.COMPANIES_ENDPOINT}{company.slug}',
             headers=invalid_token,
         )
 

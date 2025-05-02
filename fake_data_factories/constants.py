@@ -9,16 +9,14 @@
 - Различные системные константы.
 
 Структура модуля:
-- ColorCPrint: цвета для форматированного вывода в консоль.
-- Default: параметры по умолчанию для системных настроек.
-- Faker: настройки генератора фейковых данных.
-- Length: ограничения длины.
+- ColorCPrintConstants: цвета для форматированного вывода в консоль.
+- DefaultConstants: параметры по умолчанию для системных настроек.
+- FakerConstants: настройки генератора фейковых данных.
+- LengthConstants: ограничения длины.
 - MiscConstants: различные технические константы.
 
 Импортируемые базовые классы:
-- ConstantsBase.ColorCPrint: базовые цвета по умолчанию.
 - ConstantsBase.Default: базовые значения по умолчанию.
-- ConstantsBase.Faker: базовые настройки фейковых данных.
 - ConstantsBase.Length: базовые ограничения длины.
 - ConstantsBase.MiscConstants: базовые технические константы.
 
@@ -30,24 +28,22 @@
 - Значения подобраны для реалистичной генерации тестовых данных.
 
 Пример использования:
-- from config.constants.fake_data_factories import Default, Faker
-- dept_name = random.choice(Default.DEPARTMENT_NAMES)
-- user_count = Faker.USER_COUNT
+- from fake_data_factories.constants import DefaultConstants, FakerConstants
+- dept_name = random.choice(DefaultConstants.DEPARTMENT_NAMES)
+- user_count = FakerConstants.USER_COUNT
 """
 
 from dataclasses import dataclass
 
-from config.constants.core import ConstantsBase
+from src.core.constants import DefaultBaseConstants, LengthBaseConstants, MiscBaseConstants
 
 
 @dataclass(frozen=True)
-class ColorCPrint(ConstantsBase.ColorCPrint):
+class ColorCPrintConstants:
     """
     Класс констант - цветов для вывода текста в консоли с помощью cprint.
 
     Класс реализован как неизменяемый (immutable) контейнер цветовых констант.
-
-    Так же класс наследует значения из ConstantsBase.ColorCPrint.
 
     Атрибуты:
     - black (str): черный
@@ -86,11 +82,11 @@ class ColorCPrint(ConstantsBase.ColorCPrint):
     yellow: str = 'yellow'
 
 
-class Default(ConstantsBase.Default):
+class DefaultConstants(DefaultBaseConstants):
     """
     Класс констант значений по умолчанию, используемых в пакете `fake_data_factories`.
 
-    Так же класс наследует значения из ConstantsBase.Default.
+    Так же класс наследует значения из DefaultBaseConstants.
 
     Атрибуты:
     - DEPARTMENT_NAMES (list): список названий отделов по умолчанию
@@ -144,12 +140,10 @@ class Default(ConstantsBase.Default):
     ]
 
 
-class Faker(ConstantsBase.Faker):
+class FakerConstants:
     """
     Класс констант - основных параметров генерации тестовых данных с помощью Faker,
     используемых в пакете `fake_data_factories`.
-
-    Так же класс наследует значения из ConstantsBase.Faker.
 
     Атрибуты:
     - AMOUNT_OF_MODERATORS (int): количество модераторов на компанию
@@ -182,12 +176,12 @@ class Faker(ConstantsBase.Faker):
     VOTING_FEEDS_COUNT: int = 5
 
 
-class Length(ConstantsBase.Length):
+class LengthConstants(LengthBaseConstants):
     """
     Класс констант, определяющих ограничения длины для различных полей,
     используемых в пакете `fake_data_factories`.
 
-    Так же класс наследует значения из ConstantsBase.Length.
+    Так же класс наследует значения из LengthBaseConstants.
 
     Атрибуты:
     - LICENSE_MAX_ADMINS (int): максимальное количество администраторов
@@ -203,13 +197,13 @@ class Length(ConstantsBase.Length):
 
 
 @dataclass(frozen=True)
-class MiscConstants(ConstantsBase.MiscConstants):
+class MiscConstants(MiscBaseConstants):
     """
     Класс разных общесистемных констант, используемых в пакете `fake_data_factories`.
 
     Класс реализован, как неизменяемый.
 
-    Так же класс наследует значения из ConstantsBase.MiscConstants.
+    Так же класс наследует значения из MiscBaseConstants.
 
     Атрибуты:
     - COMPANY_USER_CREATED_TEXT (str): шаблон сообщения о создании пользователя компании.

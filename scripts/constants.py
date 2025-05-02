@@ -8,8 +8,8 @@
 
 Классы:
 - MigrationConstants: конфигурация путей и регулярных выражений для миграций.
-- ScriptOptions: флаги командной строки для управления приложением.
-- TextScripts: текстовые сообщения для CLI-интерфейса.
+- ScriptOptionsConstants: флаги командной строки для управления приложением.
+- TextScriptsConstants: текстовые сообщения для CLI-интерфейса.
 
 Примечание:
 - Все пути вычисляются относительно расположения этого файла.
@@ -37,7 +37,7 @@ class MigrationConstants:
     MIGRATION_RE_ID: Pattern[str] = compile(r'^(\d+)_')
 
 
-class TextScripts:
+class TextScriptsConstants:
     """
     Класс констант - текстовых переменных для файла scripts.py.
 

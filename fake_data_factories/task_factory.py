@@ -6,8 +6,14 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, Default, Faker, Length, MiscConstants
 from fake_data_factories.association_user_task_factory import create_user_task_associations
+from fake_data_factories.constants import (
+    ColorCPrintConstants,
+    DefaultConstants,
+    FakerConstants,
+    LengthConstants,
+    MiscConstants,
+)
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
@@ -28,8 +34,10 @@ class TaskFactory(AsyncSQLAlchemyFactory):
         transfer_counter: Счетчик переносов даты решения задач.
     """
 
-    name: factory.LazyFunction = factory.LazyFunction(lambda: choice(Default.TASK_NAMES))
-    description: factory.Faker = factory.Faker('text', max_nb_chars=Length.TASK_DESCRIPTION)
+    name: factory.LazyFunction = factory.LazyFunction(lambda: choice(DefaultConstants.TASK_NAMES))
+    description: factory.Faker = factory.Faker(
+        'text', max_nb_chars=LengthConstants.TASK_DESCRIPTION
+    )
     date_completion: factory.Faker = factory.Faker('future_date')
     owner_id: UUID
     problem_id: str
@@ -42,7 +50,7 @@ class TaskFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_tasks(count: int = Faker.TASK_COUNT, **kwargs) -> None:
+async def create_tasks(count: int = FakerConstants.TASK_COUNT, **kwargs) -> None:
     """
     Функция для для пакетного создания задач.
 
@@ -59,7 +67,7 @@ async def create_tasks(count: int = Faker.TASK_COUNT, **kwargs) -> None:
     cprint(
         f'Создано {count} задач в проблеме c id: {kwargs["problem_id"]} '
         f'от пользователя с id: {kwargs["owner_id"]}',
-        ColorCPrint.green,  # type: ignore
+        ColorCPrintConstants.green,  # type: ignore
     )
     await create_user_task_associations(
         user_id=kwargs['owner_id'], task_ids=[task.id for task in tasks]

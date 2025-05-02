@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from src.crud import CRUDBase
-from src.crud.constants import Default, Directory
+from src.crud.constants import DefaultConstants, DirectoryConstants
 from src.models import Company, LicenseType
 from src.schemas import CompanyCreateSchema, CompanyUpdateSchema
 from src.utils.base64_image import base64image
@@ -98,7 +98,7 @@ class CRUDCompany(CRUDBase):
         self,
         session: AsyncSession,
         company_in: CompanyCreateSchema,
-        auto_commit: bool = Default.AUTO_COMMIT,
+        auto_commit: bool = DefaultConstants.AUTO_COMMIT,
     ) -> Company:
         """
         Создаёт запись в таблице "Компания".
@@ -107,7 +107,9 @@ class CRUDCompany(CRUDBase):
         и в поле logo сохранит путь до него.
         """
         if company_in.logo:
-            company_in.logo = await base64image(company_in.logo, company_in.slug, Directory.LOGO)
+            company_in.logo = await base64image(
+                company_in.logo, company_in.slug, DirectoryConstants.LOGO
+            )
         return await super().create(session, company_in, auto_commit)
 
     async def update(
@@ -115,7 +117,7 @@ class CRUDCompany(CRUDBase):
         session: AsyncSession,
         company_db: Company,
         company_in: CompanyUpdateSchema,
-        auto_commit: bool = Default.AUTO_COMMIT,
+        auto_commit: bool = DefaultConstants.AUTO_COMMIT,
     ) -> Company:
         """
         Изменит запись в таблице "Компания".
@@ -124,7 +126,9 @@ class CRUDCompany(CRUDBase):
         и в поле logo сохранит путь до него.
         """
         if company_in.logo:
-            company_in.logo = await base64image(company_in.logo, company_db.slug, Directory.LOGO)
+            company_in.logo = await base64image(
+                company_in.logo, company_db.slug, DirectoryConstants.LOGO
+            )
         return await super().update(session, company_db, company_in, auto_commit)
 
 

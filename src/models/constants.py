@@ -5,17 +5,17 @@
 Организован по принципу тематической группировки констант в классах-контейнерах.
 
 Структура модуля:
-- Default: параметры по умолчанию для системных настроек.
-- Length: ограничения длины.
+- DefaultConstants: параметры по умолчанию для системных настроек.
+- LengthConstants: ограничения длины.
 - MiscConstants: различные технические константы.
 
-Все классы наследуют соответствующие базовые классы из config.constants.src,
+Все классы наследуют соответствующие базовые классы из src.core.constants,
 что обеспечивает согласованность констант во всем проекте.
 
 Импортируемые базовые классы:
-- DefaultBase: базовые значения по умолчанию.
-- LengthBase: базовые ограничения длины.
-- MiscConstantsBase: общие технические константы.
+- DefaultBaseConstants: базовые значения по умолчанию.
+- LengthBaseConstants: базовые ограничения длины.
+- MiscBaseConstants: базовые общие технические константы.
 
 Важные особенности:
 - Все классы наследуют соответствующие базовые классы констант.
@@ -25,32 +25,32 @@
 - Наследуемые значения могут быть переопределены.
 
 Примеры использования:
-- from config.constants import Default, Length
-- license_days = Default.NUMBER_DAY_LICENSE
-- max_dept_name_len = Length.MAX_NAME_DEPARTMENT
+- from src.models.constants import DefaultConstants, LengthConstants
+- license_days = DefaultConstants.LICENSE_TERM
+- max_dept_name_len = LengthConstants.MAX_NAME_DEPARTMENT
 """
 
-from config.constants.src import DefaultBase, LengthBase, MiscConstantsBase
+from src.core.constants import DefaultBaseConstants, LengthBaseConstants, MiscBaseConstants
 
 
-class Default(DefaultBase):
+class DefaultConstants(DefaultBaseConstants):
     """
     Класс констант значений по умолчанию для пагинации и лимитов.
 
-    Наследует все константы из DefaultBase.
+    Наследует все константы из DefaultBaseConstants.
 
     Атрибуты:
-    - NUMBER_DAY_LICENSE (int): Количество дней действия лицензии по умолчанию.
+    - LICENSE_TERM (int): Количество дней действия лицензии по умолчанию.
     """
 
-    NUMBER_DAY_LICENSE: int = 1
+    LICENSE_TERM: int = 1
 
 
-class Length(LengthBase):
+class LengthConstants(LengthBaseConstants):
     """
     Класс для хранения констант, связанных с допустимой длиной полей.
 
-    Наследует все константы из LengthBase.
+    Наследует все константы из LengthBaseConstants.
 
     Атрибуты:
     - MAX_NAME_DEPARTMENT (int): Максимальная длина названия отдела.
@@ -63,13 +63,13 @@ class Length(LengthBase):
     MAX_NAME_PROBLEM: int = 255
 
 
-class MiscConstants(MiscConstantsBase):
+class MiscConstants(MiscBaseConstants):
     """
     Различные константы приложения.
 
     Содержит константы, которые не относятся к другим конкретным категориям.
 
-    Наследует все константы из MiscConstantsBase.
+    Наследует все константы из MiscBaseConstants.
 
     Примеры:
     - BASE_DIR (Path): Корневая директория проекта.

@@ -14,7 +14,6 @@ from slugify import slugify
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from config.constants.tests import AuthData, Test_Database_URL, Url
 from src.core.database.db_depends import get_async_session
 from src.main import app_v1
 from src.models import (
@@ -34,6 +33,7 @@ from src.models import (
     ProblemType,
     TabitAdminUser,
 )
+from tests.constants import AuthDataConstants, Test_Database_URLConstants, UrlConstants
 
 
 def pytest_collection_modifyitems(items):
@@ -66,11 +66,11 @@ def setup_test_db():
             check=True,
         )
         wait_for_postgres(
-            host=Test_Database_URL.HOST,
-            port=Test_Database_URL.PORT,
-            user=Test_Database_URL.USER,
-            password=Test_Database_URL.PASSWORD,
-            dbname=Test_Database_URL.DBNAME,
+            host=Test_Database_URLConstants.HOST,
+            port=Test_Database_URLConstants.PORT,
+            user=Test_Database_URLConstants.USER,
+            password=Test_Database_URLConstants.PASSWORD,
+            dbname=Test_Database_URLConstants.DBNAME,
         )
         yield
     finally:
@@ -130,8 +130,10 @@ def test_db():
     """
 
     database_url = (
-        f'postgresql+asyncpg://{Test_Database_URL.USER}:{Test_Database_URL.PASSWORD}@'
-        f'{Test_Database_URL.HOST}:{Test_Database_URL.PORT}/{Test_Database_URL.DBNAME}'
+        f'postgresql+asyncpg://{Test_Database_URLConstants.USER}:'
+        f'{Test_Database_URLConstants.PASSWORD}@'
+        f'{Test_Database_URLConstants.HOST}:{Test_Database_URLConstants.PORT}/'
+        f'{Test_Database_URLConstants.DBNAME}'
     )
 
     engine = create_async_engine(database_url, echo=False, poolclass=NullPool)
@@ -331,7 +333,7 @@ async def administrator_tabit(async_session):
             'name': 'Ип',
             'surname': 'Ман',
             'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
-            'hashed_password': PasswordHelper().hash(AuthData.GOOD_PASSWORD),
+            'hashed_password': PasswordHelper().hash(AuthDataConstants.GOOD_PASSWORD),
             'is_active': True,
             'is_superuser': False,
             'is_verified': False,
@@ -401,7 +403,7 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
             'name': f'Брюс {uuid.uuid4().hex[:8]}',
             'surname': f'Ли {uuid.uuid4().hex[:8]}',
             'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
-            'hashed_password': PasswordHelper().hash(AuthData.GOOD_PASSWORD),
+            'hashed_password': PasswordHelper().hash(AuthDataConstants.GOOD_PASSWORD),
             'is_active': True,
             'is_superuser': False,
             'is_verified': False,
@@ -481,7 +483,7 @@ async def employee(employee_of_company):
 async def get_token(client: AsyncClient, user, url: str, refresh: bool = False) -> dict[str, str]:
     """Функция для получения тела заголовка с Authorization переданного пользователя."""
 
-    login_payload = {'username': user.email, 'password': AuthData.GOOD_PASSWORD}
+    login_payload = {'username': user.email, 'password': AuthDataConstants.GOOD_PASSWORD}
     response = await client.post(url, data=login_payload)
     data = response.json()
     token = data['refresh_token'] if refresh else data['access_token']
@@ -493,7 +495,7 @@ async def superuser_token(client: AsyncClient, superuser):
     """
     Фикстура для получения заголовков авторизации суперпользователя сервиса Tabit c access-token.
     """
-    return await get_token(client, superuser, Url.ADMIN_LOGIN)
+    return await get_token(client, superuser, UrlConstants.ADMIN_LOGIN)
 
 
 @pytest_asyncio.fixture
@@ -501,7 +503,7 @@ async def admin_token(client: AsyncClient, admin):
     """
     Фикстура для получения заголовков авторизации администратора сервиса Tabit c access-token.
     """
-    return await get_token(client, admin, Url.ADMIN_LOGIN)
+    return await get_token(client, admin, UrlConstants.ADMIN_LOGIN)
 
 
 @pytest_asyncio.fixture
@@ -525,7 +527,7 @@ async def get_token_for_user(client: AsyncClient):
 
     async def _get_token_for_user(user, refresh: bool = False):
         """Функция-обёртка для заголовков авторизации пользователя от тестовой компании."""
-        return await get_token(client, user, Url.USER_LOGIN, refresh)
+        return await get_token(client, user, UrlConstants.USER_LOGIN, refresh)
 
     return _get_token_for_user
 
@@ -551,7 +553,7 @@ async def superuser_refresh_token(client: AsyncClient, superuser):
     """
     Фикстура для получения заголовков авторизации суперпользователя сервиса Tabit c refresh-token.
     """
-    return await get_token(client, superuser, Url.ADMIN_LOGIN, refresh=True)
+    return await get_token(client, superuser, UrlConstants.ADMIN_LOGIN, refresh=True)
 
 
 @pytest_asyncio.fixture
@@ -559,7 +561,7 @@ async def admin_refresh_token(client: AsyncClient, admin):
     """
     Фикстура для получения заголовков авторизации администратора сервиса Tabit c refresh-token.
     """
-    return await get_token(client, admin, Url.ADMIN_LOGIN, refresh=True)
+    return await get_token(client, admin, UrlConstants.ADMIN_LOGIN, refresh=True)
 
 
 @pytest_asyncio.fixture

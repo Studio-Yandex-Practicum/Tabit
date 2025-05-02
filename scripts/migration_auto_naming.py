@@ -13,7 +13,7 @@
         03_тестовая_миграция.py.
 """
 
-from config.constants.scripts import MigrationConstants
+from scripts.constants import MigrationConstants
 
 if not MigrationConstants.MIGRATIONS_DIR.exists():
     MigrationConstants.MIGRATIONS_DIR.mkdir(parents=True, exist_ok=True)

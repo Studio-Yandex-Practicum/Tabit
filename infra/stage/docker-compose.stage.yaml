@@ -16,6 +16,7 @@ services:
     env_file:
       - /home/${SERVER_USERNAME}/tabit/infra/stage/.env
     environment:
+      - DB_HOST=${DB_CONTAINER_NAME}
       - POETRY_VIRTUALENVS_IN_PROJECT=true
       - PATH="/app/.venv/bin:$PATH"
     ports:

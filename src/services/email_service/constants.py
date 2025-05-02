@@ -6,17 +6,17 @@ email-сообщений в приложении.
 Организован по принципу тематической группировки констант в логические классы.
 
 Структура модуля:
-- Length: ограничения длины.
-- TextError: стандартные тексты ошибок.
-- Title: заголовки полей и элементов интерфейса.
+- LengthConstants: ограничения длины.
+- TextErrorConstants: стандартные тексты ошибок.
+- TitleConstants: заголовки полей и элементов интерфейса.
 
-Все классы наследуют соответствующие базовые классы из config.constants.src,
+Все классы наследуют соответствующие базовые классы из cosrc.core.constants,
 что обеспечивает согласованность констант во всем проекте.
 
 Импортируемые базовые классы:
-- LengthBase: базовые ограничения длины.
-- TextErrorBase: стандартные тексты ошибок.
-- TitleBase: базовые заголовки элементов.
+- LengthBaseConstants: базовые ограничения длины.
+- TextErrorBaseConstants: стандартные тексты ошибок.
+- TitleBaseConstants: базовые заголовки элементов.
 
 Важные особенности:
 - Все классы наследуют соответствующие базовые классы констант.
@@ -26,20 +26,20 @@ email-сообщений в приложении.
 - Наследуемые значения могут быть переопределены.
 
 Примеры использования:
-- from config.constants.email import Length, TextError, Title
-- if len(email) > Length.MAX_EMAIL:
-- raise ValueError(TextError.CAN_NOT_EMPTY_STRING)
-- email_field_label = Title.EMAIL_NAME
+- from src.services.constants import LengthConstants, TextErrorConstants, TitleConstants
+- if len(email) > LengthConstants.MAX_EMAIL:
+- raise ValueError(TextErrorConstants.CAN_NOT_EMPTY_STRING)
+- email_field_label = TitleConstants.EMAIL_NAME
 """
 
-from config.constants.src import LengthBase, TextErrorBase, TitleBase
+from src.core.constants import LengthBaseConstants, TextErrorBaseConstants, TitleBaseConstants
 
 
-class Length(LengthBase):
+class LengthConstants(LengthBaseConstants):
     """
     Класс для хранения констант, связанных с допустимой длиной полей.
 
-    Наследует все константы из LengthBase.
+    Наследует все константы из LengthBaseConstants.
 
     Атрибуты:
     - MAX_EMAIL (int): Максимально допустимая длина email-адреса.
@@ -48,11 +48,11 @@ class Length(LengthBase):
     MAX_EMAIL: int = 100
 
 
-class TextError(TextErrorBase):
+class TextErrorConstants(TextErrorBaseConstants):
     """
-    Класс для хранения стандартных текстов ошибок приложения.
+    Класс констант для хранения стандартных текстов ошибок приложения.
 
-    Наследует все константы из TextErrorBase.
+    Наследует все константы из TextErrorBaseConstants.
 
     Атрибуты:
     - CAN_NOT_EMPTY_STRING (str): Сообщение об ошибке при пустом поле ввода.
@@ -61,11 +61,11 @@ class TextError(TextErrorBase):
     CAN_NOT_EMPTY_STRING: str = 'Значение не может быть пустой строкой!'
 
 
-class Title(TitleBase):
+class TitleConstants(TitleBaseConstants):
     """
-    Класс для хранения заголовков полей.
+    Класс констант для хранения заголовков полей.
 
-    Наследует все константы из TitleBase.
+    Наследует все константы из TitleBaseConstants.
 
     Атрибуты:
     - EMAIL_NAME (str): Заголовок поля для ввода email-адреса получателя.

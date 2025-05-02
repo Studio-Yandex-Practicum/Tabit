@@ -6,9 +6,9 @@ from typing import Optional
 import factory
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, Faker
 from fake_data_factories.base_user_factory import BaseUserFactory
 from fake_data_factories.company_factories import CompanyFactory
+from fake_data_factories.constants import ColorCPrintConstants, FakerConstants
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
 from src.models import CompanyUser
@@ -46,7 +46,10 @@ class CompanyUserFactory(BaseUserFactory):
 
 
 @start_and_end(__name__)
-async def create_company_users(count: int = Faker.USER_COUNT, **kwargs) -> list[CompanyUser]:
+async def create_company_users(
+    count: int = FakerConstants.USER_COUNT,
+    **kwargs,
+) -> list[CompanyUser]:
     """
     Функция для наполнения таблицы бд CompanyUser.
     Для компании создается 1 админ, и все остальные простые сотрудники.
@@ -62,12 +65,15 @@ async def create_company_users(count: int = Faker.USER_COUNT, **kwargs) -> list[
         company_users = await CompanyFactory.create()
         kwargs['company_id'] = company_users.id
     company_users += await CompanyUserFactory.create_batch(
-        Faker.AMOUNT_OF_MODERATORS, role='Модератор', **kwargs
+        FakerConstants.AMOUNT_OF_MODERATORS, role='Модератор', **kwargs
     )
     company_users += await CompanyUserFactory.create_batch(
-        count - Faker.AMOUNT_OF_MODERATORS, **kwargs
+        count - FakerConstants.AMOUNT_OF_MODERATORS, **kwargs
     )
-    cprint(f'Создано {count} работников компании c id: {kwargs["company_id"]}', ColorCPrint.green)
+    cprint(
+        f'Создано {count} работников компании c id: {kwargs["company_id"]}',
+        ColorCPrintConstants.green,
+    )
     return company_users
 
 
