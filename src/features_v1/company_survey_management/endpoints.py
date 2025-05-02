@@ -2,13 +2,10 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.config.logging import logger
 from src.core.database.db_depends import get_async_session
-from src.crud import surveys_data_crud, surveys_list_crud, surveys_schedule_crud, user_crud
-from src.crud.constants import TextError
+from src.crud import surveys_data_crud, surveys_schedule_crud, user_crud
 from src.features_v1.validators import (
     check_company_exists,
     validate_user_from_company,
@@ -62,8 +59,7 @@ async def get_schedule_list(
 
     schedule = await surveys_schedule_crud.get_all_shedules(
         session=session,
-        obj_slug=company_slug,
-        raise_404=False,
+        obj_slug=company_slug
     )
     return schedule
 
@@ -380,50 +376,20 @@ async def add_employee_survey_info(
         - существует ли user с таким UUID.
         - есть ли разрешение у пользователя добавлять ответы в опросе этой компании.
         - существует ли расписание.
-        - существует ли тест.
-        - существует ли цикл в расписании.
 
-    Все проверки и записи объединены в одну транзакцию,
-    в случае ошибки на любом из этапов будет rollback.
-    В случае успеха будет автоматический commit.
     """
-
-    async with session.begin():
-        try:
-            company = await check_company_exists(session=session, company_slug=company_slug)
-            user = await user_crud.get_or_404(session=session, obj_id=user_id)
-            validate_user_from_company(user, company)
-            await validator_check_object_exists(
-                session=session, model_crud=surveys_schedule_crud, object_id=data.survey_shedule_id
+    # TODO : добавить проверку что передаваемая дата есть в расписании
+    company = await check_company_exists(session=session, company_slug=company_slug)
+    user = await user_crud.get_or_404(session=session, obj_id=user_id)
+    validate_user_from_company(user, company)
+    await validator_check_object_exists(
+                session=session, model_crud=surveys_schedule_crud, object_id=data.shedule_id
             )
-            await surveys_schedule_crud.get_cycle(
-                session=session,
-                cycle_id=data.cycle_id,
-                shedule_id=data.survey_shedule_id,
-                raise_404=True
-            )
-            survey_data = await surveys_data_crud.create_survey_data(
-                session=session, data=data, user_id=user_id, company_slug=company_slug
-            )
-            survey_data_id = survey_data.id
-            for item in data.answers:
-                await validator_check_object_exists(
-                    session=session, model_crud=surveys_list_crud, object_id=item.survey_list_id
-                )
+    data.answers, data.results = Surveys.survey_type(data.answers)
+    survey_data = await surveys_data_crud.create_survey_data(
+        session=session,
+        data=data,
+        user_id=user_id,
+        company_slug=company_slug)
 
-                result = Surveys(item=item).survey_type()
-                await surveys_data_crud.create_survay_answers(
-                    session=session, survey_data_id=survey_data_id, item=item, result=result
-                )
-        except SQLAlchemyError as db_error:
-            logger.error(f'Ошибка базы данных при записи результатов опроса: {db_error}')
-            raise db_error
-        except Exception as error:
-            logger.error(
-                f'{TextError.UPDATE_SERVER_LOG} в бд результата опроса: {error}')
-            raise error
-
-    survey_data = await surveys_data_crud.get_user_survey(
-        session=session, company_slug=company_slug, survey_data_id=survey_data_id, user_id=user_id
-    )
     return survey_data
