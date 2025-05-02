@@ -70,6 +70,8 @@ def downgrade() -> None:
                existing_nullable=False)
     op.drop_table('surveydata')
     op.drop_table('surveyschedule')
+    # ### end Alembic commands ###
+
+    # Удаление типов ENUM
     op.execute('DROP TYPE IF EXISTS surveysstatus')
     op.execute('DROP TYPE IF EXISTS surveystags')
-    # ### end Alembic commands ###
