@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config.logging import logger
-from src.crud.constants import TextError
+from src.crud.constants import TextErrorConstants
 from src.crud.crud_base import CRUDBase
 from src.models.survey import (
     SurveyData,
@@ -46,7 +46,7 @@ class CRUDSurveysSchedule(CRUDBase):
             return schedule
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
 
     async def get_shedule(
@@ -109,7 +109,7 @@ class CRUDSurveysSchedule(CRUDBase):
             await session.refresh(db_obj)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.UPDATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return db_obj
 
