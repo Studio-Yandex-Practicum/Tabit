@@ -5,18 +5,18 @@
 Организован в виде классов-контейнеров, сгруппированных по функциональному назначению.
 
 Структура модуля:
-- Description: подробные описания API endpoints для документации.
-- Length: ограничения длины.
+- DescriptionConstants: подробные описания API endpoints для документации.
+- LengthConstants: ограничения длины.
 - MiscConstants: различные технические константы приложения.
-- Summary: содержит краткие описания API endpoints для использования в UI.
-- TextError: стандартные сообщения об ошибках.
+- SummaryConstants: содержит краткие описания API endpoints для использования в UI.
+- TextErrorConstants: стандартные сообщения об ошибках.
 
-Импортирует базовые константы из config.constants.src:
-- DescriptionBase: базовые описания endpoints.
-- LengthBase: базовые ограничения длины.
-- MiscConstantsBase: общие технические константы.
-- SummaryBase: базовые краткие описания.
-- TextErrorBase: стандартные тексты ошибок.
+Импортирует базовые константы из src.core.constants:
+- DescriptionBaseConstants: базовые описания endpoints.
+- LengthBaseConstants: базовые ограничения длины.
+- MiscBaseConstants: базовые общие технические константы.
+- SummaryBaseConstants: базовые краткие описания.
+- TextErrorBaseConstants: стандартные тексты ошибок.
 
 Важные особенности:
 - Все классы наследуют соответствующие базовые классы констант.
@@ -25,23 +25,25 @@
 - Сообщения об ошибках содержат параметры для форматирования (например, {}).
 
 Пример использования:
-- from config.constants import Description, TextError
-- endpoint_description = Description.CREATE_PROBLEM
-- error_message = TextError.PROBLEM_NOT_FOUND
+- from src.features_v1.constants import DescriptionConstants, TextErrorConstants
+- endpoint_description = DescriptionConstants.CREATE_PROBLEM
+- error_message = TextErrorConstants.PROBLEM_NOT_FOUND
 """
 
-from config.constants.src import (
-    DescriptionBase,
-    LengthBase,
-    MiscConstantsBase,
-    SummaryBase,
-    TextErrorBase,
+from src.core.constants import (
+    DescriptionBaseConstants,
+    LengthBaseConstants,
+    MiscBaseConstants,
+    SummaryBaseConstants,
+    TextErrorBaseConstants,
 )
 
 
-class Description(DescriptionBase):
+class DescriptionConstants(DescriptionBaseConstants):
     """
-    Класс для хранения подробных описаний API endpoints.
+    Класс констант для хранения подробных описаний API endpoints.
+
+    Наследует все константы из DescriptionBaseConstants.
 
     Содержит развернутые описания всех конечных точек API, включая условия доступа,
     которые используются в документации.
@@ -188,11 +190,11 @@ class Description(DescriptionBase):
     )
 
 
-class Length(LengthBase):
+class LengthConstants(LengthBaseConstants):
     """
     Класс для хранения констант, связанных с допустимой длиной полей.
 
-    Наследует все константы из LengthBase.
+    Наследует все константы из LengthBaseConstants.
 
     Атрибуты:
     - MAX_NUMBER_PROBLEM (int): Максимальное количество проблем, в которых
@@ -202,11 +204,11 @@ class Length(LengthBase):
     MAX_NUMBER_PROBLEM: int = 3
 
 
-class MiscConstants(MiscConstantsBase):
+class MiscConstants(MiscBaseConstants):
     """
     Различные константы приложения.
 
-    Наследует все константы из MiscConstantsBase.
+    Наследует все константы из MiscBaseConstants.
 
     Атрибуты:
     - OPENAPI_EXTRA_ADMIN_AUTH (dict): Спецификация безопасности OpenAPI для
@@ -214,12 +216,16 @@ class MiscConstants(MiscConstantsBase):
       Использует JWT-аутентификацию для администраторов.
     """
 
-    OPENAPI_EXTRA_ADMIN_AUTH = {'security': [{'jwt_auth_backend_admin': []}]}
+    OPENAPI_EXTRA_ADMIN_AUTH: dict[str, list[dict[str, list[str]]]] = {
+        'security': [{'jwt_auth_backend_admin': []}]
+    }
 
 
-class Summary(SummaryBase):
+class SummaryConstants(SummaryBaseConstants):
     """
-    Класс для хранения кратких описаний API endpoints.
+    Класс констант для хранения кратких описаний API endpoints.
+
+    Наследует все константы из SummaryBaseConstants.
 
     Содержит краткие описания всех конечных точек API, используемые в документации.
     """
@@ -282,11 +288,11 @@ class Summary(SummaryBase):
     UPDATE_TASK: str = 'Обновить информацию о задаче.'
 
 
-class TextError(TextErrorBase):
+class TextErrorConstants(TextErrorBaseConstants):
     """
-    Класс для хранения стандартных текстов ошибок приложения.
+    Класс констант для хранения стандартных текстов ошибок приложения.
 
-    Наследует все константы из TextErrorBase.
+    Наследует все константы из TextErrorBaseConstants.
 
     Атрибуты:
     - CLOSE_PROBLEM (str): Сообщение о невозможности изменения завершенных проблем.

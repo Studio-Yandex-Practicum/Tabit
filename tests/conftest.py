@@ -14,7 +14,6 @@ from slugify import slugify
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from config.constants.tests import AuthData, Test_Database_URL, Url
 from src.core.database.db_depends import get_async_session
 from src.main import app_v1
 from src.models import (
@@ -33,12 +32,15 @@ from src.models import (
     ProblemStatus,
     ProblemType,
     TabitAdminUser,
+    Task,
 )
+from tests.constants import AuthDataConstants, Test_Database_URLConstants, UrlConstants
 
 
 def pytest_collection_modifyitems(items):
     """
     Добавляет всем тестам параметр loop_scope="session" в декоратор.
+
     Подробности: https://github.com/pytest-dev/pytest-asyncio/issues/922
     """
     pytest_asyncio_tests = (item for item in items if pytest_asyncio.is_async_test(item))
@@ -66,11 +68,11 @@ def setup_test_db():
             check=True,
         )
         wait_for_postgres(
-            host=Test_Database_URL.HOST,
-            port=Test_Database_URL.PORT,
-            user=Test_Database_URL.USER,
-            password=Test_Database_URL.PASSWORD,
-            dbname=Test_Database_URL.DBNAME,
+            host=Test_Database_URLConstants.HOST,
+            port=Test_Database_URLConstants.PORT,
+            user=Test_Database_URLConstants.USER,
+            password=Test_Database_URLConstants.PASSWORD,
+            dbname=Test_Database_URLConstants.DBNAME,
         )
         yield
     finally:
@@ -130,8 +132,10 @@ def test_db():
     """
 
     database_url = (
-        f'postgresql+asyncpg://{Test_Database_URL.USER}:{Test_Database_URL.PASSWORD}@'
-        f'{Test_Database_URL.HOST}:{Test_Database_URL.PORT}/{Test_Database_URL.DBNAME}'
+        f'postgresql+asyncpg://{Test_Database_URLConstants.USER}:'
+        f'{Test_Database_URLConstants.PASSWORD}@'
+        f'{Test_Database_URLConstants.HOST}:{Test_Database_URLConstants.PORT}/'
+        f'{Test_Database_URLConstants.DBNAME}'
     )
 
     engine = create_async_engine(database_url, echo=False, poolclass=NullPool)
@@ -271,8 +275,7 @@ async def company_for_test(async_session, license_for_test):
 
     Возвращает:
         - Company: Объект созданной компании.
-        - (Company, LicenseType): Если `return_license=True`,
-           возвращает кортеж (компания, лицензия).
+        - (Company, LicenseType): Если `return_license=True` - кортеж (компания, лицензия).
 
     Примеры использования:
         # Создание компании только с обязательными полями
@@ -331,7 +334,7 @@ async def administrator_tabit(async_session):
             'name': 'Ип',
             'surname': 'Ман',
             'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
-            'hashed_password': PasswordHelper().hash(AuthData.GOOD_PASSWORD),
+            'hashed_password': PasswordHelper().hash(AuthDataConstants.GOOD_PASSWORD),
             'is_active': True,
             'is_superuser': False,
             'is_verified': False,
@@ -345,17 +348,13 @@ async def administrator_tabit(async_session):
 
 @pytest_asyncio.fixture
 async def superuser(administrator_tabit):
-    """
-    Фикстура для создания суперпользователя сервиса в таблице tabitadminuser.
-    """
+    """Фикстура для создания суперпользователя сервиса в таблице tabitadminuser."""
     return await administrator_tabit({'is_superuser': True})
 
 
 @pytest_asyncio.fixture
 async def admin(administrator_tabit):
-    """
-    Фикстура для создания администратора сервиса в таблице tabitadminuser.
-    """
+    """Фикстура для создания администратора сервиса в таблице tabitadminuser."""
     return await administrator_tabit()
 
 
@@ -372,8 +371,7 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
 
     Возвращает:
         - CompanyUser: Объект созданного пользователя.
-        - (CompanyUser, Company): Если `return_company=True`, возвращает кортеж
-          (пользователь, компания).
+        - (CompanyUser, Company): Если `return_company=True` - кортеж (пользователь, компания).
 
     Примеры использования:
         # Создание пользователя только с обязательными полями
@@ -401,7 +399,7 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
             'name': f'Брюс {uuid.uuid4().hex[:8]}',
             'surname': f'Ли {uuid.uuid4().hex[:8]}',
             'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
-            'hashed_password': PasswordHelper().hash(AuthData.GOOD_PASSWORD),
+            'hashed_password': PasswordHelper().hash(AuthDataConstants.GOOD_PASSWORD),
             'is_active': True,
             'is_superuser': False,
             'is_verified': False,
@@ -432,8 +430,7 @@ async def moderator_of_company(employee_of_company):
 
     Возвращает:
         - CompanyUser: Объект созданного модератора.
-        - (CompanyUser, Company): Если `return_company=True`, возвращает кортеж
-          (модератор, компания).
+        - (CompanyUser, Company): Если `return_company=True` - кортеж (модератор, компания).
 
     Примеры использования:
         # Создание модератора только с обязательными полями
@@ -452,36 +449,31 @@ async def moderator_of_company(employee_of_company):
 
     async def _create_moderator(moderator_data=None, return_company=False):
         """Функция-обёртка для модератора тестовой компании с изменяемыми параметрами."""
-        default = moderator_data or {}
-        default['role'] = CompanyUserRole.MODERATOR
+        data = moderator_data or {}
+        data['role'] = CompanyUserRole.MODERATOR
 
         if return_company:
-            return await employee_of_company(default, return_company=True)
-        return await employee_of_company(default)
+            return await employee_of_company(data, return_company=True)
+        return await employee_of_company(data)
 
     return _create_moderator
 
 
 @pytest_asyncio.fixture
 async def moderator(moderator_of_company):
-    """
-    Фикстура для создания модератора от компании в таблице tabitadminuser.
-    """
+    """Фикстура для создания модератора от компании в таблице tabitadminuser."""
     return await moderator_of_company()
 
 
 @pytest_asyncio.fixture
 async def employee(employee_of_company):
-    """
-    Фикстура для создания пользователя от компании в таблице tabitadminuser.
-    """
+    """Фикстура для создания пользователя от компании в таблице tabitadminuser."""
     return await employee_of_company()
 
 
 async def get_token(client: AsyncClient, user, url: str, refresh: bool = False) -> dict[str, str]:
     """Функция для получения тела заголовка с Authorization переданного пользователя."""
-
-    login_payload = {'username': user.email, 'password': AuthData.GOOD_PASSWORD}
+    login_payload = {'username': user.email, 'password': AuthDataConstants.GOOD_PASSWORD}
     response = await client.post(url, data=login_payload)
     data = response.json()
     token = data['refresh_token'] if refresh else data['access_token']
@@ -493,7 +485,7 @@ async def superuser_token(client: AsyncClient, superuser):
     """
     Фикстура для получения заголовков авторизации суперпользователя сервиса Tabit c access-token.
     """
-    return await get_token(client, superuser, Url.ADMIN_LOGIN)
+    return await get_token(client, superuser, UrlConstants.ADMIN_LOGIN)
 
 
 @pytest_asyncio.fixture
@@ -501,7 +493,7 @@ async def admin_token(client: AsyncClient, admin):
     """
     Фикстура для получения заголовков авторизации администратора сервиса Tabit c access-token.
     """
-    return await get_token(client, admin, Url.ADMIN_LOGIN)
+    return await get_token(client, admin, UrlConstants.ADMIN_LOGIN)
 
 
 @pytest_asyncio.fixture
@@ -525,24 +517,20 @@ async def get_token_for_user(client: AsyncClient):
 
     async def _get_token_for_user(user, refresh: bool = False):
         """Функция-обёртка для заголовков авторизации пользователя от тестовой компании."""
-        return await get_token(client, user, Url.USER_LOGIN, refresh)
+        return await get_token(client, user, UrlConstants.USER_LOGIN, refresh)
 
     return _get_token_for_user
 
 
 @pytest_asyncio.fixture
 async def moderator_token(get_token_for_user, moderator):
-    """
-    Фикстура для получения заголовков авторизации модератора от компании c access-token.
-    """
+    """Фикстура для получения заголовков авторизации модератора от компании c access-token."""
     return await get_token_for_user(moderator)
 
 
 @pytest_asyncio.fixture
 async def employee_token(get_token_for_user, employee):
-    """
-    Фикстура для получения заголовков авторизации пользователя от компании c access-token.
-    """
+    """Фикстура для получения заголовков авторизации пользователя от компании c access-token."""
     return await get_token_for_user(employee)
 
 
@@ -551,7 +539,7 @@ async def superuser_refresh_token(client: AsyncClient, superuser):
     """
     Фикстура для получения заголовков авторизации суперпользователя сервиса Tabit c refresh-token.
     """
-    return await get_token(client, superuser, Url.ADMIN_LOGIN, refresh=True)
+    return await get_token(client, superuser, UrlConstants.ADMIN_LOGIN, refresh=True)
 
 
 @pytest_asyncio.fixture
@@ -559,22 +547,18 @@ async def admin_refresh_token(client: AsyncClient, admin):
     """
     Фикстура для получения заголовков авторизации администратора сервиса Tabit c refresh-token.
     """
-    return await get_token(client, admin, Url.ADMIN_LOGIN, refresh=True)
+    return await get_token(client, admin, UrlConstants.ADMIN_LOGIN, refresh=True)
 
 
 @pytest_asyncio.fixture
 async def moderator_refresh_token(get_token_for_user, moderator):
-    """
-    Фикстура для получения заголовков авторизации пользователя от компании c refresh-token.
-    """
+    """Фикстура для получения заголовков авторизации пользователя от компании c refresh-token."""
     return await get_token_for_user(moderator, refresh=True)
 
 
 @pytest_asyncio.fixture
 async def employee_refresh_token(get_token_for_user, employee):
-    """
-    Фикстура для получения заголовков авторизации пользователя от компании c refresh-token.
-    """
+    """Фикстура для получения заголовков авторизации пользователя от компании c refresh-token."""
     return await get_token_for_user(employee, refresh=True)
 
 
@@ -591,8 +575,8 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
 
     Возвращает:
         - Problem: Объект созданной проблемы.
-        - (Problem, CompanyUser, Company): Если `return_all_objects=True`,
-           возвращает кортеж (проблема, сотрудник, компания).
+        - (Problem, CompanyUser, Company): Если `return_all_objects=True`, -
+          кортеж (проблема, сотрудник, компания).
 
     Примеры использования:
         # Создание проблемы только с обязательными полями
@@ -877,7 +861,7 @@ async def meeting_for_test(async_session: AsyncSession, problem_for_test):
 
 
 @pytest_asyncio.fixture
-async def task_for_test(async_session: AsyncSession, meeting_for_test):
+async def task_for_test(async_session: AsyncSession, problem_for_test):
     """
     Фикстура, создающая задачу с возможностью изменения полей.
 
@@ -885,27 +869,29 @@ async def task_for_test(async_session: AsyncSession, meeting_for_test):
         - task_data (dict, optional): Данные для создания задачи. Если не переданы,
           используются значения по умолчанию.
         - return_all_objects (bool, optional): Если True, возвращает кортеж
-          (задача, встреча, проблема, сотрудник, компания).
+          (задача, проблема, сотрудник, компания).
 
     Возвращает:
         - Task: Объект созданной задачи.
-        - (Task, Meeting, Problem, CompanyUser, Company): Если `return_all_objects=True`,
-           возвращает кортеж (задача, встреча, проблема, сотрудник, компания).
+        - (Task, Problem, CompanyUser, Company): Если `return_all_objects=True`, -
+          кортеж (задача, проблема, сотрудник, компания).
 
     Примеры использования:
         # Создание задачи только с обязательными полями
         task = await task_for_test()
 
-        # Создание задачи с кастомными параметрами   # TODO
+        # Создание задачи с кастомными параметрами
         task = await task_for_test({
             'name': 'Важная задача',
             'description': 'Разработать перечень предложений для решения проблемы',
             'date_completion': (datetime.now() + timedelta(days=1)).date()
-            'status': 'Завершена'
+            'executors': [str(executor_1.id, str(executor_2.id)]
         })
 
         # Получение задачи, встречи, проблемы, сотрудника и компании
-        task, meeting, problem, employee, company = await task_for_test(return_all_objects=True)
+        task, problem, employee, company = await task_for_test(return_all_objects=True)
+
+    # TODO обсудить с заказчиком целесообразность привязки задачи ко встрече. Поправить макет.
     """
 
     async def _create_task(task_data=None, return_all_objects=False):
@@ -913,10 +899,9 @@ async def task_for_test(async_session: AsyncSession, meeting_for_test):
         employee = None
         company = None
         problem = None
-        meeting = None
 
-        if not task_data or {'owner_id', 'problem_id', 'meeting_id'}.isdisjoint(task_data):
-            task, problem, employee, company = await meeting_for_test(return_all_objects=True)
+        if not task_data or {'owner_id', 'problem_id', 'company_id'}.isdisjoint(task_data):
+            problem, employee, company = await problem_for_test(return_all_objects=True)
 
         owner_id = (
             task_data.get('owner_id') if task_data and 'owner_id' in task_data else employee.id
@@ -924,30 +909,21 @@ async def task_for_test(async_session: AsyncSession, meeting_for_test):
         problem_id = (
             task_data.get('problem_id') if task_data and 'problem_id' in task_data else problem.id
         )
-        meeting_id = (
-            task_data.get('meeting_id') if task_data and 'meeting_id' in task_data else meeting.id
-        )
-        date_completion = (
-            task_data.get('date_completion')
-            if task_data and 'date_completion' in task_data
-            else meeting.date_meeting
-        )
 
         default_data = {
             'name': f'Test Task {uuid.uuid4().hex[:8]}',
-            'date_completion': date_completion,
+            'date_completion': (datetime.now() + timedelta(days=1)).date(),
             'status': 'Новая',
             'problem_id': problem_id,
-            'meeting_id': meeting_id,
             'owner_id': owner_id,
         }
         if task_data:
             default_data.update(task_data)
 
-        task = await make_entry_in_table(async_session, default_data, Meeting)
+        task = await make_entry_in_table(async_session, default_data, Task)
 
         if return_all_objects:
-            return task, meeting, problem, employee, company
+            return task, problem, employee, company
         return task
 
     return _create_task

@@ -10,7 +10,7 @@ from src.models import BaseTabitModel, TaskStatus
 from src.models.annotations import description, int_pk, int_zero, name_task, owner
 
 if TYPE_CHECKING:
-    from src.models import AssociationUserTask, CompanyUser, FileTask, Meeting, Problem
+    from src.models import AssociationUserTask, CompanyUser, FileTask, Problem
 
 
 class Task(BaseTabitModel):
@@ -27,7 +27,7 @@ class Task(BaseTabitModel):
         date_completion: Крайняя дата исполнения задачи.
         owner_id: Автор задачи. Внешний ключ.
         problem_id: Идентификатор проблемы, к которой относится задача.
-        meeting_id: Идентификатор встречи, к которой относится задача.
+        # meeting_id: Идентификатор встречи, к которой относится задача.
         status: Статус выполнения задачи.
         created_at: Дата создания записи в таблице. Автозаполнение.
         updated_at: Дата изменения записи в таблице. Автозаполнение.
@@ -36,9 +36,11 @@ class Task(BaseTabitModel):
     Связи (атрибут - Модель):
         owner - CompanyUser;
         problem - Problem;
-        meeting - Meeting;
+        # meeting - Meeting;
         executors - AssociationUserTask -> CompanyUser: исполнители задачи;
         file - FileTask: к задаче могут быть прикреплены файлы.
+
+    # TODO обсудить с заказчиком целесообразность привязки задачи ко встрече. Поправить макет.
     """
 
     id: Mapped[int_pk]
@@ -49,15 +51,13 @@ class Task(BaseTabitModel):
     owner: Mapped['CompanyUser'] = relationship(back_populates='task_owner')
     problem_id: Mapped[int] = mapped_column(ForeignKey('problem.id', ondelete='CASCADE'))
     problem: Mapped['Problem'] = relationship(back_populates='tasks')
-    meeting_id: Mapped[int] = mapped_column(ForeignKey('meeting.id', ondelete='CASCADE'))
-    meeting: Mapped['Meeting'] = relationship(back_populates='tasks')
     executors: Mapped[List['AssociationUserTask']] = relationship(
         back_populates='task',
         cascade='all, delete-orphan',
         viewonly=True,
         lazy='joined',
     )
-    status: Mapped['TaskStatus']
+    status: Mapped['TaskStatus'] = mapped_column(default=TaskStatus.NEW)
     transfer_counter: Mapped[int_zero]
     file: Mapped[List['FileTask']] = relationship(
         back_populates='task', cascade='all, delete-orphan'
@@ -69,7 +69,6 @@ class Task(BaseTabitModel):
             f'id={self.id!r}, '
             f'name={self.name!r}, '
             f'problem_id={self.problem_id!r}, '
-            f'meeting_id={self.meeting_id!r}, '
             f'owner_id={self.owner_id!r}, '
             f'status={self.status!r})'
         )

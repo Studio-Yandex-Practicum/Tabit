@@ -2,8 +2,8 @@ import asyncio
 
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, FakerConstants
 from fake_data_factories.base_user_factory import BaseUserFactory
+from fake_data_factories.constants import ColorCPrintConstants, FakerConstants
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
 from src.models import TabitAdminUser
@@ -28,7 +28,7 @@ async def create_tabit_admin_users(count: int = FakerConstants.USER_COUNT, **kwa
     Функция для наполнения таблицы бд TabitAdminUser.
     """
     await TabitAdminUserFactory.create_batch(count, **kwargs)
-    cprint(f'Создано {count} Админов Tabit', ColorCPrint.green)  # type: ignore
+    cprint(f'Создано {count} Админов Tabit', ColorCPrintConstants.green)  # type: ignore
 
 
 if __name__ == '__main__':

@@ -6,12 +6,12 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from config.constants.fake_data_factories import ColorCPrint, Default, FakerConstants
 from fake_data_factories.association_user_problem_factory import (
     create_user_problem_associations,
 )
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
+from fake_data_factories.constants import ColorCPrintConstants, DefaultConstants, FakerConstants
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
 from src.models import Problem, ProblemColor, ProblemStatus, ProblemType
@@ -23,9 +23,9 @@ class ProblemFactory(AsyncSQLAlchemyFactory):
 
     Поля:
         - `name`: Обязательное поле. \
-            Генерируется случайным выбором из `Default.PROBLEM_NAMES`.
+            Генерируется случайным выбором из `DefaultConstants.PROBLEM_NAMES`.
         - `description`: Опциональное поле.\
-            Генерируется случайным выбором из `Default.PROBLEM_DESCRIPTIONS`.
+            Генерируется случайным выбором из `DefaultConstants.PROBLEM_DESCRIPTIONS`.
         - `company_id`: Обязательное поле. \
             Должен быть создан объект Company, чтобы передать полю slug.
         - `color`: Обязательное поле. Генерируется случайным выбором из `ProblemColor`.
@@ -35,9 +35,11 @@ class ProblemFactory(AsyncSQLAlchemyFactory):
             Должен быть создан объект `CompanyUser`, чтобы передать полю id (типа uuid).
     """
 
-    name: factory.LazyFunction = factory.LazyFunction(lambda: choice(Default.PROBLEM_NAMES))
+    name: factory.LazyFunction = factory.LazyFunction(
+        lambda: choice(DefaultConstants.PROBLEM_NAMES)
+    )
     description: factory.LazyFunction = factory.LazyFunction(
-        lambda: choice(Default.PROBLEM_DESCRIPTIONS)
+        lambda: choice(DefaultConstants.PROBLEM_DESCRIPTIONS)
     )
     company_id: int
     color: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(ProblemColor)))
@@ -78,7 +80,7 @@ async def create_problems(count: int = FakerConstants.PROBLEMS_COUNT, **kwargs) 
     cprint(
         f'Создано {count} проблем компании cо id: {kwargs["company_id"]} '
         f'от пользователя с id: {kwargs["owner_id"]}',
-        ColorCPrint.green,  # type: ignore
+        ColorCPrintConstants.green,  # type: ignore
     )
     await create_user_problem_associations(
         user_id=kwargs['owner_id'], problem_ids=[problem.id for problem in problems]

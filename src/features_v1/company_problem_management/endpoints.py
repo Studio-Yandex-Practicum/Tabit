@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_user_tabit
 from src.core.database.db_depends import get_async_session
 from src.crud import company_crud, problem_crud
-from src.features_v1.constants import Description, Summary
+from src.features_v1.constants import DescriptionConstants, SummaryConstants
 from src.features_v1.validators import (
     check_max_number_problems,
     validate_close_problem,
@@ -26,8 +26,8 @@ router = APIRouter()
     '/',
     response_model=list[ProblemResponseSchema],
     response_model_exclude_unset=True,
-    summary=Summary.LIST_PROBLEM,
-    description=Description.LIST_PROBLEM,
+    summary=SummaryConstants.LIST_PROBLEM,
+    description=DescriptionConstants.LIST_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def get_problems_for_user(
@@ -70,8 +70,8 @@ async def get_problems_for_user(
     '/',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.CREATE_PROBLEM,
-    description=Description.CREATE_PROBLEM,
+    summary=SummaryConstants.CREATE_PROBLEM,
+    description=DescriptionConstants.CREATE_PROBLEM,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_problem(
@@ -120,8 +120,8 @@ async def create_problem(
     '/{problem_id}',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.GET_PROBLEM,
-    description=Description.GET_PROBLEM,
+    summary=SummaryConstants.GET_PROBLEM,
+    description=DescriptionConstants.GET_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def get_problem(
@@ -162,8 +162,8 @@ async def get_problem(
     '/{problem_id}',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.UPDATE_PROBLEM,
-    description=Description.UPDATE_PROBLEM,
+    summary=SummaryConstants.UPDATE_PROBLEM,
+    description=DescriptionConstants.UPDATE_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def update_problem(
@@ -212,8 +212,8 @@ async def update_problem(
 
 @router.delete(
     '/{problem_id}',
-    summary=Summary.DELETE_PROBLEM,
-    description=Description.DELETE_PROBLEM,
+    summary=SummaryConstants.DELETE_PROBLEM,
+    description=DescriptionConstants.DELETE_PROBLEM,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_problem(
@@ -259,8 +259,8 @@ async def delete_problem(
     '/{problem_id}/confirm',
     response_model=ProblemResponseSchema,
     response_model_exclude_unset=True,
-    summary=Summary.CONFIRM_PROBLEM,
-    description=Description.CONFIRM_PROBLEM,
+    summary=SummaryConstants.CONFIRM_PROBLEM,
+    description=DescriptionConstants.CONFIRM_PROBLEM,
     status_code=status.HTTP_200_OK,
 )
 async def confirm_participation_in_problem(
