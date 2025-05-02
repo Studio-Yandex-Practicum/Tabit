@@ -13,7 +13,7 @@ from .crud_problem import problem_crud
 from .crud_task import task_crud
 from .crud_user import user_crud
 from .crud_meeting_result import result_meeting_crud
-from .crud_surveys import surveys_schedule_crud, surveys_data_crud, surveys_list_crud
+from .crud_surveys import surveys_schedule_crud, surveys_data_crud
 
 __all__ = [
     'user_comment_association_crud',
@@ -35,5 +35,4 @@ __all__ = [
     'user_crud',
     'surveys_schedule_crud',
     'surveys_data_crud',
-    'surveys_list_crud',
 ]
