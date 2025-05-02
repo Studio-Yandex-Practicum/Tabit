@@ -110,8 +110,6 @@ from .survey import (
     SurveyDataCreate,
     SurveyDataRead,
     SurveyScheduleCreate,
-    SurveyScheduleCycleCreate,
-    SurveyScheduleCycleRead,
     SurveyScheduleRead
 )
 
@@ -203,7 +201,5 @@ __all__ = [
     'SurveyDataCreate',
     'SurveyDataRead',
     'SurveyScheduleCreate',
-    'SurveyScheduleCycleCreate',
-    'SurveyScheduleCycleRead',
     'SurveyScheduleRead',
 ]
