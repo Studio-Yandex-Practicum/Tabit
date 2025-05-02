@@ -5,7 +5,7 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from fastapi_users.password import PasswordHelper
 
-from config.constants.fake_data_factories import Default, MiscConstants
+from fake_data_factories.constants import DefaultConstants, MiscConstants
 from src.core.config.logging import fake_db_logger
 
 password_helper = PasswordHelper()
@@ -32,7 +32,7 @@ class BaseUserFactory(AsyncSQLAlchemyFactory):
     name: factory.Faker = factory.Faker('first_name_male', locale='ru_RU')
     surname: factory.Faker = factory.Faker('last_name_male', locale='ru_RU')
     patronymic: factory.LazyFunction = factory.LazyFunction(
-        lambda: random.choice(Default.PATRONYMIC)
+        lambda: random.choice(DefaultConstants.PATRONYMIC)
     )
     phone_number: factory.Faker = factory.Faker('msisdn', locale='ru_RU')
     email = factory.LazyFunction(

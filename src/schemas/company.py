@@ -15,7 +15,7 @@ from pydantic import (
 )
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
-from src.schemas.constants import Length, MiscConstants, Title
+from src.schemas.constants import LengthConstants, MiscConstants, TitleConstants
 from src.schemas.user import UserUpdateSchema
 from src.schemas.validators.company import (
     check_license_fields_none,
@@ -36,13 +36,13 @@ class CompanyUpdateForUserSchema(BaseModel):
 
     description: Optional[str] = Field(
         None,
-        min_length=Length.MIN_DESCRIPTION,
-        max_length=Length.MAX_DESCRIPTION_COMPANY,
-        title=Title.NAME_COMPANY,
+        min_length=LengthConstants.MIN_DESCRIPTION,
+        max_length=LengthConstants.MAX_DESCRIPTION_COMPANY,
+        title=TitleConstants.NAME_COMPANY,
     )
     logo: Optional[str] = Field(
         None,
-        title=Title.LOGO_COMPANY,
+        title=TitleConstants.LOGO_COMPANY,
     )
 
     @field_validator('description', mode='after', check_fields=False)
@@ -63,17 +63,17 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
 
     name: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME_COMPANY,
-        title=Title.NAME_COMPANY,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME_COMPANY,
+        title=TitleConstants.NAME_COMPANY,
     )
     license_id: Optional[int] = Field(
         None,
-        title=Title.LICENSE_ID_COMPANY,
+        title=TitleConstants.LICENSE_ID_COMPANY,
     )
     start_license_time: Optional[datetime] = Field(
         None,
-        title=Title.START_LICENSE_TIME_COMPANY,
+        title=TitleConstants.START_LICENSE_TIME_COMPANY,
     )
     end_license_time: datetime | None = None
 
@@ -94,11 +94,11 @@ class CompanyCreateSchema(CompanyUpdateSchema):
 
     name: str = Field(
         ...,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME_COMPANY,
-        title=Title.NAME_COMPANY,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME_COMPANY,
+        title=TitleConstants.NAME_COMPANY,
     )
-    slug: Optional[str] = Field(None, title=Title.SLUG_COMPANY)
+    slug: Optional[str] = Field(None, title=TitleConstants.SLUG_COMPANY)
 
     @field_validator('slug')
     @classmethod
@@ -164,9 +164,9 @@ class CompanyDepartmentUpdateSchema(BaseModel):
 
     name: str = Field(
         ...,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME_COMPANY,
-        title=Title.NAME_DEPARTMENT,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME_COMPANY,
+        title=TitleConstants.NAME_DEPARTMENT,
     )
     model_config = ConfigDict(extra='forbid')
 
@@ -180,9 +180,9 @@ class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
 
     name: str = Field(
         ...,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME_COMPANY,
-        title=Title.NAME_DEPARTMENT,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME_COMPANY,
+        title=TitleConstants.NAME_DEPARTMENT,
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -228,27 +228,27 @@ class UserCompanyUpdateSchema(BaseModel):
 
     name: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.NAME_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.NAME_USER,
     )
     surname: Optional[str] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.SURNAME_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.SURNAME_USER,
     )
     phone_number: Optional[PhoneNumber] = Field(
         None,
-        min_length=Length.MIN_NAME,
-        max_length=Length.MAX_NAME,
-        title=Title.PHONE_NUMBER_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.PHONE_NUMBER_USER,
     )
     email: Optional[EmailStr]
     telegram_username: Optional[str] = Field(
         None,
-        max_length=Length.MAX_TELEGRAM_USERNAME,
-        title=Title.TELEGRAM_USERNAME,
+        max_length=LengthConstants.MAX_TELEGRAM_USERNAME,
+        title=TitleConstants.TELEGRAM_USERNAME,
     )
 
     @model_validator(mode='after')

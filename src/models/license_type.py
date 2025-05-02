@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import BaseTabitModel
 from src.models.annotations import int_pk, license_name_field
-from src.models.constants import Default
+from src.models.constants import DefaultConstants
 
 if TYPE_CHECKING:
     from src.models import Company
@@ -36,7 +36,7 @@ class LicenseType(BaseTabitModel):
     id: Mapped[int_pk]
     name: Mapped[license_name_field]
     license_term: Mapped[Interval] = mapped_column(
-        Interval(day_precision=Default.NUMBER_DAY_LICENSE)
+        Interval(day_precision=DefaultConstants.LICENSE_TERM)
     )
     max_admins_count: Mapped[int]
     max_employees_count: Mapped[int]

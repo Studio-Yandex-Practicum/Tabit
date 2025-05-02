@@ -3,16 +3,16 @@ import asyncio
 import uvicorn
 from click import command, option
 
-from config.constants.scripts import TextScripts
+from scripts.constants import TextScriptsConstants
 from src.core.config.logging import logger
 from src.core.database.init_db import create_first_superuser
 
 
-@command(help=TextScripts.DESCRIPTION)
-@option('--reload', '-r', is_flag=True, default=False, help=TextScripts.RELOAD)
-@option('--host', '-h', default='127.0.0.1', show_default=True, help=TextScripts.HOST)
-@option('--port', '-p', default=8000, show_default=True, help=TextScripts.PORT)
-@option('--create-superuser', '-c', is_flag=True, default=False, help=TextScripts.CREATE)
+@command(help=TextScriptsConstants.DESCRIPTION)
+@option('--reload', '-r', is_flag=True, default=False, help=TextScriptsConstants.RELOAD)
+@option('--host', '-h', default='127.0.0.1', show_default=True, help=TextScriptsConstants.HOST)
+@option('--port', '-p', default=8000, show_default=True, help=TextScriptsConstants.PORT)
+@option('--create-superuser', '-c', is_flag=True, default=False, help=TextScriptsConstants.CREATE)
 def application_management(reload, create_superuser, host, port):
     """
     Функция расширит возможности запуска приложения через консольные команды.
@@ -26,5 +26,5 @@ def application_management(reload, create_superuser, host, port):
     if create_superuser:
         asyncio.run(create_first_superuser())
     else:
-        logger.info(TextScripts.LOGGER)
+        logger.info(TextScriptsConstants.LOGGER)
         uvicorn.run('main:app_v1', reload=reload, host=host, port=port)

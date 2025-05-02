@@ -1,6 +1,6 @@
 from datetime import date
 
-from src.schemas.constants import TextError
+from src.schemas.constants import TextErrorConstants
 
 
 def validate_not_empty(value: str) -> str:
@@ -18,7 +18,7 @@ def validate_not_empty(value: str) -> str:
         ValueError: Если значение пустое или состоит только из пробелов.
     """
     if not value.strip():
-        raise ValueError(TextError.MEETING_TITLE_EMPTY)
+        raise ValueError(TextErrorConstants.MEETING_TITLE_EMPTY)
     return value.strip()
 
 
@@ -36,5 +36,5 @@ def validate_date(value: date) -> date:
         ValueError: Если дата в прошлом.
     """
     if value < date.today():
-        raise ValueError(f'{TextError.DATE_CANNOT_BE_EARLIER} {date.today()}')
+        raise ValueError(f'{TextErrorConstants.DATE_CANNOT_BE_EARLIER} {date.today()}')
     return value

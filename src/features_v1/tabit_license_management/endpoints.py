@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.database.db_depends import get_async_session
 from src.crud.crud_license_type import license_type_crud
-from src.features_v1.constants import Summary
+from src.features_v1.constants import SummaryConstants
 from src.features_v1.validators import validate_license_name
 from src.schemas import (
     LicenseTypeCreateSchema,
@@ -21,7 +21,7 @@ router = APIRouter(dependencies=[Depends(current_admin_tabit)])
     '/',
     response_model=LicenseTypeListResponseSchema,
     status_code=status.HTTP_200_OK,
-    summary=Summary.GET_LICENSE,
+    summary=SummaryConstants.GET_LICENSE,
 )
 async def get_licenses(
     session: AsyncSession = Depends(get_async_session),
@@ -59,7 +59,7 @@ async def get_licenses(
     '/',
     response_model=LicenseTypeResponseSchema,
     status_code=status.HTTP_201_CREATED,
-    summary=Summary.CREATE_LICENSE,
+    summary=SummaryConstants.CREATE_LICENSE,
 )
 async def create_license(
     license: LicenseTypeCreateSchema,
@@ -86,7 +86,7 @@ async def create_license(
     '/{license_id}',
     response_model=LicenseTypeResponseSchema,
     status_code=status.HTTP_200_OK,
-    summary=Summary.GET_LICENSE,
+    summary=SummaryConstants.GET_LICENSE,
 )
 async def get_license(
     license_id: int, session: AsyncSession = Depends(get_async_session)
@@ -111,7 +111,7 @@ async def get_license(
     '/{license_id}',
     response_model=LicenseTypeResponseSchema,
     status_code=status.HTTP_200_OK,
-    summary=Summary.UPDATE_LICENSE,
+    summary=SummaryConstants.UPDATE_LICENSE,
 )
 async def update_license(
     license_id: int,
@@ -143,7 +143,7 @@ async def update_license(
 @router.delete(
     '/{license_id}',
     status_code=status.HTTP_204_NO_CONTENT,
-    summary=Summary.DELETE_LICENSE,
+    summary=SummaryConstants.DELETE_LICENSE,
 )
 async def delete_license(
     license_id: int,

@@ -6,19 +6,19 @@
 тематической группировки констант в логические классы.
 
 Структура модуля:
-- Directory: пути к директориям файловой системы.
-- Length: ограничения длины.
+- DirectoryConstants: пути к директориям файловой системы.
+- LengthConstants: ограничения длины.
 - MiscConstants: различные технические константы.
-- TextError: стандартные тексты ошибок.
+- TextErrorConstants: стандартные тексты ошибок.
 
-Все классы наследуют соответствующие базовые классы из config.constants.src,
+Все классы наследуют соответствующие базовые классы из src.core.constants,
 что обеспечивает согласованность констант во всем проекте.
 
 Импортируемые базовые классы:
-- DirectoryBase: основные пути к директориям.
-- LengthBase: базовые ограничения длины.
-- MiscConstantsBase: общие технические константы.
-- TextErrorBase: стандартные тексты ошибок.
+- DirectoryBaseConstants: основные пути к директориям.
+- LengthBaseConstants: базовые ограничения длины.
+- MiscBaseConstants: общие технические константы.
+- TextErrorBaseConstants: стандартные тексты ошибок.
 
 Важные особенности:
 - Все классы наследуют соответствующие базовые классы констант.
@@ -29,20 +29,25 @@
 - Наследуемые значения могут быть переопределены.
 
 Примеры использования:
-- from config.constants.generators import Directory, Length, MiscConstants
-- waif_path = Directory.WAIF  # Получение пути к директории
+- from src.utils.constants import DirectoryConstants
+- waif_path = DirectoryConstants.WAIF  # Получение пути к директории
 """
 
 import string
 
-from config.constants.src import DirectoryBase, LengthBase, MiscConstantsBase, TextErrorBase
+from src.core.constants import (
+    DirectoryBaseConstants,
+    LengthBaseConstants,
+    MiscBaseConstants,
+    TextErrorBaseConstants,
+)
 
 
-class Directory(DirectoryBase):
+class DirectoryConstants(DirectoryBaseConstants):
     """
     Класс констант путей к директориям.
 
-    Наследует все константы из DirectoryBase. Примеры:
+    Наследует все константы из DirectoryBaseConstants.
 
     Атрибуты:
     - WAIF (str): Относительный путь к директории, связанной с функционалом 'waif'.
@@ -51,11 +56,11 @@ class Directory(DirectoryBase):
     WAIF: str = 'waif'
 
 
-class Length(LengthBase):
+class LengthConstants(LengthBaseConstants):
     """
     Класс для хранения констант, связанных с допустимой длиной полей.
 
-    Наследует все константы из LengthBase.
+    Наследует все константы из LengthBaseConstants.
 
     Атрибуты:
     - GENERATED_SLUG_SUFFIX_RANGE (int): Длина суффикса, добавляемого к сгенерированным slug'ам.
@@ -64,11 +69,11 @@ class Length(LengthBase):
     GENERATED_SLUG_SUFFIX_RANGE: int = 3
 
 
-class MiscConstants(MiscConstantsBase):
+class MiscConstants(MiscBaseConstants):
     """
     Класс для хранения различных текстовых констант.
 
-    Наследует все константы из MiscConstantsBase.
+    Наследует все константы из MiscBaseConstants.
 
     Атрибуты:
     - SHORT_SYMBOLS (str): Набор символов, которые могут использоваться для
@@ -79,11 +84,11 @@ class MiscConstants(MiscConstantsBase):
     SHORT_SYMBOLS: str = string.ascii_letters
 
 
-class TextError(TextErrorBase):
+class TextErrorConstants(TextErrorBaseConstants):
     """
     Класс для хранения стандартных текстов ошибок приложения.
 
-    Наследует все константы из TextErrorBase.
+    Наследует все константы из TextErrorBaseConstants.
 
     Примеры:
     - INVALID_PASSWORD (str): Сообщение о невалидном пароле.

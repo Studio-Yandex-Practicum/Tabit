@@ -5,20 +5,20 @@
 Организован по принципу тематической группировки констант в классах-контейнерах.
 
 Структура модуля:
-- Default: параметры по умолчанию для системных настроек.
-- Length: ограничения длины.
-- MiscConstants: различные технические константы.
-- TextError: стандартные тексты ошибок.
-- Title: заголовки полей и элементов интерфейса.
-- ValidationBase: базовые правила валидации.
+- DefaultConstants: параметры по умолчанию для системных настроек.
+- LengthConstants: ограничения длины.
+- MiscConstantsConstants: различные технические константы.
+- TextErrorConstants: стандартные тексты ошибок.
+- TitleConstants: заголовки полей и элементов интерфейса.
+- ValidationBaseConstants: базовые правила валидации.
 
-Все классы наследуют соответствующие базовые классы из config.constants.src,
+Все классы наследуют соответствующие базовые классы из src.core.constants,
 что обеспечивает согласованность констант во всем проекте.
 
 Импортируемые базовые классы:
 - DefaultBase: базовые значения по умолчанию.
 - LengthBase: базовые ограничения длины.
-- MiscConstantsBase: общие технические константы.
+- MiscBaseConstants: общие технические константы.
 - TextErrorBase: стандартные тексты ошибок.
 - TitleBase: базовые заголовки элементов.
 - ValidationBase: базовые правила валидации.
@@ -31,35 +31,33 @@
 - Наследуемые значения могут быть переопределены.
 
 Примеры использования:
-- from config.constants import Default, TextError
-- max_page_size = Default.MAX_PAGE_SIZE
-- phone_error = TextError.INVALID_PHONE_NUMBER
-- name_regex = Validation.NAME_REGEX
+- from src.schemas.constants import DefaultConstants, TextErrorConstants
+- max_page_size = DefaultConstants.MAX_PAGE_SIZE
+- phone_error = TextErrorConstants.INVALID_PHONE_NUMBER
 """
 
 from re import Pattern, compile
 
-from config.constants.src import (
-    DefaultBase,
-    LengthBase,
-    MiscConstantsBase,
-    TextErrorBase,
-    TitleBase,
-    ValidationBase,
+from src.core.constants import (
+    DefaultBaseConstants,
+    LengthBaseConstants,
+    MiscBaseConstants,
+    TextErrorBaseConstants,
+    TitleBaseConstants,
+    ValidationBaseConstants,
 )
 
 
-class Default(DefaultBase):
+class DefaultConstants(DefaultBaseConstants):
     """
     Класс констант значений по умолчанию для пагинации и лимитов.
 
-    Наследует все константы из DefaultBase.
+    Наследует все константы из DefaultBaseConstants.
 
     Атрибуты:
     - LICENSE_TERM (dict): Срок действия лицензии по умолчанию в днях.
     - MAX_PAGE_SIZE (int): Максимальный размер страницы для пагинации.
     - MIN_PAGE_SIZE (int): Минимальный размер страницы для пагинации.
-    - NUMBER_DEY_LICENSE (int): Количество дней действия лицензии по умолчанию.
     - PAGE (int): Номер страницы по умолчанию.
     - PAGE_DESCRIPTION (str): Описание поля страницы.
     - PAGE_SIZE_DESCRIPTION (str): Описание поля размера страницы.
@@ -68,17 +66,16 @@ class Default(DefaultBase):
     LICENSE_TERM: dict[str, int] = {'days': 1}
     MAX_PAGE_SIZE: int = 100
     MIN_PAGE_SIZE: int = 1
-    NUMBER_DEY_LICENSE: int = 1
     PAGE: int = 1
     PAGE_DESCRIPTION: str = 'Текущая страница'
     PAGE_SIZE_DESCRIPTION: str = 'Количество записей на странице'
 
 
-class Length(LengthBase):
+class LengthConstants(LengthBaseConstants):
     """
     Класс для хранения констант, связанных с допустимой длиной полей.
 
-    Наследует все константы из LengthBase.
+    Наследует все константы из LengthBaseConstants.
 
     Атрибуты:
     - MAX_DESCRIPTION_COMPANY (int): Максимальная длина описания компании.
@@ -95,11 +92,11 @@ class Length(LengthBase):
     MIN_TELEGRAMM_USERNAME: int = 5
 
 
-class MiscConstants(MiscConstantsBase):
+class MiscConstants(MiscBaseConstants):
     """
     Класс для хранения различных текстовых констант.
 
-    Наследует все константы из MiscConstantsBase.
+    Наследует все константы из MiscBaseConstants.
 
     Атрибуты:
     - FILTER_NAME_DESCRIPTION (str): Описание фильтра по названию лицензии.
@@ -113,15 +110,14 @@ class MiscConstants(MiscConstantsBase):
     )
 
 
-class TextError(TextErrorBase):
+class TextErrorConstants(TextErrorBaseConstants):
     """
-    Класс для хранения стандартных текстов ошибок приложения.
+    Класс констант для хранения стандартных текстов ошибок приложения.
 
-    Наследует все константы из TextErrorBase.
+    Наследует все константы из TextErrorBaseConstants.
 
     Атрибуты:
-    - ALLOWED_FILE_EXTENSIONS (tuple): Допустимые расширения файлов.
-    - DATE_CANNOT_BE_EARLIER (str): Ошибка о невозможности указать более раннюю дату.
+    - DATE_CANT_BE_EARLIER (str): Ошибка о невозможности указать более раннюю дату.
     - DATE_SHOULD_BE_FUTURE (str): Ошибка о необходимости указать будущую дату.
     - EXECUTORS_MUST_BE_UUID_FORMAT (str): Ошибка о формате UUID для исполнителей.
     - FIELD_INTERVAL (str): Ошибка о недопустимом формате интервала.
@@ -137,11 +133,9 @@ class TextError(TextErrorBase):
     - PROBLEM_NAME_EMPTY (str): Ошибка о пустом названии проблемы.
     - TASK_NAME_EMPTY (str): Ошибка о пустом названии задачи.
     - UNIQUE_NAME_SURNAME (str): Ошибка о совпадении имени и фамилии.
-    - VALUE_ERROR_EMPTY (int): Максимальный допустимый размер файла.
     """
 
-    ALLOWED_FILE_EXTENSIONS: tuple[str] = ('.pdf', '.doc', '.docx')
-    DATE_CANNOT_BE_EARLIER: str = 'Дата не может быть раньше.'
+    DATE_CANT_BE_EARLIER: str = 'Дата не может быть раньше.'
     DATE_SHOULD_BE_FUTURE: str = 'Дата должна быть в будущем.'
     EXECUTORS_MUST_BE_UUID_FORMAT: str = 'Исполнители должны быть в формате UUID.'
     FIELD_INTERVAL: str = (
@@ -165,14 +159,13 @@ class TextError(TextErrorBase):
     PROBLEM_NAME_EMPTY: str = 'Название проблемы не может быть пустым.'
     TASK_NAME_EMPTY: str = 'Название задачи не может быть пустым.'
     UNIQUE_NAME_SURNAME: str = 'Имя и фамилия не могут совпадать!'
-    VALUE_ERROR_EMPTY: int = 10 * 1024 * 1024
 
 
-class Title(TitleBase):
+class TitleConstants(TitleBaseConstants):
     """
-    Класс для хранения заголовков полей.
+    Класс констант для хранения заголовков полей.
 
-    Наследует все константы из TitleBase.
+    Наследует все константы из TitleBaseConstants.
 
     Атрибуты:
     - AVATAR_LINK_USER (str): Заголовок для ссылки на аватар пользователя.
@@ -213,7 +206,7 @@ class Title(TitleBase):
     - SURNAME_MODERATOR (str): Заголовок для фамилии модератора.
     - SURNAME_USER (str): Заголовок для фамилии пользователя.
     - TELEGRAM_USERNAME (str): Заголовок для Telegram username.
-    - TERM_LICENSE (str): Заголовок для срока действия лицензии.
+    - LICENSE_TERM (str): Заголовок для срока действия лицензии.
     - UPDATE_COMMENTS_TEXT (str): Заголовок для текста обновления комментария.
     - UPDATED_AT_USER (str): Заголовок для даты обновления пользователя.
     """
@@ -256,19 +249,23 @@ class Title(TitleBase):
     SURNAME_MODERATOR: str = 'Фамилия модератора сервиса'
     SURNAME_USER: str = 'Фамилия пользователя сервиса'
     TELEGRAM_USERNAME: str = 'Имя пользователя в Telegram'
-    TERM_LICENSE: str = 'Срок действия лицензии в днях'
+    LICENSE_TERM: str = 'Срок действия лицензии в днях'
     UPDATE_COMMENTS_TEXT: str = 'Обновить комментарий к треду.'
     UPDATED_AT_USER: str = 'Дата обновления профиля пользователя'
 
 
-class Validation(ValidationBase):
+class ValidationConstants(ValidationBaseConstants):
     """
-    Класс для хранения правил валидации данных.
+    Класс констант для хранения правил валидации данных.
 
-    Наследует все константы из ValidationBase.
+    Наследует все константы из ValidationBaseConstants.
 
     Атрибуты:
+    - ALLOWED_FILE_EXTENSIONS (tuple): Допустимые расширения файлов.
+    - ALLOWED_FILE_SIZE (int): Максимальный допустимый размер файла.
     - LICENSE_TERM_REGEX (Pattern): Регулярное выражение для проверки срока лицензии.
     """
 
+    ALLOWED_FILE_EXTENSIONS: tuple[str, ...] = ('.pdf', '.doc', '.docx')
+    ALLOWED_FILE_SIZE: int = 10 * 1024 * 1024
     LICENSE_TERM_REGEX: Pattern[str] = compile(r'^P.*Y$|^P.*D$')

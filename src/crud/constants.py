@@ -6,16 +6,16 @@
 Организован в виде классов-контейнеров, сгруппированных по функциональному назначению.
 
 Структура модуля:
-- Default: параметры по умолчанию для системных настроек.
-- Directory: пути к директориям файловой системы.
+- DefaultConstants: параметры по умолчанию для системных настроек.
+- DirectoryConstants: пути к директориям файловой системы.
 - MiscConstants: различные технические константы приложения.
-- TextError: стандартные сообщения об ошибках.
+- TextErrorConstants: стандартные сообщения об ошибках.
 
 Импортируемые базовые классы:
-- DefaultBase: базовые значения по умолчанию.
-- DirectoryBase: основные пути к директориям.
-- MiscConstantsBase: общие технические константы.
-- TextErrorBase: стандартные тексты ошибок.
+- DefaultBaseConstants: базовые значения по умолчанию.
+- DirectoryBaseConstants: основные пути к директориям.
+- MiscBaseConstants: общие технические константы.
+- TextErrorBaseConstants: стандартные тексты ошибок.
 
 Важные особенности:
 - Все классы наследуют соответствующие базовые классы констант.
@@ -26,19 +26,24 @@
 - Флаги имеют явные булевы значения.
 
 Пример использования:
-- from config.constants import Default, TextError
-- pagination_limit = Default.PAGINATION_LIMIT
-- error_msg = TextError.NOT_FOUND_BY_SLUG.format(obj="User", slug="test")
+- from src.core.constants import DefaultBaseConstants, TextErrorBaseConstants
+- pagination_limit = DefDefaultBaseConstantsault.PAGINATION_LIMIT
+- error_msg = TextErrorBaseConstants.NOT_FOUND_BY_SLUG.format(obj="User", slug="test")
 """
 
-from config.constants.src import DefaultBase, DirectoryBase, MiscConstantsBase, TextErrorBase
+from src.core.constants import (
+    DefaultBaseConstants,
+    DirectoryBaseConstants,
+    MiscBaseConstants,
+    TextErrorBaseConstants,
+)
 
 
-class Default(DefaultBase):
+class DefaultConstants(DefaultBaseConstants):
     """
     Класс констант значений по умолчанию для пагинации и лимитов.
 
-    Наследует все константы из DefaultBase.
+    Наследует все константы из DefaultBaseConstants.
 
     Атрибуты:
     - AUTO_COMMIT (bool): Флаг автоматического коммита.
@@ -47,11 +52,11 @@ class Default(DefaultBase):
     AUTO_COMMIT: bool = True
 
 
-class Directory(DirectoryBase):
+class DirectoryConstants(DirectoryBaseConstants):
     """
     Класс констант путей к директориям.
 
-    Наследует все константы из DirectoryBase.
+    Наследует все константы из DirectoryBaseConstants.
 
     Примеры:
     - LOGO (str): Название поддиректории для логотипов.
@@ -59,13 +64,13 @@ class Directory(DirectoryBase):
     """
 
 
-class MiscConstants(MiscConstantsBase):
+class MiscConstants(MiscBaseConstants):
     """
-    Различные константы приложения.
+    Класс различных константы приложения.
 
     Содержит константы, которые не относятся к другим конкретным категориям.
 
-    Наследует все константы из MiscConstantsBase.
+    Наследует все константы из MiscBaseConstants.
 
     Примеры:
     - BASE_DIR (Path): Корневая директория проекта.
@@ -73,11 +78,11 @@ class MiscConstants(MiscConstantsBase):
     """
 
 
-class TextError(TextErrorBase):
+class TextErrorConstants(TextErrorBaseConstants):
     """
-    Класс для хранения стандартных текстов ошибок приложения.
+    Класс констант для хранения стандартных текстов ошибок приложения.
 
-    Наследует все константы из TextErrorBase.
+    Наследует все константы из TextErrorBaseConstants.
 
     Атрибуты:
     - CREATE_SERVER (str): Сообщение об ошибке при создании объекта.
@@ -85,6 +90,7 @@ class TextError(TextErrorBase):
     - CREATE_UNIQUE_LOG (str): Лог ошибки уникальности при создании.
     - DELETE_SERVER_LOG (str): Лог ошибки при удалении.
     - INTERNAL_SERVER (str): Сообщение о внутренней ошибке сервера.
+    - NOT_IS_MEMBERS (str): Сообщение об ошибке доступа при отсутствии членства.
     - NOT_FOUND_BY_SLUG (str): Сообщение если объект не найден по slug.
     - UNIQUE (str): Сообщение об ошибке уникальности.
     - UPDATE_SERVER_LOG (str): Лог ошибки при обновлении.
@@ -97,6 +103,9 @@ class TextError(TextErrorBase):
     CREATE_UNIQUE_LOG: str = 'Ошибка уникальности при создании'
     DELETE_SERVER_LOG: str = 'Ошибка при удалении'
     INTERNAL_SERVER: str = 'Внутренняя ошибка сервера.'
+    NOT_IS_MEMBERS: str = (
+        'Вы не можете принять участие в решение проблемы, так как вы не являетесь её участником.'
+    )
     NOT_FOUND_BY_SLUG: str = 'Не найден объект {obj} по данному slug: {slug}'
     UNIQUE: str = 'Ошибка уникальности. Такой объект уже существует.'
     UPDATE_SERVER_LOG: str = 'Ошибка при обновлении'
