@@ -1,40 +1,60 @@
+from typing import List
+
 from src.schemas.survey import SurveyAnswerCreate
+
+"""
+Заготовка для дальнейшего развития логики тестов.
+"""
 
 
 class Surveys:
     """
     Класс для расчетов результатов тестов.
     """
-
-    def __init__(self, item: SurveyAnswerCreate):
-        self.item = item
-
-    def survey_type(self):
+    @staticmethod
+    def survey_type(answers: List[SurveyAnswerCreate]):
         """
         Метод для соотношения теста с логикой нужного теста.
         """
-        match self.item.survey_list_id:
-            case 1:
-                return self.lusher()
-            case 2:
-                return self.etkind()
+        result = []
+        for item in answers:
+            match item.test_number:
+                case 1:
+                    item = Surveys.lusher(item)
+                case 2:
+                    item = Surveys.etkind(item)
+            result.append(item)
+        overall_result = Surveys.overall(result)
+        return result, overall_result
 
-    def lusher(self):
+    @staticmethod
+    def lusher(item: SurveyAnswerCreate):
         """
         Метод для расчета результата теста Люшера.
         """
-        if self.item.answers == [1, 2, 3, 4, 5, 6]:
-            return {'result': 'good'}
-        return {'result': 'bad'}
+        if item.answers == [1, 2, 3, 4, 5, 6]:
+            setattr(item, 'results', 'good')
+            return item
+        setattr(item, 'results', 'bad')
+        return item
 
-    def etkind(self):
+    @staticmethod
+    def etkind(item: SurveyAnswerCreate):
         """
         Метод для расчета результата теста Эткинда.
         """
-        return {'result': 'bad'}
+        setattr(item, 'results', 'bad')
+        return item
 
-    def overall(self):
+    @staticmethod
+    def overall(items: List[SurveyAnswerCreate]):
         """
-        Метод для расчета окончательного результата всех тестов.
+        Метод для расчета суммарного результата всех тестов.
         """
-        return {'result': 'good'}
+        summary = []
+        for item in items:
+            obj = item.model_dump()
+            summary.append(obj['results'])
+        if summary == ['good', 'bad']:
+            return {'result': 'good'}
+        return {'result': 'bad'}
