@@ -1,4 +1,4 @@
-from src.schemas.validators.constants import ERROR_PROBLEM_NAME_EMPTY
+from src.schemas.constants import TextErrorConstants
 
 
 def validate_not_empty(value: str) -> str:
@@ -16,5 +16,5 @@ def validate_not_empty(value: str) -> str:
         ValueError: Если значение пустое или состоит только из пробелов.
     """
     if not (result := value.strip()):
-        raise ValueError(ERROR_PROBLEM_NAME_EMPTY)
+        raise ValueError(TextErrorConstants.PROBLEM_NAME_EMPTY)
     return result

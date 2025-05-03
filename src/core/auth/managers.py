@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, Request
 from fastapi_users import BaseUserManager, UUIDIDMixin, models, schemas
 
 from src.core.auth.access_to_db import get_admin_db, get_user_db
-from src.core.constants import PATTERN_PASSWORD, TextError
+from src.core.constants import TextErrorBaseConstants, ValidationBaseConstants
 from src.models import TabitAdminUser
 
 
@@ -18,10 +18,10 @@ class BaseTabitUserManager(UUIDIDMixin, BaseUserManager):
         user: schemas.UC | models.UP,
     ) -> None:
         """Условия валидации пароля."""
-        if re.match(PATTERN_PASSWORD, password) is None:
+        if re.match(ValidationBaseConstants.PATTERN_PASSWORD, password) is None:
             raise HTTPException(
                 status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-                detail=TextError.INVALID_PASSWORD,
+                detail=TextErrorBaseConstants.INVALID_PASSWORD,
             )
 
     async def on_after_register(self, user: TabitAdminUser, request: Request | None = None):

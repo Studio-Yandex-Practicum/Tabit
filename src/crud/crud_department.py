@@ -7,9 +7,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config.logging import logger
-from src.core.constants import DEFAULT_AUTO_COMMIT, LENGTH_SLUG, TextError
+from src.crud.constants import DefaultConstants, TextErrorConstants
 from src.crud.crud_base import CRUDBase
 from src.models import Department
+from src.models.constants import LengthConstants
 from src.schemas.company import CompanyDepartmentCreateSchema, CompanyDepartmentUpdateSchema
 
 
@@ -29,7 +30,7 @@ class CRUDDepartment(CRUDBase):
         session: AsyncSession,
         department_in: CompanyDepartmentCreateSchema,
         company_id: int,
-        auto_commit: bool = DEFAULT_AUTO_COMMIT,
+        auto_commit: bool = DefaultConstants.AUTO_COMMIT,
     ) -> Department:
         """
         Создание отдела для конкретной компании.
@@ -57,7 +58,7 @@ class CRUDDepartment(CRUDBase):
                 await session.refresh(db_department)
         except Exception as error:
             await session.rollback()
-            logger.error(f'{TextError.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            logger.error(f'{TextErrorConstants.CREATE_SERVER_LOG} {self.model.__name__}: {error}')
             raise error
         return db_department
 
@@ -66,7 +67,7 @@ class CRUDDepartment(CRUDBase):
         session: AsyncSession,
         db_department: Department,
         department_in: CompanyDepartmentUpdateSchema,
-        auto_commit: bool = DEFAULT_AUTO_COMMIT,
+        auto_commit: bool = DefaultConstants.AUTO_COMMIT,
     ) -> Department:
         """
         Изменение данных отдела.
@@ -118,7 +119,7 @@ class CRUDDepartment(CRUDBase):
         """
         new_slug = slugify(name)
         while await department_crud.get_by_slug(session, new_slug):
-            new_slug = f'{new_slug}-{random.randint(1000, 9999)}'[:LENGTH_SLUG]
+            new_slug = f'{new_slug}-{random.randint(1000, 9999)}'[: LengthConstants.SLUG]
         return new_slug
 
 

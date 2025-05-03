@@ -14,7 +14,7 @@ from src.models.annotations import (
     timestamp_nullable,
     url_link_field,
 )
-from src.models.constants import LENGTH_NAME_COMPANY, LENGTH_NAME_DEPARTMENT
+from src.models.constants import LengthConstants
 
 if TYPE_CHECKING:
     from src.models import CompanyUser, LicenseType, Problem, UserTag
@@ -52,7 +52,7 @@ class Company(BaseTabitModel):
     """
 
     id: Mapped[int_pk]
-    name: Mapped[str] = mapped_column(String(LENGTH_NAME_COMPANY), nullable=False)
+    name: Mapped[str] = mapped_column(String(LengthConstants.MAX_NAME_COMPANY), nullable=False)
     description: Mapped[description]
     logo: Mapped[url_link_field]
     departments: Mapped[List['Department']] = relationship(
@@ -107,7 +107,7 @@ class Department(BaseTabitModel):
     """
 
     id: Mapped[int_pk]
-    name: Mapped[str] = mapped_column(String(LENGTH_NAME_DEPARTMENT), nullable=False)
+    name: Mapped[str] = mapped_column(String(LengthConstants.MAX_NAME_DEPARTMENT), nullable=False)
     company_id: Mapped[int] = mapped_column(ForeignKey('company.id'), nullable=False)
     company: Mapped['Company'] = relationship(back_populates='departments')
     # employees: Mapped[List['CompanyUser']] = relationship(back_populates='current_department')

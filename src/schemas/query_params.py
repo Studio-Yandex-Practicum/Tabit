@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from src.schemas.constants import DEFAULT_LIMIT, DEFAULT_SKIP
+from src.schemas.constants import DefaultConstants
 
 
 class BaseFilterSchema(BaseModel):
@@ -11,8 +11,8 @@ class BaseFilterSchema(BaseModel):
     пагинация, сортировка и фильтрация списка объектов.
     """
 
-    skip: int = Field(DEFAULT_SKIP, ge=0, title='Пропустить n объектов')
-    limit: int = Field(DEFAULT_LIMIT, ge=1, title='Лимитировать список объектов')
+    skip: int = Field(DefaultConstants.SKIP, ge=0, title='Пропустить n объектов')
+    limit: int = Field(DefaultConstants.LIMIT, ge=1, title='Лимитировать список объектов')
     # TODO: добавить поля для сортировки и фильтрации
 
 
@@ -36,6 +36,6 @@ class FeedsFilterSchema(BaseModel):
     пагинация, сортировка и фильтрация списка объектов.
     """
 
-    skip: int = Field(DEFAULT_SKIP, ge=0, title='Пропустить n объектов')
-    limit: int = Field(DEFAULT_LIMIT, ge=1, title='Лимитировать список объектов')
+    skip: int = Field(DefaultConstants.SKIP, ge=0, title='Пропустить n объектов')
+    limit: int = Field(DefaultConstants.LIMIT, ge=1, title='Лимитировать список объектов')
     # TODO добавить поля для сортировки и фильтрации

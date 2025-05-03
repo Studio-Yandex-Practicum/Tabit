@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_user_tabit
 from src.core.database.db_depends import get_async_session
 from src.crud import company_crud, problem_crud, task_crud
-from src.features_v1.constants import Description, Summary
+from src.features_v1.constants import DescriptionConstants, SummaryConstants
 from src.features_v1.validators import (
     validate_close_problem,
     validate_field_members,
@@ -27,8 +27,8 @@ router = APIRouter()
     '/',
     response_model=list[TaskResponseSchema],
     response_model_exclude_none=True,
-    summary=Summary.TASK_LIST,
-    description=Description.TASK_LIST,
+    summary=SummaryConstants.LIST_TASK,
+    description=DescriptionConstants.LIST_TASK,
     status_code=status.HTTP_200_OK,
 )
 async def get_tasks_for_user(
@@ -76,8 +76,8 @@ async def get_tasks_for_user(
     '/',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.TASK_CREATE,
-    description=Description.TASK_CREATE,
+    summary=SummaryConstants.CREATE_TASK,
+    description=DescriptionConstants.CREATE_TASK,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_task(
@@ -129,8 +129,8 @@ async def create_task(
     '/{task_id}',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.TASK,
-    description=Description.TASK,
+    summary=SummaryConstants.GET_TASK,
+    description=DescriptionConstants.GET_TASK,
     status_code=status.HTTP_200_OK,
 )
 async def get_task(
@@ -176,8 +176,8 @@ async def get_task(
     '/{task_id}',
     response_model=TaskResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.TASK_UPDATE,
-    description=Description.TASK_UPDATE,
+    summary=SummaryConstants.UPDATE_TASK,
+    description=DescriptionConstants.UPDATE_TASK,
     status_code=status.HTTP_200_OK,
 )
 async def update_task(
@@ -234,8 +234,8 @@ async def update_task(
 
 @router.delete(
     '/{task_id}',
-    summary=Summary.TASK_DELETE,
-    description=Description.TASK_DELETE,
+    summary=SummaryConstants.DELETE_TASK,
+    description=DescriptionConstants.DELETE_TASK,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_task(

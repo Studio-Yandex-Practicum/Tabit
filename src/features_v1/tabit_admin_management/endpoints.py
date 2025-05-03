@@ -8,7 +8,7 @@ from src.core.auth.dependencies import current_admin_tabit
 from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
 from src.crud import admin_company_crud, moderator_crud
-from src.features_v1.constants import OPENAPI_EXTRA_ADMIN_AUTH
+from src.features_v1.constants import MiscConstants
 from src.features_v1.validators import (
     check_company_and_department,
     check_telegram_username_for_duplicates,
@@ -31,7 +31,7 @@ router = APIRouter()
     response_model=list[AdminCompanyResponseSchema],
     dependencies=[Depends(current_admin_tabit)],
     summary='Получить общую информацию по компаниям.',
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_all_info(
     session: AsyncSession = Depends(get_async_session),
@@ -55,7 +55,7 @@ async def get_all_info(
     response_model=list[CompanyAdminReadSchema],
     dependencies=[Depends(current_admin_tabit)],
     summary='Получить информацию по всем сотрудникам компаний.',
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_all_staff(
     session: AsyncSession = Depends(get_async_session),
@@ -79,7 +79,7 @@ async def get_all_staff(
     dependencies=[Depends(current_admin_tabit)],
     summary='Создать нового сотрудника компании.',
     response_model=CompanyAdminReadSchema,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def create_staff(
     create_data: CompanyAdminCreateSchema,
@@ -112,7 +112,7 @@ async def create_staff(
     summary='Получить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_staff(
     user_id: UUID, session: AsyncSession = Depends(get_async_session)
@@ -133,7 +133,7 @@ async def get_staff(
     summary='Полностью изменить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def full_update_staff(
     user_id: UUID,
@@ -163,7 +163,7 @@ async def full_update_staff(
     summary='Частично изменить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
     response_model=CompanyAdminReadSchema,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_staff(
     user_id: UUID,
@@ -193,7 +193,7 @@ async def update_staff(
     summary='Удалить информацию об администраторе.',
     dependencies=[Depends(current_admin_tabit)],
     status_code=status.HTTP_204_NO_CONTENT,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(get_user_manager)):
     """
@@ -216,7 +216,7 @@ async def delete_staff(user_id: UUID, user_manager: BaseUserManager = Depends(ge
     '/staff/{user_id}/resetpassword',
     dependencies=[Depends(current_admin_tabit)],
     summary='Сброс пароля администратора. Не работает',
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def reset_password_staff(
     user_id: UUID,

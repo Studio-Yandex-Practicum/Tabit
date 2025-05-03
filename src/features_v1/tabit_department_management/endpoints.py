@@ -9,7 +9,7 @@ from src.core.auth.dependencies import current_admin_tabit
 from src.core.database.db_depends import get_async_session
 from src.crud.crud_company import company_crud
 from src.crud.crud_department import department_crud
-from src.features_v1.constants import OPENAPI_EXTRA_ADMIN_AUTH, Description, Summary
+from src.features_v1.constants import DescriptionConstants, MiscConstants, SummaryConstants
 from src.features_v1.validators import (
     check_department_in_company,
     check_empty_department,
@@ -29,9 +29,9 @@ router = APIRouter(dependencies=[Depends(current_admin_tabit)])
     '/',
     response_model=list[CompanyDepartmentResponseSchemaForAdmin],
     status_code=status.HTTP_200_OK,
-    summary=Summary.TABIT_MANAGEMENT_DEPARTMENTS_LIST,
-    description=Description.TABIT_MANAGEMENT_DEPARTMENTS_LIST,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=SummaryConstants.TABIT_MANAGEMENT_DEPARTMENTS_LIST,
+    description=DescriptionConstants.TABIT_MANAGEMENT_DEPARTMENTS_LIST,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_departments_by_company_slug(
     company_slug: str,
@@ -72,9 +72,9 @@ async def get_departments_by_company_slug(
     '/',
     response_model=CompanyDepartmentResponseSchemaForAdmin,
     status_code=status.HTTP_201_CREATED,
-    summary=Summary.TABIT_MANAGEMENT_DEPARTMENT_CREATE,
-    description=Description.TABIT_MANAGEMENT_DEPARTMENT_CREATE,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=SummaryConstants.TABIT_MANAGEMENT_DEPARTMENT_CREATE,
+    description=DescriptionConstants.TABIT_MANAGEMENT_DEPARTMENT_CREATE,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def create_department_by_company_slug(
     company_slug: str,
@@ -120,9 +120,9 @@ async def create_department_by_company_slug(
     '/{department_slug}',
     response_model=CompanyDepartmentResponseSchemaForAdmin,
     status_code=status.HTTP_200_OK,
-    summary=Summary.TABIT_MANAGEMENT_DEPARTMENT,
-    description=Description.TABIT_MANAGEMENT_DEPARTMENT,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=SummaryConstants.TABIT_MANAGEMENT_DEPARTMENT,
+    description=DescriptionConstants.TABIT_MANAGEMENT_DEPARTMENT,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def get_department_by_slug(
     company_slug: str,
@@ -165,9 +165,9 @@ async def get_department_by_slug(
     '/{department_slug}',
     response_model=CompanyDepartmentResponseSchemaForAdmin,
     status_code=status.HTTP_200_OK,
-    summary=Summary.TABIT_MANAGEMENT_DEPARTMENT_UPDATE,
-    description=Description.TABIT_MANAGEMENT_DEPARTMENT_UPDATE,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=SummaryConstants.TABIT_MANAGEMENT_DEPARTMENT_UPDATE,
+    description=DescriptionConstants.TABIT_MANAGEMENT_DEPARTMENT_UPDATE,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def update_department_by_company_slug(
     company_slug: str,
@@ -218,9 +218,9 @@ async def update_department_by_company_slug(
 @router.delete(
     '/{department_slug}',
     status_code=status.HTTP_204_NO_CONTENT,
-    summary=Summary.TABIT_MANAGEMENT_DEPARTMENT_DELETE,
-    description=Description.TABIT_MANAGEMENT_DEPARTMENT_DELETE,
-    openapi_extra=OPENAPI_EXTRA_ADMIN_AUTH,
+    summary=SummaryConstants.TABIT_MANAGEMENT_DEPARTMENT_DELETE,
+    description=DescriptionConstants.TABIT_MANAGEMENT_DEPARTMENT_DELETE,
+    openapi_extra=MiscConstants.OPENAPI_EXTRA_ADMIN_AUTH,
 )
 async def remove_department_by_company_slug(
     company_slug: str,

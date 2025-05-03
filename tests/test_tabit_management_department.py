@@ -2,7 +2,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from tests.constants import DEPARTMENT_FIELDS_FOR_ADMIN, LENGTH, URL, _token
+from tests.constants import ExpectedFieldsConstants, LengthConstants, UrlConstants, type_token
 from tests.utils import random_string
 
 
@@ -18,7 +18,7 @@ class TestCreateDepartment:
     async def test_create_department(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         company_for_test,
     ):
         """
@@ -31,20 +31,20 @@ class TestCreateDepartment:
         company = await company_for_test()
 
         response = await client.post(
-            URL.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
+            UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
             json=payload,
             headers=superuser_token,
         )
         assert response.status_code == status.HTTP_201_CREATED, response.text
         data = response.json()
-        for field in DEPARTMENT_FIELDS_FOR_ADMIN:
+        for field in ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN:
             assert field in data
         assert data['name'] == payload['name']
 
     async def test_create_department_access(
         self,
         client: AsyncClient,
-        admin_token: _token,
+        admin_token: type_token,
         company_for_test,
     ):
         """
@@ -58,7 +58,7 @@ class TestCreateDepartment:
         company = await company_for_test()
 
         response = await client.post(
-            URL.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
+            UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
             json=payload,
             headers=admin_token,
         )
@@ -67,8 +67,8 @@ class TestCreateDepartment:
     async def test_create_department_not_access(
         self,
         client: AsyncClient,
-        moderator_token: _token,
-        employee_token: _token,
+        moderator_token: type_token,
+        employee_token: type_token,
         company_for_test,
     ):
         """
@@ -88,7 +88,7 @@ class TestCreateDepartment:
         for token in tokens_bad:
             payload = generate_department_data(200)
             response = await client.post(
-                URL.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
+                UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
                 json=payload,
                 headers=token,
             )
@@ -97,7 +97,7 @@ class TestCreateDepartment:
     async def test_create_department_whitespace(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         company_for_test,
     ):
         """
@@ -112,7 +112,7 @@ class TestCreateDepartment:
         company = await company_for_test()
 
         response = await client.post(
-            URL.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
+            UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
             json=bad_payload,
             headers=superuser_token,
         )
@@ -122,14 +122,14 @@ class TestCreateDepartment:
     @pytest.mark.parametrize(
         'length_name, status_',
         (
-            (LENGTH.NAME, status.HTTP_201_CREATED),
-            (LENGTH.NAME + 1, status.HTTP_422_UNPROCESSABLE_ENTITY),
+            (LengthConstants.MAX_NAME_DEPARTMENT, status.HTTP_201_CREATED),
+            (LengthConstants.MAX_NAME_DEPARTMENT + 1, status.HTTP_422_UNPROCESSABLE_ENTITY),
         ),
     )
     async def test_create_department_length_name(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         company_for_test,
         length_name,
         status_,
@@ -144,7 +144,7 @@ class TestCreateDepartment:
         company = await company_for_test()
 
         response = await client.post(
-            URL.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
+            UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
             json=payload,
             headers=superuser_token,
         )
@@ -153,7 +153,7 @@ class TestCreateDepartment:
     async def test_create_department_not_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         company_for_test,
     ):
         """
@@ -166,7 +166,7 @@ class TestCreateDepartment:
         bad_company_slug = company.slug + 'x'
 
         response = await client.post(
-            URL.MANAGEMENT_DEPARTMENT.format(company_slug=bad_company_slug),
+            UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=bad_company_slug),
             json=payload,
             headers=superuser_token,
         )
@@ -178,7 +178,7 @@ class TestCreateDepartment:
     async def test_create_department_duplicate_in_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         company_for_test,
     ):
         """
@@ -192,7 +192,7 @@ class TestCreateDepartment:
 
         for _ in range(2):
             response = await client.post(
-                URL.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
+                UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
                 json=payload,
                 headers=superuser_token,
             )
@@ -202,7 +202,7 @@ class TestCreateDepartment:
     async def test_create_department_duplicate_in_another_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         company_for_test,
     ):
         """
@@ -217,12 +217,12 @@ class TestCreateDepartment:
         company_2 = await company_for_test()
 
         response_1 = await client.post(
-            URL.MANAGEMENT_DEPARTMENT.format(company_slug=company_1.slug),
+            UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company_1.slug),
             json=payload,
             headers=superuser_token,
         )
         response_2 = await client.post(
-            URL.MANAGEMENT_DEPARTMENT.format(company_slug=company_2.slug),
+            UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company_2.slug),
             json=payload,
             headers=superuser_token,
         )
@@ -238,7 +238,7 @@ class TestGetDepartment:
     async def test_get_multi_departments(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         company_for_test,
         department_for_test,
     ):
@@ -255,7 +255,7 @@ class TestGetDepartment:
         await department_for_test({'company_id': company_2.id})
 
         response = await client.get(
-            URL.MANAGEMENT_DEPARTMENT.format(company_slug=company_1.slug),
+            UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company_1.slug),
             headers=superuser_token,
         )
 
@@ -266,14 +266,17 @@ class TestGetDepartment:
         assert len(departments) == 2, 'В ответе должно быть два отдела'
 
         for department in departments:
-            assert DEPARTMENT_FIELDS_FOR_ADMIN.issubset(
+            assert ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN.issubset(
                 department.keys()
-            ), f'Ответ должен содержать поля: {DEPARTMENT_FIELDS_FOR_ADMIN}'
+            ), (
+                'Ответ должен содержать поля: '
+                f'{ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN}'
+            )
 
     async def test_get_multi_departments_access(
         self,
         client: AsyncClient,
-        admin_token: _token,
+        admin_token: type_token,
         department_for_test,
     ):
         """
@@ -285,7 +288,7 @@ class TestGetDepartment:
         """
         _, company = await department_for_test(return_company=True)
         response = await client.get(
-            URL.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
+            UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
             headers=admin_token,
         )
 
@@ -294,8 +297,8 @@ class TestGetDepartment:
     async def test_get_multi_departments_not_access(
         self,
         client: AsyncClient,
-        moderator_token: _token,
-        employee_token: _token,
+        moderator_token: type_token,
+        employee_token: type_token,
         department_for_test,
     ):
         """
@@ -314,7 +317,7 @@ class TestGetDepartment:
         )
         for token in tokens_bad:
             response = await client.get(
-                URL.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
+                UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=company.slug),
                 headers=token,
             )
             assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -322,7 +325,7 @@ class TestGetDepartment:
     async def test_get_multi_departments_not_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -334,7 +337,7 @@ class TestGetDepartment:
         bad_company_slug = company.slug + 'x'
 
         response = await client.get(
-            URL.MANAGEMENT_DEPARTMENT.format(company_slug=bad_company_slug),
+            UrlConstants.MANAGEMENT_DEPARTMENT.format(company_slug=bad_company_slug),
             headers=superuser_token,
         )
 
@@ -346,7 +349,7 @@ class TestGetDepartment:
     async def test_get_department(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -357,7 +360,7 @@ class TestGetDepartment:
         department, company = await department_for_test(return_company=True)
 
         response = await client.get(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=department.slug,
             ),
@@ -366,14 +369,14 @@ class TestGetDepartment:
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert DEPARTMENT_FIELDS_FOR_ADMIN.issubset(
+        assert ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN.issubset(
             data
-        ), f'Компания должна содержать поля: {DEPARTMENT_FIELDS_FOR_ADMIN}'
+        ), f'Компания должна содержать поля: {ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN}'
 
     async def test_get_department_access(
         self,
         client: AsyncClient,
-        admin_token: _token,
+        admin_token: type_token,
         department_for_test,
     ):
         """
@@ -386,7 +389,7 @@ class TestGetDepartment:
         department, company = await department_for_test(return_company=True)
 
         response = await client.get(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=department.slug,
             ),
@@ -398,8 +401,8 @@ class TestGetDepartment:
     async def test_get_department_not_access(
         self,
         client: AsyncClient,
-        moderator_token: _token,
-        employee_token: _token,
+        moderator_token: type_token,
+        employee_token: type_token,
         department_for_test,
     ):
         """
@@ -418,7 +421,7 @@ class TestGetDepartment:
         )
         for token in tokens_bad:
             response = await client.get(
-                URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+                UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                     company_slug=company.slug,
                     department_slug=department.slug,
                 ),
@@ -429,7 +432,7 @@ class TestGetDepartment:
     async def test_get_department_not_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -441,7 +444,7 @@ class TestGetDepartment:
         bad_company_slug = company.slug + 'x'
 
         response = await client.get(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=bad_company_slug,
                 department_slug=department.slug,
             ),
@@ -456,7 +459,7 @@ class TestGetDepartment:
     async def test_get_department_not_department(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -468,7 +471,7 @@ class TestGetDepartment:
         bad_department_slug = department.slug + 'x'
 
         response = await client.get(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=bad_department_slug,
             ),
@@ -483,7 +486,7 @@ class TestGetDepartment:
     async def test_get_department_department_not_in_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -496,7 +499,7 @@ class TestGetDepartment:
         _, company_2 = await department_for_test(return_company=True)
 
         response = await client.get(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company_2.slug,
                 department_slug=department_1.slug,
             ),
@@ -514,7 +517,7 @@ class TestPatchDepartment:
     async def test_patch_departments(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -527,7 +530,7 @@ class TestPatchDepartment:
         department, company = await department_for_test(return_company=True)
 
         response = await client.patch(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=department.slug,
             ),
@@ -536,14 +539,14 @@ class TestPatchDepartment:
         )
         assert response.status_code == status.HTTP_200_OK, response.text
         data = response.json()
-        for field in DEPARTMENT_FIELDS_FOR_ADMIN:
+        for field in ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN:
             assert field in data
         assert data['name'] == payload['name']
 
     async def test_patch_departments_access(
         self,
         client: AsyncClient,
-        admin_token: _token,
+        admin_token: type_token,
         department_for_test,
     ):
         """
@@ -557,7 +560,7 @@ class TestPatchDepartment:
         department, company = await department_for_test(return_company=True)
 
         response = await client.patch(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=department.slug,
             ),
@@ -569,8 +572,8 @@ class TestPatchDepartment:
     async def test_patch_departments_not_access(
         self,
         client: AsyncClient,
-        moderator_token: _token,
-        employee_token: _token,
+        moderator_token: type_token,
+        employee_token: type_token,
         department_for_test,
     ):
         """
@@ -590,7 +593,7 @@ class TestPatchDepartment:
         )
         for token in tokens_bad:
             response = await client.patch(
-                URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+                UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                     company_slug=company.slug,
                     department_slug=department.slug,
                 ),
@@ -602,7 +605,7 @@ class TestPatchDepartment:
     async def test_patch_departments_whitespace(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -617,7 +620,7 @@ class TestPatchDepartment:
         department, company = await department_for_test(return_company=True)
 
         response = await client.patch(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=department.slug,
             ),
@@ -626,21 +629,21 @@ class TestPatchDepartment:
         )
         assert response.status_code == status.HTTP_200_OK, response.text
         data = response.json()
-        for field in DEPARTMENT_FIELDS_FOR_ADMIN:
+        for field in ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN:
             assert field in data
         assert data['name'] == name
 
     @pytest.mark.parametrize(
         'length_name, status_',
         (
-            (LENGTH.NAME, status.HTTP_200_OK),
-            (LENGTH.NAME + 1, status.HTTP_422_UNPROCESSABLE_ENTITY),
+            (LengthConstants.MAX_NAME_DEPARTMENT, status.HTTP_200_OK),
+            (LengthConstants.MAX_NAME_DEPARTMENT + 1, status.HTTP_422_UNPROCESSABLE_ENTITY),
         ),
     )
     async def test_patch_departments_length_name(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
         length_name,
         status_,
@@ -655,7 +658,7 @@ class TestPatchDepartment:
         department, company = await department_for_test(return_company=True)
 
         response = await client.patch(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=department.slug,
             ),
@@ -667,7 +670,7 @@ class TestPatchDepartment:
     async def test_patch_departments_not_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -680,7 +683,7 @@ class TestPatchDepartment:
         bad_company_slug = company.slug + 'x'
 
         response = await client.patch(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=bad_company_slug,
                 department_slug=department.slug,
             ),
@@ -695,7 +698,7 @@ class TestPatchDepartment:
     async def test_patch_departments_not_department(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -708,7 +711,7 @@ class TestPatchDepartment:
         bad_department_slug = department.slug + 'x'
 
         response = await client.patch(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=bad_department_slug,
             ),
@@ -723,7 +726,7 @@ class TestPatchDepartment:
     async def test_patch_department_department_not_in_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -737,7 +740,7 @@ class TestPatchDepartment:
         _, company_2 = await department_for_test(return_company=True)
 
         response = await client.patch(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company_2.slug,
                 department_slug=department_1.slug,
             ),
@@ -751,7 +754,7 @@ class TestPatchDepartment:
     async def test_patch_department_duplicate_in_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -765,7 +768,7 @@ class TestPatchDepartment:
         payload = {'name': department_1.name}
 
         response = await client.patch(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=department_2.slug,
             ),
@@ -779,7 +782,7 @@ class TestPatchDepartment:
     async def test_patch_department_duplicate_in_another_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -794,7 +797,7 @@ class TestPatchDepartment:
         payload = {'name': department_1.name}
 
         response = await client.patch(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company_2.slug,
                 department_slug=department_2.slug,
             ),
@@ -815,7 +818,7 @@ class TestDeleteDepartment:
     async def test_delete_departments(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -827,7 +830,7 @@ class TestDeleteDepartment:
         department, company = await department_for_test(return_company=True)
 
         response = await client.delete(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=department.slug,
             ),
@@ -838,7 +841,7 @@ class TestDeleteDepartment:
     async def test_delete_departments_access(
         self,
         client: AsyncClient,
-        admin_token: _token,
+        admin_token: type_token,
         department_for_test,
     ):
         """
@@ -851,7 +854,7 @@ class TestDeleteDepartment:
         department, company = await department_for_test(return_company=True)
 
         response = await client.delete(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=department.slug,
             ),
@@ -862,8 +865,8 @@ class TestDeleteDepartment:
     async def test_delete_departments_not_access(
         self,
         client: AsyncClient,
-        moderator_token: _token,
-        employee_token: _token,
+        moderator_token: type_token,
+        employee_token: type_token,
         department_for_test,
     ):
         """
@@ -882,7 +885,7 @@ class TestDeleteDepartment:
         )
         for token in tokens_bad:
             response = await client.delete(
-                URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+                UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                     company_slug=company.slug,
                     department_slug=department.slug,
                 ),
@@ -893,7 +896,7 @@ class TestDeleteDepartment:
     async def test_delete_departments_not_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -905,7 +908,7 @@ class TestDeleteDepartment:
         bad_company_slug = company.slug + 'x'
 
         response = await client.delete(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=bad_company_slug,
                 department_slug=department.slug,
             ),
@@ -919,7 +922,7 @@ class TestDeleteDepartment:
     async def test_delete_departments_not_department(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -932,7 +935,7 @@ class TestDeleteDepartment:
         bad_department_slug = department.slug + 'x'
 
         response = await client.patch(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company.slug,
                 department_slug=bad_department_slug,
             ),
@@ -947,7 +950,7 @@ class TestDeleteDepartment:
     async def test_delete_department_department_not_in_company(
         self,
         client: AsyncClient,
-        superuser_token: _token,
+        superuser_token: type_token,
         department_for_test,
     ):
         """
@@ -960,7 +963,7 @@ class TestDeleteDepartment:
         _, company_2 = await department_for_test(return_company=True)
 
         response = await client.delete(
-            URL.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
+            UrlConstants.MANAGEMENT_DEPARTMENT_WITH_SLUG.format(
                 company_slug=company_2.slug,
                 department_slug=department_1.slug,
             ),

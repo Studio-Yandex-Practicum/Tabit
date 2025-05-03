@@ -193,3 +193,4 @@ cython_debug/
 departments_list.txt
 employees_list.txt
 media/
+.flake8

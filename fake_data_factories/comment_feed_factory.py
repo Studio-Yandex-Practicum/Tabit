@@ -8,13 +8,7 @@ from termcolor import cprint
 
 from fake_data_factories.association_user_comment_factory import create_user_comment_associations
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import (
-    FAKER_COMMENT_COUNT,
-    FAKER_COMMENT_WORDS_COUNT,
-    FAKER_MAX_COMMENT_RATING,
-    FAKER_MIN_COMMENT_RATING,
-    ColorCPrint,
-)
+from fake_data_factories.constants import ColorCPrintConstants, FakerConstants
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
@@ -35,10 +29,13 @@ class CommentFeedFactory(AsyncSQLAlchemyFactory):
     message_id: int
     owner_id: UUID
     text: str = factory.Faker(
-        'sentence', locale='ru_RU', nb_words=FAKER_COMMENT_WORDS_COUNT, variable_nb_words=True
+        'sentence',
+        locale='ru_RU',
+        nb_words=FakerConstants.COMMENT_WORDS_COUNT,
+        variable_nb_words=True,
     )
     rating: int = factory.Faker(
-        'random_int', min=FAKER_MIN_COMMENT_RATING, max=FAKER_MAX_COMMENT_RATING
+        'random_int', min=FakerConstants.MIN_COMMENT_RATING, max=FakerConstants.MAX_COMMENT_RATING
     )
 
     class Meta:
@@ -47,7 +44,7 @@ class CommentFeedFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
+async def create_comments(count=FakerConstants.COMMENT_COUNT, **kwargs) -> None:
     """
     Функция для пакетного создания комментариев.
 
@@ -82,7 +79,7 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
         ]
         cprint(
             f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}',
-            ColorCPrint.green,  # type: ignore
+            ColorCPrintConstants.green,  # type: ignore
         )
         for i in range(count):
             await create_user_comment_associations(
@@ -92,7 +89,7 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
         comments = await CommentFeedFactory.create_batch(owner_id=kwargs['owner_id'], **kwargs)
         cprint(
             f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}',
-            ColorCPrint.green,  # type: ignore
+            ColorCPrintConstants.green,  # type: ignore
         )
         await create_user_comment_associations(
             user_id=kwargs['owner_id'], comment_ids=[comment.id for comment in comments]
