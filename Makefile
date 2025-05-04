@@ -25,6 +25,7 @@ endif
 # Определение базовой команды для работы с Docker Compose
 # Используется локальный конфиг и файл окружения
 DOCKER_COMPOSE = docker compose -f infra/local/docker-compose.local.yaml --env-file $(ENV_FILE)
+TEST_DOCKER_COMPOSE = docker compose -f infra/docker-compose.test-db.yaml --env-file $(ENV_FILE)
 
 # Основные команды
 help: ## Показать меню помощи
@@ -66,10 +67,12 @@ up-pgadmin: ## Запуск контейнеров с локальной БД и
 down: ## Остановка всех контейнеров Docker
 	@echo "Остановка всех контейнеров Docker..."
 	$(DOCKER_COMPOSE) --profile "*" down
+	$(TEST_DOCKER_COMPOSE) down
 
 clean-volumes: ## Остановка всех контейнеров и удаление томов
 	@echo "Остановка контейнеров и очистка БД и других вольюмов..."
 	$(DOCKER_COMPOSE) --profile "*" down -v
+	$(TEST_DOCKER_COMPOSE) down -v
 
 # Мониторинг контейнеров
 logs: ## Показать логи всех контейнеров
@@ -79,7 +82,7 @@ logs: ## Показать логи всех контейнеров
 # Локальный запуск приложения
 run: ## Запуск приложения локально
 	@echo "Запускаем приложение локально..."
-	poetry run uvicorn src.main:app_v1 --port $(APP_PORT) --reload
+	poetry run uvicorn src.main:app_v${APP_VERSION} --port $(APP_PORT) --reload
 
 # Управление миграциями
 

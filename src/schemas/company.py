@@ -15,31 +15,11 @@ from pydantic import (
 )
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
-from src.schemas.constants import (
-    FILTER_NAME_DESCRIPTION,
-    LENGTH_DESCRIPTION_COMPANY,
-    LENGTH_NAME_COMPANY,
-    LENGTH_NAME_USER,
-    LENGTH_TELEGRAM_USERNAME,
-    MIN_DESCRIPTION_NAME,
-    MIN_LENGTH_NAME,
-    SORTING_DESCRIPTION,
-    TITLE_LICENSE_ID_COMPANY,
-    TITLE_LOGO_COMPANY,
-    TITLE_NAME_COMPANY,
-    TITLE_NAME_DEPARTMENT,
-    TITLE_NAME_USER,
-    TITLE_PHONE_NUMBER_USER,
-    TITLE_SLUG_COMPANY,
-    TITLE_START_LICENSE_TIME_COMPANY,
-    TITLE_SURNAME_USER,
-    TITLE_TELEGRAM_USERNAME_USER,
-)
+from src.schemas.constants import LengthConstants, MiscConstants, TitleConstants
 from src.schemas.user import UserUpdateSchema
 from src.schemas.validators.company import (
     check_license_fields_none,
     validate_name_characters,
-    validate_name_surname_unique,
     validate_slug,
     validate_string,
     validate_surname_characters,
@@ -56,13 +36,13 @@ class CompanyUpdateForUserSchema(BaseModel):
 
     description: Optional[str] = Field(
         None,
-        min_length=MIN_DESCRIPTION_NAME,
-        max_length=LENGTH_DESCRIPTION_COMPANY,
-        title=TITLE_NAME_COMPANY,
+        min_length=LengthConstants.MIN_DESCRIPTION,
+        max_length=LengthConstants.MAX_DESCRIPTION_COMPANY,
+        title=TitleConstants.NAME_COMPANY,
     )
     logo: Optional[str] = Field(
         None,
-        title=TITLE_LOGO_COMPANY,
+        title=TitleConstants.LOGO_COMPANY,
     )
 
     @field_validator('description', mode='after', check_fields=False)
@@ -83,17 +63,17 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
 
     name: Optional[str] = Field(
         None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_COMPANY,
-        title=TITLE_NAME_COMPANY,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME_COMPANY,
+        title=TitleConstants.NAME_COMPANY,
     )
     license_id: Optional[int] = Field(
         None,
-        title=TITLE_LICENSE_ID_COMPANY,
+        title=TitleConstants.LICENSE_ID_COMPANY,
     )
     start_license_time: Optional[datetime] = Field(
         None,
-        title=TITLE_START_LICENSE_TIME_COMPANY,
+        title=TitleConstants.START_LICENSE_TIME_COMPANY,
     )
     end_license_time: datetime | None = None
 
@@ -114,11 +94,11 @@ class CompanyCreateSchema(CompanyUpdateSchema):
 
     name: str = Field(
         ...,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_COMPANY,
-        title=TITLE_NAME_COMPANY,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME_COMPANY,
+        title=TitleConstants.NAME_COMPANY,
     )
-    slug: Optional[str] = Field(None, title=TITLE_SLUG_COMPANY)
+    slug: Optional[str] = Field(None, title=TitleConstants.SLUG_COMPANY)
 
     @field_validator('slug')
     @classmethod
@@ -172,11 +152,11 @@ class CompanyTypeFilterSchema(BaseModel):
         ordering (Optional[Literal]): Сортировка (по полям name, created_at, updated_at).
     """
 
-    name: Optional[str] = Field(None, description=FILTER_NAME_DESCRIPTION)
+    name: Optional[str] = Field(None, description=MiscConstants.FILTER_NAME_DESCRIPTION)
 
     ordering: Optional[
         Literal['name', '-name', 'created_at', '-created_at', 'updated_at', '-updated_at']
-    ] = Field(None, description=SORTING_DESCRIPTION)
+    ] = Field(None, description=MiscConstants.SORTING_DESCRIPTION)
 
 
 class CompanyDepartmentUpdateSchema(BaseModel):
@@ -184,9 +164,9 @@ class CompanyDepartmentUpdateSchema(BaseModel):
 
     name: str = Field(
         ...,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_COMPANY,
-        title=TITLE_NAME_DEPARTMENT,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME_COMPANY,
+        title=TitleConstants.NAME_DEPARTMENT,
     )
     model_config = ConfigDict(extra='forbid')
 
@@ -200,9 +180,9 @@ class CompanyDepartmentCreateSchema(CompanyDepartmentUpdateSchema):
 
     name: str = Field(
         ...,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_COMPANY,
-        title=TITLE_NAME_DEPARTMENT,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME_COMPANY,
+        title=TitleConstants.NAME_DEPARTMENT,
     )
 
     model_config = ConfigDict(from_attributes=True)
@@ -230,7 +210,6 @@ class CompanyEmployeeUpdateSchema(UserUpdateSchema):
     @model_validator(mode='after')
     def validate_fields(self) -> Self:
         """Валидатор полей схемы."""
-        validate_name_surname_unique(self.name, self.surname)
         validate_name_characters(self.name)
         validate_surname_characters(self.surname)
         return self
@@ -249,33 +228,32 @@ class UserCompanyUpdateSchema(BaseModel):
 
     name: Optional[str] = Field(
         None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_NAME_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.NAME_USER,
     )
     surname: Optional[str] = Field(
         None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_SURNAME_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.SURNAME_USER,
     )
     phone_number: Optional[PhoneNumber] = Field(
         None,
-        min_length=MIN_LENGTH_NAME,
-        max_length=LENGTH_NAME_USER,
-        title=TITLE_PHONE_NUMBER_USER,
+        min_length=LengthConstants.MIN_NAME,
+        max_length=LengthConstants.MAX_NAME,
+        title=TitleConstants.PHONE_NUMBER_USER,
     )
     email: Optional[EmailStr]
     telegram_username: Optional[str] = Field(
         None,
-        max_length=LENGTH_TELEGRAM_USERNAME,
-        title=TITLE_TELEGRAM_USERNAME_USER,
+        max_length=LengthConstants.MAX_TELEGRAM_USERNAME,
+        title=TitleConstants.TELEGRAM_USERNAME,
     )
 
     @model_validator(mode='after')
     def validate_fields(self) -> Self:
         """Валидатор полей схемы."""
-        validate_name_surname_unique(self.name, self.surname)
         validate_name_characters(self.name)
         validate_surname_characters(self.surname)
         return self

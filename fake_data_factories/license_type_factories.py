@@ -6,13 +6,7 @@ import factory
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from fake_data_factories.constants import (
-    DEFAULT_LICENSE_TERM,
-    LICENSE_MAX_ADMINS,
-    LICENSE_MAX_EMPLOYEES,
-    LICENSE_TYPE_COUNT,
-    ColorCPrint,
-)
+from fake_data_factories.constants import ColorCPrintConstants, DefaultConstants, LengthConstants
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
 from src.models import LicenseType
@@ -33,10 +27,10 @@ class LicenseTypeFactory(AsyncSQLAlchemyFactory):
 
     name: factory.LazyFunction = factory.LazyFunction(lambda: f'Лицензия-{uuid.uuid4().hex[:5]}')
     license_term: factory.LazyFunction = factory.LazyFunction(
-        lambda: timedelta(days=DEFAULT_LICENSE_TERM)
+        lambda: timedelta(days=DefaultConstants.LICENSE_TERM)
     )
-    max_admins_count: int = LICENSE_MAX_ADMINS
-    max_employees_count: int = LICENSE_MAX_EMPLOYEES
+    max_admins_count: int = LengthConstants.LICENSE_MAX_ADMINS
+    max_employees_count: int = LengthConstants.LICENSE_MAX_EMPLOYEES
 
     class Meta:
         model = LicenseType
@@ -44,12 +38,12 @@ class LicenseTypeFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_license_type(count=LICENSE_TYPE_COUNT, **kwargs):
+async def create_license_type(count=LengthConstants.LICENSE_TYPE_COUNT, **kwargs):
     """
     Функция для наполнения таблицы бд LicenseType.
     """
     licenses = await LicenseTypeFactory.create_batch(count, **kwargs)
-    cprint(f'Создано {count} лицензий для компании', ColorCPrint.green)  # type: ignore
+    cprint(f'Создано {count} лицензий для компании', ColorCPrintConstants.green)  # type: ignore
     return licenses
 
 

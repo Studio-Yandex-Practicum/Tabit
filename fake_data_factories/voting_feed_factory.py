@@ -6,11 +6,10 @@ from termcolor import cprint
 
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import FAKER_VOTING_FEEDS_COUNT, ColorCPrint
+from fake_data_factories.constants import ColorCPrintConstants, FakerConstants, LengthConstants
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
-from src.core.constants import LENGTH_SMALL_NAME
 from src.core.database.sc_db_session import sc_session
 from src.models import VotingFeed
 
@@ -23,11 +22,13 @@ class VotingFeedFactory(AsyncSQLAlchemyFactory):
         - `message_id`: Обязательное поле. \
             Должен быть создан объект `MessageFeed`, чтобы передать полю id.
         - `name`: Обязательное поле. Генерируется `Faker`. \
-            Длина поля ограничена константой LENGTH_SMALL_NAME.
+            Длина поля ограничена константой LengthConstants.MAX_SMALL_NAME.
     """
 
     message_id: int
-    name: factory.Faker = factory.Faker('text', locale='ru_RU', max_nb_chars=LENGTH_SMALL_NAME)
+    name: factory.Faker = factory.Faker(
+        'text', locale='ru_RU', max_nb_chars=LengthConstants.MAX_SMALL_NAME
+    )
 
     class Meta:
         model = VotingFeed
@@ -35,7 +36,10 @@ class VotingFeedFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_voting_feeds(count: int = FAKER_VOTING_FEEDS_COUNT, **kwargs) -> list[VotingFeed]:
+async def create_voting_feeds(
+    count: int = FakerConstants.VOTING_FEEDS_COUNT,
+    **kwargs,
+) -> list[VotingFeed]:
     """
     Создать запись(-и) в таблицу объекта `VotingFeed`.
 
@@ -72,7 +76,7 @@ async def create_voting_feeds(count: int = FAKER_VOTING_FEEDS_COUNT, **kwargs) -
     voting_feeds = await VotingFeedFactory.create_batch(count, **kwargs)
     cprint(
         f'Создано {count} вариантов голосования для сообщения c id: {kwargs["message_id"]}',
-        ColorCPrint.green,  # type: ignore
+        ColorCPrintConstants.green,  # type: ignore
     )
     return voting_feeds
 

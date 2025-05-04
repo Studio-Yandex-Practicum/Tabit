@@ -1,112 +1,243 @@
-"""Константы для генерации тестовых данных в Faker-сидерах"""
+"""
+Модуль констант для генерации тестовых данных в Faker-сидерах пакета `fake_data_factories`.
+
+Содержит все необходимые константы для работы фабрик тестовых данных:
+- Цветовые константы для консольного вывода.
+- Значения по умолчанию для генерации сущностей.
+- Параметры для Faker.
+- Ограничения длины полей.
+- Различные системные константы.
+
+Структура модуля:
+- ColorCPrintConstants: цвета для форматированного вывода в консоль.
+- DefaultConstants: параметры по умолчанию для системных настроек.
+- FakerConstants: настройки генератора фейковых данных.
+- LengthConstants: ограничения длины.
+- MiscConstants: различные технические константы.
+
+Импортируемые базовые классы:
+- ConstantsBase.Default: базовые значения по умолчанию.
+- ConstantsBase.Length: базовые ограничения длины.
+- ConstantsBase.MiscConstants: базовые технические константы.
+
+Важные особенности::
+- Все классы наследуют соответствующие базовые классы констант.
+- Дополнительные константы добавляются в дочерние классы.
+- Неизменяемые классы помечены @dataclass(frozen=True).
+- Все строковые константы типизированы.
+- Значения подобраны для реалистичной генерации тестовых данных.
+
+Пример использования:
+- from fake_data_factories.constants import DefaultConstants, FakerConstants
+- dept_name = random.choice(DefaultConstants.DEPARTMENT_NAMES)
+- user_count = FakerConstants.USER_COUNT
+"""
 
 from dataclasses import dataclass
 
-# Основные параметры генерации
-FAKER_USER_COUNT = 5  # Число пользователей для генерации
-FAKER_COMPANY_COUNT = 5  # Число компаний для генерации
-FAKER_DEPARTMENT_COUNT = 5  # Число отделов для генерации
-FAKER_PROBLEMS_COUNT: int = 5  # Число проблем для генерации
-FAKER_MEETINGS_COUNT: int = 5  # Число встреч для генерации
-FAKER_MEETINGS_RESULT_COUNT: int = 5  # Число результатов встреч для генерации
-FAKER_MESSAGE_FEEDS_COUNT: int = 5  # Число лент сообщений для генерации
-FAKER_VOTING_FEEDS_COUNT: int = 5  # Число лент голосований для генерации
-FAKER_TASK_COUNT: int = 5  # Число задач для генерации
-FAKER_COMMENT_COUNT: int = 2  # Число комментариев для генерации
-FAKER_COMMENT_WORDS_COUNT: int = 7  # Количество слов в комментарии
-FAKER_MIN_COMMENT_RATING: int = 0  # Минимальный рейтинг комментария
-FAKER_MAX_COMMENT_RATING: int = 3  # Максимальный рейтинг комментария
-FAKER_USER_TAGS_COUNT: int = 3  # Число тэгов для генерации
-AMOUNT_OF_MODERATORS = 1  # Количество модераторов создаваемых для компании за 1 запуск скрипта
-
-# Параметры лицензий
-LICENSE_TYPE_COUNT = 5
-DEFAULT_LICENSE_TERM = 365
-LICENSE_MAX_ADMINS = 100
-LICENSE_MAX_EMPLOYEES = 1000
-
-# Текстовые константы
-COMPANY_USER_CREATED_TEXT = '{role} компании c id={company_id}: {user_email}, пасс: {password}'
-DEFAULT_TASK_DESCRIPTION_LENGTH: int = 256
-
-# Списки значений по умолчанию
-DEFAULT_DEPARTMENT_NAMES = [
-    'Отдел кадров',
-    'Отдел менеджмента',
-    'Отдел продаж',
-    'IT-отдел',
-    'Технический отдел',
-]  # Имена для отделов компании
-
-DEFAULT_PROBLEM_NAMES: list[str] = [
-    'Нехватка персонала',
-    'Медленный отклик на заявку',
-    'Несоблюдение делового стиля общения',
-    'Переносы сроков проектов',
-    'Неэффективные встречи',
-]
-
-DEFAULT_PROBLEM_DESCRIPTIONS: list[str | None] = [
-    None,
-    'Проблемы возникают на этапе взаимодействия с менеджерами.',
-    'Из проектов исчезло поле с дедлайном.',
-    'Слишком много времени тратится впустую.',
-    'Общение через почту слишком неэффективно.',
-]
-
-DEFAULT_MEETING_TITLES: list[str] = [
-    'Узкие места процессов.',
-    'Технический долг команды.',
-    'Пицца или суши?',
-    'Практики ревью кода.',
-    'Улучшение взаимодействия с клиентом.',
-]
-
-DEFAULT_MEETING_FEEDBACK: list[str] = [
-    None,
-    'Всё прошло отлично, разобрали все темы.',
-    'Часть тем не успели разобрать. Сделаем на следующей встрече.',
-    'Было очень мало людей, встречу отменили.',
-    'А где все?',
-]
-
-DEFAULT_MEETING_DESCRIPTIONS: list[str | None] = [
-    None,
-    'Будем обсуждать обсуждения.',
-    'Что можем делать немного лучше.',
-    'Окончательное голосование: Coca-cola или Pepsi.',
-    'Как улучшить качество и взаимодействие внутри команды.',
-]
-
-DEFAULT_MEETING_PLACES: list[str] = ['Офис 000', 'Офис 422', 'Офис 500', 'Подвал', 'MS Teams']
-
-DEFAULT_TASK_NAMES: list[str] = [
-    'Разработка новой формы договора',
-    'Пересмотреть активные сделки',
-    'Собрать список незакрытых сделок',
-    'Позвонить клиентам, которые давно к нам не обращались',
-    'Подготовить список клиентов, которые заказали на сумму менее 500 тыс.',
-    'Подготовить отчётность о сделках за последний квартал',
-]
+from src.core.constants import DefaultBaseConstants, LengthBaseConstants, MiscBaseConstants
 
 
-@dataclass
-class ColorCPrint:
-    """Набор цветов для cprint."""
+@dataclass(frozen=True)
+class ColorCPrintConstants:
+    """
+    Класс констант - цветов для вывода текста в консоли с помощью cprint.
+
+    Класс реализован как неизменяемый (immutable) контейнер цветовых констант.
+
+    Атрибуты:
+    - black (str): черный
+    - blue (str): синий
+    - cyan (str): голубой
+    - dark_grey (str): темно-серый
+    - green (str): зеленый
+    - light_blue (str): светло-синий
+    - light_cyan (str): светло-голубой
+    - light_green (str): светло-зеленый
+    - light_grey (str): светло-серый
+    - light_magenta (str): светло-пурпурный
+    - light_red (str): светло-красный
+    - light_yellow (str): светло-желтый
+    - magenta (str): пурпурный
+    - red (str): красный
+    - white (str): белый
+    - yellow (str): желтый
+    """
 
     black: str = 'black'
-    red: str = 'red'
-    green: str = 'green'
-    yellow: str = 'yellow'
     blue: str = 'blue'
-    magenta: str = 'magenta'
     cyan: str = 'cyan'
-    white: str = 'white'
-    light_grey: str = 'light_grey'
     dark_grey: str = 'dark_grey'
-    light_red: str = 'light_red'
-    light_green: str = 'light_green'
-    light_yellow: str = 'light_yellow'
+    green: str = 'green'
     light_blue: str = 'light_blue'
-    light_magenta: str = 'light_magenta'
     light_cyan: str = 'light_cyan'
+    light_green: str = 'light_green'
+    light_grey: str = 'light_grey'
+    light_magenta: str = 'light_magenta'
+    light_red: str = 'light_red'
+    light_yellow: str = 'light_yellow'
+    magenta: str = 'magenta'
+    red: str = 'red'
+    white: str = 'white'
+    yellow: str = 'yellow'
+
+
+class DefaultConstants(DefaultBaseConstants):
+    """
+    Класс констант значений по умолчанию, используемых в пакете `fake_data_factories`.
+
+    Так же класс наследует значения из DefaultBaseConstants.
+
+    Атрибуты:
+    - DEPARTMENT_NAMES (list): список названий отделов по умолчанию
+    - LICENSE_TERM (int): срок действия лицензии по умолчанию (в днях)
+    - PATRONYMIC (list): Список распространенных отчеств для генерации ФИО сотрудников
+    - PROBLEM_DESCRIPTIONS (list): описания проблем по умолчанию
+    - PROBLEM_NAMES (list): названия проблем по умолчанию
+    - TASK_NAMES (list): названия задач по умолчанию
+    """
+
+    DEPARTMENT_NAMES: list[str] = [
+        'IT-отдел',
+        'Отдел кадров',
+        'Отдел менеджмента',
+        'Отдел продаж',
+        'Технический отдел',
+    ]
+    LICENSE_TERM: int = 365
+    PATRONYMIC: list[str] = [
+        'Александрович',
+        'Алексеевич',
+        'Дмитриевич',
+        'Евгеньевич',
+        'Иванович',
+        'Петрович',
+        'Сергеевич',
+        'Николаевич',
+        'Федосеивич',
+    ]
+    PROBLEM_DESCRIPTIONS: list[str | None] = [
+        None,
+        'Из проектов исчезло поле с дедлайном.',
+        'Общение через почту слишком неэффективно.',
+        'Проблемы возникают на этапе взаимодействия с менеджерами.',
+        'Слишком много времени тратится впустую.',
+    ]
+    MEETING_TITLES: list[str] = [
+        'Узкие места процессов.',
+        'Технический долг команды.',
+        'Пицца или суши?',
+        'Практики ревью кода.',
+        'Улучшение взаимодействия с клиентом.',
+    ]
+
+    MEETING_FEEDBACK: list[str] = [
+        None,
+        'Всё прошло отлично, разобрали все темы.',
+        'Часть тем не успели разобрать. Сделаем на следующей встрече.',
+        'Было очень мало людей, встречу отменили.',
+        'А где все?',
+    ]
+
+    MEETING_DESCRIPTIONS: list[str | None] = [
+        None,
+        'Будем обсуждать обсуждения.',
+        'Что можем делать немного лучше.',
+        'Окончательное голосование: Coca-cola или Pepsi.',
+        'Как улучшить качество и взаимодействие внутри команды.',
+    ]
+
+    MEETING_PLACES: list[str] = ['Офис 000', 'Офис 422', 'Офис 500', 'Подвал', 'MS Teams']
+    PROBLEM_NAMES: list[str] = [
+        'Медленный отклик на заявку',
+        'Несоблюдение делового стиля общения',
+        'Нехватка персонала',
+        'Неэффективные встречи',
+        'Переносы сроков проектов',
+    ]
+    TASK_NAMES: list[str] = [
+        'Пересмотреть активные сделки',
+        'Подготовить список клиентов, которые заказали на сумму менее 500 тыс.',
+        'Подготовить отчётность о сделках за последний квартал',
+        'Позвонить клиентам, которые давно к нам не обращались',
+        'Разработка новой формы договора',
+        'Собрать список незакрытых сделок',
+    ]
+
+
+class FakerConstants:
+    """
+    Класс констант - основных параметров генерации тестовых данных с помощью Faker,
+    используемых в пакете `fake_data_factories`.
+
+    Атрибуты:
+    - AMOUNT_OF_MODERATORS (int): количество модераторов на компанию
+    - COMMENT_COUNT (int): количество комментариев
+    - COMMENT_WORDS_COUNT (int): количество слов в комментарии
+    - COMPANY_COUNT (int): количество компаний
+    - DEPARTMENT_COUNT (int): количество отделов
+    - MAX_COMMENT_RATING (int): максимальный рейтинг комментария
+    - MESSAGE_FEEDS_COUNT (int): количество лент сообщений
+    - MEETINGS_COUNT (int): количество встреч
+    - MEETINGS_RESULT_COUNT (int): количество результатов встреч
+    - MIN_COMMENT_RATING (int): минимальный рейтинг комментария
+    - PROBLEMS_COUNT (int): количество проблем
+    - TASK_COUNT (int): количество задач
+    - USER_COUNT (int): количество пользователей
+    - USER_TAGS_COUNT (int): количество тегов пользователя
+    - VOTING_FEEDS_COUNT (int): количество лент голосований
+    """
+
+    AMOUNT_OF_MODERATORS: int = 1
+    COMMENT_COUNT: int = 5
+    COMMENT_WORDS_COUNT: int = 7
+    COMPANY_COUNT: int = 5
+    DEPARTMENT_COUNT: int = 5
+    MAX_COMMENT_RATING: int = 3
+    MESSAGE_FEEDS_COUNT: int = 5
+    MEETINGS_COUNT: int = 5
+    MEETINGS_RESULT_COUNT: int = 5
+    MIN_COMMENT_RATING: int = 0
+    PROBLEMS_COUNT: int = 5
+    TASK_COUNT: int = 5
+    USER_COUNT: int = 5
+    USER_TAGS_COUNT: int = 3
+    VOTING_FEEDS_COUNT: int = 5
+
+
+class LengthConstants(LengthBaseConstants):
+    """
+    Класс констант, определяющих ограничения длины для различных полей,
+    используемых в пакете `fake_data_factories`.
+
+    Так же класс наследует значения из LengthBaseConstants.
+
+    Атрибуты:
+    - LICENSE_MAX_ADMINS (int): максимальное количество администраторов
+    - LICENSE_MAX_EMPLOYEES (int): максимальное количество сотрудников
+    - LICENSE_TYPE_COUNT (int): количество типов лицензий
+    - TASK_DESCRIPTION_LENGTH (int): длина описания задачи
+    """
+
+    LICENSE_MAX_ADMINS: int = 100
+    LICENSE_MAX_EMPLOYEES: int = 1000
+    LICENSE_TYPE_COUNT: int = 5
+    TASK_DESCRIPTION_LENGTH: int = 256
+
+
+@dataclass(frozen=True)
+class MiscConstants(MiscBaseConstants):
+    """
+    Класс разных общесистемных констант, используемых в пакете `fake_data_factories`.
+
+    Класс реализован, как неизменяемый.
+
+    Так же класс наследует значения из MiscBaseConstants.
+
+    Атрибуты:
+    - COMPANY_USER_CREATED_TEXT (str): шаблон сообщения о создании пользователя компании.
+    """
+
+    COMPANY_USER_CREATED_TEXT: str = (
+        '{role} компании c id={company_id}: {user_email}, пасс: {password}'
+    )

@@ -21,7 +21,7 @@ from src.models.annotations import (
     name_problem,
     owner,
 )
-from src.models.constants import LENGTH_NAME_MEETING_PLACE
+from src.models.constants import LengthConstants
 
 if TYPE_CHECKING:
     from src.models import (
@@ -69,7 +69,9 @@ class Meeting(BaseTabitModel):
     owner: Mapped['CompanyUser'] = relationship(back_populates='meeting_owner')
     date_meeting: Mapped[date] = mapped_column(nullable=False)
     status: Mapped['MeetingStatus']
-    place: Mapped[str] = mapped_column(String(LENGTH_NAME_MEETING_PLACE), nullable=False)
+    place: Mapped[str] = mapped_column(
+        String(LengthConstants.MAX_NAME_MEETING_PLACE), nullable=False
+    )
     members: Mapped[List['AssociationUserMeeting']] = relationship(
         back_populates='meeting',
         cascade='all, delete-orphan',

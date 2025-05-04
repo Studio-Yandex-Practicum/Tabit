@@ -1,17 +1,56 @@
+"""
+Модуль констант для работы с миграциями и запуска приложения.
+
+Содержит настройки и текстовые константы, используемые в различных частях проекта:
+- Параметры для работы с миграциями базы данных
+- Флаги командной строки для управления приложением
+- Текстовые сообщения и описания для CLI-интерфейса
+
+Классы:
+- MigrationConstants: конфигурация путей и регулярных выражений для миграций.
+- ScriptOptionsConstants: флаги командной строки для управления приложением.
+- TextScriptsConstants: текстовые сообщения для CLI-интерфейса.
+
+Примечание:
+- Все пути вычисляются относительно расположения этого файла.
+"""
+
 from dataclasses import dataclass
 from pathlib import Path
-from re import compile
-
-# Константы для migration_auto_naming.py
-MIGRATIONS_DIR = Path(__file__).parent.parent / 'alembic' / 'versions'
-MIGRATION_RE_ID = compile(r'^(\d+)_')
+from re import Pattern, compile
 
 
-# Константы для pre_start.py
-@dataclass
-class TextScripts:
-    """Текстовые переменные файла scripts.py."""
+@dataclass(frozen=True)
+class MigrationConstants:
+    """
+    Класс констант для работы с миграциями.
 
+    Класс реализован, как неизменяемый.
+
+    Атрибуты:
+    - MIGRATIONS_DIR (Path): Путь к директории с файлами миграций.
+    - MIGRATION_RE_ID (Pattern): Регулярное выражение для извлечения номера миграции.
+    - Сопоставляет цифры в начале имени файла перед '_'.
+    """
+
+    MIGRATIONS_DIR: Path = Path(__file__).resolve().parents[2] / 'alembic' / 'versions'
+    MIGRATION_RE_ID: Pattern[str] = compile(r'^(\d+)_')
+
+
+class TextScriptsConstants:
+    """
+    Класс констант - текстовых переменных для файла scripts.py.
+
+    Атрибуты:
+    - CREATE (str): Описание создания суперпользователя.
+    - DESCRIPTION (str): Основное описание скрипта запуска.
+    - HOST (str): Описание параметра хоста.
+    - LOGGER (str): Сообщение при старте сервера.
+    - PORT (str): Описание параметра порта.
+    - RELOAD (str): Описание параметра перезагрузки.
+    """
+
+    CREATE: str = 'Создать суперпользователя'
     DESCRIPTION: str = """
         Запустит проект с помощью uvicorn.
 
@@ -19,8 +58,7 @@ class TextScripts:
         фдаг --create-superuser - создаст первого суперпользователя согласно данным в .env без
         последующего запуска проекта.
         """
-    LOGGER: str = 'Starting uvicorn server...'
-    RELOAD: str = 'Запустит uvicorn с флагом --reload'
     HOST: str = 'Указать хост при запуске.'
+    LOGGER: str = 'Starting uvicorn server...'
     PORT: str = 'Указать порт при запуске.'
-    CREATE: str = 'Создать суперпользователя'
+    RELOAD: str = 'Запустит uvicorn с флагом --reload'

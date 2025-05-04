@@ -3,15 +3,12 @@ from fastapi import status
 from httpx import AsyncClient
 from pytest_lazy_fixtures import lf
 
-from src.core.constants import ERROR_INVALID_TELEGRAM_USERNAME
 from src.models import CompanyUserRole
 from tests.constants import (
-    GOOD_PASSWORD,
-    MODERATOR_TELEGRAM,
-    PAYLOAD_FOR_PATCH_USER,
-    PAYLOAD_FOR_PATCH_USER_EXTRA,
-    URL,
-    USER_TELEGRAM,
+    AuthDataConstants,
+    TextErrorConstants,
+    UrlConstants,
+    UserPayloadsConstants,
 )
 
 
@@ -32,8 +29,8 @@ class TestLoginUser:
     )
     async def test_login_user(self, client: AsyncClient, user, text):
         """Тест на вход в систему пользователей сервиса с валидными данными."""
-        login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
-        response = await client.post(URL.USER_LOGIN, data=login_payload)
+        login_payload = {'username': user.email, 'password': AuthDataConstants.GOOD_PASSWORD}
+        response = await client.post(UrlConstants.USER_LOGIN, data=login_payload)
         assert response.status_code == status.HTTP_200_OK, (
             f'При авторизации {text} у ответа должен быть статус 200:\n{response.text}'
         )
@@ -55,8 +52,8 @@ class TestLoginUser:
         Тест на вход в систему пользователей сервиса для пользователей
         суперпользователя и администратора сервиса.
         """
-        login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
-        response = await client.post(URL.USER_LOGIN, data=login_payload)
+        login_payload = {'username': user.email, 'password': AuthDataConstants.GOOD_PASSWORD}
+        response = await client.post(UrlConstants.USER_LOGIN, data=login_payload)
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'При авторизации {text} у ответа должен быть статус 400:\n{response.text}'
         )
@@ -70,7 +67,7 @@ class TestLoginUser:
         """
         bad_login_payloads: tuple[dict, ...] = (
             {
-                'password': GOOD_PASSWORD,
+                'password': AuthDataConstants.GOOD_PASSWORD,
             },
             {
                 'username': employee.email,
@@ -78,7 +75,7 @@ class TestLoginUser:
             {},
         )
         for bad_login_payload in bad_login_payloads:
-            response = await client.post(URL.ADMIN_LOGIN, data=bad_login_payload)
+            response = await client.post(UrlConstants.ADMIN_LOGIN, data=bad_login_payload)
             assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
                 f'Не корректный ответ с данными\n{bad_login_payload}\n{response.text}'
             )
@@ -88,8 +85,11 @@ class TestLoginUser:
     @pytest.mark.asyncio
     async def test_login_user_bad_password(self, client: AsyncClient, employee):
         """Тест на вход в систему пользователей сервиса под неверным паролем."""
-        login_payload = {'username': employee.email, 'password': f'NOT {GOOD_PASSWORD}'}
-        response = await client.post(URL.ADMIN_LOGIN, data=login_payload)
+        login_payload = {
+            'username': employee.email,
+            'password': f'NOT {AuthDataConstants.GOOD_PASSWORD}',
+        }
+        response = await client.post(UrlConstants.ADMIN_LOGIN, data=login_payload)
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
             f'Не корректный ответ с данными\n{login_payload}\n{response.text}'
         )
@@ -114,7 +114,7 @@ class TestLogoutUser:
     )
     async def test_logout_user(self, client: AsyncClient, token, text):
         """Тест на выход из системы пользователей сервиса."""
-        response = await client.post(URL.USER_LOGOUT, headers=token)
+        response = await client.post(UrlConstants.USER_LOGOUT, headers=token)
         assert response.status_code == status.HTTP_204_NO_CONTENT, (
             f'При выходе из системы {text} должен быть статус ответа 204:\n{response.text}'
         )
@@ -130,7 +130,7 @@ class TestLogoutUser:
     )
     async def test_logout_user_not_access(self, client: AsyncClient, token, text):
         """Тест на выход из системы пользователей сервиса."""
-        response = await client.post(URL.USER_LOGOUT, headers=token)
+        response = await client.post(UrlConstants.USER_LOGOUT, headers=token)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED, (
             f'При выходе из системы {text} должен быть статус ответа 401:\n{response.text}'
         )
@@ -158,7 +158,7 @@ class TestRefreshTokenUser:
         text,
     ):
         """Тест получения нового токена по refresh-token для пользователя сервиса Tabit."""
-        response = await client.post(URL.USER_REFRESH, headers=token)
+        response = await client.post(UrlConstants.USER_REFRESH, headers=token)
         assert response.status_code == status.HTTP_200_OK, (
             f'При получение токена {text} у ответа должен быть статус 200:\n{response.text}'
         )
@@ -186,7 +186,7 @@ class TestRefreshTokenUser:
         Тест на ошибку получения нового токена по refresh-token для пользователя сервиса Tabit,
         если это суперпользователь или администратор сервиса.
         """
-        response = await client.post(URL.USER_REFRESH, headers=token)
+        response = await client.post(UrlConstants.USER_REFRESH, headers=token)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED, (
             f'При попытке получения токена {text} у ответа должен быть статус 401:\n'
             f'{response.text}'
@@ -218,7 +218,7 @@ class TestGetMeUser:
         text,
     ):
         """Тесты на получение личных данных для пользователя сервиса Tabit."""
-        response = await client.get(URL.USER_ME, headers=token)
+        response = await client.get(UrlConstants.USER_ME, headers=token)
         assert response.status_code == status.HTTP_200_OK, (
             f'При получение личных данных {text} '
             f'должен быть ответ со статусом 200:\n{response.text}'
@@ -298,7 +298,7 @@ class TestGetMeUser:
         Тест на ошибку при получение личных данных для администраторов сервиса Tabit,
         если создавать попытается не суперпользователь сервиса.
         """
-        response = await client.get(URL.USER_ME, headers=token)
+        response = await client.get(UrlConstants.USER_ME, headers=token)
         assert response.status_code == status_code, (
             f'При попытке получить личные данные {text} '
             f'не было ответа cо статусом {status_code}:\n{response.text}'
@@ -318,13 +318,17 @@ class TestPatchMeUser:
     @pytest.mark.parametrize(
         'token, telegram, text',
         [
-            (lf('moderator_token'), MODERATOR_TELEGRAM, 'модератором от компании'),
-            (lf('employee_token'), USER_TELEGRAM, 'сотрудником компании'),
+            (
+                lf('moderator_token'),
+                UserPayloadsConstants.MODERATOR_TELEGRAM,
+                'модератором от компании',
+            ),
+            (lf('employee_token'), UserPayloadsConstants.USER_TELEGRAM, 'сотрудником компании'),
         ],
     )
     @pytest.mark.parametrize(
         'payload',
-        PAYLOAD_FOR_PATCH_USER,
+        UserPayloadsConstants.PAYLOAD_FOR_PATCH_USER,
     )
     async def test_patch_me_user(
         self,
@@ -337,12 +341,12 @@ class TestPatchMeUser:
         """Тесты на изменение личных данных для пользователей сервиса Tabit."""
         payload['telegram_username'] = telegram
         response_get = await client.get(
-            URL.USER_ME,
+            UrlConstants.USER_ME,
             headers=token,
         )
         data_before = response_get.json()
         response_patch = await client.patch(
-            URL.USER_ME,
+            UrlConstants.USER_ME,
             json=payload,
             headers=token,
         )
@@ -374,14 +378,14 @@ class TestPatchMeUser:
         employee_token,
     ):
         """Тесты на появление пользователей с одинаковым Telegram"""
-        payload = {'telegram_username': MODERATOR_TELEGRAM}
+        payload = {'telegram_username': UserPayloadsConstants.MODERATOR_TELEGRAM}
         await client.patch(
-            URL.USER_ME,
+            UrlConstants.USER_ME,
             json=payload,
             headers=moderator_token,
         )
         response = await client.patch(
-            URL.USER_ME,
+            UrlConstants.USER_ME,
             json=payload,
             headers=employee_token,
         )
@@ -391,8 +395,8 @@ class TestPatchMeUser:
         )
         data = response.json()
         assert 'detail' in data, "В ответе отсутствует поле 'detail'"
-        assert data['detail'] == ERROR_INVALID_TELEGRAM_USERNAME, (
-            f"Ожидалось сообщение '{ERROR_INVALID_TELEGRAM_USERNAME}'"
+        assert data['detail'] == TextErrorConstants.INVALID_TELEGRAM_USERNAME, (
+            f"Ожидалось сообщение '{TextErrorConstants.INVALID_TELEGRAM_USERNAME}'"
             f", получено: '{data['detail']}'"
         )
 
@@ -406,7 +410,7 @@ class TestPatchMeUser:
     )
     @pytest.mark.parametrize(
         'extra_key, extra_value',
-        PAYLOAD_FOR_PATCH_USER_EXTRA.items(),
+        UserPayloadsConstants.PAYLOAD_FOR_PATCH_USER_EXTRA.items(),
     )
     async def test_patch_me_user_extra_fields(
         self,
@@ -420,10 +424,10 @@ class TestPatchMeUser:
         Тесты на попытку вставить дополнительные поля
         при изменении личных данных для пользователей сервиса Tabit.
         """
-        payload = PAYLOAD_FOR_PATCH_USER[0]
+        payload = UserPayloadsConstants.PAYLOAD_FOR_PATCH_USER[0]
         payload[extra_key] = extra_value
         response = await client.patch(
-            URL.USER_ME,
+            UrlConstants.USER_ME,
             json=payload,
             headers=token,
         )
@@ -455,7 +459,7 @@ class TestPatchMeUser:
         """
         payload: dict[str, str] = {'name': 'Киширика', 'surname': 'Киширису'}
         response = await client.patch(
-            URL.USER_ME,
+            UrlConstants.USER_ME,
             json=payload,
             headers=token,
         )

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_user_tabit
 from src.core.database.db_depends import get_async_session
 from src.crud import company_crud, meeting_crud, problem_crud, result_meeting_crud
-from src.features_v1.constants import Description, Summary
+from src.features_v1.constants import DescriptionConstants, SummaryConstants
 from src.features_v1.validators import (
     check_meeting_exists,
     check_problem_exists,
@@ -33,8 +33,8 @@ router = APIRouter()
     '/',
     response_model=list[MeetingResponseSchema],
     response_model_exclude_none=True,
-    summary=Summary.MEETING_LIST,
-    description=Description.MEETING_LIST,
+    summary=SummaryConstants.LIST_MEETING,
+    description=DescriptionConstants.LIST_MEETING,
     status_code=status.HTTP_200_OK,
 )
 async def get_meetings_for_user(
@@ -81,8 +81,8 @@ async def get_meetings_for_user(
     '/',
     response_model=MeetingResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.MEETING_CREATE,
-    description=Description.MEETING_CREATE,
+    summary=SummaryConstants.CREATE_MEETING,
+    description=DescriptionConstants.CREATE_MEETING,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_meeting(
@@ -133,8 +133,8 @@ async def create_meeting(
     '/{meeting_id}',
     response_model=MeetingResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.MEETING,
-    description=Description.MEETING,
+    summary=SummaryConstants.GET_MEETING,
+    description=DescriptionConstants.GET_MEETING,
     status_code=status.HTTP_200_OK,
 )
 async def get_meeting(
@@ -179,8 +179,8 @@ async def get_meeting(
     '/{meeting_id}',
     response_model=MeetingResponseSchema,
     response_model_exclude_none=True,
-    summary=Summary.MEETING_UPDATE,
-    description=Description.MEETING_UPDATE,
+    summary=SummaryConstants.UPDATE_MEETING,
+    description=DescriptionConstants.UPDATE_MEETING,
     status_code=status.HTTP_200_OK,
 )
 async def update_meeting(
@@ -236,8 +236,8 @@ async def update_meeting(
 
 @router.delete(
     '/{meeting_id}',
-    summary=Summary.MEETING_DELETE,
-    description=Description.MEETING_DELETE,
+    summary=SummaryConstants.DELETE_MEETING,
+    description=DescriptionConstants.DELETE_MEETING,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_meeting(
@@ -286,7 +286,8 @@ async def delete_meeting(
     '/{meeting_id}/result',
     response_model=MeetingResultResponseSchema,
     response_model_exclude_none=True,
-    summary='Создать результат встречи',
+    summary=SummaryConstants.CREATE_RESULT_MEETING,
+    description=DescriptionConstants.CREATE_RESULT_MEETING,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_meeting_result(
@@ -323,7 +324,8 @@ async def create_meeting_result(
     '/{meeting_id}/result/{result_id}',
     response_model=MeetingResultResponseSchema,
     response_model_exclude_none=True,
-    summary='Результат встречи',
+    summary=SummaryConstants.GET_RESULT_MEETING,
+    description=DescriptionConstants.GET_RESULT_MEETING,
     status_code=status.HTTP_200_OK,
 )
 async def get_meeting_result(
@@ -357,7 +359,8 @@ async def get_meeting_result(
     '/{meeting_id}/result/{result_id}',
     response_model=MeetingResultResponseSchema,
     response_model_exclude_none=True,
-    summary='Обновить результат встречи',
+    summary=SummaryConstants.UPDATE_RESULT_MEETING,
+    description=DescriptionConstants.UPDATE_RESULT_MEETING,
     status_code=status.HTTP_200_OK,
 )
 async def patch_meeting_result(

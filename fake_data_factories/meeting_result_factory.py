@@ -8,11 +8,7 @@ from termcolor import cprint
 
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import (
-    DEFAULT_MEETING_FEEDBACK,
-    FAKER_MEETINGS_RESULT_COUNT,
-    ColorCPrint,
-)
+from fake_data_factories.constants import ColorCPrintConstants, DefaultConstants, FakerConstants
 from fake_data_factories.meeting_factory import create_meetings
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
@@ -55,7 +51,7 @@ class MeetingResultFactory(AsyncSQLAlchemyFactory):
         lambda: choice(list(MeetingResultSolutionEnum))
     )
     meeting_feedback: factory.LazyFunction = factory.LazyFunction(
-        lambda: choice(DEFAULT_MEETING_FEEDBACK)
+        lambda: choice(DefaultConstants.MEETING_FEEDBACK)
     )
 
     class Meta:
@@ -65,7 +61,7 @@ class MeetingResultFactory(AsyncSQLAlchemyFactory):
 
 @start_and_end(__name__)
 async def create_meeting_result(
-    count: int = FAKER_MEETINGS_RESULT_COUNT, **kwargs
+    count: int = FakerConstants.MEETINGS_RESULT_COUNT, **kwargs
 ) -> list[MeetingResult]:
     """
     Создать запись(-и) в таблицу объекта `MeetingResult`.
@@ -104,7 +100,7 @@ async def create_meeting_result(
         )
     cprint(
         f'Создано {count} результатов встреч от пользователя с id: {kwargs["owner_id"]}',
-        ColorCPrint.green,  # type: ignore
+        ColorCPrintConstants.green,  # type: ignore
     )
     return meetings_results
 

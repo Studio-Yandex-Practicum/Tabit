@@ -3,7 +3,7 @@ from uuid import UUID
 from async_factory_boy.factory.sqlalchemy import AsyncSQLAlchemyFactory
 from termcolor import cprint
 
-from fake_data_factories.constants import ColorCPrint
+from fake_data_factories.constants import ColorCPrintConstants
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
 from src.models import AssociationUserTask
@@ -43,5 +43,5 @@ async def create_user_task_associations(
     cprint(
         f'Создано {len(task_ids)} ассоциативных связей задача-пользователь '
         f'от пользователя с id: {user_id}',
-        ColorCPrint.green,  # type: ignore
+        ColorCPrintConstants.green,  # type: ignore
     )

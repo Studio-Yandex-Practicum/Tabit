@@ -10,17 +10,7 @@ from fake_data_factories.association_user_problem_factory import (
 from fake_data_factories.comment_feed_factory import create_comments
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import (
-    FAKER_COMMENT_COUNT,
-    FAKER_COMPANY_COUNT,
-    FAKER_DEPARTMENT_COUNT,
-    FAKER_TASK_COUNT,
-    FAKER_USER_COUNT,
-    FAKER_USER_TAGS_COUNT,
-    FAKER_VOTING_FEEDS_COUNT,
-    LICENSE_TYPE_COUNT,
-    ColorCPrint,
-)
+from fake_data_factories.constants import ColorCPrintConstants, FakerConstants, LengthConstants
 from fake_data_factories.department_factories import create_company_department
 from fake_data_factories.license_type_factories import create_license_type
 from fake_data_factories.meeting_factory import create_meetings
@@ -55,17 +45,20 @@ async def fill_all_data():
             (количество вариантов выбора пользователя выбирается случайным образом \
             для каждого голосования).
     """
-    color = ColorCPrint.light_cyan
+    color = ColorCPrintConstants.light_cyan
     cprint(
         colored('Начинаем генерацию тестовых данных...', color, attrs=['reverse', 'blink']),
     )
-    license_types = await create_license_type(count=LICENSE_TYPE_COUNT)
+    license_types = await create_license_type(count=LengthConstants.LICENSE_TYPE_COUNT)
     company_license_type = license_types[0]
     companies = await create_companies(
-        count=FAKER_COMPANY_COUNT, license_id=company_license_type.id
+        count=FakerConstants.COMPANY_COUNT, license_id=company_license_type.id
     )
     for company in companies:
-        company_users = await create_company_users(count=FAKER_USER_COUNT, company_id=company.id)
+        company_users = await create_company_users(
+            count=FakerConstants.USER_COUNT,
+            company_id=company.id,
+        )
         company_users_not_admins = [
             company_user for company_user in company_users if company_user.role != 'Модератор'
         ]
@@ -94,28 +87,32 @@ async def fill_all_data():
             )
             for message_feed in message_feeds:
                 voting_feeds = await create_voting_feeds(
-                    count=FAKER_VOTING_FEEDS_COUNT, message_id=message_feed.id
+                    count=FakerConstants.VOTING_FEEDS_COUNT, message_id=message_feed.id
                 )
                 voting_ids = [voting_feed.id for voting_feed in voting_feeds]
-                max_votings_by_user = randint(1, FAKER_VOTING_FEEDS_COUNT)
+                max_votings_by_user = randint(1, FakerConstants.VOTING_FEEDS_COUNT)
                 for user in company_users_not_admins:
                     await create_user_voting_associations(
                         user_id=user.id,
                         voting_ids=sample(voting_ids, max_votings_by_user),
                     )
                 await create_comments(
-                    count=FAKER_COMMENT_COUNT,
+                    count=FakerConstants.COMMENT_COUNT,
                     message_id=message_feed.id,
                     owner_id=message_feed.owner_id,
                 )
             await create_tasks(
-                count=FAKER_TASK_COUNT, problem_id=problem.id, owner_id=company_user.id
+                count=FakerConstants.TASK_COUNT, problem_id=problem.id, owner_id=company_user.id
             )
             await create_tags(
-                count=FAKER_USER_TAGS_COUNT, company_id=company.id, user_id=company_user.id
+                count=FakerConstants.USER_TAGS_COUNT,
+                company_id=company.id,
+                user_id=company_user.id,
             )
-        await create_company_department(count=FAKER_DEPARTMENT_COUNT, company_id=company.id)
-    await create_tabit_admin_users(count=FAKER_USER_COUNT)
+        await create_company_department(
+            count=FakerConstants.DEPARTMENT_COUNT, company_id=company.id
+        )
+    await create_tabit_admin_users(count=FakerConstants.USER_COUNT)
 
     cprint(
         colored('Генерация завершена!', color, attrs=['reverse', 'blink']),

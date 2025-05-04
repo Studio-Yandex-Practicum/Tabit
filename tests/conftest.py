@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from src.core.database.db_depends import get_async_session
 from src.main import app_v1
 from src.models import (
+    AssociationUserProblem,
     BaseTabitModel,
     CommentFeed,
     Company,
@@ -32,7 +33,18 @@ from src.models import (
     ProblemType,
     TabitAdminUser,
 )
-from tests.constants import GOOD_PASSWORD, TEST_DATABASE_URL, URL
+from tests.constants import AuthDataConstants, Test_Database_URLConstants, UrlConstants
+
+
+def pytest_collection_modifyitems(items):
+    """
+    Добавляет всем тестам параметр loop_scope="session" в декоратор.
+    Подробности: https://github.com/pytest-dev/pytest-asyncio/issues/922
+    """
+    pytest_asyncio_tests = (item for item in items if pytest_asyncio.is_async_test(item))
+    session_scope_marker = pytest.mark.asyncio(loop_scope='session')
+    for async_test in pytest_asyncio_tests:
+        async_test.add_marker(session_scope_marker, append=False)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -54,11 +66,11 @@ def setup_test_db():
             check=True,
         )
         wait_for_postgres(
-            host=TEST_DATABASE_URL.TEST_HOST,
-            port=TEST_DATABASE_URL.TEST_PORT,
-            user=TEST_DATABASE_URL.TEST_USER,
-            password=TEST_DATABASE_URL.TEST_PASSWORD,
-            dbname=TEST_DATABASE_URL.TEST_DBNAME,
+            host=Test_Database_URLConstants.HOST,
+            port=Test_Database_URLConstants.PORT,
+            user=Test_Database_URLConstants.USER,
+            password=Test_Database_URLConstants.PASSWORD,
+            dbname=Test_Database_URLConstants.DBNAME,
         )
         yield
     finally:
@@ -68,7 +80,7 @@ def setup_test_db():
         )
 
 
-def wait_for_postgres(host: str, port: int, user: str, password: str, dbname, timeout=30):
+def wait_for_postgres(host: str, port: int, user: str, password: str, dbname, timeout=60):
     """
     Ожидает готовности PostgreSQL перед началом тестов.
 
@@ -118,8 +130,10 @@ def test_db():
     """
 
     database_url = (
-        f'postgresql+asyncpg://{TEST_DATABASE_URL.TEST_USER}:{TEST_DATABASE_URL.TEST_PASSWORD}@'
-        f'{TEST_DATABASE_URL.TEST_HOST}:{TEST_DATABASE_URL.TEST_PORT}/{TEST_DATABASE_URL.TEST_DBNAME}'
+        f'postgresql+asyncpg://{Test_Database_URLConstants.USER}:'
+        f'{Test_Database_URLConstants.PASSWORD}@'
+        f'{Test_Database_URLConstants.HOST}:{Test_Database_URLConstants.PORT}/'
+        f'{Test_Database_URLConstants.DBNAME}'
     )
 
     engine = create_async_engine(database_url, echo=False, poolclass=NullPool)
@@ -319,7 +333,7 @@ async def administrator_tabit(async_session):
             'name': 'Ип',
             'surname': 'Ман',
             'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
-            'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
+            'hashed_password': PasswordHelper().hash(AuthDataConstants.GOOD_PASSWORD),
             'is_active': True,
             'is_superuser': False,
             'is_verified': False,
@@ -389,7 +403,7 @@ async def employee_of_company(async_session: AsyncSession, company_for_test):
             'name': f'Брюс {uuid.uuid4().hex[:8]}',
             'surname': f'Ли {uuid.uuid4().hex[:8]}',
             'email': f'{uuid.uuid4().hex[:8]}@yandex.ru',
-            'hashed_password': PasswordHelper().hash(GOOD_PASSWORD),
+            'hashed_password': PasswordHelper().hash(AuthDataConstants.GOOD_PASSWORD),
             'is_active': True,
             'is_superuser': False,
             'is_verified': False,
@@ -469,7 +483,7 @@ async def employee(employee_of_company):
 async def get_token(client: AsyncClient, user, url: str, refresh: bool = False) -> dict[str, str]:
     """Функция для получения тела заголовка с Authorization переданного пользователя."""
 
-    login_payload = {'username': user.email, 'password': GOOD_PASSWORD}
+    login_payload = {'username': user.email, 'password': AuthDataConstants.GOOD_PASSWORD}
     response = await client.post(url, data=login_payload)
     data = response.json()
     token = data['refresh_token'] if refresh else data['access_token']
@@ -481,7 +495,7 @@ async def superuser_token(client: AsyncClient, superuser):
     """
     Фикстура для получения заголовков авторизации суперпользователя сервиса Tabit c access-token.
     """
-    return await get_token(client, superuser, URL.ADMIN_LOGIN)
+    return await get_token(client, superuser, UrlConstants.ADMIN_LOGIN)
 
 
 @pytest_asyncio.fixture
@@ -489,7 +503,7 @@ async def admin_token(client: AsyncClient, admin):
     """
     Фикстура для получения заголовков авторизации администратора сервиса Tabit c access-token.
     """
-    return await get_token(client, admin, URL.ADMIN_LOGIN)
+    return await get_token(client, admin, UrlConstants.ADMIN_LOGIN)
 
 
 @pytest_asyncio.fixture
@@ -513,7 +527,7 @@ async def get_token_for_user(client: AsyncClient):
 
     async def _get_token_for_user(user, refresh: bool = False):
         """Функция-обёртка для заголовков авторизации пользователя от тестовой компании."""
-        return await get_token(client, user, URL.USER_LOGIN, refresh)
+        return await get_token(client, user, UrlConstants.USER_LOGIN, refresh)
 
     return _get_token_for_user
 
@@ -539,7 +553,7 @@ async def superuser_refresh_token(client: AsyncClient, superuser):
     """
     Фикстура для получения заголовков авторизации суперпользователя сервиса Tabit c refresh-token.
     """
-    return await get_token(client, superuser, URL.ADMIN_LOGIN, refresh=True)
+    return await get_token(client, superuser, UrlConstants.ADMIN_LOGIN, refresh=True)
 
 
 @pytest_asyncio.fixture
@@ -547,7 +561,7 @@ async def admin_refresh_token(client: AsyncClient, admin):
     """
     Фикстура для получения заголовков авторизации администратора сервиса Tabit c refresh-token.
     """
-    return await get_token(client, admin, URL.ADMIN_LOGIN, refresh=True)
+    return await get_token(client, admin, UrlConstants.ADMIN_LOGIN, refresh=True)
 
 
 @pytest_asyncio.fixture
@@ -631,6 +645,11 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
             default_data.update(problem_data)
 
         problem = await make_entry_in_table(async_session, default_data, Problem)
+
+        # Так как при создании проблемы owner автоматически становится её участником,
+        # делаем запись в связанной таблице.
+        user_problem_data = {'left_id': str(owner_id), 'right_id': problem.id}
+        await make_entry_in_table(async_session, user_problem_data, AssociationUserProblem)
 
         if return_all_objects:
             return problem, employee, company

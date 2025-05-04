@@ -10,13 +10,7 @@ from termcolor import cprint
 from fake_data_factories.association_user_meeting_factory import create_user_meeting_association
 from fake_data_factories.company_factories import create_companies
 from fake_data_factories.company_user_factories import create_company_users
-from fake_data_factories.constants import (
-    DEFAULT_MEETING_DESCRIPTIONS,
-    DEFAULT_MEETING_PLACES,
-    DEFAULT_MEETING_TITLES,
-    FAKER_MEETINGS_COUNT,
-    ColorCPrint,
-)
+from fake_data_factories.constants import ColorCPrintConstants, DefaultConstants, FakerConstants
 from fake_data_factories.problem_factory import create_problems
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
@@ -43,15 +37,19 @@ class MeetingFactory(AsyncSQLAlchemyFactory):
             Генерируется случайное целое число из диапазона 0-3
     """
 
-    title: factory.LazyFunction = factory.LazyFunction(lambda: choice(DEFAULT_MEETING_TITLES))
+    title: factory.LazyFunction = factory.LazyFunction(
+        lambda: choice(DefaultConstants.MEETING_TITLES)
+    )
     description: factory.LazyFunction = factory.LazyFunction(
-        lambda: choice(DEFAULT_MEETING_DESCRIPTIONS)
+        lambda: choice(DefaultConstants.MEETING_DESCRIPTIONS)
     )
     problem_id: int
     owner_id: UUID
     date_meeting: factory.LazyFunction = factory.LazyFunction(lambda: date.today())
     status: factory.LazyFunction = factory.LazyFunction(lambda: choice(list(MeetingStatus)))
-    place: factory.LazyFunction = factory.LazyFunction(lambda: choice(DEFAULT_MEETING_PLACES))
+    place: factory.LazyFunction = factory.LazyFunction(
+        lambda: choice(DefaultConstants.MEETING_PLACES)
+    )
     transfer_counter: factory.LazyFunction = factory.LazyFunction(lambda: randint(0, 3))
 
     class Meta:
@@ -60,7 +58,7 @@ class MeetingFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_meetings(count: int = FAKER_MEETINGS_COUNT, **kwargs) -> list[Meeting]:
+async def create_meetings(count: int = FakerConstants.MEETINGS_COUNT, **kwargs) -> list[Meeting]:
     """
     Создать запись(-и) в таблицу объекта `Meeting`.
 
@@ -89,7 +87,7 @@ async def create_meetings(count: int = FAKER_MEETINGS_COUNT, **kwargs) -> list[M
     cprint(
         f'Создано {count} встреч по проблеме c id: {kwargs["problem_id"]} '
         f'от пользователя с id: {kwargs["owner_id"]}',
-        ColorCPrint.green,  # type: ignore
+        ColorCPrintConstants.green,  # type: ignore
     )
     await create_user_meeting_association(
         user_id=kwargs['owner_id'], meeting_ids=[meeting.id for meeting in meetings]

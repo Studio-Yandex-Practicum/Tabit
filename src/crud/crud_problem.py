@@ -1,86 +1,211 @@
-from uuid import UUID
-
+from fastapi import HTTPException, status as status_
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy import and_, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.crud.crud_base import CRUDBase
-from src.models import AssociationUserProblem, Problem
-from src.schemas import ProblemCreateSchema, ProblemUpdateSchema
-from src.utils.association_utils import create_associations
+from src.core.config.logging import logger
+from src.crud import CRUDBaseWithAssociations
+from src.crud.constants import TextErrorConstants
+from src.models.association_models import AssociationUserProblem
+from src.models.company import Company
+from src.models.enum import ProblemStatus
+from src.models.problem import Problem
+from src.models.user import CompanyUser
+from src.schemas.problem import ProblemCreateSchema, ProblemUpdateSchema
 
 
-# TODO Надо доработать CRUD на получение проблем со списком участников
-class CRUDProblem(CRUDBase):
+class CRUDProblem(CRUDBaseWithAssociations):
     """CRUD операции для модели проблемы."""
 
     async def create_problem_with_members(
-        self, session: AsyncSession, problem_data: dict, members: list[UUID]
+        self,
+        session: AsyncSession,
+        problem_in: ProblemCreateSchema,
+        owner: CompanyUser,
+        company: Company,
     ) -> Problem:
-        """Создание встречи с участниками.
+        """
+        Для создания записи в таблице Проблемы.
 
-        Назначение:
-            Создает новую проблемы и добавляет участников через ассоциативную таблицу.
-            Выполняет все операции в рамках одной транзакции.
         Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            problem_data: Словарь с данными для создания проблемы.
-            members: Список UUID участников проблемы.
-        Возвращаемое значение:
-            Созданный объект проблемы с обновленными данными.
+            problem_in: данные для изменения в виде схемы.
+            owner: экземпляр модели пользователя, автор проблемы.
+            company: экземпляр модели компании, в которой возникла проблема.
+        Возвращает:
+            Экземпляр модели проблемы после создания.
         """
+        problem_data = problem_in.model_dump()
+        members = problem_data.pop('members') if 'members' in problem_data else []
+        default_data = {
+            'owner_id': owner.id,
+            'company_id': company.id,
+            'status': ProblemStatus.NEW,
+        }
+        problem_data.update(default_data)
+        problem_db = self.model(**problem_data)
         try:
-            problem_data['members'] = members
-            problem_model = ProblemCreateSchema(**problem_data)
-            created_problem = await self.create(session, problem_model)
-
-            # Создаем ассоциации участников с встречей
-            await create_associations(
-                session=session,
-                association_model=AssociationUserProblem,
-                left_ids=members,
-                right_id=created_problem.id,
-                status=True,  # (Затычка, чтобы проверить создание проблемы со списком участников)
-            )
-
+            session.add(problem_db)
+            await session.flush()
+            members.append(owner.id)
+            members = set(members)
+            associations_data = [
+                self.associations_model(
+                    left_id=member,
+                    right_id=problem_db.id,
+                    status=(True if member == owner.id else False),
+                )
+                for member in members
+            ]
+            session.add_all(associations_data)
             await session.commit()
-            await session.refresh(created_problem)
-            return created_problem
-
-        except Exception as e:
+            await session.refresh(problem_db)
+        except Exception as error:
             await session.rollback()
-            raise e
+            logger.error(f'{TextErrorConstants.SERVER_CREATE_LOG} {self.model.__name__}: {error}')
+            raise error
+        return problem_db
 
     async def update_problem(
-        self, session: AsyncSession, problem_id: int, problem_update: ProblemUpdateSchema
+        self,
+        session: AsyncSession,
+        problem_db: Problem,
+        problem_in: ProblemUpdateSchema,
     ) -> Problem:
-        """Обновление проблемы.
+        """
+        Для изменения записи в таблице Проблемы.
 
-        Назначение:
-            Обновляет данные проблемы в базе данных по её ID.
-            Перед обновлением проверяет существование проблемы.
         Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            problem_id: ID проблемы для обновления.
-            problem_update: Схема с данными для обновления проблемы.
-        Возвращаемое значение:
-            Обновленный объект проблемы.
+            problem_db: экземпляр модели проблемы.
+            problem_in: данные для изменения в виде схемы.
+        Возвращает:
+            Экземпляр модели проблемы после изменения.
         """
-        db_obj = await self.get_or_404(session, problem_id)
-        return await self.update(session, db_obj, problem_update)
+        problem_data = jsonable_encoder(problem_db)
+        problem_update_data = problem_in.model_dump(exclude_unset=True)
+        members = problem_update_data.pop('members') if 'members' in problem_update_data else None
 
-    async def delete_problem(self, session: AsyncSession, problem_id: int) -> None:
-        """Удаление проблемы.
+        for field in problem_data:
+            if field in problem_update_data:
+                setattr(problem_db, field, problem_update_data[field])
 
-        Назначение:
-            Удаляет проблему из базы данных по её ID.
-            Перед удалением проверяет существование проблемы.
+        try:
+            session.add(problem_db)
+            await session.flush()
+
+            if members is not None:
+                if problem_db.owner_id:
+                    members.append(problem_db.owner_id)
+                members = set(members)
+
+                add_rows, delete_rows = self.get_data_associations_for_updata(
+                    problem_data['members'],
+                    members,
+                )
+
+                if add_rows:
+                    associations_data = [
+                        self.associations_model(
+                            left_id=member,
+                            right_id=problem_db.id,
+                            status=False,
+                        )
+                        for member in add_rows
+                    ]
+                    session.add_all(associations_data)
+
+                await session.execute(
+                    delete(self.associations_model).where(
+                        self.associations_model.right_id == problem_db.id,
+                        self.associations_model.left_id.in_(delete_rows),
+                    )
+                )
+
+            await session.commit()
+            await session.refresh(problem_db)
+
+        except Exception as error:
+            await session.rollback()
+            logger.error(f'{TextErrorConstants.SERVER_UPDATE_LOG} {self.model.__name__}: {error}')
+            raise error
+
+        return problem_db
+
+    async def edit_status_field_associations(
+        self,
+        session: AsyncSession,
+        problem: Problem,
+        user: CompanyUser,
+        status: bool = True,
+    ) -> Problem:
+        """
+        Для изменения статуса участника решения проблемы.
+
+        Изменит поле status в связной модели.
+
         Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            problem_id: ID проблемы для удаления.
-        Возвращаемое значение:
-            None
+            problem: экземпляр модели проблемы.
+            user: экземпляр модели пользователя.
+            status: какой присвоить статус участнику.
+        Возвращает:
+            Экземпляр модели проблемы после изменения.
         """
-        db_obj = await self.get_or_404(session, problem_id)
-        await self.remove(session, db_obj)
+        # TODO: Есть ли необходимость проверять, что статус уже True? Это лишние запросы.
+        association_row = await session.execute(
+            select(self.associations_model).where(
+                self.associations_model.right_id == problem.id,
+                self.associations_model.left_id == user.id,
+            )
+        )
+        associations_data = association_row.scalars().first()
+
+        if associations_data:
+            associations_data.status = status
+        else:
+            raise HTTPException(
+                status_code=status_.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=TextErrorConstants.NOT_IS_MEMBERS,
+            )
+
+        try:
+            session.add(associations_data)
+            await session.commit()
+            await session.refresh(problem)
+        except Exception as error:
+            await session.rollback()
+            logger.error(
+                f'{TextErrorConstants.UPDATE_SERVER_LOG} '
+                f'{self.associations_model.__name__}: {error}'
+            )
+            raise error
+
+        return problem
+
+    async def get_all_open_problem_from_association_by_user_id(
+        self,
+        session: AsyncSession,
+        user: CompanyUser,
+    ) -> list[AssociationUserProblem]:
+        """
+        Получить записи из связной таблице по id пользователя, где пользователь уже подтвердил
+        своё участие, а проблем ещё не закрыта.
+
+        Параметры:
+            session: Асинхронная сессия SQLAlchemy.
+            user: экземпляр модели пользователя.
+        Возвращает:
+            Список записей из связной модели.
+        """
+        query = and_(
+            self.associations_model.left_id == user.id,
+            self.associations_model.status == True,  # noqa: E712
+            self.model.status != ProblemStatus.COMPLETED,
+        )
+        request = select(self.associations_model).join(self.model).where(query)
+        association_rows = await session.execute(request)
+        return association_rows.scalars().all()  # type: ignore
 
 
-problem_crud = CRUDProblem(Problem)
+problem_crud = CRUDProblem(Problem, AssociationUserProblem)

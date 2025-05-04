@@ -9,13 +9,7 @@ from termcolor import cprint
 
 from fake_data_factories.association_user_comment_factory import create_user_comment_associations
 from fake_data_factories.company_user_factories import CompanyUserFactory, create_company_users
-from fake_data_factories.constants import (
-    FAKER_COMMENT_COUNT,
-    FAKER_COMMENT_WORDS_COUNT,
-    FAKER_MAX_COMMENT_RATING,
-    FAKER_MIN_COMMENT_RATING,
-    ColorCPrint,
-)
+from fake_data_factories.constants import ColorCPrintConstants, FakerConstants
 from fake_data_factories.message_feed_factory import create_message_feeds
 from fake_data_factories.utils import start_and_end
 from src.core.database.sc_db_session import sc_session
@@ -36,7 +30,10 @@ class CommentFeedFactory(AsyncSQLAlchemyFactory):
     message_id: int
     owner_id: UUID
     text: str = factory.Faker(
-        'sentence', locale='ru_RU', nb_words=FAKER_COMMENT_WORDS_COUNT, variable_nb_words=True
+        'sentence',
+        locale='ru_RU',
+        nb_words=FakerConstants.COMMENT_WORDS_COUNT,
+        variable_nb_words=True,
     )
     rating: int
 
@@ -46,7 +43,7 @@ class CommentFeedFactory(AsyncSQLAlchemyFactory):
 
 
 @start_and_end(__name__)
-async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
+async def create_comments(count=FakerConstants.COMMENT_COUNT, **kwargs) -> None:
     """
     Функция для пакетного создания комментариев.
 
@@ -59,8 +56,8 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
     же компании что и автор сообщения, и каждый комментарий будет создан от имени нового автора.
     Если указать owner_id, то будет созданы комментарии в количестве равным count.
     Каждому комментарию присваивается рандомный рейтинг в диапазоне
-    [FAKER_MIN_COMMENT_RATING, FAKER_MAX_COMMENT_RATING]. Для полученного числа создаются новые
-    пользователи в той же компании и записи AssociationUserComment (лайки).
+    [FakerConstants.MIN_COMMENT_RATING, FakerConstants.MAX_COMMENT_RATING]. Для полученного числа
+    создаются новые пользователи в той же компании и записи AssociationUserComment (лайки).
     """
     if 'message_id' not in kwargs:
         message = next(iter(await create_message_feeds(count=1)), None)
@@ -80,14 +77,16 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
         )
         comment_owners_ids = [owner.id for owner in comment_owners]
         for owner_id in comment_owners_ids:
-            kwargs['rating'] = randint(FAKER_MIN_COMMENT_RATING, FAKER_MAX_COMMENT_RATING)
+            kwargs['rating'] = randint(
+                FakerConstants.MIN_COMMENT_RATING, FakerConstants.MAX_COMMENT_RATING
+            )
             comment = await CommentFeedFactory.create(owner_id=owner_id, **kwargs)
             for _ in range(kwargs['rating']):
                 user = await CompanyUserFactory.create(company_id=message_owner.company_id)
                 await create_user_comment_associations(user_id=user.id, comment_ids=[comment.id])
         cprint(
             f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}',
-            ColorCPrint.green,  # type: ignore
+            ColorCPrintConstants.green,  # type: ignore
         )
     else:
         user_owner = await sc_session.execute(
@@ -95,14 +94,16 @@ async def create_comments(count=FAKER_COMMENT_COUNT, **kwargs) -> None:
         )
         user_owner = user_owner.scalar()
         for _ in range(count):
-            kwargs['rating'] = randint(FAKER_MIN_COMMENT_RATING, FAKER_MAX_COMMENT_RATING)
+            kwargs['rating'] = randint(
+                FakerConstants.MIN_COMMENT_RATING, FakerConstants.MAX_COMMENT_RATING
+            )
             comment = await CommentFeedFactory.create(**kwargs)
             for _ in range(kwargs['rating']):
                 user = await CompanyUserFactory.create(company_id=user_owner.company_id)
                 await create_user_comment_associations(user_id=user.id, comment_ids=[comment.id])
         cprint(
             f'Создано {count} комментариев в треде c id: {kwargs["message_id"]}',
-            ColorCPrint.green,  # type: ignore
+            ColorCPrintConstants.green,  # type: ignore
         )
 
 
