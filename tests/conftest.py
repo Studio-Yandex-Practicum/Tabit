@@ -276,7 +276,6 @@ async def company_for_test(async_session, license_for_test):
     Возвращает:
         - Company: Объект созданной компании.
         - (Company, LicenseType): Если `return_license=True` - кортеж (компания, лицензия).
-        - (Company, LicenseType): Если `return_license=True` - кортеж (компания, лицензия).
 
     Примеры использования:
         # Создание компании только с обязательными полями
@@ -870,7 +869,6 @@ async def task_for_test(async_session: AsyncSession, problem_for_test):
         - task_data (dict, optional): Данные для создания задачи. Если не переданы,
           используются значения по умолчанию.
         - return_all_objects (bool, optional): Если True, возвращает кортеж
-          (задача, проблема, сотрудник, компания).
           (задача, проблема, сотрудник, компания).
 
     Возвращает:
