@@ -19,7 +19,7 @@ from src.schemas.annotations import (
     PhoneNumberField,
     TelegramUsernameField,
 )
-from src.schemas.constants import MiscConstants, Title
+from src.schemas.constants import MiscConstants, TitleConstants
 from src.schemas.user import UserUpdateSchema
 from src.schemas.validators.company import (
     check_license_fields_none,
@@ -45,8 +45,8 @@ class CompanyUpdateForUserSchema(BaseModel):
         validate_description: Проверяет отсутствие пробелов в начале или конце описания.
     """
 
-    description: DescriptionField = Field(None, title=Title.NAME_COMPANY)
-    logo: Optional[str] = Field(None, title=Title.LOGO_COMPANY)
+    description: DescriptionField = Field(None, title=TitleConstants.NAME_COMPANY)
+    logo: Optional[str] = Field(None, title=TitleConstants.LOGO_COMPANY)
 
     model_config = ConfigDict(extra='forbid')
 
@@ -76,8 +76,8 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
         validate_license_fields: Проверяет корректность заполнения полей лицензии.
     """
 
-    name: OptionalCompanyNameField = Field(None, title=Title.NAME_COMPANY)
-    license_id: Optional[int] = Field(None, title=Title.LICENSE_ID_COMPANY)
+    name: OptionalCompanyNameField = Field(None, title=TitleConstants.NAME_COMPANY)
+    license_id: Optional[int] = Field(None, title=TitleConstants.LICENSE_ID_COMPANY)
     start_license_time: Optional[datetime] = Field(
         None,
         title=TitleConstants.START_LICENSE_TIME_COMPANY,
@@ -117,8 +117,8 @@ class CompanyCreateSchema(CompanyUpdateSchema):
         validate_license_fields: Проверяет корректность заполнения полей лицензии.
     """
 
-    name: CompanyNameField = Field(..., title=Title.NAME_COMPANY)
-    slug: Optional[str] = Field(None, title=Title.SLUG_COMPANY)
+    name: CompanyNameField = Field(..., title=TitleConstants.NAME_COMPANY)
+    slug: Optional[str] = Field(None, title=TitleConstants.SLUG_COMPANY)
 
     @field_validator('slug')
     @classmethod
@@ -196,7 +196,7 @@ class CompanyDepartmentUpdateSchema(BaseModel):
         name (str): Название отдела.
     """
 
-    name: CompanyNameField = Field(..., title=Title.NAME_DEPARTMENT)
+    name: CompanyNameField = Field(..., title=TitleConstants.NAME_DEPARTMENT)
 
     model_config = ConfigDict(extra='forbid')
 
@@ -274,11 +274,11 @@ class UserCompanyUpdateSchema(BaseModel):
         validate_fields: Проверяет уникальность и формат имени и фамилии.
     """
 
-    name: NameField = Field(None, title=Title.NAME_USER)
-    surname: NameField = Field(None, title=Title.SURNAME_USER)
-    phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
+    name: NameField = Field(None, title=TitleConstants.NAME_USER)
+    surname: NameField = Field(None, title=TitleConstants.SURNAME_USER)
+    phone_number: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
     email: Optional[EmailStr] = None
-    telegram_username: TelegramUsernameField = Field(None, title=Title.TELEGRAM_USERNAME)
+    telegram_username: TelegramUsernameField = Field(None, title=TitleConstants.TELEGRAM_USERNAME)
 
     @model_validator(mode='after')
     def validate_fields(self) -> Self:

@@ -14,7 +14,7 @@ from src.schemas.annotations import (
     PhoneNumberField,
     TelegramUsernameField,
 )
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 
 class GetterSlugMixin:
@@ -92,9 +92,9 @@ class UserReadSchema(BaseUser[UUID]):
     department_transition_date: Optional[date] = Field(
         None, title=TitleConstants.DEPARTMENT_TRANSITION_DATE_USER
     )
-    employee_position: Optional[str] = Field(None, title=Title.EMPLOYEE_POSITION_USER)
-    created_at: Optional[datetime] = Field(None, title=Title.CREATED_AT_USER)
-    updated_at: Optional[datetime] = Field(None, title=Title.UPDATED_AT_USER)
+    employee_position: Optional[str] = Field(None, title=TitleConstants.EMPLOYEE_POSITION_USER)
+    created_at: Optional[datetime] = Field(None, title=TitleConstants.CREATED_AT_USER)
+    updated_at: Optional[datetime] = Field(None, title=TitleConstants.UPDATED_AT_USER)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -125,10 +125,10 @@ class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
         employee_position (Optional[str]): Должность.
     """
 
-    name: NameField = Field(..., title=Title.NAME_USER)
-    surname: NameField = Field(..., title=Title.SURNAME_USER)
-    role: CompanyUserRole = Field(CompanyUserRole.EMPLOYEE, title=Title.ROLE_USER)
-    company_id: int = Field(..., title=Title.COMPANY_ID_USER)
+    name: NameField = Field(..., title=TitleConstants.NAME_USER)
+    surname: NameField = Field(..., title=TitleConstants.SURNAME_USER)
+    role: CompanyUserRole = Field(CompanyUserRole.EMPLOYEE, title=TitleConstants.ROLE_USER)
+    company_id: int = Field(..., title=TitleConstants.COMPANY_ID_USER)
 
 
 class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
@@ -157,10 +157,10 @@ class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
         employee_position (Optional[str]): Должность.
     """
 
-    name: OptionalNameField = Field(None, title=Title.NAME_USER)
-    surname: OptionalNameField = Field(None, title=Title.SURNAME_USER)
-    role: Optional[CompanyUserRole] = Field(None, title=Title.ROLE_USER)
-    company_id: Optional[int] = Field(None, title=Title.COMPANY_ID_USER)
+    name: OptionalNameField = Field(None, title=TitleConstants.NAME_USER)
+    surname: OptionalNameField = Field(None, title=TitleConstants.SURNAME_USER)
+    role: Optional[CompanyUserRole] = Field(None, title=TitleConstants.ROLE_USER)
+    company_id: Optional[int] = Field(None, title=TitleConstants.COMPANY_ID_USER)
 
 
 class ResetPasswordByAdmin(BaseModel):
@@ -194,12 +194,12 @@ class UserForUserUpdateSchema(BaseModel):
         avatar_link (Optional[str]): Ссылка на аватар.
     """
 
-    name: OptionalNameField = Field(None, title=Title.NAME_USER)
-    surname: OptionalNameField = Field(None, title=Title.SURNAME_USER)
-    patronymic: OptionalNameField = Field(None, title=Title.PATRONYMIC_USER)
-    phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
-    birthday: Optional[date] = Field(None, title=Title.BIRTHDAY_USER)
-    telegram_username: TelegramUsernameField = Field(None, title=Title.TELEGRAM_USERNAME)
-    avatar_link: AvatarLinkField = Field(None, title=Title.AVATAR_LINK_USER)
+    name: OptionalNameField = Field(None, title=TitleConstants.NAME_USER)
+    surname: OptionalNameField = Field(None, title=TitleConstants.SURNAME_USER)
+    patronymic: OptionalNameField = Field(None, title=TitleConstants.PATRONYMIC_USER)
+    phone_number: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
+    birthday: Optional[date] = Field(None, title=TitleConstants.BIRTHDAY_USER)
+    telegram_username: TelegramUsernameField = Field(None, title=TitleConstants.TELEGRAM_USERNAME)
+    avatar_link: AvatarLinkField = Field(None, title=TitleConstants.AVATAR_LINK_USER)
 
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)

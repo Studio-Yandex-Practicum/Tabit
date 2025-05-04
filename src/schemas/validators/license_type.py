@@ -19,8 +19,7 @@ def validate_string(value: str) -> str:
         ValueError: Возникает, если строка содержит пробелы в начале или конце.
     """
     if value != value.strip():
-        raise ValueError(TextError.FIELD_START_OR_END_SPACE)
-        raise ValueError(TextError.FIELD_START_OR_END_SPACE)
+        raise ValueError(TextErrorConstants.FIELD_START_OR_END_SPACE)
     return value
 
 

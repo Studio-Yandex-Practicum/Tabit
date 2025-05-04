@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.schemas.annotations import AddressField, PhoneNumberField, TextField
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -31,16 +31,16 @@ class LandingPageBaseSchema(BaseModel):
         price_2 (Optional[str]): Вторая цена лицензии.
     """
 
-    phone_number_1: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
-    phone_number_2: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
-    phone_number_3: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
-    address: Optional[AddressField] = Field(None, title=Title.NAME_COMPANY)
-    email: Optional[EmailStr] = Field(None, title=Title.EMAIL_USER)
-    whatsapp: Optional[TextField] = Field(None, title=Title.WHATSAPP_USERNAME)
-    telegram: Optional[TextField] = Field(None, title=Title.TELEGRAM_USERNAME)
-    vk: Optional[TextField] = Field(None, title=Title.NAME_USER)
-    price_1: Optional[TextField] = Field(None, title=Title.NAME_LICENSE)
-    price_2: Optional[TextField] = Field(None, title=Title.NAME_LICENSE)
+    phone_number_1: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
+    phone_number_2: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
+    phone_number_3: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
+    address: Optional[AddressField] = Field(None, title=TitleConstants.NAME_COMPANY)
+    email: Optional[EmailStr] = Field(None, title=TitleConstants.EMAIL_USER)
+    whatsapp: Optional[TextField] = Field(None, title=TitleConstants.WHATSAPP_USERNAME)
+    telegram: Optional[TextField] = Field(None, title=TitleConstants.TELEGRAM_USERNAME)
+    vk: Optional[TextField] = Field(None, title=TitleConstants.NAME_USER)
+    price_1: Optional[TextField] = Field(None, title=TitleConstants.NAME_LICENSE)
+    price_2: Optional[TextField] = Field(None, title=TitleConstants.NAME_LICENSE)
 
     model_config = BASE_CONFIG
 

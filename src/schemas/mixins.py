@@ -11,7 +11,7 @@ from src.schemas.annotations import (
     PhoneNumberField,
     TelegramUsernameField,
 )
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 
 class UserSchemaMixin:
@@ -34,18 +34,28 @@ class UserSchemaMixin:
         employee_position (Optional[str]): Должность.
     """
 
-    patronymic: NameField = Field(None, title=Title.PATRONYMIC_USER)
-    phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
-    birthday: Optional[date] = Field(None, title=Title.BIRTHDAY_USER)  # TODO: валидация даты
-    telegram_username: TelegramUsernameField = Field(None, title=Title.TELEGRAM_USERNAME)
-    start_date_employment: Optional[date] = Field(None, title=Title.START_DATE_EMPLOYMENT_USER)
-    end_date_employment: Optional[date] = Field(None, title=Title.END_DATE_EMPLOYMENT_USER)
-    avatar_link: AvatarLinkField = Field(None, title=Title.AVATAR_LINK_USER)
-    current_department_id: Optional[int] = Field(None, title=Title.CURRENT_DEPARTMENT_ID_USER)
-    previous_department_id: Optional[int] = Field(None, title=Title.PREVIOUS_DEPARTMENT_ID_USER)
-    department_transition_date: Optional[date] = Field(
-        None, title=Title.DEPARTMENT_TRANSITION_DATE_USER
+    patronymic: NameField = Field(None, title=TitleConstants.PATRONYMIC_USER)
+    phone_number: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
+    birthday: Optional[date] = Field(
+        None, title=TitleConstants.BIRTHDAY_USER
+    )  # TODO: валидация даты
+    telegram_username: TelegramUsernameField = Field(None, title=TitleConstants.TELEGRAM_USERNAME)
+    start_date_employment: Optional[date] = Field(
+        None, title=TitleConstants.START_DATE_EMPLOYMENT_USER
     )
-    employee_position: Optional[str] = Field(None, title=Title.EMPLOYEE_POSITION_USER)
+    end_date_employment: Optional[date] = Field(
+        None, title=TitleConstants.END_DATE_EMPLOYMENT_USER
+    )
+    avatar_link: AvatarLinkField = Field(None, title=TitleConstants.AVATAR_LINK_USER)
+    current_department_id: Optional[int] = Field(
+        None, title=TitleConstants.CURRENT_DEPARTMENT_ID_USER
+    )
+    previous_department_id: Optional[int] = Field(
+        None, title=TitleConstants.PREVIOUS_DEPARTMENT_ID_USER
+    )
+    department_transition_date: Optional[date] = Field(
+        None, title=TitleConstants.DEPARTMENT_TRANSITION_DATE_USER
+    )
+    employee_position: Optional[str] = Field(None, title=TitleConstants.EMPLOYEE_POSITION_USER)
 
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)

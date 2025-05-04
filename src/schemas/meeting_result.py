@@ -10,7 +10,7 @@ from src.models import (
     MeetingResultSolutionEnum,
 )
 from src.schemas.annotations import FeedbackField, PlaceField
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -33,14 +33,14 @@ class MeetingResultBaseSchema(BaseModel):
         meeting_feedback (Optional[str]): Обратная связь по встрече.
     """
 
-    meeting_result: Optional[MeetingResultEnum] = Field(None, title=Title.MEETING_RESULT)
+    meeting_result: Optional[MeetingResultEnum] = Field(None, title=TitleConstants.MEETING_RESULT)
     participant_engagement: Optional[MeetingResultEngagementEnum] = Field(
-        None, title=Title.PARTICIPANT_ENGAGEMENT
+        None, title=TitleConstants.PARTICIPANT_ENGAGEMENT
     )
     problem_solution: Optional[MeetingResultSolutionEnum] = Field(
-        None, title=Title.PROBLEM_SOLUTION
+        None, title=TitleConstants.PROBLEM_SOLUTION
     )
-    meeting_feedback: Optional[FeedbackField] = Field(None, title=Title.MEETING_FEEDBACK)
+    meeting_feedback: Optional[FeedbackField] = Field(None, title=TitleConstants.MEETING_FEEDBACK)
 
     model_config = BASE_CONFIG
 
@@ -59,11 +59,11 @@ class MeetingResultCreateSchema(MeetingResultBaseSchema):
         meeting_feedback (Optional[str]): Обратная связь по встрече.
     """
 
-    meeting_result: MeetingResultEnum = Field(..., title=Title.MEETING_RESULT)
+    meeting_result: MeetingResultEnum = Field(..., title=TitleConstants.MEETING_RESULT)
     participant_engagement: MeetingResultEngagementEnum = Field(
-        ..., title=Title.PARTICIPANT_ENGAGEMENT
+        ..., title=TitleConstants.PARTICIPANT_ENGAGEMENT
     )
-    problem_solution: MeetingResultSolutionEnum = Field(..., title=Title.PROBLEM_SOLUTION)
+    problem_solution: MeetingResultSolutionEnum = Field(..., title=TitleConstants.PROBLEM_SOLUTION)
 
     model_config = BASE_CONFIG
 
@@ -79,8 +79,8 @@ class MeetingResultSchema(BaseModel):
         date_meeting (date): Дата проведения встречи.
     """
 
-    place: PlaceField = Field(..., title=Title.MEETING_PLACE)
-    date_meeting: date = Field(..., title=Title.MEETING_DATE)
+    place: PlaceField = Field(..., title=TitleConstants.MEETING_PLACE)
+    date_meeting: date = Field(..., title=TitleConstants.MEETING_DATE)
 
     model_config = BASE_CONFIG
 
@@ -105,11 +105,11 @@ class MeetingResultResponseSchema(MeetingResultBaseSchema):
     id: int
     owner_id: UUID
     meeting: MeetingResultSchema
-    meeting_result: MeetingResultEnum = Field(..., title=Title.MEETING_RESULT)
+    meeting_result: MeetingResultEnum = Field(..., title=TitleConstants.MEETING_RESULT)
     participant_engagement: MeetingResultEngagementEnum = Field(
-        ..., title=Title.PARTICIPANT_ENGAGEMENT
+        ..., title=TitleConstants.PARTICIPANT_ENGAGEMENT
     )
-    problem_solution: MeetingResultSolutionEnum = Field(..., title=Title.PROBLEM_SOLUTION)
+    problem_solution: MeetingResultSolutionEnum = Field(..., title=TitleConstants.PROBLEM_SOLUTION)
 
     model_config = BASE_CONFIG
 

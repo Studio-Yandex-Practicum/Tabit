@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.schemas.annotations import TagField
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -24,8 +24,8 @@ class TagBaseSchema(BaseModel):
         company_id (Optional[int]): Идентификатор компании.
     """
 
-    name: TagField = Field(..., title=Title.NAME_TAG)
-    company_id: Optional[int] = Field(None, ge=1, title=Title.COMPANY_ID_TAG)
+    name: TagField = Field(..., title=TitleConstants.NAME_TAG)
+    company_id: Optional[int] = Field(None, ge=1, title=TitleConstants.COMPANY_ID_TAG)
 
     model_config = BASE_CONFIG
 
@@ -41,7 +41,7 @@ class UserTagCreateSchema(TagBaseSchema):
         company_id (int): Идентификатор компании.
     """
 
-    company_id: int = Field(..., ge=1, title=Title.COMPANY_ID_TAG)
+    company_id: int = Field(..., ge=1, title=TitleConstants.COMPANY_ID_TAG)
 
     model_config = BASE_CONFIG
 

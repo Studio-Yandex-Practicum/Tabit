@@ -4,7 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.schemas.annotations import TextField
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -24,8 +24,8 @@ class MessageFeedBase(BaseModel):
         important (bool): Флаг важности треда (по умолчанию False).
     """
 
-    text: TextField = Field(..., title=Title.MESSAGE_FEED_TEXT)
-    important: bool = Field(False, title=Title.MESSAGE_FEED_IMPORTANT)
+    text: TextField = Field(..., title=TitleConstants.MESSAGE_FEED_TEXT)
+    important: bool = Field(False, title=TitleConstants.MESSAGE_FEED_IMPORTANT)
 
     model_config = BASE_CONFIG
 

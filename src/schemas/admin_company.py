@@ -20,7 +20,7 @@ from src.schemas.annotations import (
     TelegramUsernameField,
     date_and_validation,
 )
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 from src.schemas.validators.admin_company import (
     check_password_is_ascii,
     check_phone_number,
@@ -50,7 +50,6 @@ class AdminCompanyResponseSchema(BaseModel):
         created_at (datetime): Время создания.
         updated_at (datetime): Время обновления.
     """
-
 
     id: int
     name: str
@@ -93,15 +92,23 @@ class CompanyAdminSchemaMixin:
         validate_start_date_end_date: Проверяет, что дата начала раньше даты окончания.
     """
 
-    patronymic: OptionalNameField = Field(None, title=Title.PATRONYMIC_USER)
-    phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_USER)
-    birthday: Annotated[Optional[date_and_validation], Field(None, title=Title.BIRTHDAY_USER)]
-    telegram_username: TelegramUsernameField = Field(None, title=Title.TELEGRAM_USERNAME)
-    start_date_employment: Optional[date] = Field(None, title=Title.START_DATE_EMPLOYMENT_USER)
-    end_date_employment: Optional[date] = Field(None, title=Title.END_DATE_EMPLOYMENT_USER)
-    avatar_link: AvatarLinkField = Field(None, title=Title.AVATAR_LINK_USER)
-    previous_department_id: Optional[int] = Field(None, title=Title.PREVIOUS_DEPARTMENT_ID_USER)
-    employee_position: Optional[str] = Field(None, title=Title.EMPLOYEE_POSITION_USER)
+    patronymic: OptionalNameField = Field(None, title=TitleConstants.PATRONYMIC_USER)
+    phone_number: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
+    birthday: Annotated[
+        Optional[date_and_validation], Field(None, title=TitleConstants.BIRTHDAY_USER)
+    ]
+    telegram_username: TelegramUsernameField = Field(None, title=TitleConstants.TELEGRAM_USERNAME)
+    start_date_employment: Optional[date] = Field(
+        None, title=TitleConstants.START_DATE_EMPLOYMENT_USER
+    )
+    end_date_employment: Optional[date] = Field(
+        None, title=TitleConstants.END_DATE_EMPLOYMENT_USER
+    )
+    avatar_link: AvatarLinkField = Field(None, title=TitleConstants.AVATAR_LINK_USER)
+    previous_department_id: Optional[int] = Field(
+        None, title=TitleConstants.PREVIOUS_DEPARTMENT_ID_USER
+    )
+    employee_position: Optional[str] = Field(None, title=TitleConstants.EMPLOYEE_POSITION_USER)
 
     model_config = ConfigDict(extra='forbid')
 
@@ -210,10 +217,10 @@ class CompanyAdminPutSchema(CompanyAdminSchemaMixin, BaseUserCreate):
         Наследуются от CompanyAdminSchemaMixin.
     """
 
-    name: NameField = Field(..., title=Title.NAME_USER)
-    surname: NameField = Field(..., title=Title.SURNAME_USER)
+    name: NameField = Field(..., title=TitleConstants.NAME_USER)
+    surname: NameField = Field(..., title=TitleConstants.SURNAME_USER)
     role: CompanyUserRole
-    current_department_id: int = Field(..., title=Title.CURRENT_DEPARTMENT_ID_USER)
+    current_department_id: int = Field(..., title=TitleConstants.CURRENT_DEPARTMENT_ID_USER)
 
 
 class CompanyAdminCreateSchema(CompanyAdminPutSchema):
@@ -245,7 +252,7 @@ class CompanyAdminCreateSchema(CompanyAdminPutSchema):
     """
 
     role: Literal[CompanyUserRole.MODERATOR]
-    company_id: int = Field(..., title=Title.COMPANY_ID_USER)
+    company_id: int = Field(..., title=TitleConstants.COMPANY_ID_USER)
 
 
 class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
@@ -275,7 +282,9 @@ class CompanyAdminPatchSchema(CompanyAdminSchemaMixin, BaseUserUpdate):
         Наследуются от CompanyAdminSchemaMixin.
     """
 
-    name: OptionalNameField = Field(None, title=Title.NAME_USER)
-    surname: OptionalNameField = Field(None, title=Title.SURNAME_USER)
+    name: OptionalNameField = Field(None, title=TitleConstants.NAME_USER)
+    surname: OptionalNameField = Field(None, title=TitleConstants.SURNAME_USER)
     role: Optional[CompanyUserRole] = None
-    current_department_id: Optional[int] = Field(None, title=Title.CURRENT_DEPARTMENT_ID_USER)
+    current_department_id: Optional[int] = Field(
+        None, title=TitleConstants.CURRENT_DEPARTMENT_ID_USER
+    )

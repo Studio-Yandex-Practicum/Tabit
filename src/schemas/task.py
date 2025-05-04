@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from src.models import TaskStatus
 from src.schemas.annotations import DescriptionField, NameField, OptionalNameField
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 
 class TaskBaseSchema(BaseModel):
@@ -19,7 +19,7 @@ class TaskBaseSchema(BaseModel):
         description (Optional[str]): Описание задачи.
     """
 
-    description: DescriptionField = Field(None, title=Title.TASK_DESCRIPTION)
+    description: DescriptionField = Field(None, title=TitleConstants.TASK_DESCRIPTION)
     # TODO: Реализовать добавление файлов в задачу
 
     model_config = ConfigDict(extra='forbid')
@@ -35,7 +35,7 @@ class ExecutorsResponseSchema(BaseModel):
         executor_id (UUID): Идентификатор исполнителя.
     """
 
-    executor_id: UUID = Field(validation_alias='left_id', title=Title.TASK_EXECUTOR_ID)
+    executor_id: UUID = Field(validation_alias='left_id', title=TitleConstants.TASK_EXECUTOR_ID)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -60,16 +60,16 @@ class TaskResponseSchema(TaskBaseSchema):
         updated_at (date): Дата последнего обновления задачи.
     """
 
-    id: int = Field(..., title=Title.TASK_ID)
-    name: str = Field(..., title=Title.TASK_NAME)
-    date_completion: date = Field(..., title=Title.TASK_DATE_COMPLETION)
-    owner_id: UUID = Field(..., title=Title.TASK_OWNER_ID)
-    problem_id: int = Field(..., title=Title.TASK_PROBLEM_ID)
-    executors: list[ExecutorsResponseSchema] = Field(..., title=Title.TASK_EXECUTORS)
-    status: TaskStatus = Field(..., title=Title.TASK_STATUS)
-    transfer_counter: int = Field(..., title=Title.TASK_TRANSFER_COUNTER)
-    created_at: date = Field(..., title=Title.TASK_CREATED_AT)
-    updated_at: date = Field(..., title=Title.TASK_UPDATED_AT)
+    id: int = Field(..., title=TitleConstants.TASK_ID)
+    name: str = Field(..., title=TitleConstants.TASK_NAME)
+    date_completion: date = Field(..., title=TitleConstants.TASK_DATE_COMPLETION)
+    owner_id: UUID = Field(..., title=TitleConstants.TASK_OWNER_ID)
+    problem_id: int = Field(..., title=TitleConstants.TASK_PROBLEM_ID)
+    executors: list[ExecutorsResponseSchema] = Field(..., title=TitleConstants.TASK_EXECUTORS)
+    status: TaskStatus = Field(..., title=TitleConstants.TASK_STATUS)
+    transfer_counter: int = Field(..., title=TitleConstants.TASK_TRANSFER_COUNTER)
+    created_at: date = Field(..., title=TitleConstants.TASK_CREATED_AT)
+    updated_at: date = Field(..., title=TitleConstants.TASK_UPDATED_AT)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -87,9 +87,11 @@ class TaskCreateSchema(TaskBaseSchema):
         description (Optional[str]): Описание задачи.
     """
 
-    name: NameField = Field(..., title=Title.TASK_NAME)
-    date_completion: Annotated[date, Field(..., ge=date.today(), title=Title.TASK_DATE_COMPLETION)]
-    executors: list[UUID] | None = Field(default=[], title=Title.TASK_EXECUTORS)
+    name: NameField = Field(..., title=TitleConstants.TASK_NAME)
+    date_completion: Annotated[
+        date, Field(..., ge=date.today(), title=TitleConstants.TASK_DATE_COMPLETION)
+    ]
+    executors: list[UUID] | None = Field(default=[], title=TitleConstants.TASK_EXECUTORS)
 
     model_config = ConfigDict(extra='forbid')
 
@@ -108,11 +110,12 @@ class TaskUpdateSchema(TaskBaseSchema):
         status (Optional[TaskStatus]): Статус задачи.
     """
 
-    name: OptionalNameField = Field(None, title=Title.TASK_NAME)
+    name: OptionalNameField = Field(None, title=TitleConstants.TASK_NAME)
     date_completion: (
-        Annotated[date, Field(None, ge=date.today(), title=Title.TASK_DATE_COMPLETION)] | None
+        Annotated[date, Field(None, ge=date.today(), title=TitleConstants.TASK_DATE_COMPLETION)]
+        | None
     ) = None
-    executors: list[UUID] | None = Field(None, title=Title.TASK_EXECUTORS)
-    status: TaskStatus | None = Field(None, title=Title.TASK_STATUS)
+    executors: list[UUID] | None = Field(None, title=TitleConstants.TASK_EXECUTORS)
+    status: TaskStatus | None = Field(None, title=TitleConstants.TASK_STATUS)
 
     model_config = ConfigDict(extra='forbid')

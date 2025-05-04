@@ -6,7 +6,7 @@ from fastapi_users.schemas import CreateUpdateDictModel
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from src.schemas.annotations import NameField, OptionalNameField, PhoneNumberField
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 
 class AdminBaseSchema(BaseModel):
@@ -22,10 +22,10 @@ class AdminBaseSchema(BaseModel):
         phone_number (Optional[str]): Номер телефона администратора.
     """
 
-    name: NameField = Field(..., title=Title.NAME_MODERATOR)
-    surname: NameField = Field(..., title=Title.SURNAME_MODERATOR)
-    patronymic: OptionalNameField = Field(None, title=Title.PATRONYMIC_MODERATOR)
-    phone_number: PhoneNumberField = Field(None, title=Title.PHONE_NUMBER_MODERATOR)
+    name: NameField = Field(..., title=TitleConstants.NAME_MODERATOR)
+    surname: NameField = Field(..., title=TitleConstants.SURNAME_MODERATOR)
+    patronymic: OptionalNameField = Field(None, title=TitleConstants.PATRONYMIC_MODERATOR)
+    phone_number: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_MODERATOR)
 
     model_config = ConfigDict(extra='forbid')
 
@@ -74,8 +74,8 @@ class AdminCreateSchema(CreateUpdateDictModel, AdminBaseSchema):
         phone_number (Optional[str]): Номер телефона администратора.
     """
 
-    email: EmailStr = Field(..., title=Title.EMAIL_USER)
-    password: str = Field(..., title=Title.PASSWORD_USER)
+    email: EmailStr = Field(..., title=TitleConstants.EMAIL_USER)
+    password: str = Field(..., title=TitleConstants.PASSWORD_USER)
 
 
 class AdminUpdateSchema(AdminBaseSchema):
@@ -91,8 +91,8 @@ class AdminUpdateSchema(AdminBaseSchema):
         phone_number (Optional[str]): Номер телефона администратора.
     """
 
-    name: OptionalNameField = Field(None, title=Title.NAME_MODERATOR)
-    surname: OptionalNameField = Field(None, title=Title.SURNAME_MODERATOR)
+    name: OptionalNameField = Field(None, title=TitleConstants.NAME_MODERATOR)
+    surname: OptionalNameField = Field(None, title=TitleConstants.SURNAME_MODERATOR)
 
 
 class AdminCreateFirstSchema(AdminCreateSchema):
@@ -111,4 +111,4 @@ class AdminCreateFirstSchema(AdminCreateSchema):
         is_superuser (bool): Флаг суперпользователя (по умолчанию True).
     """
 
-    is_superuser: bool = Field(True, title=Title.IS_SUPERUSER_ADMIN)
+    is_superuser: bool = Field(True, title=TitleConstants.IS_SUPERUSER_ADMIN)

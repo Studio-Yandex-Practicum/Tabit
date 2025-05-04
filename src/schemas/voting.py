@@ -3,7 +3,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.schemas.annotations import VotingTextField
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -23,8 +23,8 @@ class VotingBase(BaseModel):
         message_id (int): Идентификатор связанного сообщения.
     """
 
-    text: VotingTextField = Field(..., title=Title.VOTING_TEXT)
-    message_id: int = Field(..., ge=1, title=Title.VOTING_MESSAGE_ID)
+    text: VotingTextField = Field(..., title=TitleConstants.VOTING_TEXT)
+    message_id: int = Field(..., ge=1, title=TitleConstants.VOTING_MESSAGE_ID)
 
     model_config = BASE_CONFIG
 
@@ -55,7 +55,7 @@ class VotingInDB(VotingBase):
         message_id (int): Идентификатор связанного сообщения.
     """
 
-    id: int = Field(..., title=Title.VOTING_ID)
+    id: int = Field(..., title=TitleConstants.VOTING_ID)
 
     model_config = BASE_CONFIG
 
@@ -71,8 +71,8 @@ class VotingByUserBase(BaseModel):
         voting_id (int): Идентификатор голосования.
     """
 
-    user_id: UUID = Field(..., title=Title.VOTING_USER_ID)
-    voting_id: int = Field(..., ge=1, title=Title.VOTING_ID)
+    user_id: UUID = Field(..., title=TitleConstants.VOTING_USER_ID)
+    voting_id: int = Field(..., ge=1, title=TitleConstants.VOTING_ID)
 
     model_config = BASE_CONFIG
 
@@ -103,6 +103,6 @@ class VotingByUserInDB(VotingByUserBase):
         voting_id (int): Идентификатор голосования.
     """
 
-    id: int = Field(..., title=Title.VOTING_RECORD_ID)
+    id: int = Field(..., title=TitleConstants.VOTING_RECORD_ID)
 
     model_config = BASE_CONFIG

@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from src.models import ProblemColor, ProblemStatus, ProblemType
 from src.schemas.annotations import DescriptionField, NameField, OptionalNameField
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 
 class ProblemBaseSchema(BaseModel):
@@ -18,7 +18,7 @@ class ProblemBaseSchema(BaseModel):
         description (Optional[str]): Описание проблемы.
     """
 
-    description: DescriptionField = Field(None, title=Title.PROBLEM_DESCRIPTION)
+    description: DescriptionField = Field(None, title=TitleConstants.PROBLEM_DESCRIPTION)
     # TODO: Реализовать добавление файлов в проблему
 
     model_config = ConfigDict(extra='forbid')
@@ -35,8 +35,8 @@ class MemberResponseSchema(BaseModel):
         member_id (UUID): Идентификатор участника.
     """
 
-    status: bool | None = Field(None, title=Title.PROBLEM_MEMBER_STATUS)
-    member_id: UUID = Field(validation_alias='left_id', title=Title.PROBLEM_MEMBER_ID)
+    status: bool | None = Field(None, title=TitleConstants.PROBLEM_MEMBER_STATUS)
+    member_id: UUID = Field(validation_alias='left_id', title=TitleConstants.PROBLEM_MEMBER_ID)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -61,16 +61,16 @@ class ProblemResponseSchema(ProblemBaseSchema):
         description (Optional[str]): Описание проблемы.
     """
 
-    id: int = Field(..., title=Title.PROBLEM_ID)
-    name: str = Field(..., title=Title.PROBLEM_NAME)
-    color: ProblemColor = Field(..., title=Title.PROBLEM_COLOR)
-    type: ProblemType = Field(..., title=Title.PROBLEM_TYPE)
-    status: ProblemStatus = Field(..., title=Title.PROBLEM_STATUS)
-    owner_id: UUID = Field(..., title=Title.PROBLEM_OWNER_ID)
-    company_id: int = Field(..., title=Title.PROBLEM_COMPANY_ID)
-    members: list[MemberResponseSchema] = Field(..., title=Title.PROBLEM_MEMBERS)
-    created_at: datetime = Field(..., title=Title.PROBLEM_CREATED_AT)
-    updated_at: datetime = Field(..., title=Title.PROBLEM_UPDATED_AT)
+    id: int = Field(..., title=TitleConstants.PROBLEM_ID)
+    name: str = Field(..., title=TitleConstants.PROBLEM_NAME)
+    color: ProblemColor = Field(..., title=TitleConstants.PROBLEM_COLOR)
+    type: ProblemType = Field(..., title=TitleConstants.PROBLEM_TYPE)
+    status: ProblemStatus = Field(..., title=TitleConstants.PROBLEM_STATUS)
+    owner_id: UUID = Field(..., title=TitleConstants.PROBLEM_OWNER_ID)
+    company_id: int = Field(..., title=TitleConstants.PROBLEM_COMPANY_ID)
+    members: list[MemberResponseSchema] = Field(..., title=TitleConstants.PROBLEM_MEMBERS)
+    created_at: datetime = Field(..., title=TitleConstants.PROBLEM_CREATED_AT)
+    updated_at: datetime = Field(..., title=TitleConstants.PROBLEM_UPDATED_AT)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -89,10 +89,10 @@ class ProblemCreateSchema(ProblemBaseSchema):
         description (Optional[str]): Описание проблемы.
     """
 
-    name: NameField = Field(..., title=Title.PROBLEM_NAME)
-    color: ProblemColor = Field(..., title=Title.PROBLEM_COLOR)
-    type: ProblemType = Field(..., title=Title.PROBLEM_TYPE)
-    members: list[UUID] | None = Field(default=[], title=Title.PROBLEM_MEMBERS)
+    name: NameField = Field(..., title=TitleConstants.PROBLEM_NAME)
+    color: ProblemColor = Field(..., title=TitleConstants.PROBLEM_COLOR)
+    type: ProblemType = Field(..., title=TitleConstants.PROBLEM_TYPE)
+    members: list[UUID] | None = Field(default=[], title=TitleConstants.PROBLEM_MEMBERS)
 
     model_config = ConfigDict(extra='forbid')
 
@@ -112,10 +112,10 @@ class ProblemUpdateSchema(ProblemBaseSchema):
         description (Optional[str]): Описание проблемы.
     """
 
-    name: OptionalNameField = Field(None, title=Title.PROBLEM_NAME)
-    color: ProblemColor | None = Field(None, title=Title.PROBLEM_COLOR)
-    type: ProblemType | None = Field(None, title=Title.PROBLEM_TYPE)
-    status: ProblemStatus | None = Field(None, title=Title.PROBLEM_STATUS)
-    members: list[UUID] | None = Field(None, title=Title.PROBLEM_MEMBERS)
+    name: OptionalNameField = Field(None, title=TitleConstants.PROBLEM_NAME)
+    color: ProblemColor | None = Field(None, title=TitleConstants.PROBLEM_COLOR)
+    type: ProblemType | None = Field(None, title=TitleConstants.PROBLEM_TYPE)
+    status: ProblemStatus | None = Field(None, title=TitleConstants.PROBLEM_STATUS)
+    members: list[UUID] | None = Field(None, title=TitleConstants.PROBLEM_MEMBERS)
 
     model_config = ConfigDict(extra='forbid')

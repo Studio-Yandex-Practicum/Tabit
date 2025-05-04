@@ -13,7 +13,7 @@ from src.schemas.annotations import (
     PageField,
     PageSizeField,
 )
-from src.schemas.constants import Default, MiscConstants, Title
+from src.schemas.constants import DefaultConstants, MiscConstants, TitleConstants
 from src.schemas.validators.license_type import (
     validate_license_term,
     validate_string,
@@ -67,10 +67,10 @@ class LicenseTypeCreateSchema(LicenseTypeBaseSchema):
         validate_license_term: Проверяет и конвертирует срок действия лицензии в timedelta.
     """
 
-    name: LicenseNameField = Field(..., title=Title.NAME_LICENSE)
-    license_term: LicenseTermField = Field(..., title=Title.TERM_LICENSE)
-    max_admins_count: CountField = Field(..., title=Title.MAX_MODERATORS_COUNT)
-    max_employees_count: CountField = Field(..., title=Title.MAX_EMPLOYEES_COUNT)
+    name: LicenseNameField = Field(..., title=TitleConstants.NAME_LICENSE)
+    license_term: LicenseTermField = Field(..., title=TitleConstants.TERM_LICENSE)
+    max_admins_count: CountField = Field(..., title=TitleConstants.MAX_MODERATORS_COUNT)
+    max_employees_count: CountField = Field(..., title=TitleConstants.MAX_EMPLOYEES_COUNT)
 
 
 class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
@@ -90,10 +90,10 @@ class LicenseTypeUpdateSchema(LicenseTypeBaseSchema):
         validate_license_term: Проверяет и конвертирует срок действия лицензии в timedelta.
     """
 
-    name: OptionalLicenseNameField = Field(None, title=Title.NAME_LICENSE)
-    license_term: OptionalLicenseTermField = Field(None, title=Title.TERM_LICENSE)
-    max_admins_count: OptionalCountField = Field(None, title=Title.MAX_MODERATORS_COUNT)
-    max_employees_count: OptionalCountField = Field(None, title=Title.MAX_EMPLOYEES_COUNT)
+    name: OptionalLicenseNameField = Field(None, title=TitleConstants.NAME_LICENSE)
+    license_term: OptionalLicenseTermField = Field(None, title=TitleConstants.TERM_LICENSE)
+    max_admins_count: OptionalCountField = Field(None, title=TitleConstants.MAX_MODERATORS_COUNT)
+    max_employees_count: OptionalCountField = Field(None, title=TitleConstants.MAX_EMPLOYEES_COUNT)
 
     model_config = ConfigDict(extra='forbid')
 
@@ -154,7 +154,7 @@ class LicenseTypeFilterSchema(BaseModel):
 
     Атрибуты:
         name (Optional[str]): Фильтр по названию лицензии.
-        ordering (Optional[str]): Сортировка по полям 
+        ordering (Optional[str]): Сортировка по полям
             (name, created_at, updated_at, с префиксом '-' для обратной сортировки).
         page (int): Номер страницы (по умолчанию 1).
         page_size (int): Количество записей на странице (по умолчанию 10).
@@ -164,7 +164,9 @@ class LicenseTypeFilterSchema(BaseModel):
     ordering: Optional[
         Literal['name', '-name', 'created_at', '-created_at', 'updated_at', '-updated_at']
     ] = Field(None, description=MiscConstants.SORTING_DESCRIPTION)
-    page: PageField = Field(Default.PAGE, description=Default.PAGE_DESCRIPTION)
-    page_size: PageSizeField = Field(Default.PAGE_SIZE, description=Default.PAGE_SIZE_DESCRIPTION)
+    page: PageField = Field(DefaultConstants.PAGE, description=DefaultConstants.PAGE_DESCRIPTION)
+    page_size: PageSizeField = Field(
+        DefaultConstants.PAGE_SIZE, description=DefaultConstants.PAGE_SIZE_DESCRIPTION
+    )
 
     model_config = ConfigDict(extra='forbid')

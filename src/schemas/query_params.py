@@ -2,7 +2,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.schemas.constants import Default, MiscConstants, Title
+from src.schemas.constants import DefaultConstants, MiscConstants, TitleConstants
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -25,8 +25,10 @@ class BaseFilterSchema(BaseModel):
             (name, created_at, updated_at, с префиксом '-' для обратной сортировки).
     """
 
-    skip: int = Field(Default.SKIP, ge=0, title=Title.SKIP)
-    limit: int = Field(Default.LIMIT, ge=1, le=Default.MAX_PAGE_SIZE, title=Title.LIMIT)
+    skip: int = Field(DefaultConstants.SKIP, ge=0, title=TitleConstants.SKIP)
+    limit: int = Field(
+        DefaultConstants.LIMIT, ge=1, le=DefaultConstants.MAX_PAGE_SIZE, title=TitleConstants.LIMIT
+    )
     name: Optional[str] = Field(None, description=MiscConstants.FILTER_NAME_DESCRIPTION)
     ordering: Optional[
         Literal['name', '-name', 'created_at', '-created_at', 'updated_at', '-updated_at']

@@ -173,9 +173,9 @@ class TextErrorConstants(TextErrorBaseConstants):
 
 class TitleConstants(TitleBaseConstants):
     """
-    Класс констант для хранения заголовков полей.
+    Класс для хранения заголовков полей.
 
-    Наследует все константы из TitleBaseConstants.
+    Наследует все константы из TitleBase.
 
     Атрибуты:
     - AVATAR_LINK_USER (str): Заголовок для ссылки на аватар пользователя.
@@ -261,7 +261,7 @@ class TitleConstants(TitleBaseConstants):
     - TASK_TRANSFER_COUNTER (str): Заголовок для счетчика переноса задачи.
     - TASK_UPDATED_AT (str): Заголовок для даты обновления задачи.
     - TELEGRAM_USERNAME (str): Заголовок для Telegram username.
-    - LICENSE_TERM (str): Заголовок для срока действия лицензии.
+    - TERM_LICENSE (str): Заголовок для срока действия лицензии.
     - UPDATE_COMMENTS_TEXT (str): Заголовок для текста обновления комментария.
     - UPDATED_AT_USER (str): Заголовок для даты обновления пользователя.
     - VOTING_ID (str): Заголовок для ID голосования.
@@ -355,7 +355,7 @@ class TitleConstants(TitleBaseConstants):
     TASK_TRANSFER_COUNTER: str = 'Счетчик переноса'
     TASK_UPDATED_AT: str = 'Дата обновления'
     TELEGRAM_USERNAME: str = 'Имя пользователя в Telegram'
-    LICENSE_TERM: str = 'Срок действия лицензии в днях'
+    TERM_LICENSE: str = 'Срок действия лицензии в днях'
     UPDATE_COMMENTS_TEXT: str = 'Обновить комментарий к треду.'
     UPDATED_AT_USER: str = 'Дата обновления профиля пользователя'
     VOTING_ID: str = 'ID голосования'

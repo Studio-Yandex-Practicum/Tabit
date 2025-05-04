@@ -4,7 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.schemas.annotations import CommentTextField
-from src.schemas.constants import Title
+from src.schemas.constants import TitleConstants
 
 BASE_CONFIG = ConfigDict(
     extra='forbid',
@@ -23,7 +23,7 @@ class CommentBase(BaseModel):
         text (str): Текст комментария.
     """
 
-    text: CommentTextField = Field(..., title=Title.CREATE_COMMENTS_TEXT)
+    text: CommentTextField = Field(..., title=TitleConstants.CREATE_COMMENTS_TEXT)
 
     model_config = BASE_CONFIG
 
@@ -51,7 +51,7 @@ class CommentUpdate(CommentBase):
         text (str): Текст комментария.
     """
 
-    text: CommentTextField = Field(..., title=Title.UPDATE_COMMENTS_TEXT)
+    text: CommentTextField = Field(..., title=TitleConstants.UPDATE_COMMENTS_TEXT)
 
     model_config = BASE_CONFIG
 
