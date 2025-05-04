@@ -67,22 +67,30 @@ class UserReadSchema(BaseUser[UUID]):
         updated_at (Optional[datetime]): Время последнего обновления записи.
     """
 
-    name: str = Field(..., title=Title.NAME_USER)
-    surname: str = Field(..., title=Title.SURNAME_USER)
-    patronymic: Optional[str] = Field(None, title=Title.PATRONYMIC_USER)
-    phone_number: Optional[str] = Field(None, title=Title.PHONE_NUMBER_USER)
-    is_active: bool = Field(..., title=Title.IS_ACTIVE_USER)
-    birthday: Optional[date] = Field(None, title=Title.BIRTHDAY_USER)
-    telegram_username: Optional[str] = Field(None, title=Title.TELEGRAM_USERNAME)
-    role: str = Field(..., title=Title.ROLE_USER)
-    start_date_employment: Optional[date] = Field(None, title=Title.START_DATE_EMPLOYMENT_USER)
-    end_date_employment: Optional[date] = Field(None, title=Title.END_DATE_EMPLOYMENT_USER)
-    avatar_link: Optional[str] = Field(None, title=Title.AVATAR_LINK_USER)
-    company_id: int = Field(..., title=Title.COMPANY_ID_USER)
-    current_department_id: Optional[int] = Field(None, title=Title.CURRENT_DEPARTMENT_ID_USER)
-    previous_department_id: Optional[int] = Field(None, title=Title.PREVIOUS_DEPARTMENT_ID_USER)
+    name: str = Field(..., title=TitleConstants.NAME_USER)
+    surname: str = Field(..., title=TitleConstants.SURNAME_USER)
+    patronymic: Optional[str] = Field(None, title=TitleConstants.PATRONYMIC_USER)
+    phone_number: Optional[str] = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
+    is_active: bool = Field(..., title=TitleConstants.IS_ACTIVE_USER)
+    birthday: Optional[date] = Field(None, title=TitleConstants.BIRTHDAY_USER)
+    telegram_username: Optional[str] = Field(None, title=TitleConstants.TELEGRAM_USERNAME)
+    role: str = Field(..., title=TitleConstants.ROLE_USER)
+    start_date_employment: Optional[date] = Field(
+        None, title=TitleConstants.START_DATE_EMPLOYMENT_USER
+    )
+    end_date_employment: Optional[date] = Field(
+        None, title=TitleConstants.END_DATE_EMPLOYMENT_USER
+    )
+    avatar_link: Optional[str] = Field(None, title=TitleConstants.AVATAR_LINK_USER)
+    company_id: int = Field(..., title=TitleConstants.COMPANY_ID_USER)
+    current_department_id: Optional[int] = Field(
+        None, title=TitleConstants.CURRENT_DEPARTMENT_ID_USER
+    )
+    previous_department_id: Optional[int] = Field(
+        None, title=TitleConstants.PREVIOUS_DEPARTMENT_ID_USER
+    )
     department_transition_date: Optional[date] = Field(
-        None, title=Title.DEPARTMENT_TRANSITION_DATE_USER
+        None, title=TitleConstants.DEPARTMENT_TRANSITION_DATE_USER
     )
     employee_position: Optional[str] = Field(None, title=Title.EMPLOYEE_POSITION_USER)
     created_at: Optional[datetime] = Field(None, title=Title.CREATED_AT_USER)

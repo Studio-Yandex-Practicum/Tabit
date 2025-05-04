@@ -11,26 +11,30 @@
 - Сообщения об ошибках.
 
 Структура модуля:
-- AdminPayloads: payload для тестирования администраторов.
-- AuthData: тестовые данные для аутентификации.
-- Default: параметры по умолчанию для системных настроек.
-- Directory: пути к директориям файловой системы.
-- ExpectedFields: ожидаемые поля в ответах API.
-- Images: тестовые изображения в base64.
-- Length: ограничения длины.
+- AdminPayloadsConstants: payload для тестирования администраторов.
+- AuthDataConstants: тестовые данные для аутентификации.
+- DefaultConstants: параметры по умолчанию для системных настроек.
+- DirectoryConstants: пути к директориям файловой системы.
+- ExpectedFieldsConstants: ожидаемые поля в ответах API.
+- ImagesConstants: тестовые изображения в base64.
+- LengthConstants: ограничения длины.
 - MiscConstants: различные технические константы.
-- ProblemFeedsData: данные для тестирования ленты проблем.
-- TabitManagementData: данные для тестирования управления.
-- Test_Database_URL: настройки тестовой БД.
-- TextError: стандартные сообщения об ошибках.
-- Url: все URL API эндпоинтов.
-- UserPayloads: payload для тестирования пользователей.
+- ProblemFeedsDataConstants: данные для тестирования ленты проблем.
+- TabitManagementDataConstants: данные для тестирования управления.
+- Test_Database_URLConstants: настройки тестовой БД.
+- TextErrorConstants: стандартные сообщения об ошибках.
+- UrlConstants: все URL API эндпоинтов.
+- UserPayloadsConstants: payload для тестирования пользователей.
+
+Некоторые классы наследуют соответствующие базовые классы из src.core.constants,
+что обеспечивает согласованность констант во всем проекте.
 
 Импортируемые базовые классы:
-- ConstantsBase.Default: базовые значения по умолчанию.
-- ConstantsBase.Directory: основные пути к директориям.
-- ConstantsBase.Length: базовые ограничения длины.
-- ConstantsBase.TextError: стандартные тексты ошибок.
+- DefaultBaseConstants: базовые значения по умолчанию.
+- DirectoryBaseConstants: основные пути к директориям.
+- LengthBaseConstants: базовые ограничения длины.
+- MiscBaseConstants: базовые технические константы.
+- TextErrorBaseConstants: стандартные тексты ошибок.
 
 Важные особенности:
 - Все классы наследуют соответствующие базовые классы констант.
@@ -41,9 +45,9 @@
 - Для работы с БД используются переменные окружения с fallback значениями.
 
 Пример использования:
-- from config.constants.tests import AuthData, Url
-- test_email = AuthData.BAD_EMAIL[0]
-- login_url = Url.ADMIN_LOGIN
+- from tests.constants import AuthDataConstants, UrlConstants
+- test_email = AuthDataConstants.BAD_EMAIL[0]
+- login_url = UrlConstants.ADMIN_LOGIN
 """
 
 import os
@@ -54,7 +58,13 @@ from uuid import UUID
 from dotenv import load_dotenv
 from fastapi import status
 
-from config.constants.core import ConstantsBase
+from src.core.constants import (
+    DefaultBaseConstants,
+    DirectoryBaseConstants,
+    LengthBaseConstants,
+    MiscBaseConstants,
+    TextErrorBaseConstants,
+)
 from src.models.enum import CompanyUserRole
 
 load_dotenv()
@@ -62,7 +72,7 @@ load_dotenv()
 type type_token = dict[str, str]
 
 
-class AuthData:
+class AuthDataConstants:
     """
     Класс констант - тестовых данных для аутентификации.
 
@@ -90,7 +100,7 @@ class AuthData:
     )
 
 
-class AdminPayloads:
+class AdminPayloadsConstants:
     """
     Класс констант - полезных нагрузок (payload) для тестирования администраторов.
 
@@ -108,27 +118,27 @@ class AdminPayloads:
             'patronymic': 'string',
             'phone_number': 'string',
             'email': 'user1@example.com',
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'name': 'string',
             'surname': 'string',
         },
         {
             'phone_number': 'string',
             'email': 'user2@example.com',
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'name': 'string',
             'surname': 'string',
         },
         {
             'patronymic': 'string',
             'email': 'user3@example.com',
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'name': 'string',
             'surname': 'string',
         },
         {
             'email': 'user4@example.com',
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'name': 'string',
             'surname': 'string',
         },
@@ -136,16 +146,16 @@ class AdminPayloads:
     PAYLOAD_BAD_FOR_CREATE_ADMIN: tuple[dict[str, str], ...] = (
         {
             'email': 'user1@example.com',
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'name': 'string',
         },
         {
             'email': 'user2@example.com',
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'surname': 'string',
         },
         {
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'name': 'string',
             'surname': 'string',
         },
@@ -172,23 +182,23 @@ class AdminPayloads:
     )
 
 
-class Default(ConstantsBase.Default):
+class DefaultConstants(DefaultBaseConstants):
     """
     Класс констант - значений по умолчанию используемых в пакете `tests`.
 
-    Так же класс наследует значения из ConstantsBase.Default.
+    Так же класс наследует значения из DefaultBaseConstants.
     """
 
 
-class Directory(ConstantsBase.Directory):
+class DirectoryConstants(DirectoryBaseConstants):
     """
     Класс констант путей к директориям, используемых в пакете `tests`.
 
-    Так же класс наследует значения из ConstantsBase.Directory.
+    Так же класс наследует значения из DirectoryBaseConstants.
     """
 
 
-class ExpectedFields:
+class ExpectedFieldsConstants:
     """
     Класс констант - ожидаемых полей в ответах API.
 
@@ -242,15 +252,15 @@ class ExpectedFields:
     }
 
 
-class TextError(ConstantsBase.TextError):
+class TextErrorConstants(TextErrorBaseConstants):
     """
     Класс констант для хранения стандартных текстов ошибок, используемых в пакете `tests`.
 
-    Так же класс наследует значения из ConstantsBase.TextError.
+    Так же класс наследует значения из TextErrorBaseConstants.
     """
 
 
-class Images:
+class ImagesConstants:
     """
     Класс констант - тестовых изображений в формате base64.
 
@@ -282,10 +292,10 @@ class Images:
                 }
             ],
         ),
-        ('string', TextError.BASE64_TYPE),
+        ('string', TextErrorConstants.BASE64_TYPE),
         (
             f'{BASE64_PNG}b',
-            TextError.BASE64_FATAL.format(
+            TextErrorConstants.BASE64_FATAL.format(
                 image='logo',
                 error_class='Error',
                 error_text=(
@@ -297,27 +307,27 @@ class Images:
     )
 
 
-class Length(ConstantsBase.Length):
+class LengthConstants(LengthBaseConstants):
     """
     Класс констант, определяющих ограничения длины для различных полей,
     используемых в пакете `tests`.
 
-    Так же класс наследует значения из ConstantsBase.Length.
+    Так же класс наследует значения из LengthBaseConstants.
     """
 
 
 @dataclass(frozen=True)
-class MiscConstants(ConstantsBase.MiscConstants):
+class MiscConstants(MiscBaseConstants):
     """
     Класс разных общесистемных констант, используемых в пакете `tests`.
 
     Класс реализован, как неизменяемый.
 
-    Так же класс наследует значения из ConstantsBase.MiscConstants.
+    Так же класс наследует значения из MiscBaseConstants.
     """
 
 
-class ProblemFeedsData:
+class ProblemFeedsDataConstants:
     """
     Класс констант - данных для тестирования ленты проблем `problem_feeds.py`.
 
@@ -360,7 +370,7 @@ class ProblemFeedsData:
     )
 
 
-class TabitManagementData:
+class TabitManagementDataConstants:
     """
     Класс констант - данных для тестирования управления `tabit_management.py`.
 
@@ -409,14 +419,14 @@ class TabitManagementData:
         'surname': 'test',
         'role': CompanyUserRole.MODERATOR,
         'email': MOD_TEST_EMAIL,
-        'password': AuthData.GOOD_PASSWORD,
+        'password': AuthDataConstants.GOOD_PASSWORD,
     }
     ADMIN_CREATE_MOD_BAD: tuple[dict[str, str | int | CompanyUserRole], ...] = (
         {
             'name': 'test_bad',
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'company_id': 1,
             'current_department_id': 1,
         },
@@ -425,7 +435,7 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
             'email': MOD_TEST_EMAIL_BAD,
-            'password': AuthData.BAD_PASSWORD[-1],
+            'password': AuthDataConstants.BAD_PASSWORD[-1],
             'company_id': 1,
             'current_department_id': 1,
         },
@@ -434,7 +444,7 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
             'email': MOD_TEST_EMAIL,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'company_id': 1,
             'current_department_id': 1,
         },
@@ -443,7 +453,7 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.EMPLOYEE,
             'email': MOD_TEST_EMAIL_BAD,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'company_id': 1,
             'current_department_id': 1,
         },
@@ -452,7 +462,7 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
             'email': MOD_TEST_EMAIL_BAD,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'company_id': 99,
             'current_department_id': 1,
         },
@@ -461,7 +471,7 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
             'email': MOD_TEST_EMAIL_BAD,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'company_id': 1,
             'current_department_id': 99,
         },
@@ -470,7 +480,7 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
             'email': MOD_TEST_EMAIL_BAD,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'company_id': 2,
             'current_department_id': 1,
         },
@@ -481,7 +491,7 @@ class TabitManagementData:
     )
     ADMIN_PATCH_MOD_BAD: tuple[dict[str, str | int], ...] = (
         {'company_id': 2},
-        {'password': AuthData.BAD_PASSWORD[-1]},
+        {'password': AuthDataConstants.BAD_PASSWORD[-1]},
         {'email': MOD_TEST_EMAIL_BAD},
         {'current_department_id': 99},
         {'current_department_id': 2},
@@ -492,7 +502,7 @@ class TabitManagementData:
                 'name': 'updated_name',
                 'surname': 'updated_surname',
                 'email': 'updated@example.com',
-                'password': AuthData.GOOD_PASSWORD,
+                'password': AuthDataConstants.GOOD_PASSWORD,
                 'role': CompanyUserRole.MODERATOR,
                 'current_department_id': 1,
             },
@@ -503,7 +513,7 @@ class TabitManagementData:
                 'name': 'updated_name',
                 'surname': 'updated_surname',
                 'email': 'updated@example.com',
-                'password': AuthData.GOOD_PASSWORD,
+                'password': AuthDataConstants.GOOD_PASSWORD,
                 'role': CompanyUserRole.MODERATOR,
                 'current_department_id': 2,
             },
@@ -516,7 +526,7 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
             'email': MOD_TEST_EMAIL,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'company_id': 1,
             'current_department_id': 1,
         },
@@ -524,7 +534,7 @@ class TabitManagementData:
             'name': 'test_bad',
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'current_department_id': 1,
         },
         {
@@ -532,7 +542,7 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
             'email': MOD_TEST_EMAIL,
-            'password': AuthData.BAD_PASSWORD[-1],
+            'password': AuthDataConstants.BAD_PASSWORD[-1],
             'current_department_id': 1,
         },
         {
@@ -540,7 +550,7 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
             'email': MOD_TEST_EMAIL_BAD,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'current_department_id': 1,
         },
         {
@@ -548,7 +558,7 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
             'email': MOD_TEST_EMAIL,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'current_department_id': 99,
         },
         {
@@ -556,13 +566,13 @@ class TabitManagementData:
             'surname': 'test_bad',
             'role': CompanyUserRole.MODERATOR,
             'email': MOD_TEST_EMAIL,
-            'password': AuthData.GOOD_PASSWORD,
+            'password': AuthDataConstants.GOOD_PASSWORD,
             'current_department_id': 2,
         },
     )
 
 
-class Test_Database_URL:
+class Test_Database_URLConstants:
     """
     Класс констант - настроек подключения к тестовой базе данных.
 
@@ -582,7 +592,7 @@ class Test_Database_URL:
 
 
 @dataclass(frozen=True)
-class Url:
+class UrlConstants:
     """
     Класс констант - всех пути API, используемые в тестах.
 
@@ -673,7 +683,7 @@ class Url:
     PROBLEM_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}'
 
 
-class UserPayloads:
+class UserPayloadsConstants:
     """
     Класс констант - полезных нагрузок (payload) для тестирования пользователей.
 

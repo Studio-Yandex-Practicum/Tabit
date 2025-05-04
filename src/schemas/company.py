@@ -80,7 +80,7 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
     license_id: Optional[int] = Field(None, title=Title.LICENSE_ID_COMPANY)
     start_license_time: Optional[datetime] = Field(
         None,
-        title=Title.START_LICENSE_TIME_COMPANY,
+        title=TitleConstants.START_LICENSE_TIME_COMPANY,
     )
     end_license_time: Optional[datetime] = None
 

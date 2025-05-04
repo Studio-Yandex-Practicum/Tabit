@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from src.schemas.constants import TextError, Validation
+from src.schemas.constants import TextErrorConstants, ValidationConstants
 
 
 def validate_string(value: str) -> str:
@@ -47,10 +47,10 @@ def validate_license_term(value: int | str) -> timedelta | str:
     if isinstance(value, str):
         if value.isdigit():
             value = int(value)
-        elif Validation.LICENSE_TERM_REGEX.match(value):
+        elif ValidationConstants.LICENSE_TERM_REGEX.match(value):
             return value
 
     if isinstance(value, int):
         return timedelta(days=value)
 
-    raise ValueError(TextError.FIELD_INTERVAL)
+    raise ValueError(TextErrorConstants.FIELD_INTERVAL)

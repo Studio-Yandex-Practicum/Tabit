@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.config.logging import logger
 from src.crud import CRUDBase
-from src.crud.constants import Default, TextError
+from src.crud.constants import DefaultConstants, TextErrorConstants
 from src.models import Company
 
 
@@ -16,8 +16,8 @@ class CRUDAdminCompany(CRUDBase):
     async def get_multi(
         self,
         session: AsyncSession,
-        skip: int = Default.SKIP,
-        limit: int = Default.LIMIT,
+        skip: int = DefaultConstants.SKIP,
+        limit: int = DefaultConstants.LIMIT,
         filters: Optional[dict[str, Any]] = None,
         order_by: list[str] | None = None,
     ) -> list[Company]:
@@ -37,12 +37,14 @@ class CRUDAdminCompany(CRUDBase):
         except SQLAlchemyError as error:
             logger.error(f'Эндпоинт get_all_info, ошибка бд: {error}')
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=TextError.INTERNAL_SERVER
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=TextErrorConstants.INTERNAL_SERVER,
             )
         except Exception as error:
             logger.error(f'Эндпоинт get_all_info, ошибка: {error}')
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=TextError.INTERNAL_SERVER
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=TextErrorConstants.INTERNAL_SERVER,
             )
 
 
