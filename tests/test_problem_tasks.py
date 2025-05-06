@@ -38,6 +38,27 @@ class TestTasksPost:
     """Тесты POST-запросов."""
 
     @pytest.mark.asyncio
+    async def test_create_task_with_requared_fields(
+        self,
+        client: AsyncClient,
+        problem_for_test,
+        get_token_for_user,
+    ):
+        """Запрос на создание задачи только с обязательными полями."""
+        problem, problem_owner, company = await problem_for_test(return_all_objects=True)
+        task_data = generate_task_data()
+        response = await client.post(
+            UrlConstants.TASKS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
+            json=task_data,
+            headers=await get_token_for_user(problem_owner),
+        )
+
+        response_data = response.json()
+        assert response.status_code == status.HTTP_201_CREATED, response_data
+        for key, value in task_data.items():
+            assert response_data[key] == value, response_data
+
+    @pytest.mark.asyncio
     async def test_create_task_without_employee_executors(
         self,
         client: AsyncClient,
@@ -45,12 +66,12 @@ class TestTasksPost:
         get_token_for_user,
     ):
         """Запрос на создание задачи без исполнителей."""
-        problem, employee_owner, company = await problem_for_test(return_all_objects=True)
+        problem, problem_owner, company = await problem_for_test(return_all_objects=True)
         task_data = generate_task_data(all_fields=True)
         response = await client.post(
             UrlConstants.TASKS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
             json=task_data,
-            headers=await get_token_for_user(employee_owner),
+            headers=await get_token_for_user(problem_owner),
         )
 
         response_data = response.json()
@@ -68,7 +89,7 @@ class TestTasksPost:
         async_session: AsyncSession,
     ):
         """Запрос на создание задачи со всеми полями."""
-        problem, employee_owner, company = await problem_for_test(return_all_objects=True)
+        problem, problem_owner, company = await problem_for_test(return_all_objects=True)
         # Создание исполнителя для задачи и занесение его в участики проблемы.
         employee_executor = await employee_of_company({'company_id': company.id})
         executor_problem_data = {'left_id': str(employee_executor.id), 'right_id': problem.id}
@@ -77,7 +98,7 @@ class TestTasksPost:
         response = await client.post(
             UrlConstants.TASKS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
             json=task_data,
-            headers=await get_token_for_user(employee_owner),
+            headers=await get_token_for_user(problem_owner),
         )
 
         response_data = response.json()
@@ -90,27 +111,6 @@ class TestTasksPost:
                 assert response_data[key] == value, response_data
 
     @pytest.mark.asyncio
-    async def test_create_task_with_requared_fields(
-        self,
-        client: AsyncClient,
-        problem_for_test,
-        get_token_for_user,
-    ):
-        """Запрос на создание задачи только с обязательными полями."""
-        problem, employee_owner, company = await problem_for_test(return_all_objects=True)
-        task_data = generate_task_data()
-        response = await client.post(
-            UrlConstants.TASKS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
-            json=task_data,
-            headers=await get_token_for_user(employee_owner),
-        )
-
-        response_data = response.json()
-        assert response.status_code == status.HTTP_201_CREATED, response_data
-        for key, value in task_data.items():
-            assert response_data[key] == value, response_data
-
-    @pytest.mark.asyncio
     async def test_create_task_without_company_or_problem(
         self,
         client: AsyncClient,
@@ -118,7 +118,7 @@ class TestTasksPost:
         get_token_for_user,
     ):
         """Запрос на создание задачи c несуществующей компанией или проблемой."""
-        problem, employee_owner, company = await problem_for_test(return_all_objects=True)
+        problem, problem_owner, company = await problem_for_test(return_all_objects=True)
         variants = (
             (
                 problem.id,
@@ -140,7 +140,7 @@ class TestTasksPost:
                     company_slug=company_slug, problem_id=problem_id
                 ),
                 json=task_data,
-                headers=await get_token_for_user(employee_owner),
+                headers=await get_token_for_user(problem_owner),
             )
             assert response.status_code == status_code, response.json()
             assert response.json() == detail
@@ -157,17 +157,17 @@ class TestTasksGet:
         get_token_for_user,
     ):
         """Запрос на получение списка задач по проблеме."""
-        task, problem, employee_owner, company = await task_for_test(return_all_objects=True)
+        task, problem, problem_owner, company = await task_for_test(return_all_objects=True)
         task_data = [task]
         task_data.extend(
             [
-                await task_for_test({'problem_id': problem.id, 'owner_id': employee_owner.id})
+                await task_for_test({'problem_id': problem.id, 'owner_id': problem_owner.id})
                 for _ in range(3)
             ]
         )
         response = await client.get(
             UrlConstants.TASKS_ENDPOINT.format(company_slug=company.slug, problem_id=problem.id),
-            headers=await get_token_for_user(employee_owner),
+            headers=await get_token_for_user(problem_owner),
         )
 
         response_data = response.json()
@@ -183,14 +183,14 @@ class TestTasksGet:
         get_token_for_user,
     ):
         """Запрос на получение информации о конкретной задаче."""
-        task, problem, employee_owner, company = await task_for_test(return_all_objects=True)
+        task, problem, problem_owner, company = await task_for_test(return_all_objects=True)
         response = await client.get(
             UrlConstants.TASK_ENDPOINT.format(
                 company_slug=company.slug,
                 problem_id=problem.id,
                 task_id=task.id,
             ),
-            headers=await get_token_for_user(employee_owner),
+            headers=await get_token_for_user(problem_owner),
         )
 
         response_data = response.json()
@@ -233,7 +233,7 @@ class TestTasksUpdate:
         async_session: AsyncSession,
     ):
         """Запрос на полное обновление всех полей задачи."""
-        task, problem, employee_owner, company = await task_for_test(return_all_objects=True)
+        task, problem, problem_owner, company = await task_for_test(return_all_objects=True)
         # Создание исполнителя для задачи и занесение его в участики проблемы.
         employee_executor = await employee_of_company({'company_id': company.id})
         executor_problem_data = {'left_id': str(employee_executor.id), 'right_id': problem.id}
@@ -250,7 +250,7 @@ class TestTasksUpdate:
                 company_slug=company.slug, problem_id=problem.id, task_id=task.id
             ),
             json=updated_data,
-            headers=await get_token_for_user(employee_owner),
+            headers=await get_token_for_user(problem_owner),
         )
 
         response_data = response.json()
@@ -285,7 +285,7 @@ class TestTasksUpdate:
         async_session: AsyncSession,
     ):
         """Запрос обновление каждого из полей задачи отдельно."""
-        task, problem, employee_owner, company = await task_for_test(return_all_objects=True)
+        task, problem, problem_owner, company = await task_for_test(return_all_objects=True)
         # Создание исполнителя для задачи и занесение его в участики проблемы.
         employee_executor = await employee_of_company({'company_id': company.id})
         executor_problem_data = {'left_id': str(employee_executor.id), 'right_id': problem.id}
@@ -299,7 +299,7 @@ class TestTasksUpdate:
                 company_slug=company.slug, problem_id=problem.id, task_id=task.id
             ),
             json=json,
-            headers=await get_token_for_user(employee_owner),
+            headers=await get_token_for_user(problem_owner),
         )
 
         response_data = response.json()
@@ -320,7 +320,7 @@ class TestTasksUpdate:
         get_token_for_user,
     ):
         """Запрос на обновление несуществующей задачи."""
-        problem, employee_owner, company = await problem_for_test(return_all_objects=True)
+        problem, problem_owner, company = await problem_for_test(return_all_objects=True)
         problem_id = problem.id
         task_id = random.randint(1, 100)
         response = await client.patch(
@@ -328,7 +328,7 @@ class TestTasksUpdate:
                 company_slug=company.slug, problem_id=problem_id, task_id=task_id
             ),
             json={'name': 'Updated name'},
-            headers=await get_token_for_user(employee_owner),
+            headers=await get_token_for_user(problem_owner),
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.json()
@@ -345,12 +345,12 @@ class TestTasksDelete:
         get_token_for_user,
     ):
         """Тест успешного удаления задачи."""
-        task, problem, employee_owner, company = await task_for_test(return_all_objects=True)
+        task, problem, problem_owner, company = await task_for_test(return_all_objects=True)
         response = await client.delete(
             UrlConstants.TASK_ENDPOINT.format(
                 company_slug=company.slug, problem_id=problem.id, task_id=task.id
             ),
-            headers=await get_token_for_user(employee_owner),
+            headers=await get_token_for_user(problem_owner),
         )
 
         assert response.status_code == status.HTTP_204_NO_CONTENT, response.json()

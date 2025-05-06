@@ -590,23 +590,23 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
         })
 
         # Получение проблемы, сотрудника и компании
-        problem, employee, company = await problem_for_test(return_all_objects=True)
+        problem, employee_owner, company = await problem_for_test(return_all_objects=True)
     """
 
     async def _create_problem(problem_data=None, return_all_objects=False):
         """Функция-обёртка для создания проблемы с изменяемыми параметрами."""
-        employee = None
+        problem_owner = None
         company = None
 
         if not problem_data or (
             'owner_id' not in problem_data and 'company_id' not in problem_data
         ):
-            employee, company = await employee_of_company(return_company=True)
+            problem_owner, company = await employee_of_company(return_company=True)
 
         owner_id = (
             problem_data.get('owner_id')
             if problem_data and 'owner_id' in problem_data
-            else employee.id
+            else problem_owner.id
         )
         company_id = (
             problem_data.get('company_id')
@@ -634,7 +634,7 @@ async def problem_for_test(async_session: AsyncSession, employee_of_company):
         await make_entry_in_table(async_session, user_problem_data, AssociationUserProblem)
 
         if return_all_objects:
-            return problem, employee, company
+            return problem, problem_owner, company
         return problem
 
     return _create_problem
