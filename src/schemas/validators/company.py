@@ -12,12 +12,19 @@ from src.schemas.constants import TextErrorConstants
 
 def validate_name_surname_unique(name: Optional[str], surname: Optional[str]) -> None:
     """
-    Проверяет, что имя и фамилия не совпадают.
-    Args:
-        name Optional[str]: имя пользователя.
-        surname Optional[str]: фамилия пользователя.
-    Raises:
-        ValueError: Если имя совпадает с фамилией, вызывается ошибка.
+    Валидатор для проверки уникальности имени и фамилии.
+
+    Проверяет, что имя и фамилия пользователя не совпадают, если оба поля заполнены.
+
+    Аргументы:
+        name (Optional[str]): Имя пользователя.
+        surname (Optional[str]): Фамилия пользователя.
+
+    Возвращает:
+        None: Ничего не возвращает, если валидация успешна.
+
+    Исключения:
+        ValueError: Возникает, если имя и фамилия совпадают.
     """
     if name and surname and name == surname:
         raise ValueError(TextErrorConstants.UNIQUE_NAME_SURNAME)
@@ -25,12 +32,18 @@ def validate_name_surname_unique(name: Optional[str], surname: Optional[str]) ->
 
 def validate_name_characters(name: Optional[str]) -> None:
     """
-    Проверяет, что имя содержит только буквы.
-    Args:
-        name Optional[str]: имя пользователя.
-    Raises:
-        ValueError: Если имя содержит запрещенные символы,
-        вызывается ошибка.
+    Валидатор для проверки корректности символов в имени.
+
+    Проверяет, что имя содержит только буквы, если оно указано.
+
+    Аргументы:
+        name (Optional[str]): Имя пользователя.
+
+    Возвращает:
+        None: Ничего не возвращает, если валидация успешна.
+
+    Исключения:
+        ValueError: Возникает, если имя содержит недопустимые символы.
     """
     if name and not name.isalpha():
         raise ValueError(TextErrorConstants.INVALID_CHARACTERS_NAME)
@@ -38,12 +51,18 @@ def validate_name_characters(name: Optional[str]) -> None:
 
 def validate_surname_characters(surname: Optional[str]) -> None:
     """
-    Проверяет, что фамилия содержит только буквы.
-     Args:
-        surname Optional[str]: фамилия пользователя.
-    Raises:
-        ValueError: Если фамилия содержит запрещенные символы,
-        вызывается ошибка.
+    Валидатор для проверки корректности символов в фамилии.
+
+    Проверяет, что фамилия содержит только буквы, если она указана.
+
+    Аргументы:
+        surname (Optional[str]): Фамилия пользователя.
+
+    Возвращает:
+        None: Ничего не возвращает, если валидация успешна.
+
+    Исключения:
+        ValueError: Возникает, если фамилия содержит недопустимые символы.
     """
     if surname and not surname.isalpha():
         raise ValueError(TextErrorConstants.INVALID_CHARACTERS_SURNAME)
@@ -51,14 +70,19 @@ def validate_surname_characters(surname: Optional[str]) -> None:
 
 def validate_slug(slug: Optional[str]) -> Optional[str]:
     """
-    Проверяет, соответствует ли переданный slug допустимому формату.
+    Валидатор для проверки формата slug.
 
-    Разрешены только латинские буквы, цифры и дефисы.
-    Пример корректного slug: 'example-company-123'.
+    Проверяет, что slug содержит только латинские буквы, цифры и дефисы, и соответствует формату
+        (например, 'example-company-123').
 
-    :param slug: Строка слага, переданная для проверки.
-    :return: Возвращает slug, если он соответствует требованиям, или None.
-    :raises ValueError: Если slug содержит недопустимые символы.
+    Аргументы:
+        slug (Optional[str]): Строка slug для валидации.
+
+    Возвращает:
+        Optional[str]: Проверенный slug или None, если входное значение None.
+
+    Исключения:
+        ValueError: Возникает, если slug содержит недопустимые символы или имеет неверный формат.
     """
     if slug and not re.match(r'^[a-z0-9]+(?:-[a-z0-9]+)*$', slug):
         raise ValueError('Slug может содержать только латинские буквы, цифры и дефисы.')
@@ -67,14 +91,18 @@ def validate_slug(slug: Optional[str]) -> Optional[str]:
 
 def check_license_fields_none(values: Self) -> Self:
     """
-    Проверяет корректность заполнения полей лицензии.
+    Валидатор для проверки корректности заполнения полей лицензии.
 
-    Либо оба поля (`license_id` и `start_license_time`) должны быть заполнены,
-    либо оба должны быть пустыми. Нельзя оставить одно из них незаполненным.
+    Проверяет, что поля `license_id` и `start_license_time` либо оба заполнены, либо оба пусты.
 
-    :param values: Экземпляр модели, содержащий данные о лицензии.
-    :return: Возвращает неизмененный объект, если проверка пройдена.
-    :raises ValueError: Если одно поле заполнено, а второе нет.
+    Аргументы:
+        values (Self): Экземпляр Pydantic-модели с данными лицензии.
+
+    Возвращает:
+        Self: Неизмененный экземпляр модели, если валидация успешна.
+
+    Исключения:
+        ValueError: Возникает, если одно из полей заполнено, а другое пусто.
     """
     if not (
         all((values.license_id, values.start_license_time))
@@ -86,23 +114,34 @@ def check_license_fields_none(values: Self) -> Self:
 
 def validate_logo(logo: Optional[str]) -> Optional[str]:
     """
-    Проверяет, является ли переданный логотип (`logo`) корректным URL-адресом.
+    Валидатор для проверки корректности URL логотипа компании.
 
-    Функция принимает строку с URL-адресом логотипа компании и выполняет валидацию.
-    Если URL некорректен, вызывается исключение `ValueError`.
+    Проверяет, что переданная строка, если она указана, является валидным URL-адресом
+    с протоколом HTTP или HTTPS
+    (например, для изображений логотипов, размещенных на внешних серверах).
+    Это необходимо для корректного отображения логотипа в веб-приложении и предотвращения
+    ошибок при загрузке ресурсов.
 
     Допустимые примеры:
-    - "https://example.com/logo.png"
-    - "http://my-site.org/images/logo.jpg"
+    - "https://example.com/logo.png" (валидный HTTPS URL для изображения)
+    - "http://my-site.org/images/logo.jpg" (валидный HTTP URL для изображения)
+    - None (отсутствие логотипа, допустимо)
 
     Недопустимые примеры:
     - "string" (не является URL)
-    - "ftp://files.com/logo.png" (не HTTP/HTTPS)
-    - "/local/path/to/logo.png" (относительный путь)
+    - "ftp://files.com/logo.png" (использует неподдерживаемый протокол FTP)
+    - "/local/path/to/logo.png" (относительный путь, не является полноценным URL)
 
-    :param logo: Строка, содержащая URL-адрес логотипа (может быть None).
-    :return: Возвращает строку URL, если валидация пройдена, иначе вызывает исключение.
-    :raises ValueError: Если `logo` не является корректным URL-адресом.
+    Аргументы:
+        logo (Optional[str]): Строка с URL-адресом логотипа
+            (может быть None, если логотип не указан).
+
+    Возвращает:
+        Optional[str]: Проверенный URL логотипа или None, если входное значение None.
+
+    Исключения:
+        ValueError: Возникает, если строка не является валидным URL-адресом с протоколом HTTP/HTTPS
+            (например, при использовании других протоколов или некорректного формата).
     """
     if logo is not None:
         try:
@@ -114,16 +153,18 @@ def validate_logo(logo: Optional[str]) -> Optional[str]:
 
 def validate_string(value: str) -> str:
     """
-    Проверяет строковое поле на наличие пробелов в начале или конце.
+    Валидатор для проверки строкового поля на пробелы.
 
-    Args:
-        value (str): Входное строковое значение.
+    Проверяет, что строка не содержит пробелов в начале или конце.
 
-    Returns:
-        str: Очищенное от пробелов значение.
+    Аргументы:
+        value (str): Строковое значение для валидации.
 
-    Raises:
-        ValueError: Если строка содержит пробелы в начале или в конце.
+    Возвращает:
+        str: Проверенная строка.
+
+    Исключения:
+        ValueError: Возникает, если строка содержит пробелы в начале или конце.
     """
     if value != value.strip():
         raise ValueError(TextErrorConstants.FIELD_START_OR_END_SPACE)

@@ -1,129 +1,131 @@
 from datetime import date, datetime
+from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 
-from src.models import (
-    MeetingStatus,
+from src.models import MeetingStatus
+from src.schemas.annotations import (
+    DescriptionField,
+    OptionalPlaceField,
+    OptionalTitleField,
+    PlaceField,
+    TitleField,
 )
-from src.schemas.validators.problem_meeting import validate_date, validate_not_empty
+from src.schemas.constants import TitleConstants
+
+BASE_CONFIG = ConfigDict(
+    extra='forbid',
+    str_strip_whitespace=True,
+    from_attributes=True,
+)
 
 
 class MeetingBaseSchema(BaseModel):
-    """Базовая Pydantic-схема для встреч.
+    """
+    Базовая Pydantic-схема для встреч.
 
-    Назначение:
-        Определяет базовые поля и их типы для работы с данными встреч.
-    Параметры:
-        description: Описание встречи (опционально).
+    Определяет общие поля для схем встреч.
+
+    Атрибуты:
+        description (Optional[str]): Описание встречи.
     """
 
-    description: str | None = None
+    description: DescriptionField = Field(None, title=TitleConstants.MEETING_DESCRIPTION)
+
     # TODO: Надо реализовать добавление файлов в встречу
 
 
-class MeetingSchemaMixin:
+class MeetingCreateSchema(MeetingBaseSchema):
     """
-    Миксин для схем Встреч, с валидаторами.
-    """
+    Pydantic-схема для создания встреч.
 
-    model_config = ConfigDict(extra='forbid', str_min_length=1)
+    Используется для добавления новой встречи через API.
 
-    @field_validator('title')
-    @classmethod
-    def validate_title_not_empty(cls, value: str) -> str:
-        """Проверка, что название проблемы не пустое."""
-        return validate_not_empty(value)
-
-    @field_validator('date_meeting')
-    @classmethod
-    def validate_date_meeting(cls, value: date) -> date:
-        """Проверка, что дата не может быть меньше текущей."""
-        return validate_date(value)
-
-
-class MeetingCreateSchema(MeetingSchemaMixin, MeetingBaseSchema):
-    """Pydantic-схема для создания встреч.
-
-    Назначение:
-        Используется для валидации данных при создании новой встречи.
-    Параметры:
-        title: Название встречи.
-        description: Описание встречи (опционально).
-        date_meeting: Дата проведения встречи.
-        place: Место проведения встречи.
+    Атрибуты:
+        title (str): Название встречи.
+        date_meeting (date): Дата проведения встречи.
+        place (str): Место проведения встречи.
+        description (Optional[str]): Описание встречи.
     """
 
-    title: str
-    date_meeting: date
-    place: str
+    title: TitleField = Field(..., title=TitleConstants.MEETING_TITLE)
+    date_meeting: date = Field(..., title=TitleConstants.MEETING_DATE)
+    place: PlaceField = Field(..., title=TitleConstants.MEETING_PLACE)
+
+    model_config = BASE_CONFIG
 
 
-class MeetingUpdateSchema(MeetingSchemaMixin, MeetingBaseSchema):
-    """Pydantic-схема для обновления информации о встрече.
+class MeetingUpdateSchema(MeetingBaseSchema):
+    """
+    Pydantic-схема для обновления информации о встрече.
 
-    Назначение:
-        Используется для валидации данных при обновлении информации о встрече.
-    Параметры:
-        title: Название встречи (опционально).
-        description: Описание встречи (опционально).
-        date_meeting: Дата проведения встречи (опционально).
-        place: Место проведения встречи (опционально).
-        status: Статус встречи (опционально).
-        members: список участников, из связной таблицы, оформленных через схему (опционально).
+    Используется для изменения данных о встрече через API.
+
+    Атрибуты:
+        title (Optional[str]): Название встречи.
+        date_meeting (Optional[date]): Дата проведения встречи.
+        place (Optional[str]): Место проведения встречи.
+        status (Optional[MeetingStatus]): Статус встречи.
+        members (Optional[list[UUID]]): Список идентификаторов участников встречи.
+        description (Optional[str]): Описание встречи.
     """
 
-    title: str | None = None
-    date_meeting: date | None = None
-    place: str | None = None
-    status: MeetingStatus | None = None
-    members: list[UUID] | None = []
+    title: OptionalTitleField = Field(None, title=TitleConstants.MEETING_TITLE)
+    date_meeting: Optional[date] = Field(None, title=TitleConstants.MEETING_DATE)
+    place: OptionalPlaceField = Field(None, title=TitleConstants.MEETING_PLACE)
+    status: Optional[MeetingStatus] = Field(None, title=TitleConstants.MEETING_STATUS)
+    members: Optional[list[UUID]] = Field(default=[], title=TitleConstants.MEETING_MEMBERS)
+
+    model_config = BASE_CONFIG
 
 
 class MemberResponseSchema(BaseModel):
-    """Схема участника Встречи.
+    """
+    Схема участника встречи.
 
-    Назначение:
-        Определяет структуру данных для ответа с информацией о участнике Встречи.
-    Параметры:
-        member_id: UUID участника Встречи.
+    Используется для представления данных об участнике встречи.
+
+    Атрибуты:
+        member_id (UUID): Идентификатор участника встречи.
     """
 
-    member_id: UUID = Field(validation_alias='left_id')
+    member_id: UUID = Field(validation_alias='left_id', title=TitleConstants.MEETING_MEMBER_ID)
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class MeetingResponseSchema(MeetingBaseSchema):
-    """Pydantic-схема для данных о встрече из БД.
+    """
+    Pydantic-схема для данных о встрече из БД.
 
-    Назначение:
-        Используется для сериализации данных о встрече при получении из БД.
-    Параметры:
-        id: Идентификатор встречи.
-        title: Название встречи.
-        description: Описание встречи (опционально).
-        problem_id: Идентификационный номер проблемы по которой назначена встреча.
-        owner_id: Идентификационный номер пользователя, который создал встречу.
-        date_meeting: Дата проведения встречи.
-        status: Статус встречи.
-        place: Место проведения встречи.
-        members: список участников, из связной таблицы, оформленных через схему.
-        transfer_counter: количество переносов даты проведения встречи.
-        created_at: Дата и время создания записи.
-        updated_at: Дата и время последнего обновления записи.
+    Используется для возврата данных о встрече через API.
+
+    Атрибуты:
+        id (int): Идентификатор встречи.
+        title (str): Название встречи.
+        problem_id (int): Идентификатор связанной проблемы.
+        owner_id (UUID): Идентификатор владельца встречи.
+        date_meeting (date): Дата проведения встречи.
+        status (MeetingStatus): Статус встречи.
+        place (str): Место проведения встречи.
+        members (list[MemberResponseSchema]): Список участников встречи.
+        transfer_counter (int): Счетчик переносов встречи.
+        created_at (datetime): Время создания встречи.
+        updated_at (datetime): Время последнего обновления встречи.
+        description (Optional[str]): Описание встречи.
     """
 
-    id: int
-    title: str
-    problem_id: int
-    owner_id: UUID
-    date_meeting: date
-    status: MeetingStatus
-    place: str
-    members: list[MemberResponseSchema]
-    transfer_counter: int
-    created_at: datetime
-    updated_at: datetime
+    id: int = Field(..., title=TitleConstants.MEETING_ID)
+    title: TitleField = Field(..., title=TitleConstants.MEETING_TITLE)
+    problem_id: int = Field(..., title=TitleConstants.MEETING_PROBLEM_ID)
+    owner_id: UUID = Field(..., title=TitleConstants.MEETING_OWNER_ID)
+    date_meeting: date = Field(..., title=TitleConstants.MEETING_DATE)
+    status: MeetingStatus = Field(..., title=TitleConstants.MEETING_STATUS)
+    place: PlaceField = Field(..., title=TitleConstants.MEETING_PLACE)
+    members: list[MemberResponseSchema] = Field(..., title=TitleConstants.MEETING_MEMBERS)
+    transfer_counter: int = Field(..., title=TitleConstants.MEETING_TRANSFER_COUNTER)
+    created_at: datetime = Field(..., title=TitleConstants.MEETING_CREATED_AT)
+    updated_at: datetime = Field(..., title=TitleConstants.MEETING_UPDATED_AT)
 
     model_config = ConfigDict(from_attributes=True)

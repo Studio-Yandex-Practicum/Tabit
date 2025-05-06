@@ -14,10 +14,10 @@ from src.features_v1.validators import (
 )
 from src.models import CompanyUser
 from src.schemas import (
+    BaseFilterSchema,
     CommentCreate,
     CommentRead,
     CommentUpdate,
-    FeedsFilterSchema,
     MessageFeedCreate,
     MessageFeedRead,
 )
@@ -34,7 +34,7 @@ router = APIRouter()
 async def get_all_threads(
     company_slug: str,
     problem_id: int,
-    query_params: FeedsFilterSchema = Depends(),
+    query_params: BaseFilterSchema = Depends(),
     session: AsyncSession = Depends(get_async_session),
     user: CompanyUser = Depends(current_user_tabit),
 ) -> list[MessageFeedRead]:
@@ -94,7 +94,7 @@ async def get_thread_comments(
     company_slug: str,
     problem_id: int,
     thread_id: int,
-    query_params: FeedsFilterSchema = Depends(),
+    query_params: BaseFilterSchema = Depends(),
     session: AsyncSession = Depends(get_async_session),
     user: CompanyUser = Depends(current_user_tabit),
 ) -> list[CommentRead]:

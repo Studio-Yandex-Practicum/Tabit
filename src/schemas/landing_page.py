@@ -1,64 +1,92 @@
-import re
 from typing import Optional
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from src.schemas.constants import ValidationConstants
+from src.schemas.annotations import AddressField, PhoneNumberField, TextField
+from src.schemas.constants import TitleConstants
+
+BASE_CONFIG = ConfigDict(
+    extra='forbid',
+    str_strip_whitespace=True,
+    from_attributes=True,
+)
 
 
 class LandingPageBaseSchema(BaseModel):
-    """Базовая схема для управления контентом лендинга."""
+    """
+    Базовая схема для управления контентом лендинга.
 
-    phone_number_1: Optional[str]
-    phone_number_2: Optional[str]
-    phone_number_3: Optional[str]
-    address: Optional[str]
-    email: Optional[str]
-    whatsapp: Optional[str]
-    telegram: Optional[str]
-    vk: Optional[str]
-    price_1: Optional[str]
-    price_2: Optional[str]
+    Определяет общие поля для схем лендинга.
 
-    @field_validator('phone_number_1', 'phone_number_2', 'phone_number_3')
-    def validate_phone_number(cls, v: Optional[str]) -> Optional[str]:
-        """
-        Проверка формата телефонного номера.
+    Атрибуты:
+        phone_number_1 (Optional[str]): Первый номер телефона.
+        phone_number_2 (Optional[str]): Второй номер телефона.
+        phone_number_3 (Optional[str]): Третий номер телефона.
+        address (Optional[str]): Адрес компании.
+        email (Optional[EmailStr]): Электронная почта.
+        whatsapp (Optional[str]): Имя пользователя WhatsApp.
+        telegram (Optional[str]): Имя пользователя Telegram.
+        vk (Optional[str]): Имя пользователя ВКонтакте.
+        price_1 (Optional[str]): Первая цена лицензии.
+        price_2 (Optional[str]): Вторая цена лицензии.
+    """
 
-        Поддерживаемые форматы:
-        - +7 (123) 456-78-90
-        - 8(123)4567890
-        - 123-45-67
-        - (123) 456 78 90
-        """
-        if v and not re.match(ValidationConstants.PHONE_NUMBER_PATTERN, v):
-            raise ValueError(
-                'Номер телефона должен быть в одном из следующих форматов: '
-                ' +7 (123) 456-78-90, 8(123)4567890, 123-45-67, (123) 456 78 90'
-            )
-        return v
+    phone_number_1: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
+    phone_number_2: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
+    phone_number_3: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_USER)
+    address: Optional[AddressField] = Field(None, title=TitleConstants.NAME_COMPANY)
+    email: Optional[EmailStr] = Field(None, title=TitleConstants.EMAIL_USER)
+    whatsapp: Optional[TextField] = Field(None, title=TitleConstants.WHATSAPP_USERNAME)
+    telegram: Optional[TextField] = Field(None, title=TitleConstants.TELEGRAM_USERNAME)
+    vk: Optional[TextField] = Field(None, title=TitleConstants.NAME_USER)
+    price_1: Optional[TextField] = Field(None, title=TitleConstants.NAME_LICENSE)
+    price_2: Optional[TextField] = Field(None, title=TitleConstants.NAME_LICENSE)
 
-    @field_validator('email')
-    def validate_email(cls, v: Optional[str]) -> Optional[str]:
-        """Проверка формата email."""
-        if v and not re.match(ValidationConstants.EMAIL_REGEX, v):
-            raise ValueError('Некорректный формат email.')
-        return v
+    model_config = BASE_CONFIG
 
 
 class LandingPageCreateSchema(LandingPageBaseSchema):
-    """Схема для создания записи лендинга."""
+    """
+    Схема для создания записи лендинга.
 
-    pass
+    Используется для добавления новой записи контента лендинга через API.
 
+    Атрибуты:
+        phone_number_1 (Optional[str]): Первый номер телефона.
+        phone_number_2 (Optional[str]): Второй номер телефона.
+        phone_number_3 (Optional[str]): Третий номер телефона.
+        address (Optional[str]): Адрес компании.
+        email (Optional[EmailStr]): Электронная почта.
+        whatsapp (Optional[str]): Имя пользователя WhatsApp.
+        telegram (Optional[str]): Имя пользователя Telegram.
+        vk (Optional[str]): Имя пользователя ВКонтакте.
+        price_1 (Optional[str]): Первая цена лицензии.
+        price_2 (Optional[str]): Вторая цена лицензии.
+    """
 
-class LandingPageUpdateSchema(LandingPageBaseSchema):
-    """Схема для обновления записи лендинга."""
-
-    pass
+    model_config = BASE_CONFIG
 
 
 class LandingPageResponseSchema(LandingPageBaseSchema):
-    """Схема для отображения данных лендинга."""
+    """
+    Схема для отображения данных лендинга.
+
+    Используется для возврата данных о контенте лендинга через API.
+
+    Атрибуты:
+        id (int): Идентификатор записи лендинга.
+        phone_number_1 (Optional[str]): Первый номер телефона.
+        phone_number_2 (Optional[str]): Второй номер телефона.
+        phone_number_3 (Optional[str]): Третий номер телефона.
+        address (Optional[str]): Адрес компании.
+        email (Optional[EmailStr]): Электронная почта.
+        whatsapp (Optional[str]): Имя пользователя WhatsApp.
+        telegram (Optional[str]): Имя пользователя Telegram.
+        vk (Optional[str]): Имя пользователя ВКонтакте.
+        price_1 (Optional[str]): Первая цена лицензии.
+        price_2 (Optional[str]): Вторая цена лицензии.
+    """
 
     id: int
+
+    model_config = BASE_CONFIG

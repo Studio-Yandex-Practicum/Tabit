@@ -2,93 +2,130 @@ from datetime import date
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.models import (
     MeetingResultEngagementEnum,
     MeetingResultEnum,
     MeetingResultSolutionEnum,
 )
+from src.schemas.annotations import FeedbackField, PlaceField
+from src.schemas.constants import TitleConstants
+
+BASE_CONFIG = ConfigDict(
+    extra='forbid',
+    str_strip_whitespace=True,
+    from_attributes=True,
+)
 
 
 class MeetingResultBaseSchema(BaseModel):
-    """Базовая Pydantic-схема для результатов встреч.
+    """
+    Базовая схема для результатов встреч.
 
-    Назначение:
-        Определяет базовые поля и их типы для работы с результатами встреч.
-    Параметры:
-        meeting_result: Результат встречи.
-        participant_engagement: Участие в встрече.
-        problem_solution: Решение проблемы.
-        meeting_feedback: Отзыв о встрече (опционально).
+    Определяет общие поля для схем результатов встреч.
+
+    Атрибуты:
+        meeting_result (Optional[MeetingResultEnum]): Результат встречи.
+        participant_engagement (Optional[MeetingResultEngagementEnum]): Уровень
+            вовлеченности участников.
+        problem_solution (Optional[MeetingResultSolutionEnum]): Решение проблемы.
+        meeting_feedback (Optional[str]): Обратная связь по встрече.
     """
 
-    meeting_result: MeetingResultEnum
-    participant_engagement: MeetingResultEngagementEnum
-    problem_solution: MeetingResultSolutionEnum
-    meeting_feedback: Optional[str]
+    meeting_result: Optional[MeetingResultEnum] = Field(None, title=TitleConstants.MEETING_RESULT)
+    participant_engagement: Optional[MeetingResultEngagementEnum] = Field(
+        None, title=TitleConstants.PARTICIPANT_ENGAGEMENT
+    )
+    problem_solution: Optional[MeetingResultSolutionEnum] = Field(
+        None, title=TitleConstants.PROBLEM_SOLUTION
+    )
+    meeting_feedback: Optional[FeedbackField] = Field(None, title=TitleConstants.MEETING_FEEDBACK)
+
+    model_config = BASE_CONFIG
 
 
 class MeetingResultCreateSchema(MeetingResultBaseSchema):
-    """Pydantic-схема для создания результатов встреч.
+    """
+    Схема для создания результатов встреч.
 
-    Назначение:
-        Используется для валидации данных при создании результатов встречи.
+    Используется для добавления новых результатов встречи через API.
+
+    Атрибуты:
+        meeting_result (MeetingResultEnum): Результат встречи.
+        participant_engagement (MeetingResultEngagementEnum): Уровень
+            вовлеченности участников.
+        problem_solution (MeetingResultSolutionEnum): Решение проблемы.
+        meeting_feedback (Optional[str]): Обратная связь по встрече.
     """
 
-    model_config = ConfigDict(extra='forbid', str_min_length=1)
+    meeting_result: MeetingResultEnum = Field(..., title=TitleConstants.MEETING_RESULT)
+    participant_engagement: MeetingResultEngagementEnum = Field(
+        ..., title=TitleConstants.PARTICIPANT_ENGAGEMENT
+    )
+    problem_solution: MeetingResultSolutionEnum = Field(..., title=TitleConstants.PROBLEM_SOLUTION)
+
+    model_config = BASE_CONFIG
 
 
 class MeetingResultSchema(BaseModel):
-    """Pydantic-схема для данных о результатах встречи из БД из связанной модели Meeting.
+    """
+    Схема для данных о встрече из связанной модели Meeting.
 
-    Назначение:
-        Используется для сериализации данных о результатах встречи при получении из БД.
-    Параметры:
-        place: Место проведения встречи.
-        date_meeting: Дата проведения встречи.
+    Используется для представления данных о встрече.
+
+    Атрибуты:
+        place (str): Место проведения встречи.
+        date_meeting (date): Дата проведения встречи.
     """
 
-    place: str
-    date_meeting: date
+    place: PlaceField = Field(..., title=TitleConstants.MEETING_PLACE)
+    date_meeting: date = Field(..., title=TitleConstants.MEETING_DATE)
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = BASE_CONFIG
 
 
 class MeetingResultResponseSchema(MeetingResultBaseSchema):
-    """Pydantic-схема для данных о результатах встречи из БД.
+    """
+    Схема для данных о результатах встречи из БД.
 
-    Назначение:
-        Используется для сериализации данных о результатах встречи при получении из БД.
-    Параметры:
-        id: Идентификатор результата.
-        meeting_id: Идентификатор связанной встречи.
-        owner_id: Идентификатор создателя результата.
-        meeting: Поля из модели Meeting.
+    Используется для возврата данных о результатах встречи через API.
+
+    Атрибуты:
+        id (int): Идентификатор результата встречи.
+        owner_id (UUID): Идентификатор владельца результата.
+        meeting (MeetingResultSchema): Данные о встрече.
+        meeting_result (MeetingResultEnum): Результат встречи.
+        participant_engagement (MeetingResultEngagementEnum): Уровень
+            вовлеченности участников.
+        problem_solution (MeetingResultSolutionEnum): Решение проблемы.
+        meeting_feedback (Optional[str]): Обратная связь по встрече.
     """
 
     id: int
     owner_id: UUID
     meeting: MeetingResultSchema
+    meeting_result: MeetingResultEnum = Field(..., title=TitleConstants.MEETING_RESULT)
+    participant_engagement: MeetingResultEngagementEnum = Field(
+        ..., title=TitleConstants.PARTICIPANT_ENGAGEMENT
+    )
+    problem_solution: MeetingResultSolutionEnum = Field(..., title=TitleConstants.PROBLEM_SOLUTION)
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = BASE_CONFIG
 
 
-class MeetingResultUpdateSchema(BaseModel):
-    """Pydantic-схема для обновления результатов встреч.
+class MeetingResultUpdateSchema(MeetingResultBaseSchema):
+    """
+    Схема для обновления результатов встреч.
 
-    Назначение:
-        Используется для валидации данных при обновлении результатов встречи.
-    Параметры:
-        meeting_result: Результат встречи (опционально).
-        participant_engagement: Участие в встрече (опционально).
-        problem_solution: Решение проблемы (опционально).
-        meeting_feedback: Отзыв о встрече (опционально).
+    Используется для изменения данных о результатах встречи через API.
+
+    Атрибуты:
+        meeting_result (Optional[MeetingResultEnum]): Результат встречи.
+        participant_engagement (Optional[MeetingResultEngagementEnum]): Уровень
+            вовлеченности участников.
+        problem_solution (Optional[MeetingResultSolutionEnum]): Решение проблемы.
+        meeting_feedback (Optional[str]): Обратная связь по встрече.
     """
 
-    meeting_result: Optional[MeetingResultEnum] = None
-    participant_engagement: Optional[MeetingResultEngagementEnum] = None
-    problem_solution: Optional[MeetingResultSolutionEnum] = None
-    meeting_feedback: Optional[str] = None
-
-    model_config = ConfigDict(extra='forbid')
+    model_config = BASE_CONFIG

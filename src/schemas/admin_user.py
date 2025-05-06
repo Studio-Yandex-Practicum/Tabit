@@ -5,30 +5,47 @@ from uuid import UUID
 from fastapi_users.schemas import CreateUpdateDictModel
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from src.schemas.constants import LengthConstants, TitleConstants
+from src.schemas.annotations import NameField, OptionalNameField, PhoneNumberField
+from src.schemas.constants import TitleConstants
 
 
-class BaseAdminSchema:
-    """Базовая схема администратора сервиса."""
+class AdminBaseSchema(BaseModel):
+    """
+    Базовая схема администратора.
 
-    patronymic: Optional[str] = Field(
-        None,
-        min_length=LengthConstants.MIN_NAME,
-        max_length=LengthConstants.MAX_NAME,
-        title=TitleConstants.PATRONYMIC_MODERATOR,
-    )
-    phone_number: Optional[str] = Field(
-        None,
-        min_length=LengthConstants.MIN_NAME,
-        max_length=LengthConstants.MAX_NAME,
-        title=TitleConstants.PHONE_NUMBER_MODERATOR,
-    )
+    Определяет общие поля для схем администраторов.
 
-    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    Атрибуты:
+        name (str): Имя администратора.
+        surname (str): Фамилия администратора.
+        patronymic (Optional[str]): Отчество администратора.
+        phone_number (Optional[str]): Номер телефона администратора.
+    """
+
+    name: NameField = Field(..., title=TitleConstants.NAME_MODERATOR)
+    surname: NameField = Field(..., title=TitleConstants.SURNAME_MODERATOR)
+    patronymic: OptionalNameField = Field(None, title=TitleConstants.PATRONYMIC_MODERATOR)
+    phone_number: PhoneNumberField = Field(None, title=TitleConstants.PHONE_NUMBER_MODERATOR)
+
+    model_config = ConfigDict(extra='forbid')
 
 
 class AdminReadSchema(CreateUpdateDictModel):
-    """Схема администратора сервиса для ответов."""
+    """
+    Схема администратора для ответа.
+
+    Используется для возврата данных об администраторе в API.
+
+    Атрибуты:
+        id (UUID): Идентификатор администратора.
+        email (EmailStr): Электронная почта администратора.
+        name (str): Имя администратора.
+        surname (str): Фамилия администратора.
+        patronymic (Optional[str]): Отчество администратора.
+        phone_number (Optional[str]): Номер телефона администратора.
+        created_at (datetime): Время создания записи.
+        updated_at (datetime): Время последнего обновления записи.
+    """
 
     id: UUID
     email: EmailStr
@@ -42,53 +59,56 @@ class AdminReadSchema(CreateUpdateDictModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class AdminCreateSchema(CreateUpdateDictModel, BaseAdminSchema):
-    """Схема для создание администратора сервиса."""
+class AdminCreateSchema(CreateUpdateDictModel, AdminBaseSchema):
+    """
+    Схема для создания администратора.
 
-    email: EmailStr = Field(
-        ...,
-        title=TitleConstants.EMAIL_USER,
-    )
-    password: str = Field(
-        ...,
-        title=TitleConstants.PASSWORD_USER,
-    )
+    Используется для создания нового администратора через API.
 
-    name: str = Field(
-        ...,
-        min_length=LengthConstants.MIN_NAME,
-        max_length=LengthConstants.MAX_NAME,
-        title=TitleConstants.NAME_MODERATOR,
-    )
-    surname: str = Field(
-        ...,
-        min_length=LengthConstants.MIN_NAME,
-        max_length=LengthConstants.MAX_NAME,
-        title=TitleConstants.SURNAME_MODERATOR,
-    )
+    Атрибуты:
+        email (EmailStr): Электронная почта администратора.
+        password (str): Пароль администратора.
+        name (str): Имя администратора.
+        surname (str): Фамилия администратора.
+        patronymic (Optional[str]): Отчество администратора.
+        phone_number (Optional[str]): Номер телефона администратора.
+    """
+
+    email: EmailStr = Field(..., title=TitleConstants.EMAIL_USER)
+    password: str = Field(..., title=TitleConstants.PASSWORD_USER)
 
 
-class AdminUpdateSchema(BaseAdminSchema, BaseModel):
-    """Схема для изменение данных администратора сервиса."""
+class AdminUpdateSchema(AdminBaseSchema):
+    """
+    Схема для обновления администратора.
 
-    name: Optional[str] = Field(
-        None,
-        min_length=LengthConstants.MIN_NAME,
-        max_length=LengthConstants.MAX_NAME,
-        title=TitleConstants.NAME_MODERATOR,
-    )
-    surname: Optional[str] = Field(
-        None,
-        min_length=LengthConstants.MIN_NAME,
-        max_length=LengthConstants.MAX_NAME,
-        title=TitleConstants.SURNAME_MODERATOR,
-    )
+    Используется для частичного обновления данных администратора через API.
+
+    Атрибуты:
+        name (Optional[str]): Имя администратора.
+        surname (Optional[str]): Фамилия администратора.
+        patronymic (Optional[str]): Отчество администратора.
+        phone_number (Optional[str]): Номер телефона администратора.
+    """
+
+    name: OptionalNameField = Field(None, title=TitleConstants.NAME_MODERATOR)
+    surname: OptionalNameField = Field(None, title=TitleConstants.SURNAME_MODERATOR)
 
 
 class AdminCreateFirstSchema(AdminCreateSchema):
-    """Схема для создание первого администратора-суперпользователя сервиса."""
+    """
+    Схема для создания первого суперпользователя.
 
-    is_superuser: bool = Field(
-        True,
-        title=TitleConstants.IS_SUPERUSER_ADMIN,
-    )
+    Используется для создания суперпользователя с повышенными привилегиями.
+
+    Атрибуты:
+        email (EmailStr): Электронная почта суперпользователя.
+        password (str): Пароль суперпользователя.
+        name (str): Имя суперпользователя.
+        surname (str): Фамилия суперпользователя.
+        patronymic (Optional[str]): Отчество суперпользователя.
+        phone_number (Optional[str]): Номер телефона суперпользователя.
+        is_superuser (bool): Флаг суперпользователя (по умолчанию True).
+    """
+
+    is_superuser: bool = Field(True, title=TitleConstants.IS_SUPERUSER_ADMIN)

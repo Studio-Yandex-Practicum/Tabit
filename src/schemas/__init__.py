@@ -2,7 +2,7 @@
 # 1. Импортируем миксины
 # 2. Импортируем все схемы из других файлов
 
-from .mixins import GetterSlugMixin, UserSchemaMixin
+from .mixins import GetterSlugMixin
 from .admin_company import (
     AdminCompanyResponseSchema,
     CompanyAdminCreateSchema,
@@ -16,7 +16,7 @@ from .admin_user import (
     AdminCreateSchema,
     AdminReadSchema,
     AdminUpdateSchema,
-    BaseAdminSchema,
+    AdminBaseSchema,
 )
 from .comment import CommentCreate, CommentRead, CommentUpdate
 from .company import (
@@ -25,7 +25,7 @@ from .company import (
     CompanyDepartmentResponseSchema,
     CompanyDepartmentUpdateSchema,
     CompanyEmployeeUpdateSchema,
-    CompanyFeedbackCreateShema,
+    CompanyFeedbackCreateSchema,
     CompanyResponseSchema,
     CompanyTypeFilterSchema,
     CompanyUpdateForUserSchema,
@@ -38,12 +38,12 @@ from .enum import (
     MeetingResult,
     MeetingStatus,
 )
-from .file import BaseFileSchema, FileCreateSchema, FileResponseSchema, FileUpdateSchema
+from .file import FileBaseSchema, FileCreateSchema, FileResponseSchema, FileUpdateSchema
 from .landing_page import (
     LandingPageBaseSchema,
     LandingPageCreateSchema,
     LandingPageResponseSchema,
-    LandingPageUpdateSchema,
+    LandingPageBaseSchema,
 )
 from .license_type import (
     LicenseTypeBaseSchema,
@@ -80,7 +80,7 @@ from .meeting_result import (
 from .query_params import (
     BaseFilterSchema,
     CompanyFilterSchema,
-    FeedsFilterSchema,
+    BaseFilterSchema,
     UserFilterSchema
 )
 from .tag import UserTagCreateSchema, UserTagResponseSchema, UserTagUpdateSchema
@@ -96,6 +96,7 @@ from .user import (
     UserCreateSchema,
     UserForUserUpdateSchema,
     UserReadSchema,
+    UserSchemaMixin,
     UserUpdateSchema,
 )
 from .voting import (
@@ -108,7 +109,6 @@ from .voting import (
 
 __all__ = [
     'GetterSlugMixin',
-    'UserSchemaMixin',
     'AdminCompanyResponseSchema',
     'CompanyAdminCreateSchema',
     'CompanyAdminReadSchema',
@@ -119,7 +119,7 @@ __all__ = [
     'AdminCreateSchema',
     'AdminReadSchema',
     'AdminUpdateSchema',
-    'BaseAdminSchema',
+    'AdminBaseSchema',
     'CommentCreate',
     'CommentRead',
     'CommentUpdate',
@@ -128,7 +128,7 @@ __all__ = [
     'CompanyDepartmentResponseSchema',
     'CompanyDepartmentUpdateSchema',
     'CompanyEmployeeUpdateSchema',
-    'CompanyFeedbackCreateShema',
+    'CompanyFeedbackCreateSchema',
     'CompanyResponseSchema',
     'CompanyTypeFilterSchema',
     'CompanyUpdateForUserSchema',
@@ -138,14 +138,14 @@ __all__ = [
     'MeetingProblemSolution',
     'MeetingResult',
     'MeetingStatus',
-    'BaseFileSchema',
+    'FileBaseSchema',
     'FileCreateSchema',
     'FileResponseSchema',
     'FileUpdateSchema',
     'LandingPageBaseSchema',
     'LandingPageCreateSchema',
     'LandingPageResponseSchema',
-    'LandingPageUpdateSchema',
+    'LandingPageBaseSchema',
     'LicenseTypeBaseSchema',
     'LicenseTypeCreateSchema',
     'LicenseTypeFilterSchema',
@@ -170,7 +170,7 @@ __all__ = [
     'MeetingResultSchema',
     'BaseFilterSchema',
     'CompanyFilterSchema',
-    'FeedsFilterSchema',
+    'BaseFilterSchema',
     'UserFilterSchema',
     'UserTagCreateSchema',
     'UserTagResponseSchema',
@@ -184,6 +184,7 @@ __all__ = [
     'UserCreateSchema',
     'UserForUserUpdateSchema',
     'UserReadSchema',
+    'UserSchemaMixin',
     'UserUpdateSchema',
     'VotingBase',
     'VotingByUserCreate',

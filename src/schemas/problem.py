@@ -1,126 +1,121 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.models import ProblemColor, ProblemStatus, ProblemType
-from src.schemas.validators.problem import validate_not_empty
+from src.schemas.annotations import DescriptionField, NameField, OptionalNameField
+from src.schemas.constants import TitleConstants
 
 
 class ProblemBaseSchema(BaseModel):
-    """Базовая схема Проблеммы.
+    """
+    Базовая схема проблемы.
 
-    Назначение:
-        Определяет базовую структуру данных для проблемы.
-    Параметры:
-        description: Описание проблемы (опционально).
+    Определяет общие поля для схем проблем.
+
+    Атрибуты:
+        description (Optional[str]): Описание проблемы.
     """
 
-    description: str | None = None
-    # TODO: Надо реализовать добавление файлов в проблему
-
-
-class ProblemSchemaMixin:
-    """
-    Миксин для схем Проблемы, с полями и валидаторами.
-
-    Параметры:
-        members: список участников, из связной таблицы, оформленных через схему
-    """
-
-    members: list[UUID] | None = []
+    description: DescriptionField = Field(None, title=TitleConstants.PROBLEM_DESCRIPTION)
+    # TODO: Реализовать добавление файлов в проблему
 
     model_config = ConfigDict(extra='forbid')
 
-    @field_validator('name')
-    @classmethod
-    def validate_name_not_empty(cls, value: str) -> str:
-        """Проверка, что название проблемы не пустое."""
-        return validate_not_empty(value)
-
 
 class MemberResponseSchema(BaseModel):
-    """Схема участника Проблемы.
+    """
+    Схема участника проблемы.
 
-    Назначение:
-        Определяет структуру данных для ответа с информацией о участнике Проблемы.
-    Параметры:
-        status: статус, отображающий участие пользователя в решении Проблемы.
-        member_id: UUID участника Проблемы.
+    Используется для представления данных об участнике проблемы в ответах API.
+
+    Атрибуты:
+        status (Optional[bool]): Статус участия в решении проблемы.
+        member_id (UUID): Идентификатор участника.
     """
 
-    status: bool | None
-    member_id: UUID = Field(validation_alias='left_id')
+    status: bool | None = Field(None, title=TitleConstants.PROBLEM_MEMBER_STATUS)
+    member_id: UUID = Field(validation_alias='left_id', title=TitleConstants.PROBLEM_MEMBER_ID)
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class ProblemResponseSchema(ProblemBaseSchema):
-    """Схема Проблемы для ответа.
+    """
+    Схема проблемы для ответа.
 
-    Назначение:
-        Определяет структуру данных для ответа с информацией о проблеме.
-    Параметры:
-        id: Уникальный идентификатор проблемы.
-        name: Название проблемы.
-        description: Описание проблемы (опционально).
-        color: Цвет проблемы из перечисления ProblemColor.
-        type: Тип проблемы из перечисления ProblemType.
-        status: Статус проблемы из перечисления ProblemStatus.
-        owner_id: UUID владельца проблемы.
-        company_id: id компании, с которой связана проблема.
-        members: список участников, из связной таблицы, оформленных через схему
-        created_at: Время создания проблемы.
-        updated_at: Время последнего обновления проблемы.
+    Используется для возврата данных о проблеме через API.
+
+    Атрибуты:
+        id (int): Уникальный идентификатор проблемы.
+        name (str): Название проблемы.
+        color (ProblemColor): Цвет проблемы.
+        type (ProblemType): Тип проблемы.
+        status (ProblemStatus): Статус проблемы.
+        owner_id (UUID): Идентификатор владельца проблемы.
+        company_id (int): Идентификатор компании.
+        members (list[MemberResponseSchema]): Список участников проблемы.
+        created_at (datetime): Время создания проблемы.
+        updated_at (datetime): Время последнего обновления проблемы.
+        description (Optional[str]): Описание проблемы.
     """
 
-    id: int
-    name: str
-    color: ProblemColor
-    type: ProblemType
-    status: ProblemStatus
-    owner_id: UUID
-    company_id: int
-    members: list[MemberResponseSchema]
-    created_at: datetime
-    updated_at: datetime
+    id: int = Field(..., title=TitleConstants.PROBLEM_ID)
+    name: str = Field(..., title=TitleConstants.PROBLEM_NAME)
+    color: ProblemColor = Field(..., title=TitleConstants.PROBLEM_COLOR)
+    type: ProblemType = Field(..., title=TitleConstants.PROBLEM_TYPE)
+    status: ProblemStatus = Field(..., title=TitleConstants.PROBLEM_STATUS)
+    owner_id: UUID = Field(..., title=TitleConstants.PROBLEM_OWNER_ID)
+    company_id: int = Field(..., title=TitleConstants.PROBLEM_COMPANY_ID)
+    members: list[MemberResponseSchema] = Field(..., title=TitleConstants.PROBLEM_MEMBERS)
+    created_at: datetime = Field(..., title=TitleConstants.PROBLEM_CREATED_AT)
+    updated_at: datetime = Field(..., title=TitleConstants.PROBLEM_UPDATED_AT)
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class ProblemCreateSchema(ProblemSchemaMixin, ProblemBaseSchema):
-    """Схема для создания проблемы.
+class ProblemCreateSchema(ProblemBaseSchema):
+    """
+    Схема для создания проблемы.
 
-    Назначение:
-        Определяет структуру данных для создания новой проблемы.
-    Параметры:
-        name: Название проблемы.
-        description: Описание проблемы (опционально).
-        color: Цвет проблемы из перечисления ProblemColor.
-        type: Тип проблемы из перечисления ProblemType.
-        members: список участников, из связной таблицы, оформленных через схему
+    Используется для добавления новой проблемы через API.
+
+    Атрибуты:
+        name (str): Название проблемы.
+        color (ProblemColor): Цвет проблемы.
+        type (ProblemType): Тип проблемы.
+        members (Optional[list[UUID]]): Список идентификаторов участников.
+        description (Optional[str]): Описание проблемы.
     """
 
-    name: str
-    color: ProblemColor
-    type: ProblemType
+    name: NameField = Field(..., title=TitleConstants.PROBLEM_NAME)
+    color: ProblemColor = Field(..., title=TitleConstants.PROBLEM_COLOR)
+    type: ProblemType = Field(..., title=TitleConstants.PROBLEM_TYPE)
+    members: list[UUID] | None = Field(default=[], title=TitleConstants.PROBLEM_MEMBERS)
+
+    model_config = ConfigDict(extra='forbid')
 
 
-class ProblemUpdateSchema(ProblemSchemaMixin, ProblemBaseSchema):
-    """Схема для обновления проблемы.
+class ProblemUpdateSchema(ProblemBaseSchema):
+    """
+    Схема для обновления проблемы.
 
-    Назначение:
-        Определяет структуру данных для обновления существующей проблемы.
-    Параметры:
-        name: Название проблемы (опционально).
-        description: Описание проблемы (опционально).
-        color: Цвет проблемы из перечисления ProblemColor (опционально).
-        type: Тип проблемы из перечисления ProblemType (опционально).
-        status: Статус проблемы из перечисления ProblemStatus (опционально).
-        members: список участников, из связной таблицы, оформленных через схему (опционально).
+    Используется для изменения данных проблемы через API.
+
+    Атрибуты:
+        name (Optional[str]): Название проблемы.
+        color (Optional[ProblemColor]): Цвет проблемы.
+        type (Optional[ProblemType]): Тип проблемы.
+        status (Optional[ProblemStatus]): Статус проблемы.
+        members (Optional[list[UUID]]): Список идентификаторов участников.
+        description (Optional[str]): Описание проблемы.
     """
 
-    name: str | None = None
-    color: ProblemColor | None = None
-    type: ProblemType | None = None
-    status: ProblemStatus | None = None
+    name: OptionalNameField = Field(None, title=TitleConstants.PROBLEM_NAME)
+    color: ProblemColor | None = Field(None, title=TitleConstants.PROBLEM_COLOR)
+    type: ProblemType | None = Field(None, title=TitleConstants.PROBLEM_TYPE)
+    status: ProblemStatus | None = Field(None, title=TitleConstants.PROBLEM_STATUS)
+    members: list[UUID] | None = Field(None, title=TitleConstants.PROBLEM_MEMBERS)
+
+    model_config = ConfigDict(extra='forbid')

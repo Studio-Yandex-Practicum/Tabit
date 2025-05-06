@@ -1,45 +1,108 @@
 import os
 from datetime import datetime
+from typing import Annotated
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
-from src.schemas.constants import ValidationConstants
+ALLOWED_FILE_EXTENSIONS = ('.pdf', '.doc', '.docx')
+ALLOWED_SIZE_FILE = 10 * 1024 * 1024  # 10Mb
 
 
-class BaseFileSchema(BaseModel):
-    file_path: str
+class FileBaseSchema(BaseModel):
+    """
+    Базовая схема файла.
+
+    Определяет общие поля для схем файлов.
+
+    Атрибуты:
+        file_path (str): Путь к файлу, должен соответствовать расширениям .pdf, .doc или .docx.
+        entity_id (int): Идентификатор связанной сущности.
+        created_at (datetime): Время создания файла.
+        updated_at (datetime): Время последнего обновления файла.
+
+    Валидаторы:
+        validate_file_size_and_existence: Проверяет существование файла и
+            его размер (максимум 10 МБ).
+    """
+
+    file_path: Annotated[
+        str,
+        StringConstraints(pattern=r'.*\.(pdf|doc|docx)$', min_length=1),
+        Field(...),
+    ]
     entity_id: int
     created_at: datetime
     updated_at: datetime
 
-    @field_validator('file_path')
-    def validate_file(cls, path: str) -> str:
-        match path:
-            case _ if not any(
-                path.endswith(ext) for ext in ValidationConstants.ALLOWED_FILE_EXTENSIONS
-            ):
-                raise ValueError(
-                    'Файл должен иметь расширение: '
-                    f'{", ".join(ValidationConstants.ALLOWED_FILE_EXTENSIONS)}'
-                )
-            case _ if os.path.getsize(path) > ValidationConstants.ALLOWED_FILE_SIZE:
-                raise ValueError(
-                    'Размер файла не должен превышать '
-                    f'{ValidationConstants.ALLOWED_FILE_SIZE / (1024 * 1024)} МБ'
-                )
-            case _ if not os.path.exists(path):
-                raise ValueError(f'Файла по адресу {path} не существует')
-            case _:
-                return path
+    model_config = ConfigDict(extra='forbid')
+
+    @field_validator('file_path', mode='after')
+    @classmethod
+    def validate_file_size_and_existence(cls, path: str) -> str:
+        """Проверяет размер и существование файла."""
+        if not os.path.exists(path):
+            raise ValueError(f'Файла по адресу {path} не существует')
+        if os.path.getsize(path) > ALLOWED_SIZE_FILE:
+            raise ValueError(
+                f'Размер файла не должен превышать ' f'{ALLOWED_SIZE_FILE / (1024 * 1024)} МБ'
+            )
+        return path
 
 
-class FileCreateSchema(BaseFileSchema):
-    pass
+class FileCreateSchema(FileBaseSchema):
+    """
+    Схема для создания файла.
+
+    Используется для добавления нового файла через API.
+
+    Атрибуты:
+        file_path (str): Путь к файлу, должен соответствовать расширениям .pdf, .doc или .docx.
+        entity_id (int): Идентификатор связанной сущности.
+        created_at (datetime): Время создания файла.
+        updated_at (datetime): Время последнего обновления файла.
+
+    Валидаторы:
+        validate_file_size_and_existence: Проверяет существование файла и
+            его размер (максимум 10 МБ).
+    """
 
 
-class FileUpdateSchema(BaseFileSchema):
-    pass
+class FileUpdateSchema(FileBaseSchema):
+    """
+    Схема для обновления файла.
+
+    Используется для изменения данных файла через API.
+
+    Атрибуты:
+        file_path (str): Путь к файлу, должен соответствовать расширениям .pdf, .doc или .docx.
+        entity_id (int): Идентификатор связанной сущности.
+        created_at (datetime): Время создания файла.
+        updated_at (datetime): Время последнего обновления файла.
+
+    Валидаторы:
+        validate_file_size_and_existence: Проверяет существование файла и
+            его размер (максимум 10 МБ).
+    """
 
 
-class FileResponseSchema(BaseFileSchema):
+class FileResponseSchema(FileBaseSchema):
+    """
+    Схема файла для ответа.
+
+    Используется для возврата данных о файле из базы данных через API.
+
+    Атрибуты:
+        id (int): Идентификатор файла.
+        file_path (str): Путь к файлу, должен соответствовать расширениям .pdf, .doc или .docx.
+        entity_id (int): Идентификатор связанной сущности.
+        created_at (datetime): Время создания файла.
+        updated_at (datetime): Время последнего обновления файла.
+
+    Валидаторы:
+        validate_file_size_and_existence: Проверяет существование файла и
+            его размер (максимум 10 МБ).
+    """
+
     id: int
+
+    model_config = ConfigDict(from_attributes=True, extra='forbid')
