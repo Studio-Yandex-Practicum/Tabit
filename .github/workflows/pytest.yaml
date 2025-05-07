@@ -1,4 +1,5 @@
 name: Run Pytest
+
 on:
   push:
     branches:
@@ -6,27 +7,32 @@ on:
   pull_request:
     branches:
       - '*'
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Check required secrets
         run: |
           if [ -z "${{ secrets.ENV_FILE }}" ]; then
             echo "::error::Secret ENV_FILE is not set!"
             exit 1
           fi
+
       - name: Create .env file from secret
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
         shell: bash
+
       - name: Load variables to GitHub env
         run: |
           grep -v '^#' .env | while read -r line; do
             echo "$line" >> $GITHUB_ENV
           done
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -36,9 +42,17 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           export PATH="$HOME/.local/bin:$PATH"
+
       - name: Install dependencies
         run: |
           poetry lock
           poetry install
+
       - name: Install Docker Compose
         run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Run tests
+        run: |
+          poetry run pytest

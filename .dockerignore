@@ -2,7 +2,6 @@
 *
 !alembic
 !alembic.ini
-!config
 !scripts
 !src
 !poetry.lock
