@@ -39,7 +39,7 @@ jobs:
           python-version: '${{ env.PYTHON_VERSION }}'
 
       - name: Setup modern virtualenv
-        run: pip install --upgrade virtualenv>=20.31.0
+        run: pip install virtualenv==20.30.0
 
       - name: Install Poetry
         run: |
