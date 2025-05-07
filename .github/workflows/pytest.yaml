@@ -38,16 +38,21 @@ jobs:
         with:
           python-version: '${{ env.PYTHON_VERSION }}'
 
+      - name: Setup modern virtualenv
+        run: pip install --upgrade virtualenv>=20.0.0
+
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           export PATH="$HOME/.local/bin:$PATH"
-          poetry --version
 
-      - name: Install dependencies
+      - name: Config and install poetry dependencies
         run: |
-          poetry lock
-          poetry install
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.options.no-wheel-bundle true
+          poetry lock --no-update
+          poetry install --no-root --sync
 
       - name: Install Docker Compose
         run: |
