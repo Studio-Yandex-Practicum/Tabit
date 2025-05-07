@@ -46,11 +46,13 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           export PATH="$HOME/.local/bin:$PATH"
 
-      - name: Config and install poetry dependencies
+      - name: Configure Poetry
         run: |
           poetry config virtualenvs.create true
           poetry config virtualenvs.in-project false
-          poetry config virtualenvs.options.no-wheel-bundle true
+
+      - name: Install dependencies
+        run: |
           poetry lock --no-update
           poetry install --no-root --sync
 
