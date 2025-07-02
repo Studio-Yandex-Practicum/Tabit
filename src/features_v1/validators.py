@@ -6,8 +6,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi_users.exceptions import InvalidPasswordException
 from fastapi_users.manager import BaseUserManager
 from slugify import slugify
-from sqlalchemy import UUID
+from sqlalchemy import UUID, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.functions import func
 
 from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
@@ -32,6 +33,7 @@ from src.models import (
     CommentFeed,
     Company,
     CompanyUser,
+    CompanyUserRole,
     Department,
     Meeting,
     MeetingStatus,
@@ -707,3 +709,45 @@ async def validate_license_name(session: AsyncSession, license_name: str):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Лицензия с именем '{license_name}' уже существует.",
         )
+
+
+async def validate_license_max_employees(
+    session: AsyncSession,
+    model_crud: CRUDBase,
+    license_id: int,
+    company_id: int,
+) -> None:
+    """
+    Проверяет, не превышено ли число сотрудников компании максимальному числу по лицензии.
+
+    Проверка происходит путём получения объекта лицензии принадлежащей к компании
+    и сравнения максимального количества сотрудников компании и лицензии.
+
+    Args:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        model_crud (CRUDBase): CRUD Лицензии
+        license_id (int): ID лицензии компании, которую нужно проверить.
+        company_id (int): ID компании.
+
+    Raises:
+        HTTPException: Если превышено максимальное количество сотрудников,
+                        возвращает ошибку 400 (BAD REQUEST).
+    """
+    license_object_model = await model_crud.get(session, license_id)
+
+    if license_object_model is not None:
+        result = await session.execute(
+            select(func.count())
+            .select_from(CompanyUser)
+            .where(
+                CompanyUser.company_id == company_id, CompanyUser.role == CompanyUserRole.EMPLOYEE
+            )
+        )
+        count_company_employees = result.scalar()
+
+        if count_company_employees >= license_object_model.max_employees_count:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f'Превышено максимальное количество сотрудников по'
+                f" лицензии №'{license_id}'",
+            )
