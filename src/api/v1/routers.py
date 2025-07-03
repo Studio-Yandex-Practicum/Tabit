@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from src.features_v1 import (
+    company_enums_router,
     company_moderator_management_router,
     company_problem_discussion_router,
     company_problem_management_router,
@@ -70,3 +71,6 @@ main_router.include_router(email_router, prefix='', tags=['Send Email'])
 
 # Landing Page Endpoints
 main_router.include_router(landing_page_router, prefix='/landing', tags=['Landing Page'])
+
+# Enums Endpoints
+main_router.include_router(company_enums_router, prefix='/enums', tags=['Company Enums'])
