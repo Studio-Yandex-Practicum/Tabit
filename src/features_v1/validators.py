@@ -6,9 +6,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi_users.exceptions import InvalidPasswordException
 from fastapi_users.manager import BaseUserManager
 from slugify import slugify
-from sqlalchemy import UUID, select
+from sqlalchemy import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.functions import func
 
 from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
@@ -33,7 +32,6 @@ from src.models import (
     CommentFeed,
     Company,
     CompanyUser,
-    CompanyUserRole,
     Department,
     Meeting,
     MeetingStatus,
@@ -736,14 +734,7 @@ async def validate_license_max_employees(
     license_object_model = await model_crud.get(session, license_id)
 
     if license_object_model is not None:
-        result = await session.execute(
-            select(func.count())
-            .select_from(CompanyUser)
-            .where(
-                CompanyUser.company_id == company_id, CompanyUser.role == CompanyUserRole.EMPLOYEE
-            )
-        )
-        count_company_employees = result.scalar()
+        count_company_employees = await user_crud.get_company_employee_count(session, company_id)
 
         if count_company_employees >= license_object_model.max_employees_count:
             raise HTTPException(
