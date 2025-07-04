@@ -7,11 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_admin_tabit
 from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
-from src.crud import admin_company_crud, moderator_crud
+from src.crud import admin_company_crud, company_crud, license_type_crud, moderator_crud
 from src.features_v1.constants import MiscConstants
 from src.features_v1.validators import (
     check_company_and_department,
     check_telegram_username_for_duplicates,
+    validate_license_max_admins,
+    validator_check_object_exists,
 )
 from src.schemas import (
     AdminCompanyResponseSchema,
@@ -100,6 +102,13 @@ async def create_staff(
 
     Эндпоинт доступен только админам сервиса.
     """
+    company_object_model = await validator_check_object_exists(
+        session, company_crud, object_id=create_data.company_id
+    )
+    company_license_id = getattr(company_object_model, 'license_id', None)
+    await validate_license_max_admins(
+        session, license_type_crud, company_license_id, company_object_model.id
+    )
     await check_company_and_department(
         create_data.company_id, create_data.current_department_id, session
     )
