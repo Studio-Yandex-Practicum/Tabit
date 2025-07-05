@@ -107,8 +107,27 @@ class SurveysStatus(StrEnum):
     POSTPONED = 'Отложен'
 
 
-class SurveysTags(StrEnum):
-    """Тэги тестов для объединения нескольких тестов."""
+class LuscherWeightsColorEnum(IntEnum):
+    """Веса цветов теста Люшера."""
 
-    EMO = 'Определение эмоционального состояния'
-    TEST = 'Тестовый тест для тестирования'
+    Blue = 1
+    Green = 2
+    Red = 3
+    Yellow = 4
+    Violet = 5
+    Brown = 6
+    Black = 7
+    Grey = 0
+
+
+class LuschersColorEnum(StrEnum):
+    """Цветов теста Люшера."""
+
+    Blue = 'blue'
+    Green = 'green'
+    Red = 'red'
+    Yellow = 'yellow'
+    Violet = 'violet'
+    Brown = 'brown'
+    Black = 'black'
+    Grey = 'grey'

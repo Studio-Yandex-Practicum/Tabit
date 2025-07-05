@@ -13,7 +13,10 @@ from .crud_problem import problem_crud
 from .crud_task import task_crud
 from .crud_user import user_crud
 from .crud_meeting_result import result_meeting_crud
-from .crud_surveys import surveys_schedule_crud, surveys_data_crud
+from .crud_surveys import (
+    luscher_color_crud, survey_cycle_for_company_crud, survey_cycle_for_user_crud,
+)
+
 
 __all__ = [
     'user_comment_association_crud',
@@ -33,6 +36,7 @@ __all__ = [
     'problem_crud',
     'task_crud',
     'user_crud',
-    'surveys_schedule_crud',
-    'surveys_data_crud',
+    'luscher_color_crud',
+    'survey_cycle_for_company_crud',
+    'survey_cycle_for_user_crud',
 ]

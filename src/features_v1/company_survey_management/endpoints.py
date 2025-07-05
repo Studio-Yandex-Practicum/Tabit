@@ -1,395 +1,214 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.auth.dependencies import current_company_moderator, current_user_tabit
 from src.core.database.db_depends import get_async_session
-from src.crud import surveys_data_crud, surveys_schedule_crud, user_crud
+from src.crud.crud_company import company_crud
+from src.crud.crud_surveys import (
+    luscher_color_crud,
+    survey_cycle_for_company_crud,
+    survey_cycle_for_user_crud,
+)
 from src.features_v1.validators import (
-    check_company_exists,
-    validate_user_from_company,
-    validator_check_object_exists,
+    check_cycle_not_completed,
+    check_cycle_overdue_date,
+    check_survey_this_week,
+    validator_survey_in_cycle_exists,
 )
 from src.schemas.survey import (
-    SurveyDataCreate,
-    SurveyDataRead,
-    SurveyScheduleCreate,
-    SurveyScheduleRead,
-    SurveyScheduleUpdate,
+    CycleForCompanyCreateSchema,
+    CycleForCompanyResponseSchema,
+    CycleForCompanyUpdateSchema,
+    CycleForUserResponseSchema,
+    LuscherCreateSchema,
+    LuscherResponseSchema,
 )
-from src.utils.surveys import Surveys
 
-router = APIRouter()
+router = APIRouter(prefix='/{company_slug}/surveys')
 
 
+# TODO: Во всех энпоинтах нужно тонко настроить уровень доступа.
 @router.get(
-    '/',
-    response_model=List[SurveyScheduleRead],
-    summary='Получить список всех опросов компании',
-    description='Получить список всех опросов компании.'
-    'Права доступа: Tabit Admin, Tabit Superuser.',
+    '/cycle/{cycle_company_id}/{cycle_user_id}/luscher/{luscher_id}',
+    response_model=LuscherResponseSchema,
+    dependencies=[Depends(current_user_tabit)],
+    summary='Получить ответы пользователя на тест Люшера',
+    description='По id теста Люшера получить ответы, которые сделал пользователь.',
     status_code=status.HTTP_200_OK,
 )
-async def get_schedule_list(
-    company_slug: str, session: AsyncSession = Depends(get_async_session)
-) -> List[SurveyScheduleRead]:
-    """
-    Возвращает список всех опросов компании.
-
-    Назначение:
-        Для получения списка всех расписаний проводившихся опросов.
-    Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
-    Параметры функции:
-        company_slug: слаг компании, полученный из пути.
-        session: асинхронная сессия через зависимость.
-    Возвращаемое значение:
-        Список объектов SurveyScheduleRead.
-
-    Проверки:
-        - существует ли компания с таким slug;
-        - существуют ли расписания у данной компании.
-    """
-    await check_company_exists(session=session, company_slug=company_slug)
-
-    schedule = await surveys_schedule_crud.get_all_shedules(
-        session=session,
-        obj_slug=company_slug
-    )
-    return schedule
+async def get_luscher(
+    company_slug: str,
+    cycle_company_id: int,
+    cycle_user_id: int,
+    luscher_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> LuscherResponseSchema:
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
+    await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
+    return await luscher_color_crud.get_or_404(session, luscher_id)
 
 
 @router.post(
-    '/',
-    response_model=SurveyScheduleRead,
-    summary='Создать новое расписание опросов',
-    description='Создать новое расписание опросов. '
-    'Права доступа: Tabit Admin, Tabit Superuser.',
+    '/cycle/{cycle_company_id}/{cycle_user_id}/luscher',
+    response_model=LuscherResponseSchema,
+    dependencies=[Depends(current_user_tabit)],
+    summary='Сохранить ответы пользователя на тест Люшера',
+    description='Создаст новую запись с ответами пользователя на тест Люшера.',
     status_code=status.HTTP_201_CREATED,
 )
-async def create_schedule(
+async def create_luscher(
     company_slug: str,
-    data: SurveyScheduleCreate,
+    cycle_company_id: int,
+    cycle_user_id: int,
+    luscher: LuscherCreateSchema,
     session: AsyncSession = Depends(get_async_session),
-) -> SurveyScheduleRead:
-    """
-    Создает новое расписание.
-
-    Назначение:
-        Создает новое расписание..
-    Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
-    Параметры функции:
-        company_slug: слаг компании, полученный из пути.
-        data: данные в виде схемы, для создания новой записи в БД.
-        session: асинхронная сессия через зависимость.
-    Возвращаемое значение:
-        Объект SurveyScheduleRead.
-
-    Проверки:
-        - существует ли компания с таким slug
-    """
-    await check_company_exists(session=session, company_slug=company_slug)
-
-    schedule = await surveys_schedule_crud.create_surveys_schedule(
-        session=session, slug=company_slug, schedule_in=data
-    )
-    return schedule
+) -> LuscherResponseSchema:
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
+    await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
+    await validator_survey_in_cycle_exists(session, luscher_color_crud, cycle_user_id)
+    return await luscher_color_crud.create_survey(session, luscher, cycle_for_user=cycle_user_id)
 
 
 @router.get(
-    '/{schedule_id:int}',
-    response_model=SurveyScheduleRead,
-    summary='Получить конкретное расписание опросов компании',
-    description='Получить конкретное расписание опросов компании.'
-    'Права доступа: Tabit Admin, Tabit Superuser.',
+    '/cycle/{cycle_company_id}/{cycle_user_id}',
+    response_model=CycleForUserResponseSchema,
+    dependencies=[Depends(current_user_tabit)],
+    summary='Получить цикл тестов для пользователя по id цикла',
+    description='Получить цикл тестов для пользователя по id цикла',
     status_code=status.HTTP_200_OK,
 )
-async def get_schedule(
-    company_slug: str, schedule_id: int, session: AsyncSession = Depends(get_async_session)
-) -> SurveyScheduleRead:
-    """
-    Возвращает конкретное расписание опросов компании.
-
-    Назначение:
-        Для получения расписания опросов.
-    Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
-    Параметры функции:
-        company_slug: слаг компании, полученный из пути.
-        schedule_id: идентификатор расписания, полученный из пути.
-        session: асинхронная сессия через зависимость.
-    Возвращаемое значение:
-        Объект SurveyScheduleRead.
-
-    Проверки:
-        - существует ли компания с таким slug;
-        - существует ли расписание с данным id.
-    """
-    await check_company_exists(session=session, company_slug=company_slug)
-
-    schedule = await surveys_schedule_crud.get_shedule(
-        session=session,
-        obj_id=schedule_id,
-        obj_slug=company_slug,
-        raise_404=True,
-    )
-    return schedule
-
-
-@router.patch(
-    '/{schedule_id:int}',
-    response_model=SurveyScheduleRead,
-    summary='Изменить расписание опросов',
-    description='Внести изменение в расписание опросов. '
-    'Права доступа: Tabit Admin, Tabit Superuser.',
-    status_code=status.HTTP_200_OK,
-)
-async def update_survey_schedule(
+async def get_cycle_for_user_by_id(
     company_slug: str,
-    schedule_id: int,
-    data: SurveyScheduleUpdate,
+    cycle_company_id: int,
+    cycle_user_id: int,
     session: AsyncSession = Depends(get_async_session),
-) -> SurveyScheduleRead:
-    """
-    Вносит изменения в новое расписание.
+) -> CycleForUserResponseSchema:
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
+    return await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
 
-    Назначение:
-        Для изменения значений в расписании.
-    Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
-    Параметры функции:
-        data: данные в виде схемы, для создания новой записи в БД.
-        company_slug: слаг компании, полученный из пути.
-        schedule_id: идентификатор расписания, полученный из пути.
-        session: асинхронная сессия через зависимость.
-    Возвращаемое значение:
-        Объект SurveyScheduleRead.
 
-    Проверки:
-        - существует ли компания с таким slug;
-        - существует ли расписание с данным id;
-    """
-    await check_company_exists(session=session, company_slug=company_slug)
-    schedule = await surveys_schedule_crud.get_shedule(
-        session=session,
-        obj_id=schedule_id,
-        obj_slug=company_slug,
-        raise_404=True,
+@router.get(
+    '/cycle_for_user/{user_id}',
+    response_model=list[CycleForUserResponseSchema],
+    dependencies=[Depends(current_user_tabit)],
+    summary='Получить все циклы тестов для пользователя',
+    description='Получить все циклы тестов для пользователя по id пользователя.',
+    status_code=status.HTTP_200_OK,
+)
+async def get_cycles_for_user_by_user_id(
+    company_slug: str,
+    user_id: UUID,
+    session: AsyncSession = Depends(get_async_session),
+) -> list[CycleForUserResponseSchema]:
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    return await survey_cycle_for_user_crud.get_multi(session, filters={'user_id': user_id})
+
+
+@router.get(
+    '/cycle',
+    response_model=list[CycleForCompanyResponseSchema],
+    dependencies=[Depends(current_user_tabit)],
+    summary='Получить все циклы тестов компании',
+    description='Получить все циклы тестов компании',
+    status_code=status.HTTP_200_OK,
+)
+async def get_cycles_for_companies(
+    company_slug: str,
+    session: AsyncSession = Depends(get_async_session),
+) -> list[CycleForCompanyResponseSchema]:
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    return await survey_cycle_for_company_crud.get_multi(
+        session, filters={'company_id': company.id}, order_by=['-date']
     )
-    updated_shedule = await surveys_schedule_crud.update_shedule(
-        session=session, db_obj=schedule, obj_in=data
-    )
 
-    return updated_shedule
+
+@router.get(
+    '/cycle/{cycle_company_id}',
+    response_model=CycleForCompanyResponseSchema,
+    dependencies=[Depends(current_user_tabit)],
+    summary='Получить цикл тестов для компании по id цикла',
+    description='Получить цикл тестов для компании по id цикла',
+    status_code=status.HTTP_200_OK,
+)
+async def get_cycle_for_company_by_id(
+    company_slug: str,
+    cycle_company_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> CycleForCompanyResponseSchema:
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    return await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
+
+
+# TODO: Пока создавать может только модератор. Ещё должен способен создавать начальник отдела.
+@router.post(
+    '/cycle',
+    response_model=CycleForCompanyResponseSchema,
+    dependencies=[Depends(current_company_moderator)],
+    summary='Создать цикл тестов для компании',
+    description=(
+        'Создать цикл тестов для компании, одновременно создадутся '
+        'тесты циклов для пользователей внутри данной компании.'
+    ),
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_cycle_for_company(
+    company_slug: str,
+    cycle: CycleForCompanyCreateSchema,
+    session: AsyncSession = Depends(get_async_session),
+) -> CycleForCompanyResponseSchema:
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    await check_survey_this_week(session, cycle.date, company.id)
+    return await survey_cycle_for_company_crud.create_cycle(session, cycle, company_id=company.id)
+
+
+# TODO: Пока изменять и удалять может любой модератор от компании, а не только тот который создал.
+@router.patch(
+    '/cycle/{cycle_company_id}',
+    response_model=CycleForCompanyResponseSchema,
+    dependencies=[Depends(current_company_moderator)],
+    summary='Изменить цикл тестов для компании',
+    description=(
+        'Изменит цикл тестов для компании, одновременно изменятся '
+        'тесты циклов для пользователей внутри данной компании.'
+    ),
+    status_code=status.HTTP_200_OK,
+)
+async def update_cycle_for_company(
+    company_slug: str,
+    cycle_company_id: int,
+    cycle: CycleForCompanyUpdateSchema,
+    session: AsyncSession = Depends(get_async_session),
+) -> CycleForCompanyResponseSchema:
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    cycle_db = await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
+    check_cycle_not_completed(cycle_db)
+    check_cycle_overdue_date(cycle_db)
+    await check_survey_this_week(session, cycle.date, company.id, cycle_db)
+    return await survey_cycle_for_company_crud.update_cycle(session, cycle_db, cycle)
 
 
 @router.delete(
-    '/{schedule_id:int}',
-    summary='Удалить расписание опросов',
-    description='Позволяет удалить расписание опросов.'
-    ' Права доступа: Tabit Admin, Tabit Superuser',
+    '/cycle/{cycle_company_id}',
+    dependencies=[Depends(current_company_moderator)],
+    summary='Удалить цикл тестов для компании',
+    description=(
+        'Удалит цикл тестов для компании, одновременно удалит '
+        'тесты циклов для пользователей внутри данной компании '
+        'и все их ответы, внутри данных циклов.'
+    ),
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def delete_survey_schedule(
+async def delete_cycle_for_company(
     company_slug: str,
-    schedule_id: int,
+    cycle_company_id: int,
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
-    """
-    Удаляет расписание.
-
-    Назначение:
-        Удаляет конкретное расписание.
-    Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
-    Параметры функции:
-        company_slug: слаг компании, полученный из пути.
-        schedule_id: идентификатор расписания, полученный из пути.
-        session: асинхронная сессия через зависимость.
-    Возвращаемое значение:
-        None.
-
-    Проверки:
-        - существует ли компания с таким slug;
-        - существует ли расписание с данным id;
-    """
-    await check_company_exists(session=session, company_slug=company_slug)
-
-    schedule = await validator_check_object_exists(
-        session=session, model_crud=surveys_schedule_crud, object_id=schedule_id
-    )
-    await surveys_schedule_crud.remove(session=session, db_object=schedule)
-
-
-@router.get(
-    '/{user_id:uuid}',
-    response_model=List[SurveyDataRead],
-    summary='Получить историю опросов сотрудника компании',
-    description='Позволяет получить испорию всех пройденых опросов'
-    ' пользователя. Права доступа: Company User.',
-    status_code=status.HTTP_200_OK,
-)
-async def get_employee_survey_history(
-    company_slug: str,
-    user_id: UUID,
-    session: AsyncSession = Depends(get_async_session),
-) -> List[SurveyDataRead]:
-    """
-    Получает историю опросов сотрудника компании.
-
-    Назначение:
-        Для получения истории опросов сотрудника компании.
-    Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
-    Параметры функции:
-        company_slug: слаг компании, полученный из пути.
-        user_id: идентификатор пользователя полученный из пути.
-        session: асинхронная сессия через зависимость.
-    Возвращаемое значение:
-        Список объектов List[SurveyDataRead].
-
-    Проверки:
-        - существует ли компания с таким slug;
-        - существует ли пользователь с таким UUID
-    """
-
-    await check_company_exists(session=session, company_slug=company_slug)
-    await user_crud.get_or_404(session=session, obj_id=user_id)
-
-    survey_data = await surveys_data_crud.get_all_user_survey(
-        session=session, company_slug=company_slug, user_id=user_id
-    )
-    return survey_data
-
-
-@router.get(
-    '/{user_id:uuid}/{survey_id:int}',
-    response_model=SurveyDataRead,
-    summary='Получить информацию об опросе сотрудника компании',
-    description='Позволяет получить информацию о конкретном опросе'
-    ' пользователя. Права доступа: Company User.',
-    status_code=status.HTTP_200_OK,
-)
-async def get_employee_survey_info(
-    company_slug: str,
-    user_id: UUID,
-    survey_id: int,
-    session: AsyncSession = Depends(get_async_session),
-) -> SurveyDataRead:
-    """
-    Получает информацию об опросе сотрудника компании.
-
-    Назначение:
-        Для получения информации по конкретном опросе.
-    Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
-    Параметры функции:
-        company_slug: слаг компании, полученный из пути.
-        survey_id: идентификатор записи о прохождении, полученный из пути.
-        user_id: идентификатор пользователя полученный из пути.
-        session: асинхронная сессия через зависимость.
-    Возвращаемое значение:
-        Объект SurveyDataRead.
-
-    Проверки:
-        - существует ли компания с таким slug.
-        - существует ли пользователь с таким UUID.
-    """
-
-    await check_company_exists(session=session, company_slug=company_slug)
-    await user_crud.get_or_404(session=session, obj_id=user_id)
-    await validator_check_object_exists(
-        session=session, model_crud=surveys_data_crud, object_id=survey_id
-    )
-    survey_data = await surveys_data_crud.get_user_survey(
-        session=session, company_slug=company_slug, survey_data_id=survey_id, user_id=user_id
-    )
-
-    return survey_data
-
-
-@router.post(
-    '/{user_id:uuid}',
-    response_model=SurveyDataRead,
-    summary='Передать информацию об опросе сотрудника компании',
-    description='Позволяет передать данные о прохождении опроса пользователем.'
-    ' Права доступа: Company User.',
-    status_code=status.HTTP_201_CREATED,
-)
-async def add_employee_survey_info(
-    company_slug: str,
-    user_id: UUID,
-    data: SurveyDataCreate,
-    session: AsyncSession = Depends(get_async_session),
-):
-    """
-    Передает информацию об опросе сотрудника компании.
-
-    Назначение:
-        Записывет данные об прохождении опроса.
-
-    Параметры декоратора:
-        path: присвоен не явно. URL-адрес, который будет использоваться для этой операции.
-        response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
-        summary: краткое описание.
-        description: подробное описание.
-        status_code: статус ответа.
-    Параметры функции:
-        data: данные в виде схемы, для создания новой записи в БД.
-        company_slug: слаг компании, полученный из пути.
-        user_id: идентификатор пользователя полученный из пути.
-        session: асинхронная сессия через зависимость.
-    Возвращаемое значение:
-        Объект SurveyDataRead.
-
-    Проверки:
-        - существует ли компания с таким slug.
-        - существует ли user с таким UUID.
-        - есть ли разрешение у пользователя добавлять ответы в опросе этой компании.
-        - существует ли расписание.
-
-    """
-    # TODO : добавить проверку что передаваемая дата есть в расписании
-    company = await check_company_exists(session=session, company_slug=company_slug)
-    user = await user_crud.get_or_404(session=session, obj_id=user_id)
-    validate_user_from_company(user, company)
-    await validator_check_object_exists(
-                session=session, model_crud=surveys_schedule_crud, object_id=data.shedule_id
-            )
-    data.answers, data.results = Surveys.survey_type(data.answers)
-    survey_data = await surveys_data_crud.create_survey_data(
-        session=session,
-        data=data,
-        user_id=user_id,
-        company_slug=company_slug)
-
-    return survey_data
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    cycle_db = await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
+    check_cycle_not_completed(cycle_db)
+    await survey_cycle_for_company_crud.remove(session, cycle_db)

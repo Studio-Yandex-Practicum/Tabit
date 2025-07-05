@@ -61,7 +61,6 @@ main_router.include_router(
 )
 main_router.include_router(
     company_survey_management_router,
-    prefix='/{company_slug}/surveys',
     tags=['Company Survey Management'],
 )
 

@@ -1,145 +1,87 @@
-from datetime import date, datetime
-from typing import List
+from datetime import date
+from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from fastapi import HTTPException, status
+from pydantic import BaseModel, ConfigDict, model_validator
 
-from src.models.enum import SurveysStatus, SurveysTags
-
-
-class SurveyScheduleCreate(BaseModel):
-    """
-    Схема создания расписания.
-
-    Назначение:
-        Определяет структуру запроса для создания расписания.
-    Параметры:
-        survey_tag: Таг определяетщий вид тестирования.
-        status: текущий статус расписания.
-        cycles: список циклов тестирований.
-    """
-    # TODO : валидаторы даты
-    survey_tag: SurveysTags = Field(..., description='таг вида тестирования')
-    status: SurveysStatus = Field(..., description='статус расписания')
-    cycles_dates: List[date] = Field(..., min_length=1, max_length=6)
-
-    class Config:
-        json_schema_extra = {
-            'example': {
-                'survey_tag': 'Определение эмоционального состояния',
-                'status': 'В работе',
-                'cycles_dates': [
-                    date.today(), date.today()
-                ]
-            }
-        }
+from src.models.enum import LuschersColorEnum, SurveysStatus
 
 
-class SurveyScheduleUpdate(BaseModel):
-    """
-    Схема обновления расписания.
-
-    Назначение:
-        Определяет структуру запроса для создания расписания.
-    Параметры:
-        survey_tag: Таг определяетщий вид тестирования. (Опционально)
-        status: текущий статус расписания. (Опционально)
-        cycles: список циклов тестирований. (Опционально)
-    """
-    # TODO : добавить валидатор даты
-    survey_tag: SurveysTags | None = Field(None, description='таг вида тестирования')
-    status: SurveysStatus | None = Field(None, description='статус расписания')
-    cycles_dates: List[date] | None = Field(
-        None, description='список циклов в расписании (6 циклов максимум)'
-    )
+class LuscherBaseSchema(BaseModel):
+    selection_1: LuschersColorEnum
+    selection_2: LuschersColorEnum
+    selection_3: LuschersColorEnum
+    selection_4: LuschersColorEnum
+    selection_5: LuschersColorEnum
+    selection_6: LuschersColorEnum
+    selection_7: LuschersColorEnum
+    selection_8: LuschersColorEnum
 
 
-class SurveyScheduleRead(BaseModel):
-    """
-    Схема получения расписания.
+class LuscherCreateSchema(LuscherBaseSchema):
+    @model_validator(mode='after')
+    def validate_unique_colors(self):
+        """Проверяет, что все цвета уникальны"""
+        if (
+            len(
+                set(
+                    (
+                        self.selection_1,
+                        self.selection_2,
+                        self.selection_3,
+                        self.selection_4,
+                        self.selection_5,
+                        self.selection_6,
+                        self.selection_7,
+                        self.selection_8,
+                    )
+                )
+            )
+            != 8
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Все цвета должны быть уникальными.',
+            )
+        return self
 
-    Назначение:
-        Определяет структуру данных для ответа с информацией об расписании.
-    Параметры:
-        id: Идентификатор
-        survey_tag: Таг определяетщий вид тестирования.
-        created_at: Дата создания расписания.
-        status: текущий статус расписания.
-    """
 
+class LuscherResponseSchema(LuscherBaseSchema):
     id: int
-    survey_tag: str
-    created_at: datetime
-    status: str
-    cycles_dates: List[date]
+    survey_cycle_for_user_id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class SurveyAnswerCreate(BaseModel):
-    """
-    Схема создания ответов.
-
-    Назначение:
-        Определяет структуру запроса на создание ответов тестов.
-    Параметры:
-        survey_list_id: Уникальный идентификатор теста.
-        answers: Список ответов.
-    """
-
-    test_number: int
-    answers: List[int]
-    results: str | None = None
-
-    class Config:
-        model_config = {'frozen': False}
-
-
-class SurveyDataCreate(BaseModel):
-    """
-    Схема создания данных об прохождении тестов.
-
-    Назначение:
-        Определяет структуру запроса на создание данных об прохождении теста сотрудника.
-    Параметры:
-        survey_shedule_id: Идентификатор расписания к которому привязаны данные.
-        cycle_date: Дата цикла в расписании для сопостравления.
-        answers: Список ответов.
-    """
-
-    shedule_id: int = Field(..., description='Идентификатор расписания')
-    cycle_date: date = Field(..., description='Дата цикла')
-    answers: List[SurveyAnswerCreate] = Field(..., description='Список ответов')
-    results: dict | None = None
-
-    class Config:
-        json_schema_extra = {
-            'example': {
-                'shedule_id': 1,
-                'cycle_date': "2027-05-10",
-                'answers': [
-                    {'test_number': 1, 'answers': [1, 2, 3, 4, 5, 6], "result": None},
-                    {'test_number': 2, 'answers': [1, 2, 3, 4], "result": None},
-                ],
-            }
-        }
-
-
-class SurveyDataRead(BaseModel):
-    """
-    Схема получения данных об прохождении тестов.
-
-    Назначение:
-        Определяет структуру данных для ответа на запрос данных о прохождении теста.
-    Параметры:
-        id: Идентификатор записи.
-        shedule_id: Идентификатор расписания к которому привязаны данные.
-        cycle_id: Идентификатор цикла к которому привязаны данные.
-        results: Окончательный результат тестирования на основе всех тестов.
-    """
-
+class CycleForUserBaseSchema(BaseModel):
     id: int
-    shedule_id: int
-    cycle_date: date
-    results: dict | None = None
+    user_id: UUID
+    survey_cycle_for_company_id: int
+    date: date
+    status: SurveysStatus
+
+
+class CycleForUserResponseSchema(CycleForUserBaseSchema):
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CycleForCompanyBaseSchema(BaseModel):
+    date: date
+
+
+class CycleForCompanyResponseSchema(CycleForCompanyBaseSchema):
+    id: int
+    company_id: int
+    status: SurveysStatus
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CycleForCompanyCreateSchema(CycleForCompanyBaseSchema):
+    model_config = ConfigDict(extra='forbid')
+
+
+class CycleForCompanyUpdateSchema(CycleForCompanyBaseSchema):
+    status: SurveysStatus
+
+    model_config = ConfigDict(extra='forbid')

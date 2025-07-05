@@ -44,7 +44,7 @@
 			"description": "Для отправки электронных писем."
 		},
 		{
-			"name": "Tabit Admin User Auth",
+			"name": "Tabit Admin Auth",
 			"item": [
 				{
 					"name": "auth",
@@ -392,7 +392,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access_token_superuser}}",
+								"value": "{{bearer}} {{refresh_token_superuser}}",
 								"type": "text"
 							}
 						],
@@ -528,275 +528,6 @@
 			]
 		},
 		{
-			"name": "Tabit Managment - stuff",
-			"item": [
-				{
-					"name": "admin",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"admin",
-								""
-							]
-						},
-						"description": "Получить общую информацию по компаниям."
-					},
-					"response": []
-				},
-				{
-					"name": "admin staff",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"admin",
-								"staff",
-								""
-							]
-						},
-						"description": "Получить информацию по всем сотрудникам компаний."
-					},
-					"response": []
-				},
-				{
-					"name": "admin staff",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"{{email_admin_company}}\",\r\n  \"password\": \"{{password_admin_company}}\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": {{department_id}},\r\n  \"previous_department_id\": null,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": {{comment_id}}\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"admin",
-								"staff",
-								""
-							]
-						},
-						"description": "Создать нового сотрудника компании."
-					},
-					"response": []
-				},
-				{
-					"name": "admin staff uuid",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"admin",
-								"staff",
-								"{{uuid_user}}"
-							]
-						},
-						"description": "Получить информацию об администраторе от компании."
-					},
-					"response": []
-				},
-				{
-					"name": "admin staff uuid",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"string222A\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"previous_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"admin",
-								"staff",
-								"{{uuid_user}}",
-								""
-							]
-						},
-						"description": "Полностью изменить информацию об администраторе от компании."
-					},
-					"response": []
-				},
-				{
-					"name": "admin staff uuid",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"birthday\": \"2025-03-05\",\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"admin",
-								"staff",
-								"{{uuid_user}}",
-								""
-							]
-						},
-						"description": "Частично изменить информацию об администраторе от компании."
-					},
-					"response": []
-				},
-				{
-					"name": "admin staff uuid",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"admin",
-								"staff",
-								"{{uuid_user}}",
-								""
-							]
-						},
-						"description": "Удалить информацию об администраторе от компании."
-					},
-					"response": []
-				},
-				{
-					"name": "admin staff uuid resetpassword",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/resetpassword/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"admin",
-								"staff",
-								"{{uuid_user}}",
-								"resetpassword",
-								""
-							]
-						},
-						"description": "Сброс пароля админа компании\n\n_Упразднить!_"
-					},
-					"response": []
-				}
-			],
-			"description": "Управление пользователями для администраторами сервиса."
-		},
-		{
 			"name": "Tabit Management - companies",
 			"item": [
 				{
@@ -841,7 +572,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"description\": \"string\",\r\n  \"logo\": \"{{base64_test}}\",\r\n  \"name\": \"string\"\r\n}",
+							"raw": "{\r\n  \"description\": \"string\",\r\n  \"logo\": \"{{base64_test}}\",\r\n  \"name\": \"string\",\r\n  \"license_id\": 1,\r\n  \"start_license_time\": \"2025-04-24T14:00:58.253Z\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -939,6 +670,482 @@
 			"description": "Управление компаниями."
 		},
 		{
+			"name": "Tabit Management - department",
+			"item": [
+				{
+					"name": "admin department",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_service}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/companies/{{company_slug}}/department",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"companies",
+								"{{company_slug}}",
+								"department"
+							]
+						},
+						"description": "Возвращает список всех отделов конкретной компании. Доступно только администраторам сервиса."
+					},
+					"response": []
+				},
+				{
+					"name": "admin department",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_service}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/companies/{{company_slug}}/department",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"companies",
+								"{{company_slug}}",
+								"department"
+							]
+						},
+						"description": "Создает новую отдел для компании. Доступно только администраторам сервиса.\n\nПоле name - название отдела, уникально в пределах одной компании."
+					},
+					"response": []
+				},
+				{
+					"name": "admin department slug",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_service}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/companies/{{company_slug}}/department/{{department_slug}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"companies",
+								"{{company_slug}}",
+								"department",
+								"{{department_slug}}"
+							]
+						},
+						"description": "Возвращает данные конкретного отдела. Доступно только администраторам сервиса."
+					},
+					"response": []
+				},
+				{
+					"name": "admin  department slug",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_service}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"первый\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/companies/{{company_slug}}/department/{{department_slug}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"companies",
+								"{{company_slug}}",
+								"department",
+								"{{department_slug}}"
+							]
+						},
+						"description": "Обновляет данныеотдела по его `slug`. Доступно только администраторам сервиса.\n\nПоле name - название отдела, уникально в пределах одной компании."
+					},
+					"response": []
+				},
+				{
+					"name": "admin department slug",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_service}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/companies/{{company_slug}}/department/{{department_slug}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"companies",
+								"{{company_slug}}",
+								"department",
+								"{{department_slug}}"
+							]
+						},
+						"description": "Удаляет отдел по его `slug`. Доступно только администраторам сервиса."
+					},
+					"response": []
+				}
+			],
+			"description": "Конечные точки управления отделами компаний."
+		},
+		{
+			"name": "Tabit Admin Management - stuff",
+			"item": [
+				{
+					"name": "admin",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								""
+							]
+						},
+						"description": "Получить общую информацию по компаниям."
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								""
+							]
+						},
+						"description": "Получить информацию по всем сотрудникам компаний."
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{email_admin_company}}\",\r\n  \"password\": \"{{password_admin_company}}\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": {{department_id}},\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Модератор\",\r\n  \"company_id\": {{comment_id}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								""
+							]
+						},
+						"description": "Создать нового сотрудника компании."
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff uuid",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								"{{uuid_user}}"
+							]
+						},
+						"description": "Получить информацию об администраторе от компании."
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff uuid",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"string222A\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								"{{uuid_user}}",
+								""
+							]
+						},
+						"description": "Полностью изменить информацию об администраторе от компании."
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff uuid",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"birthday\": \"2025-03-05\",\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"current_department_id\": {{department_id}},\r\n  \"role\": \"Сотрудник\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								"{{uuid_user}}",
+								""
+							]
+						},
+						"description": "Частично изменить информацию об администраторе от компании."
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff uuid",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								"{{uuid_user}}",
+								""
+							]
+						},
+						"description": "Удалить информацию об администраторе от компании."
+					},
+					"response": []
+				},
+				{
+					"name": "admin staff uuid resetpassword",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_superuser}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/admin/staff/{{uuid_user}}/resetpassword/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"staff",
+								"{{uuid_user}}",
+								"resetpassword",
+								""
+							]
+						},
+						"description": "Сброс пароля админа компании\n\n_Упразднить!_"
+					},
+					"response": []
+				}
+			],
+			"description": "Управление пользователями для администраторами сервиса."
+		},
+		{
 			"name": "Tabit management - licenses",
 			"item": [
 				{
@@ -949,8 +1156,7 @@
 							{
 								"key": "Authorization",
 								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"url": {
@@ -979,8 +1185,7 @@
 							{
 								"key": "Authorization",
 								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1011,15 +1216,14 @@
 					"response": []
 				},
 				{
-					"name": "admin license slug",
+					"name": "admin license id",
 					"request": {
 						"method": "GET",
 						"header": [
 							{
 								"key": "Authorization",
 								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"url": {
@@ -1042,15 +1246,14 @@
 					"response": []
 				},
 				{
-					"name": "admin license slug",
+					"name": "admin license id",
 					"request": {
 						"method": "PATCH",
 						"header": [
 							{
 								"key": "Authorization",
 								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1082,15 +1285,14 @@
 					"response": []
 				},
 				{
-					"name": "admin license slug",
+					"name": "admin license id",
 					"request": {
 						"method": "DELETE",
 						"header": [
 							{
 								"key": "Authorization",
 								"value": "{{bearer}} {{access_token_superuser}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							}
 						],
 						"url": {
@@ -1355,6 +1557,12 @@
 								"key": "Authorization",
 								"value": "{{bearer}} {{access_token_user}}",
 								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"body": {
@@ -1661,7 +1869,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string34\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"previous_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Модератор\",\r\n  \"company_id\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2317,6 +2525,150 @@
 						"description": "Удаление встречи"
 					},
 					"response": []
+				},
+				{
+					"name": "meetings result",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"meeting_result\": \"Отлично\",\r\n  \"participant_engagement\": \"Да\",\r\n  \"problem_solution\": \"Да\",\r\n  \"meeting_feedback\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}/result",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"meetings",
+								"{{meeting_id}}",
+								"result"
+							]
+						},
+						"description": "Создать встречу"
+					},
+					"response": []
+				},
+				{
+					"name": "meetings result",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"string\",\r\n  \"description\": \"string\",\r\n  \"date_meeting\": \"2030-03-07\",\r\n  \"place\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/{{meeting_id}}/result/{{meetings_result_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"meetings",
+								"{{meeting_id}}",
+								"result",
+								"{{meetings_result_id}}"
+							]
+						},
+						"description": "Создать встречу"
+					},
+					"response": []
+				},
+				{
+					"name": "meetings result",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"st1ing\",\r\n  \"description\": \"st1i1g\",\r\n  \"date_meeting\": \"2030-03-07\",\r\n  \"place\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/problems/{{problem_id}}/meetings/{{meetings_result_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"problems",
+								"{{problem_id}}",
+								"meetings",
+								"{{meetings_result_id}}"
+							]
+						},
+						"description": "Создать встречу"
+					},
+					"response": []
 				}
 			],
 			"description": "Управление \"Встречами\""
@@ -2824,12 +3176,30 @@
 			"name": "Surveys",
 			"item": [
 				{
-					"name": "surveys",
+					"name": "cycles for company",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"selection_1\": \"blue\",\r\n  \"selection_2\": \"green\",\r\n  \"selection_3\": \"red\",\r\n  \"selection_4\": \"yellow\",\r\n  \"selection_5\": \"violet\",\r\n  \"selection_6\": \"brown\",\r\n  \"selection_7\": \"black\",\r\n  \"selection_8\": \"grey\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -2839,7 +3209,7 @@
 								"v1",
 								"{{company_slug}}",
 								"surveys",
-								""
+								"cycle"
 							]
 						},
 						"description": "Общая информация о тестированиях"
@@ -2847,12 +3217,27 @@
 					"response": []
 				},
 				{
-					"name": "surveys",
+					"name": "cycle for company",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"date\": \"2025-07-14\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -2862,20 +3247,32 @@
 								"v1",
 								"{{company_slug}}",
 								"surveys",
-								""
+								"cycle"
 							]
 						},
-						"description": "Создать новый тест (пока наверное заглушка, так как непонятно как будет реализовано добавление новых типов тестов)"
+						"description": "Общая информация о тестированиях"
 					},
 					"response": []
 				},
 				{
-					"name": "surveys user",
+					"name": "cycle for company by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"selection_1\": \"blue\",\r\n  \"selection_2\": \"green\",\r\n  \"selection_3\": \"red\",\r\n  \"selection_4\": \"yellow\",\r\n  \"selection_5\": \"violet\",\r\n  \"selection_6\": \"brown\",\r\n  \"selection_7\": \"black\",\r\n  \"selection_8\": \"grey\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/{{uuid}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -2885,21 +3282,30 @@
 								"v1",
 								"{{company_slug}}",
 								"surveys",
-								"{{uuid}}",
-								""
+								"cycle",
+								"{{cycle_company_id}}"
 							]
 						},
-						"description": "История тестирований пользователя"
+						"description": "Общая информация о тестированиях"
 					},
 					"response": []
 				},
 				{
-					"name": "survey user",
+					"name": "cycle for company by id",
 					"request": {
-						"method": "GET",
+						"method": "PATCH",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"date\": \"2025-07-22\",\r\n  \"status\": \"Отложен\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/{{uuid}}/{{survey_id}}/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -2909,145 +3315,36 @@
 								"v1",
 								"{{company_slug}}",
 								"surveys",
-								"{{uuid}}",
-								"{{survey_id}}",
-								""
+								"cycle",
+								"{{cycle_company_id}}"
 							]
 						},
-						"description": "Подробная информация о конкретном тестировании у конкретного пользователя (либо можем зашить всё в общей истории тестирований пользователя)"
+						"description": "Общая информация о тестированиях"
 					},
 					"response": []
 				},
 				{
-					"name": "survey",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/{{survey_id}}/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"{{company_slug}}",
-								"surveys",
-								"{{survey_id}}",
-								""
-							]
-						},
-						"description": "Отправить обратную связь о тестировании"
-					},
-					"response": []
-				},
-				{
-					"name": "survey general",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/results/general/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"{{company_slug}}",
-								"surveys",
-								"results",
-								"general",
-								""
-							]
-						},
-						"description": "Общая информация о результатах"
-					},
-					"response": []
-				},
-				{
-					"name": "survey personalized",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/results/personalized/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"{{company_slug}}",
-								"surveys",
-								"results",
-								"personalized",
-								""
-							]
-						},
-						"description": "Персонализированная информация"
-					},
-					"response": []
-				},
-				{
-					"name": "survey dynamics",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/results/dynamics/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"{{company_slug}}",
-								"surveys",
-								"results",
-								"dynamics",
-								""
-							]
-						},
-						"description": "Динамика тестирования"
-					},
-					"response": []
-				},
-				{
-					"name": "survey manage",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/manage/",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"{{company_slug}}",
-								"surveys",
-								"manage",
-								""
-							]
-						},
-						"description": "Создать тестирование"
-					},
-					"response": []
-				},
-				{
-					"name": "survey manage",
+					"name": "cycle for company by id",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/manage/",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -3057,11 +3354,153 @@
 								"v1",
 								"{{company_slug}}",
 								"surveys",
-								"manage",
-								""
+								"cycle",
+								"{{cycle_company_id}}"
 							]
 						},
-						"description": "Удалить тестирование"
+						"description": "Общая информация о тестированиях"
+					},
+					"response": []
+				},
+				{
+					"name": "cycle for user by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"selection_1\": \"blue\",\r\n  \"selection_2\": \"green\",\r\n  \"selection_3\": \"red\",\r\n  \"selection_4\": \"yellow\",\r\n  \"selection_5\": \"violet\",\r\n  \"selection_6\": \"brown\",\r\n  \"selection_7\": \"black\",\r\n  \"selection_8\": \"grey\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}/{{cycle_user_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"cycle",
+								"{{cycle_company_id}}",
+								"{{cycle_user_id}}"
+							]
+						},
+						"description": "Общая информация о тестированиях"
+					},
+					"response": []
+				},
+				{
+					"name": "cycle for user all",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"selection_1\": \"blue\",\r\n  \"selection_2\": \"green\",\r\n  \"selection_3\": \"red\",\r\n  \"selection_4\": \"yellow\",\r\n  \"selection_5\": \"violet\",\r\n  \"selection_6\": \"brown\",\r\n  \"selection_7\": \"black\",\r\n  \"selection_8\": \"grey\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle_for_user/{{uuid_user}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"cycle_for_user",
+								"{{uuid_user}}"
+							]
+						},
+						"description": "Общая информация о тестированиях"
+					},
+					"response": []
+				},
+				{
+					"name": "lucsher",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"selection_1\": \"blue\",\r\n  \"selection_2\": \"green\",\r\n  \"selection_3\": \"red\",\r\n  \"selection_4\": \"yellow\",\r\n  \"selection_5\": \"violet\",\r\n  \"selection_6\": \"brown\",\r\n  \"selection_7\": \"black\",\r\n  \"selection_8\": \"grey\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}/{{cycle_user_id}}/luscher",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"cycle",
+								"{{cycle_company_id}}",
+								"{{cycle_user_id}}",
+								"luscher"
+							]
+						},
+						"description": "Общая информация о тестированиях"
+					},
+					"response": []
+				},
+				{
+					"name": "lucsher",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}/{{cycle_user_id}}/luscher/{{luscher_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"cycle",
+								"{{cycle_company_id}}",
+								"{{cycle_user_id}}",
+								"luscher",
+								"{{luscher_id}}"
+							]
+						},
+						"description": "Общая информация о тестированиях"
 					},
 					"response": []
 				}
@@ -3153,6 +3592,12 @@
 			"value": "127.0.0.1:8000"
 		},
 		{
+			"key": "domain",
+			"value": "158.160.16.16:8000",
+			"type": "string",
+			"disabled": true
+		},
+		{
 			"key": "protocol",
 			"value": "http"
 		},
@@ -3189,6 +3634,11 @@
 		{
 			"key": "problem_id",
 			"value": "problem_id",
+			"type": "string"
+		},
+		{
+			"key": "meetings_result_id",
+			"value": "meetings_result_id",
 			"type": "string"
 		},
 		{
@@ -3323,6 +3773,21 @@
 		{
 			"key": "base64_test_2",
 			"value": "data:image/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAAZSURBVBhXY2T4DwQMDAxMBw8dYmBgZGQAAEnjBkemLjB6AAAAAElFTkSuQmCC",
+			"type": "string"
+		},
+		{
+			"key": "cycle_company_id",
+			"value": "cycle_company_id",
+			"type": "string"
+		},
+		{
+			"key": "cycle_user_id",
+			"value": "cycle_user_id",
+			"type": "string"
+		},
+		{
+			"key": "luscher_id",
+			"value": "luscher_id",
 			"type": "string"
 		}
 	]
