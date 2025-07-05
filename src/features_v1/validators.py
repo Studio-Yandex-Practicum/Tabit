@@ -739,6 +739,6 @@ async def validate_license_max_admins(
         if count_company_admins >= license_object_model.max_admins_count:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f'Превышено максимальное количество модераторов по'
+                detail='Превышено максимальное количество модераторов по'
                 f" лицензии №'{license_id}'",
             )
