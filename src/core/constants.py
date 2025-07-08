@@ -91,7 +91,7 @@ class LengthBaseConstants:
     FILE_LINK: int = 2048
     MAX_NAME: int = 100
     MAX_NAME_COMPANY: int = 255
-    MAX_SMALL_NAME: int = 30
+    MAX_SMALL_NAME: int = 200
     MAX_TELEGRAM_USERNAME: int = 100
     MIN_PASSWORD: int = 8
     SLUG: int = 110
