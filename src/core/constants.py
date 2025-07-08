@@ -82,19 +82,21 @@ class LengthBaseConstants:
     - FILE_LINK (int): Максимальная длина ссылки на файл.
     - MAX_NAME (int): Максимальная длина имени.
     - MAX_NAME_COMPANY (int): Максимальная длина названия компании.
+    - MAX_NAME_DEPARTMENT (int): Максимальная длина названия отдела.
+    - SLUG (int): Максимальная длина slug.
     - MAX_SMALL_NAME (int): Максимальная длина короткого названия.
     - MAX_TELEGRAM_USERNAME (int): Максимальная длина Telegram username.
     - MIN_PASSWORD (int): Минимальная длина пароля.
-    - SLUG (int): Максимальная длина slug.
     """
 
     FILE_LINK: int = 2048
     MAX_NAME: int = 100
     MAX_NAME_COMPANY: int = 255
+    MAX_NAME_DEPARTMENT: int = MAX_NAME_COMPANY
+    SLUG: int = MAX_NAME_COMPANY + 5
     MAX_SMALL_NAME: int = 200
     MAX_TELEGRAM_USERNAME: int = 100
     MIN_PASSWORD: int = 8
-    SLUG: int = 110
 
 
 class LoggingBaseConstants:

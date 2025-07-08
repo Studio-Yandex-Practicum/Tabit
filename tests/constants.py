@@ -225,6 +225,14 @@ class ExpectedFieldsConstants:
     }
 
     DEPARTMENT_FIELDS: set[str] = {'name', 'slug', 'id', 'company_id'}
+    DEPARTMENT_FIELDS_FOR_ADMIN: set[str] = {
+        'name',
+        'slug',
+        'id',
+        'company_id',
+        'created_at',
+        'updated_at',
+    }
 
     EMPLOYEE_FIELDS: set[str] = {
         'id',
@@ -661,6 +669,10 @@ class UrlConstants:
     USER_LOGOUT: str = '/api/v1/auth/logout'
     USER_ME: str = '/api/v1/auth/me'
     USER_REFRESH: str = '/api/v1/auth/refresh-token'
+    MANAGEMENT_DEPARTMENT: str = '/api/v1/admin/companies/{company_slug}/department/'
+    MANAGEMENT_DEPARTMENT_WITH_SLUG: str = (
+        '/api/v1/admin/companies/{company_slug}/department/{department_slug}'
+    )
 
     # URLs для problem_feeds.py
     COMMENTS_PATCH_DELETE_404_URL: str = (

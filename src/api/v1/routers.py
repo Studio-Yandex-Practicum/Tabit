@@ -12,6 +12,7 @@ from src.features_v1 import (
     tabit_admin_auth_router,
     tabit_admin_management_router,
     tabit_company_management_router,
+    tabit_department_management_router,
     tabit_license_management_router,
 )
 from src.services.email_service import email_router
@@ -27,6 +28,11 @@ main_router.include_router(
 )
 main_router.include_router(
     tabit_company_management_router, prefix='/admin/companies', tags=['Tabit Company Management']
+)
+main_router.include_router(
+    tabit_department_management_router,
+    prefix='/admin/companies/{company_slug}/department',
+    tags=['Tabit Management - Department'],
 )
 main_router.include_router(
     tabit_license_management_router, prefix='/admin/licenses', tags=['Tabit License Management']
