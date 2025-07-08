@@ -256,7 +256,7 @@ class TestMeetingsGet:
         meeting, problem, employee, company = await meeting_for_test(return_all_objects=True)
 
         response = await client.get(
-            UrlConstants.MEETINGS_SINGLE.format(
+            UrlConstants.MEETING_ENDPOINT.format(
                 company_slug=company.slug,
                 problem_id=problem.id,
                 meeting_id=meeting.id,
@@ -326,7 +326,7 @@ class TestMeetingsUpdate:
         }
 
         response = await client.patch(
-            UrlConstants.MEETINGS_SINGLE.format(
+            UrlConstants.MEETING_ENDPOINT.format(
                 company_slug=company.slug, problem_id=problem.id, meeting_id=meeting.id
             ),
             json=updated_data,
@@ -365,7 +365,7 @@ class TestMeetingsUpdate:
         meeting, problem, employee, company = await meeting_for_test(return_all_objects=True)
 
         response = await client.patch(
-            UrlConstants.MEETINGS_SINGLE.format(
+            UrlConstants.MEETING_ENDPOINT.format(
                 company_slug=company.slug, problem_id=problem.id, meeting_id=meeting.id
             ),
             json={field: value},
@@ -376,7 +376,7 @@ class TestMeetingsUpdate:
         data = response.json()
         assert data[field] == value
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio  # TODO Проанализировать корректность.
     async def test_update_meeting_not_found_problem(
         self,
         client: AsyncClient,
@@ -392,7 +392,7 @@ class TestMeetingsUpdate:
         meeting_id = random.randint(1, 100)
 
         response_patch = await client.patch(
-            UrlConstants.MEETINGS_SINGLE.format(
+            UrlConstants.MEETING_ENDPOINT.format(
                 company_slug=company.slug, problem_id=problem_id, meeting_id=meeting_id
             ),
             json={'title': 'No Matter'},
@@ -423,7 +423,7 @@ class TestMeetingsDelete:
         meeting, problem, employee, company = await meeting_for_test(return_all_objects=True)
 
         response = await client.delete(
-            UrlConstants.MEETINGS_SINGLE.format(
+            UrlConstants.MEETING_ENDPOINT.format(
                 company_slug=company.slug, problem_id=problem.id, meeting_id=meeting.id
             ),
             headers=await get_token_for_user(employee),
@@ -445,7 +445,7 @@ class TestMeetingsDelete:
         meeting_id = random.randint(1, 100)
 
         response = await client.delete(
-            UrlConstants.MEETINGS_SINGLE.format(
+            UrlConstants.MEETING_ENDPOINT.format(
                 company_slug=company.slug, problem_id=problem.id, meeting_id=meeting_id
             ),
             headers=await get_token_for_user(employee),

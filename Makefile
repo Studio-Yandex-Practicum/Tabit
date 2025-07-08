@@ -67,11 +67,13 @@ down: ## Остановка всех контейнеров Docker
 	@echo "Остановка всех контейнеров Docker..."
 	$(DOCKER_COMPOSE) --profile "*" down
 	$(TEST_DOCKER_COMPOSE) down
+	systemctl stop postgresql
 
 clean-volumes: ## Остановка всех контейнеров и удаление томов
 	@echo "Остановка контейнеров и очистка БД и других вольюмов..."
 	$(DOCKER_COMPOSE) --profile "*" down -v
 	$(TEST_DOCKER_COMPOSE) down -v
+	systemctl stop postgresql
 
 # Мониторинг контейнеров
 logs: ## Показать логи всех контейнеров

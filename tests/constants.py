@@ -629,7 +629,7 @@ class UrlConstants:
     - LICENSES_ENDPOINT: URL для работы с лицензиями
     - LIKE_URL: URL для лайка комментария
     - MEETINGS_ENDPOINT: URL для работы со списком встреч
-    - MEETINGS_SINGLE: URL для работы с конкретной встречей
+    - MEETING_ENDPOINT: URL для работы с конкретной встречей
     - MESSAGE_FEED_URL: URL для работы с лентой сообщений
     - PROBLEMS_ENDPOINT:URL для работы с проблемами
     - PROBLEM_ENDPOINT: URL для работы с конкретной проблемой
@@ -656,7 +656,9 @@ class UrlConstants:
     FEEDBACK_ENDPOINT: str = '/api/v1/{company_slug}/feedback/'
     LICENSES_ENDPOINT: str = '/api/v1/admin/licenses/'
     MEETINGS_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/'
-    MEETINGS_SINGLE: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/{meeting_id}'
+    MEETING_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/meetings/{meeting_id}'
+    TASKS_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/tasks/'
+    TASK_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}/tasks/{task_id}'
     USER_LOGIN: str = '/api/v1/auth/login'
     USER_LOGOUT: str = '/api/v1/auth/logout'
     USER_ME: str = '/api/v1/auth/me'

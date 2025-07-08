@@ -117,7 +117,7 @@ class TextErrorConstants(TextErrorBaseConstants):
     Наследует все константы из TextErrorBaseConstants.
 
     Атрибуты:
-    - DATE_CANNOT_BE_EARLIER (str): Ошибка о невозможности указать более раннюю дату.
+    - DATE_CANT_BE_EARLIER (str): Ошибка о невозможности указать более раннюю дату.
     - DATE_SHOULD_BE_FUTURE (str): Ошибка о необходимости указать будущую дату.
     - EXECUTORS_MUST_BE_UUID_FORMAT (str): Ошибка о формате UUID для исполнителей.
     - FIELD_INTERVAL (str): Ошибка о недопустимом формате интервала.
@@ -135,7 +135,7 @@ class TextErrorConstants(TextErrorBaseConstants):
     - UNIQUE_NAME_SURNAME (str): Ошибка о совпадении имени и фамилии.
     """
 
-    DATE_CANNOT_BE_EARLIER: str = 'Дата не может быть раньше.'
+    DATE_CANT_BE_EARLIER: str = 'Дата не может быть раньше.'
     DATE_SHOULD_BE_FUTURE: str = 'Дата должна быть в будущем.'
     EXECUTORS_MUST_BE_UUID_FORMAT: str = 'Исполнители должны быть в формате UUID.'
     FIELD_INTERVAL: str = (

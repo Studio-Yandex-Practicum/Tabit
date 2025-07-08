@@ -5,7 +5,6 @@ from uuid import UUID
 from src.schemas.constants import TextErrorConstants
 
 
-# TODO: смотри meeting_validators.py -> validate_date
 def validate_date_in_future(value: date) -> date:
     """Валидирует дату встречи.
 
@@ -19,14 +18,11 @@ def validate_date_in_future(value: date) -> date:
     Исключения:
         ValueError: Если дата в прошлом.
     """
-    if value is None:
-        return None
     if value < date.today():
         raise ValueError(f'{TextErrorConstants.DATE_SHOULD_BE_FUTURE} {date.today()}')
     return value
 
 
-# TODO: смотри meeting_validators.py -> validate_not_empty
 def validate_name(value: str) -> str:
     """Валидирует название задачи.
 
@@ -41,8 +37,6 @@ def validate_name(value: str) -> str:
     Исключения:
         ValueError: Если значение пустое или состоит только из пробелов.
     """
-    if value is None:
-        return None
     if not value.strip():
         raise ValueError(TextErrorConstants.TASK_NAME_EMPTY)
     return value.strip()
@@ -62,8 +56,9 @@ def validate_executors(value: List[UUID]) -> List[UUID]:
     Исключения:
         ValueError: Если список не пустой и содержит элементы, не являющиеся UUID.
     """
-    if value is None:
-        return None
-    if value and not isinstance(value[0], UUID):
-        raise ValueError(TextErrorConstants.EXECUTORS_MUST_BE_UUID_FORMAT)
+    if not value:
+        return []
+    for executor_id in value:
+        if not isinstance(executor_id, UUID):
+            raise ValueError(TextErrorConstants.EXECUTORS_MUST_BE_UUID_FORMAT)
     return value

@@ -41,6 +41,10 @@ int_zero = Annotated[int, mapped_column(Integer, nullable=False, default=MiscCon
 name_problem = Annotated[
     str, mapped_column(String(LengthConstants.MAX_NAME_PROBLEM), nullable=False)
 ]
+name_meeting = Annotated[
+    str, mapped_column(String(LengthConstants.MAX_NAME_MEETING), nullable=False)
+]
+name_task = Annotated[str, mapped_column(String(LengthConstants.MAX_NAME_TASK), nullable=False)]
 slug = Annotated[str, mapped_column(String(LengthConstants.SLUG), nullable=False, unique=True)]
 comment_rating = Annotated[int, mapped_column(Integer, nullable=False, default=MiscConstants.ZERO)]
 int_pk_autoincrement = Annotated[

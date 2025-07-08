@@ -36,5 +36,5 @@ def validate_date(value: date) -> date:
         ValueError: Если дата в прошлом.
     """
     if value < date.today():
-        raise ValueError(f'{TextErrorConstants.DATE_CANNOT_BE_EARLIER} {date.today()}')
+        raise ValueError(f'{TextErrorConstants.DATE_CANT_BE_EARLIER} {date.today()}')
     return value

@@ -55,7 +55,7 @@ class ExecutorsResponseSchema(BaseModel):
     Назначение:
         Определяет структуру данных для ответа с информацией о исполнителе задачи.
     Параметры:
-        member_id: UUID исполнителя задачи.
+        executor_id: UUID исполнителя задачи.
     """
 
     executor_id: UUID = Field(validation_alias='left_id')

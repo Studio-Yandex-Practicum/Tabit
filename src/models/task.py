@@ -7,7 +7,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import BaseTabitModel, TaskStatus
-from src.models.annotations import description, int_pk, int_zero, name_problem, owner
+from src.models.annotations import description, int_pk, int_zero, name_task, owner
 
 if TYPE_CHECKING:
     from src.models import AssociationUserTask, CompanyUser, FileTask, Problem
@@ -18,7 +18,7 @@ class Task(BaseTabitModel):
     Модель задач.
 
     Назначение:
-        Содержит информацию о установленных задач для решения проблемы.
+        Содержит информацию о задаче для решения проблемы.
 
     Поля:
         id: Идентификатор.
@@ -37,10 +37,12 @@ class Task(BaseTabitModel):
         problem - Problem;
         executors - AssociationUserTask -> CompanyUser: исполнители задачи;
         file - FileTask: к задаче могут быть прикреплены файлы.
+
+    # TODO обсудить с заказчиком целесообразность привязки задачи ко встрече. Поправить макет.
     """
 
     id: Mapped[int_pk]
-    name: Mapped[name_problem]
+    name: Mapped[name_task]
     description: Mapped[description]
     date_completion: Mapped[date] = mapped_column(nullable=False)
     owner_id: Mapped[owner]
@@ -53,7 +55,7 @@ class Task(BaseTabitModel):
         viewonly=True,
         lazy='joined',
     )
-    status: Mapped['TaskStatus']
+    status: Mapped['TaskStatus'] = mapped_column(default=TaskStatus.NEW)
     transfer_counter: Mapped[int_zero]
     file: Mapped[List['FileTask']] = relationship(
         back_populates='task', cascade='all, delete-orphan'
@@ -64,6 +66,7 @@ class Task(BaseTabitModel):
             f'{self.__class__.__name__}('
             f'id={self.id!r}, '
             f'name={self.name!r}, '
+            f'problem_id={self.problem_id!r}, '
             f'owner_id={self.owner_id!r}, '
             f'status={self.status!r})'
         )

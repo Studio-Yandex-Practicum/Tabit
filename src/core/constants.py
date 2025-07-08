@@ -37,6 +37,7 @@
 """
 
 from dataclasses import dataclass
+from os import getenv
 from pathlib import Path
 
 
@@ -71,7 +72,7 @@ class DirectoryBaseConstants:
     """
 
     LOGO: str = 'logo'
-    MEDIA: str = 'media'
+    MEDIA: str = getenv('MEDIA_FOLDER')
 
 
 class LengthBaseConstants:
