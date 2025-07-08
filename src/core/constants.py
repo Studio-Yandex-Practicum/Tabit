@@ -94,7 +94,7 @@ class LengthBaseConstants:
     MAX_NAME_COMPANY: int = 255
     MAX_NAME_DEPARTMENT: int = MAX_NAME_COMPANY
     SLUG: int = MAX_NAME_COMPANY + 5
-    MAX_SMALL_NAME: int = 30
+    MAX_SMALL_NAME: int = 200
     MAX_TELEGRAM_USERNAME: int = 100
     MIN_PASSWORD: int = 8
 

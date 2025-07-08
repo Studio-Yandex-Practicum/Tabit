@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import BaseTabitModel, BaseTag
@@ -125,6 +125,12 @@ class VotingFeed(BaseTag):
     message: Mapped['MessageFeed'] = relationship(back_populates='voting')
     by_user: Mapped['VotingByUser'] = relationship(
         back_populates='voting', cascade='all, delete-orphan'
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            'name', 'message_id', name='unique_name_message_id'
+        ),
     )
 
     def __repr__(self):

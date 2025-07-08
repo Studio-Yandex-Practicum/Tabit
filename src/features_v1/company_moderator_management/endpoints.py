@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_company_moderator
 from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
-from src.crud import company_crud, department_crud, moderator_crud
+from src.crud import company_crud, department_crud, license_type_crud, moderator_crud
 from src.features_v1.constants import SummaryConstants
 from src.features_v1.validators import (
     check_department_in_company,
@@ -18,6 +18,7 @@ from src.features_v1.validators import (
     check_name_department_in_company,
     check_slug_duplicate,
     check_telegram_username_for_duplicates,
+    validate_license_max_employees,
     validate_password,
     validate_user_not_exists,
     validator_check_object_exists,
@@ -393,6 +394,7 @@ async def create_company_employee(
     Создает сотрудника в компании.
     Доступно только пользователю-админу компании.
     Проверяет существует ли компания. Если нет, вернется ответ со статусом 404.
+    Проверяет не превышено ли максимальное количество сотрудников по лицензии
     В пути принимает 'company_slug' - значение `slug` компании.
     Параметры декоратора:
         path: URL-путь, который будет использоваться для этой операции.
@@ -430,7 +432,13 @@ async def create_company_employee(
     }
     Если пользователь уже существует или пароль не соответствует требованиям ответ со статусом 400.
     """
-    await validator_check_object_exists(session, company_crud, object_slug=company_slug)
+    company_object_model = await validator_check_object_exists(
+        session, company_crud, object_slug=company_slug
+    )
+    company_license_id = getattr(company_object_model, 'license_id', None)
+    await validate_license_max_employees(
+        session, license_type_crud, company_license_id, company_object_model.id
+    )
     await validate_user_not_exists(create_data, user_manager)
     await validate_password(create_data, user_manager)
     await check_telegram_username_for_duplicates(create_data.telegram_username, session)
