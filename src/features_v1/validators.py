@@ -707,3 +707,38 @@ async def validate_license_name(session: AsyncSession, license_name: str):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Лицензия с именем '{license_name}' уже существует.",
         )
+
+
+async def validate_license_max_employees(
+    session: AsyncSession,
+    model_crud: CRUDBase,
+    license_id: int,
+    company_id: int,
+) -> None:
+    """
+    Проверяет, не превышено ли число сотрудников компании максимальному числу по лицензии.
+
+    Проверка происходит путём получения объекта лицензии принадлежащей к компании
+    и сравнения максимального количества сотрудников компании и лицензии.
+
+    Args:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        model_crud (CRUDBase): CRUD Лицензии
+        license_id (int): ID лицензии компании, которую нужно проверить.
+        company_id (int): ID компании.
+
+    Raises:
+        HTTPException: Если превышено максимальное количество сотрудников,
+                        возвращает ошибку 400 (BAD REQUEST).
+    """
+    license_object_model = await model_crud.get(session, license_id)
+
+    if license_object_model is not None:
+        count_company_employees = await user_crud.get_company_employee_count(session, company_id)
+
+        if count_company_employees >= license_object_model.max_employees_count:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Превышено максимальное количество сотрудников по'
+                f" лицензии №'{license_id}'",
+            )
