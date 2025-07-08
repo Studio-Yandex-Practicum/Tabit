@@ -742,3 +742,38 @@ async def validate_license_max_employees(
                 detail='Превышено максимальное количество сотрудников по'
                 f" лицензии №'{license_id}'",
             )
+
+
+async def validate_license_max_admins(
+    session: AsyncSession,
+    model_crud: CRUDBase,
+    license_id: int,
+    company_id: int,
+) -> None:
+    """
+    Проверяет, не превышено ли число модераторов компании максимальному числу по лицензии.
+
+    Проверка происходит путём получения объекта лицензии принадлежащей к компании
+    и сравнения максимального количества модераторов компании и лицензии.
+
+    Args:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        model_crud (CRUDBase): CRUD Лицензии
+        license_id (int): ID лицензии компании, которую нужно проверить.
+        company_id (int): ID компании.
+
+    Raises:
+        HTTPException: Если превышено максимальное количество админов,
+                        возвращает ошибку 400 (BAD REQUEST).
+    """
+    license_object_model = await model_crud.get(session, license_id)
+
+    if license_object_model is not None:
+        count_company_admins = await user_crud.get_company_admins_count(session, company_id)
+
+        if count_company_admins >= license_object_model.max_admins_count:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Превышено максимальное количество модераторов по'
+                f" лицензии №'{license_id}'",
+            )
