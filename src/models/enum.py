@@ -96,3 +96,38 @@ class MeetingResultSolutionEnum(StrEnum):
     MORE_YES = 'Скорее да, чем нет'
     MORE_NO = 'Скорее нет, чем да'
     NO = 'Нет'
+
+
+class SurveysStatus(StrEnum):
+    """Варианты значений для статуса тестирований в админ панели."""
+
+    IN_PROGRESS = 'В работе'
+    COMPLETED = 'Завершен'
+    CANCELED = 'Отменен'
+    POSTPONED = 'Отложен'
+
+
+class LuscherWeightsColorEnum(IntEnum):
+    """Веса цветов теста Люшера."""
+
+    Blue = 1
+    Green = 2
+    Red = 3
+    Yellow = 4
+    Violet = 5
+    Brown = 6
+    Black = 7
+    Grey = 0
+
+
+class LuschersColorEnum(StrEnum):
+    """Цветов теста Люшера."""
+
+    Blue = 'blue'
+    Green = 'green'
+    Red = 'red'
+    Yellow = 'yellow'
+    Violet = 'violet'
+    Brown = 'brown'
+    Black = 'black'
+    Grey = 'grey'

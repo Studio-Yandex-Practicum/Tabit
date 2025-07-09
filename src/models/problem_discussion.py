@@ -127,11 +127,7 @@ class VotingFeed(BaseTag):
         back_populates='voting', cascade='all, delete-orphan'
     )
 
-    __table_args__ = (
-        UniqueConstraint(
-            'name', 'message_id', name='unique_name_message_id'
-        ),
-    )
+    __table_args__ = (UniqueConstraint('name', 'message_id', name='unique_name_message_id'),)
 
     def __repr__(self):
         return (

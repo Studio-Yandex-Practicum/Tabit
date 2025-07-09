@@ -24,8 +24,7 @@ class CRUDUsers(CRUDBase):
             select(func.count())
             .select_from(CompanyUser)
             .where(
-                CompanyUser.company_id == company_id,
-                CompanyUser.role == CompanyUserRole.EMPLOYEE
+                CompanyUser.company_id == company_id, CompanyUser.role == CompanyUserRole.EMPLOYEE
             )
         )
         return result.scalar()
@@ -51,5 +50,6 @@ class CRUDUsers(CRUDBase):
             )
         )
         return result.scalar()
+
 
 user_crud = CRUDUsers(CompanyUser)

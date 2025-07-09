@@ -1,6 +1,7 @@
 """Модуль валидаторов эндпоинтов Company.py."""
 
 import random
+from datetime import date, datetime
 
 from fastapi import Depends, HTTPException, status
 from fastapi_users.exceptions import InvalidPasswordException
@@ -26,6 +27,7 @@ from src.crud import (
     user_comment_association_crud,
     user_crud,
 )
+from src.crud.crud_surveys import survey_cycle_for_company_crud
 from src.features_v1.constants import LengthConstants, TextErrorConstants
 from src.models import (
     AssociationUserComment,
@@ -37,6 +39,8 @@ from src.models import (
     MeetingStatus,
     Problem,
     ProblemStatus,
+    SurveyCycleForCompany,
+    SurveysStatus,
     Task,
     TaskStatus,
 )
@@ -543,26 +547,6 @@ async def check_tasks_for_company_problem_exist(
         )
 
 
-async def check_company_exists(company_slug: str, session: AsyncSession):
-    """Проверяет существование компании по slug.
-
-    Назначение:
-        Валидирует, что компания существует в базе данных по заданному slug.
-    Параметры:
-        company_slug: Строка, представляющая slug компании для проверки.
-        session: Асинхронная сессия базы данных.
-    Возвращаемое значение:
-        Проверенная компания, если она существует.
-    Исключения:
-        HTTPException: Если компания не найдена.
-    """
-
-    if not await company_crud.get_by_company_slug(session, company_slug):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=TextErrorConstants.COMPANY_NOT_FOUND
-        )
-
-
 def validate_is_member_problem(user: CompanyUser, problem: Problem):
     """
     Валидатор, проверит что пользователь является участником проблемы.
@@ -868,3 +852,62 @@ async def validate_license_max_admins(
                 detail='Превышено максимальное количество модераторов по'
                 f" лицензии №'{license_id}'",
             )
+
+
+async def validator_survey_in_cycle_exists(
+    session: AsyncSession,
+    survey_crud,
+    cycle_user_id: int,
+):
+    """Проверит, нет ли записи с ответами по переданному тесту."""
+    if await survey_crud.get_by_cycle(session, cycle_user_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail='Этот тест уже пройден.'
+        )
+
+
+async def check_survey_this_week(
+    session: AsyncSession,
+    date_: date,
+    company_id: int,
+    cycle_db: SurveyCycleForCompany | None = None,
+):
+    """
+    Проверит, нет ли уже цикла тестов, запланированный на неделю,
+    к которой относится указанная дата.
+    """
+    check_db = await survey_cycle_for_company_crud.get_by_week_number(
+        session,
+        date_.isocalendar()[1],
+        company_id,
+    )
+    if check_db and cycle_db not in check_db:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                'Уже есть цикл тестов, запланированный на неделю, '
+                'к которой относится указанная дата.'
+            ),
+        )
+
+
+def check_cycle_overdue_date(cycle: SurveyCycleForCompany):
+    """
+    Не просрочена ли дана цикла тестов.
+    """
+    if cycle.date < datetime.now().date():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=('Циклы, дата проведения которых уже наступил изменять нельзя.'),
+        )
+
+
+def check_cycle_not_completed(cycle: SurveyCycleForCompany):
+    """
+    Проверит, не начат или закончен ли цикл тестов.
+    """
+    if cycle.status == SurveysStatus.COMPLETED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=('Завершенные циклы изменять или удалять нельзя.'),
+        )

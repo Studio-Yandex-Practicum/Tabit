@@ -129,7 +129,6 @@ class TestPostTabitManagement:
         assert result['current_department_id'] == department.id
         assert result['previous_department_id'] is None
 
-
     @pytest.mark.parametrize(
         'payload, expected_status',
         [
@@ -140,7 +139,7 @@ class TestPostTabitManagement:
             (TabitManagementDataConstants.ADMIN_CREATE_MOD_BAD[4], 404),
             (TabitManagementDataConstants.ADMIN_CREATE_MOD_BAD[5], 422),
             (TabitManagementDataConstants.ADMIN_CREATE_MOD_BAD[6], 422),
-        ]
+        ],
     )
     async def test_unsuccessful_create_moderator(
         self,
@@ -151,7 +150,7 @@ class TestPostTabitManagement:
         department_for_test,
         moderator_of_company,
         payload,
-        expected_status
+        expected_status,
     ):
         """Тест для проверки неуспешного создания модератора"""
         department = await department_for_test()
@@ -168,8 +167,7 @@ class TestPostTabitManagement:
             UrlConstants.ADMIN_MODS_URL, headers=admin_token, json=payload
         )
         assert response.status_code == expected_status, (
-            f'В ответе ожидается status_code {expected_status}, '
-            f'получен {response.status_code}'
+            f'В ответе ожидается status_code {expected_status}, ' f'получен {response.status_code}'
         )
         new_user_count = await get_count(async_session, CompanyUser)
         assert new_user_count == old_user_count, (
