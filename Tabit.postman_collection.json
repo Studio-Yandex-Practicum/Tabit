@@ -572,7 +572,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"description\": \"string\",\r\n  \"logo\": \"{{base64_test}}\",\r\n  \"name\": \"string\",\r\n  \"license_id\": 1,\r\n  \"start_license_time\": \"2025-04-24T14:00:58.253Z\"\r\n}",
+							"raw": "{\r\n  \"description\": \"string\",\r\n  \"logo\": \"{{base64_test}}\",\r\n  \"name\": \"string\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1055,7 +1055,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"birthday\": \"2025-03-05\",\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"current_department_id\": {{department_id}},\r\n  \"role\": \"Сотрудник\"\r\n}",
+							"raw": "{\r\n  \"birthday\": \"2025-03-05\",\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"current_department_id\": {{department_id}}\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1869,7 +1869,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Модератор\",\r\n  \"company_id\": 1\r\n}",
+							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string34\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

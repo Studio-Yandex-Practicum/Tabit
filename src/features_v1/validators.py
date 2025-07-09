@@ -693,6 +693,167 @@ async def validate_license_name(session: AsyncSession, license_name: str):
         )
 
 
+async def check_name_department_in_company(
+    session: AsyncSession,
+    company_id: int,
+    new_name: str | None,
+    old_name: str | None = None,
+) -> None:
+    """
+    Проверит наличе отдела с указанным названием у компании.
+    Выкинет ошибку, если такое название уже есть.
+
+    Функция выполняет проверку корректности данных перед их обработкой
+    в API-эндпоинте.
+
+    Аргументы:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        company_id (int): идентификатор компании, в которой нужно проверить.
+        name (str): название отдела, наличие которого нужно проверить.
+
+    Возвращает:
+        None: Если данные прошли проверку.
+
+    Исключения:
+        HTTPException: Возникает при ошибках валидации данных.
+    """
+    if (
+        new_name is not None
+        and new_name != old_name
+        and (await department_crud.get_by_name_in_company(session, new_name, company_id))
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=TextErrorConstants.EXISTS_NAME_DEPARTMENT_IN_COMPANY,
+        )
+
+
+def check_department_in_company(
+    department: Department,
+    company: Company,
+) -> None:
+    """
+    Проверит наличе данного отдела у данной компании.
+    Выкинет ошибку, если отдел от другой компании.
+
+    Функция выполняет проверку корректности данных перед их обработкой
+    в API-эндпоинте.
+
+    Аргументы:
+        department (Department): Модель отдела.
+        company (Company): Модель компании.
+
+    Возвращает:
+        None: Если данные прошли проверку.
+
+    Исключения:
+        HTTPException: Возникает при ошибках валидации данных.
+    """
+    if department.company_id != company.id:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=TextErrorConstants.WRONG_COMPANY_DEPARTMENT,
+        )
+
+
+async def check_empty_department(session: AsyncSession, department: Department) -> None:
+    """
+    Проверит что в отделе нет сотрудников.
+    Выкинет ошибку, если в отделе есть хотя бы один сотрудник.
+
+    Функция выполняет проверку корректности данных перед их обработкой
+    в API-эндпоинте.
+
+    Аргументы:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        department (Department): Модель отдела.
+
+    Возвращает:
+        None: Если данные прошли проверку.
+
+    Исключения:
+        HTTPException: Возникает при ошибках валидации данных.
+    """
+    if await moderator_crud.get_multi(
+        session,
+        filters={'current_department_id': department.id},
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=TextErrorConstants.NOT_EMPTY_DEPARTMENT,
+        )
+
+
+async def validate_license_max_employees(
+    session: AsyncSession,
+    model_crud: CRUDBase,
+    license_id: int,
+    company_id: int,
+) -> None:
+    """
+    Проверяет, не превышено ли число сотрудников компании максимальному числу по лицензии.
+
+    Проверка происходит путём получения объекта лицензии принадлежащей к компании
+    и сравнения максимального количества сотрудников компании и лицензии.
+
+    Args:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        model_crud (CRUDBase): CRUD Лицензии
+        license_id (int): ID лицензии компании, которую нужно проверить.
+        company_id (int): ID компании.
+
+    Raises:
+        HTTPException: Если превышено максимальное количество сотрудников,
+                        возвращает ошибку 400 (BAD REQUEST).
+    """
+    license_object_model = await model_crud.get(session, license_id)
+
+    if license_object_model is not None:
+        count_company_employees = await user_crud.get_company_employee_count(session, company_id)
+
+        if count_company_employees >= license_object_model.max_employees_count:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Превышено максимальное количество сотрудников по'
+                f" лицензии №'{license_id}'",
+            )
+
+
+async def validate_license_max_admins(
+    session: AsyncSession,
+    model_crud: CRUDBase,
+    license_id: int,
+    company_id: int,
+) -> None:
+    """
+    Проверяет, не превышено ли число модераторов компании максимальному числу по лицензии.
+
+    Проверка происходит путём получения объекта лицензии принадлежащей к компании
+    и сравнения максимального количества модераторов компании и лицензии.
+
+    Args:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        model_crud (CRUDBase): CRUD Лицензии
+        license_id (int): ID лицензии компании, которую нужно проверить.
+        company_id (int): ID компании.
+
+    Raises:
+        HTTPException: Если превышено максимальное количество админов,
+                        возвращает ошибку 400 (BAD REQUEST).
+    """
+    license_object_model = await model_crud.get(session, license_id)
+
+    if license_object_model is not None:
+        count_company_admins = await user_crud.get_company_admins_count(session, company_id)
+
+        if count_company_admins >= license_object_model.max_admins_count:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Превышено максимальное количество модераторов по'
+                f" лицензии №'{license_id}'",
+            )
+
+
 async def validator_survey_in_cycle_exists(
     session: AsyncSession,
     survey_crud,

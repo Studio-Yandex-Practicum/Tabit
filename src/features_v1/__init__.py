@@ -9,6 +9,7 @@ from .landing_page.endpoints import router as landing_page_router
 from .tabit_admin_auth.endpoints import router as tabit_admin_auth_router
 from .tabit_admin_management.endpoints import router as tabit_admin_management_router
 from .tabit_company_management.endpoints import router as tabit_company_management_router
+from .tabit_department_management.endpoints import router as tabit_department_management_router
 from .tabit_license_management.endpoints import router as tabit_license_management_router
 
 __all__ = [
@@ -24,5 +25,6 @@ __all__ = [
     'tabit_admin_auth_router',
     'tabit_admin_management_router',
     'tabit_company_management_router',
+    'tabit_department_management_router',
     'tabit_license_management_router',
 ]

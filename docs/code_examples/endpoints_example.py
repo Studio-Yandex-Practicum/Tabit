@@ -13,7 +13,7 @@
 """
 
 
-def endpoint_example() -> dict:
+def endpoint_example() -> None:
     """
     Пример эндпоинта для выполнения операции.
 
@@ -21,8 +21,8 @@ def endpoint_example() -> dict:
     и возвращает результат выполнения.
 
     Аргументы декоратора:
-        path (str): URL-адрес эндпоинта ('/example').
-        response_model (Type[BaseModel]): Модель для валидации ответа.
+        path (str): URL-путь эндпоинта ('/example').
+        response_model (Type[BaseModel]): Модель Pydantic для подготовки ответа.
         status_code (int): HTTP статус код для успешного ответа (200).
         summary (str): Краткое описание эндпоинта.
         description (str): Подробное описание функциональности.
@@ -42,7 +42,7 @@ def endpoint_example() -> dict:
     """
 
 
-def auth_endpoint_example():
+def auth_endpoint_example() -> None:
     """
     Пример эндпоинта для авторизации пользователя.
 
@@ -50,7 +50,7 @@ def auth_endpoint_example():
     и возвращает токены доступа и обновления.
 
     Аргументы декоратора:
-        path (str): URL-адрес эндпоинта ('/auth').
+        path (str): URL-путь эндпоинта ('/auth').
         response_model (Type[TokenResponse]): Модель для валидации ответа.
         status_code (int): HTTP статус код для успешного ответа (200).
         summary (str): Краткое описание: 'Авторизация пользователя'.
@@ -72,14 +72,14 @@ def auth_endpoint_example():
     """
 
 
-def data_endpoint_example():
+def data_endpoint_example() -> None:
     """
     Пример эндпоинта для получения данных.
 
     Эндпоинт возвращает запрошенные данные после проверки прав доступа.
 
     Аргументы декоратора:
-        path (str): URL-адрес эндпоинта ('/data').
+        path (str): URL-путь эндпоинта ('/data').
         response_model (Type[DataResponse]): Модель для валидации ответа.
         status_code (int): HTTP статус код для успешного ответа (200).
         summary (str): Краткое описание: 'Получение данных'.

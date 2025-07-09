@@ -27,7 +27,7 @@ class CRUDClassExample:
         session (AsyncSession): Асинхронная сессия для работы с БД.
     """
 
-    def example_function(self, param1: int, param2: str) -> bool:
+    def example_function(self, param1: int, param2: str) -> None:
         """
         Пример функции для выполнения CRUD-операции.
 
@@ -39,7 +39,7 @@ class CRUDClassExample:
             param2 (str): Строковый параметр для выполнения операции.
 
         Возвращает:
-            bool: Результат выполнения операции.
+            None: Результат выполнения операции.
 
         Исключения:
             ValueError: Возникает при некорректных значениях параметров.
