@@ -1,4 +1,4 @@
-from enum import Enum
+from typing import List
 
 from fastapi import APIRouter
 
@@ -13,54 +13,51 @@ from src.models.enum import (
     ProblemType,
     TaskStatus,
 )
+from src.schemas import EnumItemSchema
 
 router = APIRouter(prefix='/enums', tags=['enums'])
 
 
-def enum_to_list(enum_class: type[Enum]):
-    return [{'key': item.name, 'value': item.value} for item in enum_class]
-
-
-@router.get('/problem-color')
+@router.get('/problem-color', response_model=List[EnumItemSchema])
 async def get_problem_colors():
-    return enum_to_list(ProblemColor)
+    return ProblemColor.to_list()
 
 
-@router.get('/problem-type')
+@router.get('/problem-type', response_model=List[EnumItemSchema])
 async def get_problem_types():
-    return enum_to_list(ProblemType)
+    return ProblemType.to_list()
 
 
-@router.get('/problem-status')
+@router.get('/problem-status', response_model=List[EnumItemSchema])
 async def get_problem_statuses():
-    return enum_to_list(ProblemStatus)
+    return ProblemStatus.to_list()
 
 
-@router.get('/meeting-status')
+@router.get('/meeting-status', response_model=List[EnumItemSchema])
 async def get_meeting_statuses():
-    return enum_to_list(MeetingStatus)
+    return MeetingStatus.to_list()
 
 
-@router.get('/meeting-result')
+@router.get('/meeting-result', response_model=List[EnumItemSchema])
 async def get_meeting_results():
-    return enum_to_list(MeetingResultEnum)
+    return MeetingResultEnum.to_list()
 
 
-@router.get('/task-status')
+@router.get('/task-status', response_model=List[EnumItemSchema])
 async def get_task_statuses():
-    return enum_to_list(TaskStatus)
+    return TaskStatus.to_list()
 
 
-@router.get('/company-user-role')
+@router.get('/company-user-role', response_model=List[EnumItemSchema])
 async def get_company_user_roles():
-    return enum_to_list(CompanyUserRole)
+    return CompanyUserRole.to_list()
 
 
-@router.get('/meeting-result-engagement')
+@router.get('/meeting-result-engagement', response_model=List[EnumItemSchema])
 async def get_meeting_result_engagements():
-    return enum_to_list(MeetingResultEngagementEnum)
+    return MeetingResultEngagementEnum.to_list()
 
 
-@router.get('/meeting-result-solution')
+@router.get('/meeting-result-solution', response_model=List[EnumItemSchema])
 async def get_meeting_result_solutions():
-    return enum_to_list(MeetingResultSolutionEnum)
+    return MeetingResultSolutionEnum.to_list()

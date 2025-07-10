@@ -33,6 +33,7 @@ from .company import (
     UserCompanyUpdateSchema,
 )
 from .enum import (
+    EnumItemSchema,
     MeetingParticipiantEngagement,
     MeetingProblemSolution,
     MeetingResult,
