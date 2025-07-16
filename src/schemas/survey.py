@@ -8,6 +8,8 @@ from src.models.enum import LuschersColorEnum, SurveysStatus
 
 
 class LuscherBaseSchema(BaseModel):
+    """Базовая схема сохранения ответов теста Люшера."""
+
     selection_1: LuschersColorEnum
     selection_2: LuschersColorEnum
     selection_3: LuschersColorEnum
@@ -47,6 +49,8 @@ class LuscherCreateSchema(LuscherBaseSchema):
 
 
 class LuscherResponseSchema(LuscherBaseSchema):
+    """Схема для вывода сохраненных ответов теста Люшера."""
+
     id: int
     survey_cycle_for_user_id: int
 
@@ -54,6 +58,8 @@ class LuscherResponseSchema(LuscherBaseSchema):
 
 
 class CycleForUserBaseSchema(BaseModel):
+    """Базовая схема цикла опросов для пользователя."""
+
     id: int
     user_id: UUID
     survey_cycle_for_company_id: int
@@ -62,14 +68,20 @@ class CycleForUserBaseSchema(BaseModel):
 
 
 class CycleForUserResponseSchema(CycleForUserBaseSchema):
+    """Схема для вывода цикла опросов для пользователя."""
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class CycleForCompanyBaseSchema(BaseModel):
+    """Базовая схема цикла опросов для компании."""
+
     date: date
 
 
 class CycleForCompanyResponseSchema(CycleForCompanyBaseSchema):
+    """Схема для вывода цикла опросов для компании."""
+
     id: int
     company_id: int
     status: SurveysStatus
@@ -78,10 +90,14 @@ class CycleForCompanyResponseSchema(CycleForCompanyBaseSchema):
 
 
 class CycleForCompanyCreateSchema(CycleForCompanyBaseSchema):
+    """Схема для создания цикла опросов для компании."""
+
     model_config = ConfigDict(extra='forbid')
 
 
 class CycleForCompanyUpdateSchema(CycleForCompanyBaseSchema):
+    """Схема для изменения цикла опросов для компании."""
+
     status: SurveysStatus
 
     model_config = ConfigDict(extra='forbid')
