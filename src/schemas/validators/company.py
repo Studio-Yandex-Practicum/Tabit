@@ -125,6 +125,8 @@ def validate_string(value: str) -> str:
     Raises:
         ValueError: Если строка содержит пробелы в начале или в конце.
     """
+    if value is None:
+        return None
     if value != value.strip():
         raise ValueError(TextErrorConstants.FIELD_START_OR_END_SPACE)
     return value

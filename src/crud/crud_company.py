@@ -1,6 +1,6 @@
 """Модуль CRUD для компании."""
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, List
 
 from fastapi.responses import FileResponse
@@ -92,7 +92,14 @@ class CRUDCompany(CRUDBase):
         license_term = await session.scalar(
             select(LicenseType.license_term).where(LicenseType.id == license_id)
         )
-        return company_start_license_time + license_term
+        if license_term is None:
+            raise ValueError(f'У лицензии с ID {license_id} отсутствует срок действия.')
+        delta: timedelta = timedelta(
+            days=license_term.days,
+            seconds=license_term.seconds,
+            microseconds=license_term.microseconds,
+        )
+        return company_start_license_time + delta
 
     async def create(
         self,
@@ -103,14 +110,39 @@ class CRUDCompany(CRUDBase):
         """
         Создаёт запись в таблице "Компания".
 
-        Если был передан логотип, то декодирует его из троки Base64 в файл,
+        Если был передан логотип, то декодирует его из строки Base64 в файл
         и в поле logo сохранит путь до него.
+
+        Если указаны license_id и start_license_time — рассчитывает end_license_time и is_active.
         """
+        company_data = company_in.model_dump()
+
         if company_in.logo:
-            company_in.logo = await base64image(
+            assert company_in.slug is not None
+            company_data['logo'] = await base64image(
                 company_in.logo, company_in.slug, DirectoryConstants.LOGO
             )
-        return await super().create(session, company_in, auto_commit)
+
+        if company_in.license_id and company_in.start_license_time:
+            end_license_time = await self.save_end_license_time(
+                session,
+                company_start_license_time=company_in.start_license_time,
+                license_id=company_in.license_id,
+            )
+            company_data['end_license_time'] = end_license_time
+        else:
+            company_data['end_license_time'] = None
+
+        now = datetime.now(timezone.utc)
+        start = company_data.get('start_license_time')
+        end = company_data.get('end_license_time')
+        if start and end and start <= now <= end:
+            company_data['is_active'] = True
+        else:
+            company_data['is_active'] = False
+
+        company_schema = CompanyCreateSchema(**company_data)
+        return await super().create(session, company_schema, auto_commit)
 
     async def update(
         self,
@@ -120,15 +152,32 @@ class CRUDCompany(CRUDBase):
         auto_commit: bool = DefaultConstants.AUTO_COMMIT,
     ) -> Company:
         """
-        Изменит запись в таблице "Компания".
+        Обновляет запись компании.
 
-        Если был передан логотип, то декодирует его из троки Base64 в файл,
-        и в поле logo сохранит путь до него.
+        - Обрабатывает логотип, если передан.
+        - Пересчитывает end_license_time и is_active.
         """
+        company_data = company_in.model_dump(exclude_unset=True)
         if company_in.logo:
-            company_in.logo = await base64image(
+            company_data['logo'] = await base64image(
                 company_in.logo, company_db.slug, DirectoryConstants.LOGO
             )
+
+        if company_in.license_id and company_in.start_license_time:
+            end_license_time = await self.save_end_license_time(
+                session,
+                company_start_license_time=company_in.start_license_time,
+                license_id=company_in.license_id,
+            )
+            company_data['end_license_time'] = end_license_time
+            now = datetime.now(timezone.utc)
+            if company_in.start_license_time <= now <= end_license_time:
+                company_data['is_active'] = True
+            else:
+                company_data['is_active'] = False
+
+        for key, value in company_data.items():
+            setattr(company_db, key, value)
         return await super().update(session, company_db, company_in, auto_commit)
 
 
