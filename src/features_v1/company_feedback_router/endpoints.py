@@ -2,12 +2,11 @@
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.core.auth.dependencies import current_user_tabit
 from src.core.database.db_depends import get_async_session
 from src.crud import company_crud
-from src.features_v1.validators import (
-    validate_user_from_company
-)
+from src.features_v1.validators import validate_user_from_company
 from src.models import CompanyUser
 from src.services.email_service.email_schema import EmailCreateSchema
 
