@@ -1,3 +1,4 @@
+from .company_enums.endpoints import router as company_enums_router
 from .company_moderator_management.endpoints import router as company_moderator_management_router
 from .company_feedback_router.endpoints import router as company_feedback_router
 from .company_problem_discussion.endpoints import router as company_problem_discussion_router
@@ -15,6 +16,7 @@ from .tabit_license_management.endpoints import router as tabit_license_manageme
 
 
 __all__ = [
+    'company_enums_router',
     'company_moderator_management_router',
     'company_feedback_router',
     'company_problem_discussion_router',

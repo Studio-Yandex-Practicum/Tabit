@@ -7,7 +7,8 @@ from src.crud.constants import DefaultConstants, TextErrorConstants
 from src.crud.crud_base import CRUDBase
 from src.models import (
     CompanyUser,
-    LuscherColor,
+    LuscherColorFirst,
+    LuscherColorSecond,
     SurveyCycleForCompany,
     SurveyCycleForUser,
 )
@@ -15,6 +16,10 @@ from src.schemas.survey import CycleForCompanyCreateSchema, CycleForCompanyUpdat
 
 
 class CRUDSSurveyCycleForUser(CRUDBase):
+    """
+    Класс для CRUD операций для циклов опросов для пользователей.
+    """
+
     async def _list_to_create_for_all_user_by_company(
         self,
         session: AsyncSession,
@@ -50,6 +55,10 @@ class CRUDSSurveyCycleForUser(CRUDBase):
 
 
 class CRUDSSurveyCycleForCompany(CRUDBase):
+    """
+    Класс для CRUD операций для циклов опросов для компаний.
+    """
+
     def __init__(self, model, crud_cycle_for_user: CRUDSSurveyCycleForUser):
         self.crud_cycle_for_user = crud_cycle_for_user
         super().__init__(model)
@@ -139,6 +148,10 @@ class CRUDSSurveyCycleForCompany(CRUDBase):
 
 
 class CRUDSurvey(CRUDBase):
+    """
+    Класс для CRUD операций для опросов.
+    """
+
     async def create_survey(
         self,
         session: AsyncSession,
@@ -164,16 +177,18 @@ class CRUDSurvey(CRUDBase):
     async def get_by_cycle(
         self,
         session: AsyncSession,
-        cycle_for_user: int,
+        cycle_for_user_id: int,
     ):
         result = await session.execute(
-            select(self.model).where(self.model.survey_cycle_for_user_id == cycle_for_user)
+            select(self.model).where(self.model.survey_cycle_for_user_id == cycle_for_user_id)
         )
         return result.scalars().first()
 
 
 class CRUDLuscherColor(CRUDSurvey):
-    pass
+    """
+    Класс для CRUD операций для опроса Цветовой тест Люшера.
+    """
 
 
 survey_cycle_for_user_crud = CRUDSSurveyCycleForUser(SurveyCycleForUser)
@@ -181,4 +196,5 @@ survey_cycle_for_company_crud = CRUDSSurveyCycleForCompany(
     SurveyCycleForCompany,
     survey_cycle_for_user_crud,
 )
-luscher_color_crud = CRUDLuscherColor(LuscherColor)
+luscher_color_first_crud = CRUDLuscherColor(LuscherColorFirst)
+luscher_color_second_crud = CRUDLuscherColor(LuscherColorSecond)

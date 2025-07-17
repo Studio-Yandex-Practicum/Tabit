@@ -1,9 +1,22 @@
 """Модели для перечислений."""
 
 from enum import IntEnum, StrEnum
+from typing import Dict, List, Union
 
 
-class ProblemColor(IntEnum):
+class BaseIntEnum(IntEnum):
+    @classmethod
+    def to_list(cls) -> List[Dict[str, Union[str, int]]]:
+        return [{'key': item.name, 'value': item.value} for item in cls]
+
+
+class BaseStrEnum(StrEnum):
+    @classmethod
+    def to_list(cls) -> List[Dict[str, Union[str, int]]]:
+        return [{'key': item.name, 'value': item.value} for item in cls]
+
+
+class ProblemColor(BaseIntEnum):
     """Варианты значений поля color модели Problem."""
 
     RED = 1
@@ -23,7 +36,7 @@ class ProblemColor(IntEnum):
     PURPLE = 15
 
 
-class ProblemType(StrEnum):
+class ProblemType(BaseStrEnum):
     """Варианты значений поля type модели Problem."""
 
     # TODO: Нужно уточнить варианты и уже тогда придумывать названия констант.
@@ -37,7 +50,7 @@ class ProblemType(StrEnum):
     G = 'Опытные сотрудники'
 
 
-class ProblemStatus(StrEnum):
+class ProblemStatus(BaseStrEnum):
     """Варианты значений поля status модели Problem."""
 
     NEW = 'Новая'
@@ -46,7 +59,7 @@ class ProblemStatus(StrEnum):
     COMPLETED = 'Завершена'
 
 
-class MeetingStatus(StrEnum):
+class MeetingStatus(BaseStrEnum):
     """Варианты значений поля status модели Meeting."""
 
     NEW = 'Новая'
@@ -55,7 +68,7 @@ class MeetingStatus(StrEnum):
     SUSPENDED = 'Приостановлена'
 
 
-class MeetingResultEnum(StrEnum):
+class MeetingResultEnum(BaseStrEnum):
     """Варианты значений поля result модели MeetingResult."""
 
     EXCELLENT = 'Отлично'
@@ -64,7 +77,7 @@ class MeetingResultEnum(StrEnum):
     DISGUSTING = 'Отвратительно'
 
 
-class TaskStatus(StrEnum):
+class TaskStatus(BaseStrEnum):
     """Варианты значений поля status модели Task."""
 
     NEW = 'Новая'
@@ -73,14 +86,14 @@ class TaskStatus(StrEnum):
     COMPLETED = 'Завершена'
 
 
-class CompanyUserRole(StrEnum):
+class CompanyUserRole(BaseStrEnum):
     """Варианты значений поля role модели CompanyUser."""
 
     MODERATOR = 'Модератор'
     EMPLOYEE = 'Сотрудник'
 
 
-class MeetingResultEngagementEnum(StrEnum):
+class MeetingResultEngagementEnum(BaseStrEnum):
     """Варианты значений поля participant_engagement модели MeetingResult."""
 
     YES = 'Да'
@@ -89,7 +102,7 @@ class MeetingResultEngagementEnum(StrEnum):
     NOBODY = 'Никто'
 
 
-class MeetingResultSolutionEnum(StrEnum):
+class MeetingResultSolutionEnum(BaseStrEnum):
     """Варианты значений поля meeting_feedback модели MeetingResult."""
 
     YES = 'Да'
@@ -107,19 +120,6 @@ class SurveysStatus(StrEnum):
     POSTPONED = 'Отложен'
 
 
-class LuscherWeightsColorEnum(IntEnum):
-    """Веса цветов теста Люшера."""
-
-    Blue = 1
-    Green = 2
-    Red = 3
-    Yellow = 4
-    Violet = 5
-    Brown = 6
-    Black = 7
-    Grey = 0
-
-
 class LuschersColorEnum(StrEnum):
     """Цветов теста Люшера."""
 
@@ -131,3 +131,16 @@ class LuschersColorEnum(StrEnum):
     Brown = 'brown'
     Black = 'black'
     Grey = 'grey'
+
+    def get_weight_from_color(self):
+        weight = {
+            'blue': 1,
+            'green': 2,
+            'red': 3,
+            'yellow': 4,
+            'violet': 5,
+            'brown': 6,
+            'black': 7,
+            'grey': 0,
+        }
+        return weight[self.value]

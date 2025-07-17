@@ -27,7 +27,12 @@ from .meeting import Meeting, MeetingResult
 from .tag import UserTag
 from .task import Task
 from .user import TabitAdminUser, CompanyUser
-from .survey import LuscherColor, SurveyCycleForCompany, SurveyCycleForUser
+from .survey import (
+    LuscherColorFirst,
+    LuscherColorSecond,
+    SurveyCycleForCompany,
+    SurveyCycleForUser,
+)
 from .association_models import (
     AssociationUserComment,
     AssociationUserMeeting,
@@ -77,7 +82,8 @@ __all__ = [
     'AssociationUserTask',
     'SurveysStatus',
     'SurveysTags',
-    'LuscherColor',
+    'LuscherColorFirst',
+    'LuscherColorSecond',
     'SurveyCycleForCompany',
     'SurveyCycleForUser',
     'LuschersColorEnum',
