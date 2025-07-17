@@ -572,7 +572,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"description\": \"string\",\r\n  \"logo\": \"{{base64_test}}\",\r\n  \"name\": \"string\"\r\n}",
+							"raw": "{\r\n  \"description\": \"string\",\r\n  \"logo\": \"{{base64_test}}\",\r\n  \"name\": \"string\",\r\n  \"license_id\": 1,\r\n  \"start_license_time\": \"2025-04-24T14:00:58.253Z\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1055,7 +1055,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"birthday\": \"2025-03-05\",\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"current_department_id\": {{department_id}}\r\n}",
+							"raw": "{\r\n  \"birthday\": \"2025-03-05\",\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"current_department_id\": {{department_id}},\r\n  \"role\": \"Сотрудник\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1869,7 +1869,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string34\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"last_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Админ\",\r\n  \"company_id\": 1\r\n}",
+							"raw": "{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Astring123\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"is_verified\": false,\r\n  \"patronymic\": \"string\",\r\n  \"phone_number\": \"71234567890\",\r\n  \"birthday\": \"2025-03-05\",\r\n  \"telegram_username\": \"string\",\r\n  \"start_date_employment\": \"2025-03-05\",\r\n  \"end_date_employment\": \"2025-03-06\",\r\n  \"avatar_link\": \"https://example.com/\",\r\n  \"current_department_id\": 1,\r\n  \"employee_position\": \"string\",\r\n  \"name\": \"string\",\r\n  \"surname\": \"string\",\r\n  \"role\": \"Модератор\",\r\n  \"company_id\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3223,7 +3223,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{bearer}} {{access_token_user}}",
+								"value": "{{bearer}} {{access_token_admin_company}}",
 								"type": "text"
 							}
 						],
@@ -3261,7 +3261,13 @@
 					},
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"selection_1\": \"blue\",\r\n  \"selection_2\": \"green\",\r\n  \"selection_3\": \"red\",\r\n  \"selection_4\": \"yellow\",\r\n  \"selection_5\": \"violet\",\r\n  \"selection_6\": \"brown\",\r\n  \"selection_7\": \"black\",\r\n  \"selection_8\": \"grey\"\r\n}",
@@ -3294,7 +3300,13 @@
 					"name": "cycle for company by id",
 					"request": {
 						"method": "PATCH",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"date\": \"2025-07-22\",\r\n  \"status\": \"Отложен\"\r\n}",
@@ -3369,7 +3381,13 @@
 					},
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"selection_1\": \"blue\",\r\n  \"selection_2\": \"green\",\r\n  \"selection_3\": \"red\",\r\n  \"selection_4\": \"yellow\",\r\n  \"selection_5\": \"violet\",\r\n  \"selection_6\": \"brown\",\r\n  \"selection_7\": \"black\",\r\n  \"selection_8\": \"grey\"\r\n}",
@@ -3406,7 +3424,13 @@
 					},
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"selection_1\": \"blue\",\r\n  \"selection_2\": \"green\",\r\n  \"selection_3\": \"red\",\r\n  \"selection_4\": \"yellow\",\r\n  \"selection_5\": \"violet\",\r\n  \"selection_6\": \"brown\",\r\n  \"selection_7\": \"black\",\r\n  \"selection_8\": \"grey\"\r\n}",
@@ -3436,10 +3460,22 @@
 					"response": []
 				},
 				{
-					"name": "lucsher",
+					"name": "lucsher_first",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"selection_1\": \"blue\",\r\n  \"selection_2\": \"green\",\r\n  \"selection_3\": \"red\",\r\n  \"selection_4\": \"yellow\",\r\n  \"selection_5\": \"violet\",\r\n  \"selection_6\": \"brown\",\r\n  \"selection_7\": \"black\",\r\n  \"selection_8\": \"grey\"\r\n}",
@@ -3450,7 +3486,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}/{{cycle_user_id}}/luscher",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}/{{cycle_user_id}}/luscher_first",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -3463,7 +3499,7 @@
 								"cycle",
 								"{{cycle_company_id}}",
 								"{{cycle_user_id}}",
-								"luscher"
+								"luscher_first"
 							]
 						},
 						"description": "Общая информация о тестированиях"
@@ -3471,19 +3507,25 @@
 					"response": []
 				},
 				{
-					"name": "lucsher",
+					"name": "lucsher_first",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "formdata",
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}/{{cycle_user_id}}/luscher/{{luscher_id}}",
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}/{{cycle_user_id}}/luscher_first/{{luscher_id}}",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{domain}}"
@@ -3496,8 +3538,134 @@
 								"cycle",
 								"{{cycle_company_id}}",
 								"{{cycle_user_id}}",
-								"luscher",
+								"luscher_first",
 								"{{luscher_id}}"
+							]
+						},
+						"description": "Общая информация о тестированиях"
+					},
+					"response": []
+				},
+				{
+					"name": "lucsher_second",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_admin_company}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"selection_1\": \"blue\",\r\n  \"selection_2\": \"green\",\r\n  \"selection_3\": \"red\",\r\n  \"selection_4\": \"yellow\",\r\n  \"selection_5\": \"violet\",\r\n  \"selection_6\": \"brown\",\r\n  \"selection_7\": \"black\",\r\n  \"selection_8\": \"grey\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}/{{cycle_user_id}}/luscher_second",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"cycle",
+								"{{cycle_company_id}}",
+								"{{cycle_user_id}}",
+								"luscher_second"
+							]
+						},
+						"description": "Общая информация о тестированиях"
+					},
+					"response": []
+				},
+				{
+					"name": "lucsher_second",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}/{{cycle_user_id}}/luscher_second/{{luscher_id}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"cycle",
+								"{{cycle_company_id}}",
+								"{{cycle_user_id}}",
+								"luscher_second",
+								"{{luscher_id}}"
+							]
+						},
+						"description": "Общая информация о тестированиях"
+					},
+					"response": []
+				},
+				{
+					"name": "lucsher_result",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{bearer}} {{access_token_user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}/api/v1/{{company_slug}}/surveys/cycle/{{cycle_company_id}}/{{cycle_user_id}}/luscher_result",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"{{company_slug}}",
+								"surveys",
+								"cycle",
+								"{{cycle_company_id}}",
+								"{{cycle_user_id}}",
+								"luscher_result"
 							]
 						},
 						"description": "Общая информация о тестированиях"

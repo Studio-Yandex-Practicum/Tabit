@@ -80,19 +80,10 @@ class SurveyCycleForUser(BaseTabitModel):
         )
 
 
-class LuscherColor(BaseTabitModel):
-    """
-    Цикл опросов для конкретного пользователя.
+class BaseLuscherColor(BaseTabitModel):
+    """Базовая абстрактная модель для теста Люшера."""
 
-    Назначение:
-    - Содержит расписание опросов компании.
-
-    Поля:
-    - id: Идентификатор.
-    - survey_cycle_for_company_id: Идентификатор цикла опросов, к которому относится.
-    - status: Статус опроса.
-    - luscher_color_id: Идентификатор теста Люшера.
-    """
+    __abstract__ = True
 
     id: Mapped[int_pk]
     survey_cycle_for_user_id: Mapped[int] = mapped_column(
@@ -117,3 +108,33 @@ class LuscherColor(BaseTabitModel):
             f'{self.selection_3!r}, {self.selection_4!r}, {self.selection_5!r}, '
             f'{self.selection_6!r}, {self.selection_7!r}, {self.selection_8!r})'
         )
+
+
+class LuscherColorFirst(BaseLuscherColor):
+    """
+    Первый опрос по тесту Люшера.
+
+    Назначение:
+    - Сохраняет последовательность ответов пользователя.
+
+    Поля:
+    - id: Идентификатор.
+    - survey_cycle_for_user_id: Идентификатор цикла опросов пользователя, к которому относится.
+    - selection_<number>: Ответы пользователя, где number - номер ответа,
+                          а значение - выбранный цвет.
+    """
+
+
+class LuscherColorSecond(BaseLuscherColor):
+    """
+    Второй опрос по тесту Люшера.
+
+    Назначение:
+    - Сохраняет последовательность ответов пользователя.
+
+    Поля:
+    - id: Идентификатор.
+    - survey_cycle_for_user_id: Идентификатор цикла опросов пользователя, к которому относится.
+    - selection_<number>: Ответы пользователя, где number - номер ответа,
+                          а значение - выбранный цвет.
+    """

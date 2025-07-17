@@ -120,19 +120,6 @@ class SurveysStatus(StrEnum):
     POSTPONED = 'Отложен'
 
 
-class LuscherWeightsColorEnum(IntEnum):
-    """Веса цветов теста Люшера."""
-
-    Blue = 1
-    Green = 2
-    Red = 3
-    Yellow = 4
-    Violet = 5
-    Brown = 6
-    Black = 7
-    Grey = 0
-
-
 class LuschersColorEnum(StrEnum):
     """Цветов теста Люшера."""
 
@@ -144,3 +131,16 @@ class LuschersColorEnum(StrEnum):
     Brown = 'brown'
     Black = 'black'
     Grey = 'grey'
+
+    def get_weight_from_color(self):
+        weight = {
+            'blue': 1,
+            'green': 2,
+            'red': 3,
+            'yellow': 4,
+            'violet': 5,
+            'brown': 6,
+            'black': 7,
+            'grey': 0,
+        }
+        return weight[self.value]

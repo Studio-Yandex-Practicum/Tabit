@@ -3,11 +3,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.business_logic.luscher import get_response_result
 from src.core.auth.dependencies import current_company_moderator, current_user_tabit
 from src.core.database.db_depends import get_async_session
 from src.crud.crud_company import company_crud
 from src.crud.crud_surveys import (
-    luscher_color_crud,
+    luscher_color_first_crud,
+    luscher_color_second_crud,
     survey_cycle_for_company_crud,
     survey_cycle_for_user_crud,
 )
@@ -30,15 +32,16 @@ router = APIRouter(prefix='/{company_slug}/surveys')
 
 
 # TODO: Во всех энпоинтах нужно тонко настроить уровень доступа.
+# Например. Смотреть результаты теста можно только модеру от компании и тому, кто тест проходил.
 @router.get(
-    '/cycle/{cycle_company_id}/{cycle_user_id}/luscher/{luscher_id}',
+    '/cycle/{cycle_company_id}/{cycle_user_id}/luscher_first/{luscher_id}',
     response_model=LuscherResponseSchema,
     dependencies=[Depends(current_user_tabit)],
-    summary='Получить ответы пользователя на тест Люшера',
+    summary='Получить ответы пользователя на первый тест Люшера',
     description='По id теста Люшера получить ответы, которые сделал пользователь.',
     status_code=status.HTTP_200_OK,
 )
-async def get_luscher(
+async def get_luscher_first(
     company_slug: str,
     cycle_company_id: int,
     cycle_user_id: int,
@@ -48,18 +51,18 @@ async def get_luscher(
     await company_crud.get_by_slug(session, company_slug, raise_404=True)
     await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
     await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
-    return await luscher_color_crud.get_or_404(session, luscher_id)
+    return await luscher_color_first_crud.get_or_404(session, luscher_id)
 
 
 @router.post(
-    '/cycle/{cycle_company_id}/{cycle_user_id}/luscher',
+    '/cycle/{cycle_company_id}/{cycle_user_id}/luscher_first',
     response_model=LuscherResponseSchema,
     dependencies=[Depends(current_user_tabit)],
-    summary='Сохранить ответы пользователя на тест Люшера',
+    summary='Сохранить ответы пользователя на первый тест Люшера',
     description='Создаст новую запись с ответами пользователя на тест Люшера.',
     status_code=status.HTTP_201_CREATED,
 )
-async def create_luscher(
+async def create_luscher_first(
     company_slug: str,
     cycle_company_id: int,
     cycle_user_id: int,
@@ -69,8 +72,78 @@ async def create_luscher(
     await company_crud.get_by_slug(session, company_slug, raise_404=True)
     await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
     await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
-    await validator_survey_in_cycle_exists(session, luscher_color_crud, cycle_user_id)
-    return await luscher_color_crud.create_survey(session, luscher, cycle_for_user=cycle_user_id)
+    await validator_survey_in_cycle_exists(session, luscher_color_first_crud, cycle_user_id)
+    return await luscher_color_first_crud.create_survey(
+        session,
+        luscher,
+        cycle_for_user=cycle_user_id,
+    )
+
+
+@router.get(
+    '/cycle/{cycle_company_id}/{cycle_user_id}/luscher_second/{luscher_id}',
+    response_model=LuscherResponseSchema,
+    dependencies=[Depends(current_user_tabit)],
+    summary='Получить ответы пользователя на второй тест Люшера',
+    description='По id теста Люшера получить ответы, которые сделал пользователь.',
+    status_code=status.HTTP_200_OK,
+)
+async def get_luscher_second(
+    company_slug: str,
+    cycle_company_id: int,
+    cycle_user_id: int,
+    luscher_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> LuscherResponseSchema:
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
+    await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
+    return await luscher_color_second_crud.get_or_404(session, luscher_id)
+
+
+@router.post(
+    '/cycle/{cycle_company_id}/{cycle_user_id}/luscher_second',
+    response_model=LuscherResponseSchema,
+    dependencies=[Depends(current_user_tabit)],
+    summary='Сохранить ответы пользователя на второй тест Люшера',
+    description='Создаст новую запись с ответами пользователя на тест Люшера.',
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_luscher_second(
+    company_slug: str,
+    cycle_company_id: int,
+    cycle_user_id: int,
+    luscher: LuscherCreateSchema,
+    session: AsyncSession = Depends(get_async_session),
+) -> LuscherResponseSchema:
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
+    await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
+    await validator_survey_in_cycle_exists(session, luscher_color_second_crud, cycle_user_id)
+    return await luscher_color_second_crud.create_survey(
+        session,
+        luscher,
+        cycle_for_user=cycle_user_id,
+    )
+
+
+@router.get(
+    '/cycle/{cycle_company_id}/{cycle_user_id}/luscher_result',
+    dependencies=[Depends(current_user_tabit)],
+    summary='Получить результат прохождения теста Люшера.',
+    description='Получить результат прохождения теста Люшера.',
+    status_code=status.HTTP_200_OK,
+)
+async def get_luscher_result(
+    company_slug: str,
+    cycle_company_id: int,
+    cycle_user_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> dict[str, str]:
+    await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
+    await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
+    return await get_response_result(session, cycle_user_id)
 
 
 @router.get(
