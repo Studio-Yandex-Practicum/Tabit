@@ -630,20 +630,3 @@ async def delete_company_employee(
     user = await user_manager.get(uuid)
     await user_manager.delete(user)
     return status.HTTP_204_NO_CONTENT
-
-
-@router.post(
-    '/feedback/',
-    summary='Задать вопрос для обратной связи',
-    response_model=dict[str, str],
-)
-async def post_feedback(
-    company_slug: str,
-    question: EmailCreateSchema,
-    session: AsyncSession = Depends(get_async_session),
-) -> dict[str, str]:
-    """
-    Задать вопрос в разделе 'Помощь'.
-    """
-    # TODO: Подключить почту.
-    return {'message': f'Обратная связь отправлена для компании {company_slug}'}
