@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from src.features_v1 import (
     company_enums_router,
+    company_feedback_router,
     company_moderator_management_router,
     company_problem_discussion_router,
     company_problem_management_router,
@@ -45,6 +46,11 @@ main_router.include_router(
     company_moderator_management_router,
     prefix='/{company_slug}',
     tags=['Company Moderator Management'],
+)
+main_router.include_router(
+    company_feedback_router,
+    prefix='/{company_slug}/feedback',
+    tags=['Company Feedback'],
 )
 main_router.include_router(
     company_problem_management_router,
