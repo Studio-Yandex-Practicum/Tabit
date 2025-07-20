@@ -23,4 +23,10 @@ RUN poetry install --no-root --all-extras --with dev --no-interaction
 
 COPY . /app/
 
+# Копируем для заполнения тестовыми данными в контейнере
+# TODO: в проде удалить это и из .dockerignore
+# =====================================================================┐
+COPY fake_data_factories/ ./fake_data_factories/
+# =====================================================================┘
+
 CMD ["sh", "-c", "poetry run uvicorn src.main:app_v${APP_VERSION} --host 0.0.0.0 --port ${APP_PORT}"]

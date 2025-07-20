@@ -9,13 +9,13 @@ from src.core.auth.dependencies import (
     current_user_tabit,
     get_current_user_refresh_token,
     get_current_user_token,
-    tabit_user,
 )
 from src.core.auth.jwt import jwt_auth_backend_user
 from src.core.auth.managers import get_user_manager
 from src.core.auth.protocol import StrategyT
 from src.core.database.db_depends import get_async_session
 from src.crud import user_crud
+from src.features_v1.common.password_forgot_reset import PasswordForgotResetMixin
 from src.features_v1.constants import DescriptionConstants, SummaryConstants
 from src.features_v1.validators import check_telegram_username_for_duplicates, check_user_is_active
 from src.models import CompanyUser
@@ -127,11 +127,12 @@ async def refresh_token_user(
 # TODO: реализовать нормальное восстановление пароля, если забыл
 # TODO: реализовать нормальную замену пароля.
 # =====================================================================┐
-router.include_router(  # форгот и резет пассворд
-    tabit_user.get_reset_password_router(),
-    prefix='',
-)
+# router.include_router(  # форгот и резет пассворд
+#     tabit_user.get_reset_password_router(),
+#     prefix='',
+# )
 # =====================================================================┘
+# реализованы в common.password_forgot_reset.py
 
 
 @router.get(
@@ -187,3 +188,15 @@ async def update_me_user(
     """
     await check_telegram_username_for_duplicates(user_in.telegram_username, session)
     return await user_crud.update(session, user, user_in)
+
+
+# Создаем экземпляр миксина для пользователей компаний
+user_password_forgot_reset = PasswordForgotResetMixin(
+    crud_instance=user_crud,
+    user_model=CompanyUser,
+    current_user_dependency=current_user_tabit,
+    user_type_name='пользователя',
+)
+
+# Добавляем роуты восстановления и сброса пароля
+user_password_forgot_reset.create_password_forgot_reset_routes(router, prefix='')

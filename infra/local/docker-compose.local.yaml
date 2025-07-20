@@ -27,6 +27,7 @@ services:
         APP_VERSION: ${APP_VERSION}
         PYTHON_VERSION: ${PYTHON_VERSION}
         POETRY_VERSION: ${POETRY_VERSION}
+      network: host
     env_file:
       - ${PWD}/.env
     environment:
@@ -45,6 +46,9 @@ services:
     profiles:
       - app_dc
     restart: always
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   pgadmin:
     container_name: ${PGADMIN_CONTAINER_NAME}
