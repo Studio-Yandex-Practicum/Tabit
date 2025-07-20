@@ -53,12 +53,10 @@ class LengthConstants(LengthBaseConstants):
     Наследует все константы из LengthBaseConstants.
 
     Атрибуты:
-    - MAX_NAME_DEPARTMENT (int): Максимальная длина названия отдела.
     - MAX_NAME_MEETING_PLACE (int): Максимальная длина названия места встречи.
     - MAX_NAME_PROBLEM (int): Максимальная длина названия проблемы.
     """
 
-    MAX_NAME_DEPARTMENT: int = 255
     MAX_NAME_MEETING_PLACE: int = 255
     MAX_NAME_PROBLEM: int = 255
 

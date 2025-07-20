@@ -1,3 +1,5 @@
+import random
+import string
 from typing import Any
 from uuid import UUID
 
@@ -56,3 +58,12 @@ async def like_a_comment(async_session, employee, comment):
     async_session.add(comment)
     await async_session.commit()
     await async_session.refresh(comment)
+
+
+def random_string(length: int = 10):
+    """
+    Генерирует случайную строку указанной длины.
+
+    length: длина генерируемой строки.
+    """
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))

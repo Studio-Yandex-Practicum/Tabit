@@ -10,12 +10,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.auth.dependencies import current_company_moderator
 from src.core.auth.managers import get_user_manager
 from src.core.database.db_depends import get_async_session
-from src.crud import company_crud, department_crud, moderator_crud
+from src.crud import company_crud, department_crud, license_type_crud, moderator_crud
 from src.features_v1.constants import SummaryConstants
 from src.features_v1.validators import (
+    check_department_in_company,
     check_department_name_duplicate,
+    check_name_department_in_company,
     check_slug_duplicate,
     check_telegram_username_for_duplicates,
+    validate_license_max_employees,
     validate_password,
     validate_user_not_exists,
     validator_check_object_exists,
@@ -29,7 +32,6 @@ from src.schemas import (
     UserCreateSchema,
     UserReadSchema,
 )
-from src.services.email_service.email_schema import EmailCreateSchema
 
 router = APIRouter(dependencies=[Depends(current_company_moderator)])
 
@@ -49,7 +51,7 @@ async def get_company(
     Доступно только пользователю-админу компании.
     В пути принимает 'company_slug' - значение `slug` компании.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
@@ -92,7 +94,7 @@ async def get_all_departments(
     Проверяет существует ли компания и после, по id компании фильтрует отделы.
     В пути принимает 'company_slug' - значение `slug` компании.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
         summary: краткое описание.
     Параметры функции:
@@ -117,7 +119,7 @@ async def get_all_departments(
     '/departments',
     response_model=CompanyDepartmentResponseSchema,
     status_code=status.HTTP_201_CREATED,
-    summary=SummaryConstants.CREATE_COMPANY_DEPARTMENTS,
+    summary=SummaryConstants.CREATE_COMPANY_DEPARTMENT,
 )
 async def create_department(
     company_slug: str,
@@ -132,7 +134,7 @@ async def create_department(
     вернется ответ со статусом 400.
     В пути принимает 'company_slug' - значение `slug` компании.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
@@ -179,7 +181,7 @@ async def import_departments(
     После записывет данные в файл.
     В пути принимает 'company_slug' - значение `slug` компании.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         summary: краткое описание.
     Параметры функции:
         company_slug: значение `slug` компании.
@@ -211,7 +213,7 @@ async def get_department(
     В пути принимает 'company_slug' - значение `slug` компании и 'department_slug'
      - значение `slug` отдела.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
@@ -244,7 +246,7 @@ async def get_department(
 async def update_department(
     company_slug: str,
     department_slug: str,
-    object_in: CompanyDepartmentUpdateSchema,
+    department_in: CompanyDepartmentUpdateSchema,
     session: AsyncSession = Depends(get_async_session),
 ) -> CompanyDepartmentResponseSchema:
     """
@@ -257,7 +259,7 @@ async def update_department(
     В пути принимает 'company_slug' - значение `slug` компании и 'department_slug'
      - значение `slug` отдела.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
@@ -274,24 +276,16 @@ async def update_department(
       }
     Если отдел не найден вернет ответ со статусом 404.
     """
-    company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
-    object_name = object_in.model_dump()['name']
-    await check_department_name_duplicate(
-        company_id=company.id, department_name=object_name, session=session
+    company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
+    department = await department_crud.get_by_slug(session, department_slug, raise_404=True)
+    check_department_in_company(department=department, company=company)
+    await check_name_department_in_company(
+        session=session,
+        company_id=company.id,
+        new_name=department_in.name,
+        old_name=department.name,
     )
-    db_object = await department_crud.get_by_slug(
-        session, obj_slug=department_slug, raise_404=True
-    )
-    update_obj = await department_crud.update(
-        session, db_obj=db_object, obj_in=object_in, auto_commit=False
-    )
-    session.expunge(update_obj)
-    slug = await check_slug_duplicate(db_obj=update_obj, session=session)
-    update_obj.slug = slug
-    session.add(update_obj)
-    await session.commit()
-    await session.refresh(update_obj)
-    return update_obj
+    return await department_crud.update(session, department, department_in)
 
 
 @router.delete(
@@ -311,7 +305,7 @@ async def delete_department(
     В пути принимает 'company_slug' - значение `slug` компании и 'department_slug'
      - значение `slug` отдела.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         summary: краткое описание.
         status_code: код статуса ответа.
     Параметры функции:
@@ -344,7 +338,7 @@ async def get_all_employees(
     Проверяет существует ли компания и после, по id компании фильтрует сотрудников.
     В пути принимает 'company_slug' - значение `slug` компании.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: список с Pydantic-схемами.
         summary: краткое описание.
     Параметры функции:
@@ -399,9 +393,10 @@ async def create_company_employee(
     Создает сотрудника в компании.
     Доступно только пользователю-админу компании.
     Проверяет существует ли компания. Если нет, вернется ответ со статусом 404.
+    Проверяет не превышено ли максимальное количество сотрудников по лицензии
     В пути принимает 'company_slug' - значение `slug` компании.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
@@ -436,7 +431,13 @@ async def create_company_employee(
     }
     Если пользователь уже существует или пароль не соответствует требованиям ответ со статусом 400.
     """
-    await validator_check_object_exists(session, company_crud, object_slug=company_slug)
+    company_object_model = await validator_check_object_exists(
+        session, company_crud, object_slug=company_slug
+    )
+    company_license_id = getattr(company_object_model, 'license_id', None)
+    await validate_license_max_employees(
+        session, license_type_crud, company_license_id, company_object_model.id
+    )
     await validate_user_not_exists(create_data, user_manager)
     await validate_password(create_data, user_manager)
     await check_telegram_username_for_duplicates(create_data.telegram_username, session)
@@ -459,7 +460,7 @@ async def import_employees(
     Проверяет существует ли компания и после, передает id компании для фильтрации списка.
     В пути принимает 'company_slug' - значение `slug` компании.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         summary: краткое описание.
     Параметры функции:
         company_slug: значение `slug` компании.
@@ -489,7 +490,7 @@ async def get_employee(
     В пути принимает 'company_slug' - значение `slug` компании и 'uuid'
      - значение `uuid` сотрудника.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
@@ -547,7 +548,7 @@ async def update_company_employee(
     В пути принимает 'company_slug' - значение `slug` компании и 'uuid'
      - значение `uuid` сотрудника.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         response_model: тип, который будет использоваться для ответа: Pydantic-схема.
         summary: краткое описание.
     Параметры функции:
@@ -612,7 +613,7 @@ async def delete_company_employee(
     В пути принимает 'company_slug' - значение `slug` компании и 'uuid'
      - `uuid` сотрудника.
     Параметры декоратора:
-        path: URL-адрес, который будет использоваться для этой операции.
+        path: URL-путь, который будет использоваться для этой операции.
         status_code: код статуса ответа.
         summary: краткое описание.
     Параметры функции:
@@ -628,20 +629,3 @@ async def delete_company_employee(
     user = await user_manager.get(uuid)
     await user_manager.delete(user)
     return status.HTTP_204_NO_CONTENT
-
-
-@router.post(
-    '/feedback/',
-    summary='Задать вопрос для обратной связи',
-    response_model=dict[str, str],
-)
-async def post_feedback(
-    company_slug: str,
-    question: EmailCreateSchema,
-    session: AsyncSession = Depends(get_async_session),
-) -> dict[str, str]:
-    """
-    Задать вопрос в разделе 'Помощь'.
-    """
-    # TODO: Подключить почту.
-    return {'message': f'Обратная связь отправлена для компании {company_slug}'}

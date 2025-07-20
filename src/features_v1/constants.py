@@ -189,6 +189,27 @@ class DescriptionConstants(DescriptionBaseConstants):
         'Доступно пользователям компании, который является автором задачи.'
     )
 
+    TABIT_MANAGEMENT_DEPARTMENTS_LIST: str = (
+        'Возвращает список всех отделов компании. Доступно только администраторам сервиса.'
+    )
+    TABIT_MANAGEMENT_DEPARTMENT_CREATE: str = (
+        'Создает новую отдел для компании, `slug` которой указан в пути. '
+        'Доступно только администраторам сервиса.'
+        'Поле `name` - название отдела, уникально в пределах одной компании.'
+    )
+    TABIT_MANAGEMENT_DEPARTMENT: str = (
+        'Возвращает данные о конкретном отделе компании. Доступно только администраторам сервиса.'
+    )
+    TABIT_MANAGEMENT_DEPARTMENT_UPDATE: str = (
+        'Обновляет данные отдела компании по её и его `slug`, указанных в пути. '
+        'Доступно только администраторам сервиса.'
+        'Поле `name` - название отдела, уникально в пределах одной компании.'
+    )
+    TABIT_MANAGEMENT_DEPARTMENT_DELETE: str = (
+        'Удаляет отдел компании по её `slug`по её и его `slug`, указанных в пути. '
+        'Доступно только администраторам сервиса.'
+    )
+
 
 class LengthConstants(LengthBaseConstants):
     """
@@ -233,7 +254,7 @@ class SummaryConstants(SummaryBaseConstants):
     CONFIRM_PROBLEM: str = 'Подтвердить активное участие в решения проблемы.'
     CREATE_ADMIN_AUTH: str = 'Создать администратора сервиса.'
     CREATE_COMPANY: str = 'Создать новую компанию.'
-    CREATE_COMPANY_DEPARTMENTS: str = 'Создать новый отдел компании.'
+    CREATE_COMPANY_DEPARTMENT: str = 'Создать новый отдел компании.'
     CREATE_COMPANY_EMPLOYEES: str = 'Добавить сотрудника в отдел компании.'
     CREATE_LICENSE: str = 'Создать новую лицензию.'
     CREATE_MEETING: str = 'Создать новую встречу.'
@@ -286,6 +307,12 @@ class SummaryConstants(SummaryBaseConstants):
     UPDATE_PROBLEM: str = 'Обновить информацию о проблеме.'
     UPDATE_RESULT_MEETING: str = 'Обновить результат встречи.'
     UPDATE_TASK: str = 'Обновить информацию о задаче.'
+
+    TABIT_MANAGEMENT_DEPARTMENTS_LIST: str = 'Получить список всех отделов компании'
+    TABIT_MANAGEMENT_DEPARTMENT_CREATE: str = 'Создать новый отдел компании'
+    TABIT_MANAGEMENT_DEPARTMENT: str = 'Получить данные об отделе компании'
+    TABIT_MANAGEMENT_DEPARTMENT_UPDATE: str = 'Обновить данные об отделе компании'
+    TABIT_MANAGEMENT_DEPARTMENT_DELETE: str = 'Удалить отдел компании'
 
 
 class TextErrorConstants(TextErrorBaseConstants):
@@ -361,5 +388,7 @@ class TextErrorConstants(TextErrorBaseConstants):
     WRONG_COMMENT: str = 'Для указанного треда запрашиваемый комментарий не найден.'
     WRONG_COMPANY: str = 'Разрешён доступ только к своей компании.'
     WRONG_COMPANY_DEPARTMENT: str = 'У данной компании нет указанного отдела.'
+    EXISTS_NAME_DEPARTMENT_IN_COMPANY: str = 'Такое название отдела уже есть у данной компании.'
+    NOT_EMPTY_DEPARTMENT: str = 'Нельзя удалять отдел, в котором есть сотрудники.'
     WRONG_MESSAGE_FEED: str = 'Для указанной проблемы запрошенный тред не найден.'
     WRONG_PROBLEM: str = 'Разрешён доступ только к проблемам своей компании.'

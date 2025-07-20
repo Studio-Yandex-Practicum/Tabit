@@ -1,4 +1,7 @@
 from enum import Enum, unique
+from typing import Union
+
+from pydantic import BaseModel
 
 
 @unique
@@ -25,3 +28,8 @@ class MeetingProblemSolution(Enum):
 class MeetingParticipiantEngagement(Enum):
     YES = True
     NO = False
+
+
+class EnumItemSchema(BaseModel):
+    key: str
+    value: Union[str, int]

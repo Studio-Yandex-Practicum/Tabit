@@ -1,6 +1,7 @@
 """Модуль валидаторов эндпоинтов Company.py."""
 
 import random
+from datetime import date, datetime
 
 from fastapi import Depends, HTTPException, status
 from fastapi_users.exceptions import InvalidPasswordException
@@ -26,6 +27,7 @@ from src.crud import (
     user_comment_association_crud,
     user_crud,
 )
+from src.crud.crud_surveys import survey_cycle_for_company_crud
 from src.features_v1.constants import LengthConstants, TextErrorConstants
 from src.models import (
     AssociationUserComment,
@@ -37,6 +39,8 @@ from src.models import (
     MeetingStatus,
     Problem,
     ProblemStatus,
+    SurveyCycleForCompany,
+    SurveysStatus,
     Task,
     TaskStatus,
 )
@@ -543,26 +547,6 @@ async def check_tasks_for_company_problem_exist(
         )
 
 
-async def check_company_exists(company_slug: str, session: AsyncSession):
-    """Проверяет существование компании по slug.
-
-    Назначение:
-        Валидирует, что компания существует в базе данных по заданному slug.
-    Параметры:
-        company_slug: Строка, представляющая slug компании для проверки.
-        session: Асинхронная сессия базы данных.
-    Возвращаемое значение:
-        Проверенная компания, если она существует.
-    Исключения:
-        HTTPException: Если компания не найдена.
-    """
-
-    if not await company_crud.get_by_company_slug(session, company_slug):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=TextErrorConstants.COMPANY_NOT_FOUND
-        )
-
-
 def validate_is_member_problem(user: CompanyUser, problem: Problem):
     """
     Валидатор, проверит что пользователь является участником проблемы.
@@ -706,4 +690,224 @@ async def validate_license_name(session: AsyncSession, license_name: str):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Лицензия с именем '{license_name}' уже существует.",
+        )
+
+
+async def check_name_department_in_company(
+    session: AsyncSession,
+    company_id: int,
+    new_name: str | None,
+    old_name: str | None = None,
+) -> None:
+    """
+    Проверит наличе отдела с указанным названием у компании.
+    Выкинет ошибку, если такое название уже есть.
+
+    Функция выполняет проверку корректности данных перед их обработкой
+    в API-эндпоинте.
+
+    Аргументы:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        company_id (int): идентификатор компании, в которой нужно проверить.
+        name (str): название отдела, наличие которого нужно проверить.
+
+    Возвращает:
+        None: Если данные прошли проверку.
+
+    Исключения:
+        HTTPException: Возникает при ошибках валидации данных.
+    """
+    if (
+        new_name is not None
+        and new_name != old_name
+        and (await department_crud.get_by_name_in_company(session, new_name, company_id))
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=TextErrorConstants.EXISTS_NAME_DEPARTMENT_IN_COMPANY,
+        )
+
+
+def check_department_in_company(
+    department: Department,
+    company: Company,
+) -> None:
+    """
+    Проверит наличе данного отдела у данной компании.
+    Выкинет ошибку, если отдел от другой компании.
+
+    Функция выполняет проверку корректности данных перед их обработкой
+    в API-эндпоинте.
+
+    Аргументы:
+        department (Department): Модель отдела.
+        company (Company): Модель компании.
+
+    Возвращает:
+        None: Если данные прошли проверку.
+
+    Исключения:
+        HTTPException: Возникает при ошибках валидации данных.
+    """
+    if department.company_id != company.id:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=TextErrorConstants.WRONG_COMPANY_DEPARTMENT,
+        )
+
+
+async def check_empty_department(session: AsyncSession, department: Department) -> None:
+    """
+    Проверит что в отделе нет сотрудников.
+    Выкинет ошибку, если в отделе есть хотя бы один сотрудник.
+
+    Функция выполняет проверку корректности данных перед их обработкой
+    в API-эндпоинте.
+
+    Аргументы:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        department (Department): Модель отдела.
+
+    Возвращает:
+        None: Если данные прошли проверку.
+
+    Исключения:
+        HTTPException: Возникает при ошибках валидации данных.
+    """
+    if await moderator_crud.get_multi(
+        session,
+        filters={'current_department_id': department.id},
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=TextErrorConstants.NOT_EMPTY_DEPARTMENT,
+        )
+
+
+async def validate_license_max_employees(
+    session: AsyncSession,
+    model_crud: CRUDBase,
+    license_id: int,
+    company_id: int,
+) -> None:
+    """
+    Проверяет, не превышено ли число сотрудников компании максимальному числу по лицензии.
+
+    Проверка происходит путём получения объекта лицензии принадлежащей к компании
+    и сравнения максимального количества сотрудников компании и лицензии.
+
+    Args:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        model_crud (CRUDBase): CRUD Лицензии
+        license_id (int): ID лицензии компании, которую нужно проверить.
+        company_id (int): ID компании.
+
+    Raises:
+        HTTPException: Если превышено максимальное количество сотрудников,
+                        возвращает ошибку 400 (BAD REQUEST).
+    """
+    license_object_model = await model_crud.get(session, license_id)
+
+    if license_object_model is not None:
+        count_company_employees = await user_crud.get_company_employee_count(session, company_id)
+
+        if count_company_employees >= license_object_model.max_employees_count:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Превышено максимальное количество сотрудников по'
+                f" лицензии №'{license_id}'",
+            )
+
+
+async def validate_license_max_admins(
+    session: AsyncSession,
+    model_crud: CRUDBase,
+    license_id: int,
+    company_id: int,
+) -> None:
+    """
+    Проверяет, не превышено ли число модераторов компании максимальному числу по лицензии.
+
+    Проверка происходит путём получения объекта лицензии принадлежащей к компании
+    и сравнения максимального количества модераторов компании и лицензии.
+
+    Args:
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+        model_crud (CRUDBase): CRUD Лицензии
+        license_id (int): ID лицензии компании, которую нужно проверить.
+        company_id (int): ID компании.
+
+    Raises:
+        HTTPException: Если превышено максимальное количество админов,
+                        возвращает ошибку 400 (BAD REQUEST).
+    """
+    license_object_model = await model_crud.get(session, license_id)
+
+    if license_object_model is not None:
+        count_company_admins = await user_crud.get_company_admins_count(session, company_id)
+
+        if count_company_admins >= license_object_model.max_admins_count:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Превышено максимальное количество модераторов по'
+                f" лицензии №'{license_id}'",
+            )
+
+
+async def validator_survey_in_cycle_exists(
+    session: AsyncSession,
+    survey_crud,
+    cycle_user_id: int,
+):
+    """Проверит, нет ли записи с ответами по переданному тесту."""
+    if await survey_crud.get_by_cycle(session, cycle_user_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail='Этот тест уже пройден.'
+        )
+
+
+async def check_survey_this_week(
+    session: AsyncSession,
+    date_: date,
+    company_id: int,
+    cycle_db: SurveyCycleForCompany | None = None,
+):
+    """
+    Проверит, нет ли уже цикла тестов, запланированный на неделю,
+    к которой относится указанная дата.
+    """
+    check_db = await survey_cycle_for_company_crud.get_by_week_number(
+        session,
+        date_.isocalendar()[1],
+        company_id,
+    )
+    if check_db and cycle_db not in check_db:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                'Уже есть цикл тестов, запланированный на неделю, '
+                'к которой относится указанная дата.'
+            ),
+        )
+
+
+def check_cycle_overdue_date(cycle: SurveyCycleForCompany):
+    """
+    Не просрочена ли дана цикла тестов.
+    """
+    if cycle.date < datetime.now().date():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=('Циклы, дата проведения которых уже наступил изменять нельзя.'),
+        )
+
+
+def check_cycle_not_completed(cycle: SurveyCycleForCompany):
+    """
+    Проверит, не начат или закончен ли цикл тестов.
+    """
+    if cycle.status == SurveysStatus.COMPLETED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=('Завершенные циклы изменять или удалять нельзя.'),
         )
