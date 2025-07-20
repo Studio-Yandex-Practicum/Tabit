@@ -54,7 +54,7 @@ class CRUDCompany(CRUDBase):
 
         Параметры:
             session: Асинхронная сессия SQLAlchemy.
-            obj_slug: Строка, представляющая slug компании.
+            company_slug: Строка, представляющая slug компании.
         Возвращаемое значение:
             Найденный объект компании или None.
         """
@@ -133,13 +133,9 @@ class CRUDCompany(CRUDBase):
         else:
             company_data['end_license_time'] = None
 
-        now = datetime.now(timezone.utc)
         start = company_data.get('start_license_time')
         end = company_data.get('end_license_time')
-        if start and end and start <= now <= end:
-            company_data['is_active'] = True
-        else:
-            company_data['is_active'] = False
+        company_data['is_active'] = self._calculate_is_active(start, end)
 
         company_schema = CompanyCreateSchema(**company_data)
         return await super().create(session, company_schema, auto_commit)
@@ -159,9 +155,11 @@ class CRUDCompany(CRUDBase):
         """
         company_data = company_in.model_dump(exclude_unset=True)
         if company_in.logo:
-            company_data['logo'] = await base64image(
+            path_to_file = await base64image(
                 company_in.logo, company_db.slug, DirectoryConstants.LOGO
             )
+            company_data['logo'] = path_to_file
+            company_in = company_in.model_copy(update={'logo': path_to_file})
 
         if company_in.license_id and company_in.start_license_time:
             end_license_time = await self.save_end_license_time(
@@ -170,15 +168,26 @@ class CRUDCompany(CRUDBase):
                 license_id=company_in.license_id,
             )
             company_data['end_license_time'] = end_license_time
-            now = datetime.now(timezone.utc)
-            if company_in.start_license_time <= now <= end_license_time:
-                company_data['is_active'] = True
-            else:
-                company_data['is_active'] = False
+            company_data['is_active'] = self._calculate_is_active(
+                company_in.start_license_time, end_license_time
+            )
 
         for key, value in company_data.items():
             setattr(company_db, key, value)
         return await super().update(session, company_db, company_in, auto_commit)
+
+    def _calculate_is_active(self, start: datetime | None, end: datetime | None) -> bool:
+        """
+        Проверяет, находится ли текущая дата между start и end, учитывая timezone.
+        """
+        if not start or not end:
+            return False
+        now = datetime.now(timezone.utc)
+        if start.tzinfo is None:
+            start = start.replace(tzinfo=timezone.utc)
+        if end.tzinfo is None:
+            end = end.replace(tzinfo=timezone.utc)
+        return start <= now <= end
 
 
 company_crud = CRUDCompany(Company)
