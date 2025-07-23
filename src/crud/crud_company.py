@@ -48,19 +48,6 @@ class CRUDCompany(CRUDBase):
                 count += 1
         return FileResponse(path=f'{file_name}.txt', filename=f'{file_name}.txt')
 
-    # TODO LOST: используется в валидаторе, который нигде не используется
-    async def get_by_company_slug(self, session: AsyncSession, company_slug: str):
-        """Получает компанию по slug.
-
-        Параметры:
-            session: Асинхронная сессия SQLAlchemy.
-            obj_slug: Строка, представляющая slug компании.
-        Возвращаемое значение:
-            Найденный объект компании или None.
-        """
-        company = await session.execute(select(Company).where(Company.slug == company_slug))
-        return company.scalar_one_or_none()
-
     async def is_company_slug_exists(self, session: AsyncSession, slug: str) -> bool:
         """
         Проверяет, существует ли компания с указанным slug.

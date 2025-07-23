@@ -1,71 +1,103 @@
-# TODO: Требуется проработка ERD
+from datetime import date
+from uuid import UUID
 
-# from pydantic import BaseModel
-# from typing import Optional
-# from datetime import date, datetime
+from fastapi import HTTPException, status
+from pydantic import BaseModel, ConfigDict, model_validator
 
-
-# class SurveyBaseSchema(BaseModel):
-#     """
-#     Базовая Pydantic-схема для опросов.
-#     """
-#     name: str
-#     description: Optional[str]
-#     slug: str
-#     status: int
-#     result: Optional[int]
-#     created_at: datetime
+from src.models.enum import LuschersColorEnum, SurveysStatus
 
 
-# class SurveyCreateSchema(SurveyBaseSchema):
-#     """
-#     Pydantic-схема для создания опроса.
-#     """
-#     pass
+class LuscherBaseSchema(BaseModel):
+    """Базовая схема сохранения ответов теста Люшера."""
+
+    selection_1: LuschersColorEnum
+    selection_2: LuschersColorEnum
+    selection_3: LuschersColorEnum
+    selection_4: LuschersColorEnum
+    selection_5: LuschersColorEnum
+    selection_6: LuschersColorEnum
+    selection_7: LuschersColorEnum
+    selection_8: LuschersColorEnum
 
 
-# class SurveyUpdateSchema(SurveyBaseSchema):
-#     """
-#     Pydantic-схема для обновления информации об опросе.
-#     """
-#     pass
+class LuscherCreateSchema(LuscherBaseSchema):
+    @model_validator(mode='after')
+    def validate_unique_colors(self):
+        """Проверяет, что все цвета уникальны"""
+        if (
+            len(
+                set(
+                    (
+                        self.selection_1,
+                        self.selection_2,
+                        self.selection_3,
+                        self.selection_4,
+                        self.selection_5,
+                        self.selection_6,
+                        self.selection_7,
+                        self.selection_8,
+                    )
+                )
+            )
+            != 8
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Все цвета должны быть уникальными.',
+            )
+        return self
 
 
-# class SurveySchema(SurveyBaseSchema):
-#     """
-#     Pydantic-схема для отображения информации об опросе.
-#     """
-#     id: int
+class LuscherResponseSchema(LuscherBaseSchema):
+    """Схема для вывода сохраненных ответов теста Люшера."""
 
-#     model_config = ConfigDict(from_attributes=True)
+    id: int
+    survey_cycle_for_user_id: int
 
-
-# class SurveyUserSchema(BaseModel):
-#     """
-#     Pydantic-схема для связи пользователей с опросами.
-#     """
-#     id: int
-#     survey_id: int
-#     user_id: int
-
-#     model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True)
 
 
-# class DateSurveySchema(BaseModel):
-#     """
-#     Pydantic-схема для дат, связанных с опросами.
-#     """
-#     id: int
-#     date: date
-#     survey_id: int
+class CycleForUserBaseSchema(BaseModel):
+    """Базовая схема цикла опросов для пользователя."""
 
-#     model_config = ConfigDict(from_attributes=True)
+    id: int
+    user_id: UUID
+    survey_cycle_for_company_id: int
+    date: date
+    status: SurveysStatus
 
-# class StatusSurveySchema(BaseModel):
-#     """
-#     Pydantic-схема для статусов опросов.
-#     """
-#     id: int
-#     name: str
 
-#     model_config = ConfigDict(from_attributes=True)
+class CycleForUserResponseSchema(CycleForUserBaseSchema):
+    """Схема для вывода цикла опросов для пользователя."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CycleForCompanyBaseSchema(BaseModel):
+    """Базовая схема цикла опросов для компании."""
+
+    date: date
+
+
+class CycleForCompanyResponseSchema(CycleForCompanyBaseSchema):
+    """Схема для вывода цикла опросов для компании."""
+
+    id: int
+    company_id: int
+    status: SurveysStatus
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CycleForCompanyCreateSchema(CycleForCompanyBaseSchema):
+    """Схема для создания цикла опросов для компании."""
+
+    model_config = ConfigDict(extra='forbid')
+
+
+class CycleForCompanyUpdateSchema(CycleForCompanyBaseSchema):
+    """Схема для изменения цикла опросов для компании."""
+
+    status: SurveysStatus
+
+    model_config = ConfigDict(extra='forbid')

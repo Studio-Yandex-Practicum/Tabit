@@ -1,20 +1,21 @@
-import random
-import string
 from datetime import datetime, timedelta, timezone
 
 import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from tests.constants import DirectoryConstants, ImagesConstants, MiscConstants, UrlConstants
+from tests.constants import (
+    DirectoryConstants,
+    ImagesConstants,
+    MiscConstants,
+    UrlConstants,
+    type_token,
+)
+from tests.utils import random_string
 
 
 def generate_company_data(all_fields=False, license_id=None):
     """Генерирует реалистичные данные для создания компании."""
-
-    def random_string(length=10):
-        """Генерирует случайную строку указанной длины."""
-        return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
     data = {'name': f'Компания {random_string(5)}'}
 
@@ -38,8 +39,14 @@ def get_path_logo(slug: str, expansion: str = 'png') -> str:
 
 
 class TestCreateCompany:
+    """Набор тестов для создания компании администраторами сервиса."""
+
     @pytest.mark.asyncio
-    async def test_create_company_required_fields(self, client: AsyncClient, superuser_token: str):
+    async def test_create_company_required_fields(
+        self,
+        client: AsyncClient,
+        superuser_token: type_token,
+    ):
         """
         Тест успешного создания компании с обязательными полями.
 
@@ -65,7 +72,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_all_fields(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест успешного создания компании со всеми полями.
@@ -91,7 +98,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_duplicate_slug(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 400 при создании компании с уже существующим slug.
@@ -122,7 +129,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_missing_name(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 422 при создании компании без обязательного поля 'name'.
@@ -149,7 +156,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_name_too_short(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 422 при создании компании с name менее 2 символов.
@@ -177,7 +184,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_name_too_long(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 422 при создании компании с name более 255 символов.
@@ -246,7 +253,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_invalid_description_type(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 422 при передаче числа в поле 'description'.
@@ -273,7 +280,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_invalid_logo_type(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 422 при передаче массива в поле 'logo'.
@@ -298,7 +305,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_invalid_start_license_time_type(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 422 при передаче некорректного формата даты в поле 'start_license_time'.
@@ -326,7 +333,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_description_too_short(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 422 при создании компании с description менее 2 символов.
@@ -355,7 +362,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_description_too_long(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 422 при создании компании с description более 1000 символов.
@@ -383,7 +390,7 @@ class TestCreateCompany:
         ), response.text
 
     @pytest.mark.asyncio
-    async def test_generate_unique_slug(self, client: AsyncClient, superuser_token: str):
+    async def test_generate_unique_slug(self, client: AsyncClient, superuser_token: type_token):
         """
         Тест успешной генерации уникального slug для компаний с одинаковыми названиями.
 
@@ -419,6 +426,36 @@ class TestCreateCompany:
         )
 
     @pytest.mark.asyncio
+    async def test_slug_length_with_long_company_name(
+        self, client: AsyncClient, superuser_token: type_token
+    ):
+        """
+        Тест длины slug для длинного названия компании.
+
+        Проверяет, что slug корректно обрабатывается для названий компаний
+        длиной до 255 символов и может быть длиной до 260 символов включительно.
+        """
+        # Создаем название компании длиной 255 символов
+        long_name = 'Очень длинное название компании ' * 10 + 'с дополнительными символами'
+        # Обрезаем до точно 255 символов
+        long_name = long_name[:255]
+        assert len(long_name) == 255
+
+        payload = {'name': long_name}
+
+        response = await client.post(
+            UrlConstants.COMPANIES_ENDPOINT,
+            json=payload,
+            headers=superuser_token,
+        )
+
+        assert response.status_code == status.HTTP_201_CREATED, response.text
+        data = response.json()
+        assert 'slug' in data
+        assert len(data['slug']) <= 260  # Максимальная длина slug
+        assert len(data['slug']) > 0
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'invalid_value, message',
         ImagesConstants.INVALID,
@@ -426,7 +463,7 @@ class TestCreateCompany:
     async def test_create_company_invalid_logo_url(
         self,
         client: AsyncClient,
-        superuser_token: str,
+        superuser_token: type_token,
         license_for_test,
         invalid_value,
         message,
@@ -468,7 +505,7 @@ class TestCreateCompany:
     async def test_create_company_field_with_leading_or_trailing_spaces(
         self,
         client: AsyncClient,
-        superuser_token: str,
+        superuser_token: type_token,
         license_for_test,
         field: str,
         invalid_value: str,
@@ -500,7 +537,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_without_license_and_start_time(
-        self, client: AsyncClient, superuser_token: str
+        self, client: AsyncClient, superuser_token: type_token
     ):
         """
         Тест создания компании без 'license_id' и 'start_license_time'.
@@ -522,7 +559,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_only_license_id(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 422 при передаче только 'license_id' без 'start_license_time'.
@@ -553,7 +590,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_only_start_license_time(
-        self, client: AsyncClient, superuser_token: str
+        self, client: AsyncClient, superuser_token: type_token
     ):
         """
         Тест ошибки 422 при передаче только 'start_license_time' без 'license_id'.
@@ -583,7 +620,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_non_existent_license(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест ошибки 400 при создании компании с несуществующей license.
@@ -610,7 +647,7 @@ class TestCreateCompany:
 
     @pytest.mark.asyncio
     async def test_create_company_existent_license(
-        self, client: AsyncClient, superuser_token: str, license_for_test
+        self, client: AsyncClient, superuser_token: type_token, license_for_test
     ):
         """
         Тест успешного создания компании с существующей license.
@@ -640,7 +677,7 @@ class TestGetCompany:
     async def test_get_companies_success(
         self,
         client: AsyncClient,
-        superuser_token: str,
+        superuser_token: type_token,
         company_for_test,
     ):
         """
@@ -703,7 +740,12 @@ class TestGetCompany:
         ],
     )
     async def test_get_companies_sorting(
-        self, client: AsyncClient, superuser_token: str, company_for_test, ordering, expected_sort
+        self,
+        client: AsyncClient,
+        superuser_token: type_token,
+        company_for_test,
+        ordering,
+        expected_sort,
     ):
         """
         Тест сортировки списка компаний по полям `name`, `created_at` и `updated_at`.
@@ -777,7 +819,7 @@ class TestGetCompany:
     async def test_patch_company_single_field(
         self,
         client: AsyncClient,
-        superuser_token: str,
+        superuser_token: type_token,
         company_for_test,
         update_data,
         expected_field,
@@ -811,7 +853,7 @@ class TestGetCompany:
     async def test_patch_company_all_fields(
         self,
         client: AsyncClient,
-        superuser_token: str,
+        superuser_token: type_token,
         license_for_test,
         company_for_test,
     ):
@@ -857,7 +899,7 @@ class TestGetCompany:
 
     @pytest.mark.asyncio
     async def test_patch_company_name_too_short(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """
         Тест ошибки 422 при обновлении компании с name менее 2 символов.
@@ -885,7 +927,7 @@ class TestGetCompany:
 
     @pytest.mark.asyncio
     async def test_patch_company_name_too_long(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """
         Тест ошибки 422 при обновлении компании с name более 255 символов.
@@ -964,7 +1006,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_description_type(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """Тест ошибки 422 при передаче числа в поле 'description'."""
         company = await company_for_test()
@@ -980,7 +1022,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_logo_type(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """Тест ошибки 422 при передаче массива в поле 'logo'."""
         company = await company_for_test()
@@ -996,7 +1038,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_license_id_type(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """Тест ошибки 422 при передаче строки в поле 'license_id'."""
         company = await company_for_test()
@@ -1012,7 +1054,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_start_license_time_type(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """Тест ошибки 422 при некорректном формате 'start_license_time'."""
         company = await company_for_test()
@@ -1028,7 +1070,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_description_too_short(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """Тест ошибки 422 при 'description' менее 2 символов."""
         company = await company_for_test()
@@ -1044,7 +1086,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_description_too_long(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """Тест ошибки 422 при 'description' более 255 символов."""
         company = await company_for_test()
@@ -1066,7 +1108,7 @@ class TestPatchCompanyValidation:
     async def test_patch_company_invalid_logo_url(
         self,
         client: AsyncClient,
-        superuser_token: str,
+        superuser_token: type_token,
         company_for_test,
         invalid_value,
         message,
@@ -1095,7 +1137,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_field_with_leading_or_trailing_spaces(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """Тест ошибки 422 при полях с пробелами в начале или в конце."""
         company = await company_for_test()
@@ -1111,7 +1153,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_invalid_license_id(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """Тест ошибки 400 при несуществующем 'license_id'."""
         company = await company_for_test()
@@ -1127,7 +1169,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_only_license_id(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """Тест ошибки 422 при передаче только 'license_id' без 'start_license_time'."""
         company = await company_for_test()
@@ -1143,7 +1185,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_only_start_license_time(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """Тест ошибки 422 при передаче только 'start_license_time' без 'license_id'."""
         company = await company_for_test()
@@ -1159,7 +1201,7 @@ class TestPatchCompanyValidation:
 
     @pytest.mark.asyncio
     async def test_patch_company_without_license_and_start_time(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """
         Тест успешного обновления компании без 'license_id' и 'start_license_time'.
@@ -1191,7 +1233,7 @@ class TestPatchCompanyValidation:
     async def test_patch_company_with_license_and_start_time(
         self,
         client: AsyncClient,
-        superuser_token: str,
+        superuser_token: type_token,
         license_for_test,
         company_for_test,
         license_term_days,
@@ -1234,7 +1276,7 @@ class TestDeleteCompany:
 
     @pytest.mark.asyncio
     async def test_delete_company_success(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """
         Тест успешного удаления компании.
@@ -1252,7 +1294,9 @@ class TestDeleteCompany:
         assert response.status_code == status.HTTP_204_NO_CONTENT, response.text
 
     @pytest.mark.asyncio
-    async def test_delete_company_not_found(self, client: AsyncClient, superuser_token: str):
+    async def test_delete_company_not_found(
+        self, client: AsyncClient, superuser_token: type_token
+    ):
         """
         Тест ошибки status.HTTP_404_NOT_FOUND при попытке удаления несуществующей компании.
 
@@ -1273,7 +1317,7 @@ class TestDeleteCompany:
 
     @pytest.mark.asyncio
     async def test_delete_company_already_deleted(
-        self, client: AsyncClient, superuser_token: str, company_for_test
+        self, client: AsyncClient, superuser_token: type_token, company_for_test
     ):
         """
         Тест ошибки status.HTTP_404_NOT_FOUND при повторном удалении одной и той же компании.
