@@ -95,7 +95,7 @@ async def create_company(
     else:
         company.slug = await generate_company_slug(session, company.name)
 
-    return await company_crud.create(session, company)
+    return CompanyResponseSchema.model_validate(await company_crud.create(session, company))
 
 
 @router.patch(
@@ -127,14 +127,16 @@ async def update_company(
     """
     company = await validator_check_object_exists(session, company_crud, object_slug=company_slug)
 
-    if object_in.license_id:
+    if object_in.license_id and object_in.start_license_time:
         await validate_license_exists(session, object_in.license_id)
         end_license_time = await company_crud.save_end_license_time(
             session, object_in.start_license_time, object_in.license_id
         )
         object_in = object_in.model_copy(update={'end_license_time': end_license_time})
 
-    return await company_crud.update(session, company, object_in)
+    return CompanyResponseSchema.model_validate(
+        await company_crud.update(session, company, object_in)
+    )
 
 
 @router.delete(

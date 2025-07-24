@@ -47,8 +47,9 @@ class CompanyUpdateForUserSchema(BaseModel):
 
     @field_validator('description', mode='after', check_fields=False)
     @classmethod
-    def validate_description(cls, value: str):
-        """Проверяет поле description на наличие пробелов в начале или конце."""
+    def validate_description(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return value
         return validate_string(value)
 
 
@@ -79,8 +80,10 @@ class CompanyUpdateSchema(CompanyUpdateForUserSchema):
 
     @field_validator('name', mode='after', check_fields=False)
     @classmethod
-    def validate_name(cls, value: str):
+    def validate_name(cls, value: Optional[str]) -> Optional[str]:
         """Проверяет поле name на наличие пробелов в начале или конце."""
+        if value is None:
+            return value
         return validate_string(value)
 
     @model_validator(mode='after')
@@ -99,6 +102,7 @@ class CompanyCreateSchema(CompanyUpdateSchema):
         title=TitleConstants.NAME_COMPANY,
     )
     slug: Optional[str] = Field(None, title=TitleConstants.SLUG_COMPANY)
+    is_active: Optional[bool] = None
 
     @field_validator('slug')
     @classmethod
