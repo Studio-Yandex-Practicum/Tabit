@@ -6,3 +6,4 @@
 !src
 !poetry.lock
 !pyproject.toml
+!fake_data_factories

@@ -1,4 +1,12 @@
+"""JWT аутентификация для сервиса Tabit.
+
+Этот модуль содержит реализацию JWT (JSON Web Token) аутентификации
+для веб-сервиса Tabit, включая поддержку access и refresh токенов,
+а также токены для восстановления пароля.
+"""
+
 from collections.abc import Sequence
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 from uuid import UUID
 
@@ -27,6 +35,10 @@ from src.core.auth.managers import get_admin_manager, get_user_manager
 from src.core.auth.protocol import StrategyT, TransportT
 from src.core.config.app import settings
 from src.models import CompanyUser, TabitAdminUser
+
+# Константы для токенов сброса пароля
+RESET_PASSWORD_AUDIENCE = 'reset_password'
+RESET_PASSWORD_TOKEN_EXPIRE_MINUTES = 30  # Можно вынести в настройки
 
 
 class TransportShema(BaseModel):
@@ -58,10 +70,10 @@ class TransportTabit(BearerTransport):
 
 # TODO: Нужно путь в константы определить, так, чтобы от эндпоинта собиралась.
 transport_admin = TransportTabit(tokenUrl='/api/v1/admin/auth/login')
-"""Транспорт JWT-токенов для администраторов сервиса Tabit."""
+# """Транспорт JWT-токенов для администраторов сервиса Tabit."""
 
 transport_user = TransportTabit(tokenUrl='/api/v1/auth/login')
-"""Транспорт JWT-токенов для пользователей сервиса Tabit"""
+# """Транспорт JWT-токенов для пользователей сервиса Tabit"""
 
 
 class AuthenticationBackendTabit(AuthenticationBackend):
@@ -113,6 +125,42 @@ class JWTStrategyTabit(JWTStrategy):
             public_key=public_key,
         )
         self.lifetime_seconds_refresh = lifetime_seconds_refresh
+
+    async def generate_password_reset_token(self, user_id: str, email: str) -> str:
+        """Генерирует JWT-токен для восстановления пароля."""
+        expire = datetime.now(timezone.utc) + timedelta(
+            minutes=RESET_PASSWORD_TOKEN_EXPIRE_MINUTES
+        )
+        payload = {
+            'sub': user_id,
+            'email': email,
+            'aud': RESET_PASSWORD_AUDIENCE,
+            'exp': expire,
+        }
+        token = jwt.encode(
+            payload,
+            self.encode_key,
+            algorithm=self.algorithm,
+        )
+        return token
+
+    async def verify_password_reset_token(self, token: str) -> dict[str, Any]:
+        """Проверяет валидность JWT-токена восстановления пароля.
+
+        Возвращает payload (user_id, email), если токен валиден.
+        """
+        try:
+            payload = jwt.decode(
+                token,
+                self.decode_key,
+                algorithms=[self.algorithm],
+                audience=RESET_PASSWORD_AUDIENCE,
+            )
+            return payload
+        except jwt.ExpiredSignatureError:
+            raise ValueError('Token expired')
+        except jwt.InvalidTokenError:
+            raise ValueError('Invalid token')
 
     async def read_token(
         self,
@@ -190,14 +238,14 @@ jwt_auth_backend_admin = AuthenticationBackendTabit(
     transport=transport_admin,
     get_strategy=get_jwt_strategy,
 )
-"""Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
+# """Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
 
 jwt_auth_backend_user = AuthenticationBackendTabit(
     name='jwt_user',
     transport=transport_user,
     get_strategy=get_jwt_strategy,
 )
-"""Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
+# """Экземпляр сочетания способа аутентификации и стратегии сервиса Tabit."""
 
 
 class AuthenticatorTabit(Authenticator):
@@ -320,11 +368,11 @@ class FastAPIUsersTabit(FastAPIUsers[models.UP, models.ID]):
 
 
 tabit_admin = FastAPIUsersTabit[TabitAdminUser, UUID](get_admin_manager, [jwt_auth_backend_admin])
-"""Основной объект, который связывает воедино компонент для аутентификации пользователей для
-администраторов сервиса Tabit.
-"""
+# """Основной объект, который связывает воедино компонент для аутентификации пользователей для
+# администраторов сервиса Tabit.
+# """
 
 tabit_user = FastAPIUsersTabit[CompanyUser, UUID](get_user_manager, [jwt_auth_backend_user])
-"""Основной объект, который связывает воедино компонент для аутентификации пользователей для
-пользователей сервиса Tabit.
-"""
+# """Основной объект, который связывает воедино компонент для аутентификации пользователей для
+# пользователей сервиса Tabit.
+# """

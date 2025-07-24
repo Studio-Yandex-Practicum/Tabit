@@ -46,6 +46,7 @@ slugify = "^0.0.1"
 psycopg2-binary = "^2.9.10"
 pytest-lazy-fixtures = "^1.1.2"
 aiofiles = "^24.1.0"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"

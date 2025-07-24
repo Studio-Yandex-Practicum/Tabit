@@ -14,13 +14,13 @@ from src.core.auth.dependencies import (
     current_superuser,
     get_current_admin_refresh_token,
     get_current_admin_token,
-    tabit_admin,
 )
 from src.core.auth.jwt import jwt_auth_backend_admin
 from src.core.auth.managers import get_admin_manager
 from src.core.auth.protocol import StrategyT
 from src.core.database.db_depends import get_async_session
 from src.crud import admin_user_crud
+from src.features_v1.common.password_forgot_reset import PasswordForgotResetMixin
 from src.features_v1.constants import DescriptionConstants, MiscConstants, SummaryConstants
 from src.features_v1.validators import (
     check_user_is_active,
@@ -218,11 +218,12 @@ async def delete_tabit_admin_by_id(
 # TODO: реализовать нормальное восстановление пароля, если забыл
 # TODO: реализовать нормальную замену пароля.
 # =====================================================================┐
-router.include_router(  # форгот и резет пассворд
-    tabit_admin.get_reset_password_router(),
-    prefix='',
-)
+# router.include_router(  # форгот и резет пассворд
+#     tabit_admin.get_reset_password_router(),
+#     prefix='',
+# )
 # =====================================================================┘
+# реализованы в common.password_forgot_reset.py
 
 
 @router.post(
@@ -362,3 +363,16 @@ async def logout(
     """
     user, token = user_and_access_token
     return await jwt_auth_backend_admin.logout(strategy, user, token)
+
+
+# Создаем экземпляр миксина без аргументов
+admin_password_forgot_reset = PasswordForgotResetMixin()
+
+# Добавляем роуты восстановления и сброса пароля
+admin_password_forgot_reset.create_password_forgot_reset_routes(
+    router,
+    crud=admin_user_crud,
+    current_user_dependency=current_admin_tabit,
+    user_type_name='администратора',
+    prefix='',
+)
