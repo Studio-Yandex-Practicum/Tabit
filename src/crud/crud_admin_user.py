@@ -1,18 +1,17 @@
 import logging
 from uuid import UUID
 
-from fastapi_users.password import PasswordHelper
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.auth.jwt import get_jwt_strategy
-from src.crud import CRUDBase, UserCreateMixin
+from src.crud import UserCreateMixin
+from src.crud.crud_user import CRUDUsers  # Наследуем от CRUDUsers
 from src.models import TabitAdminUser
 
 logger = logging.getLogger(__name__)
 
 
-class CRUDAdminUser(UserCreateMixin, CRUDBase):
+class CRUDAdminUser(UserCreateMixin, CRUDUsers):
     """CRUD операций для моделей администраторов сервиса Табит."""
 
     async def get_by_email(self, session: AsyncSession, email: str) -> TabitAdminUser | None:
@@ -26,161 +25,25 @@ class CRUDAdminUser(UserCreateMixin, CRUDBase):
         result = await session.execute(select(self.model).where(self.model.id == user_id))
         return result.scalars().first()
 
-    async def create_password_reset_token(self, session: AsyncSession, email: str) -> str:
-        """Создает токен для восстановления пароля используя JWT"""
-        # Получаем пользователя
-        user = await self.get_by_email(session, email)
-        if not user:
-            raise ValueError('Пользователь не найден')
-
-        # Используем JWT стратегию для генерации токена
-        jwt_strategy = get_jwt_strategy()
-        token = await jwt_strategy.generate_password_reset_token(str(user.id), email)
-
-        return token
-
-    async def verify_reset_token(self, session: AsyncSession, token: str) -> bool:
-        """Проверяет токен восстановления пароля используя JWT"""
-        try:
-            # Используем JWT стратегию для проверки токена
-            jwt_strategy = get_jwt_strategy()
-            payload = await jwt_strategy.verify_password_reset_token(token)
-
-            # Проверяем существование пользователя
-            user = await self.get_by_id(session, payload['sub'])
-            return user is not None
-
-        except (ValueError, KeyError):
-            return False
-
-    async def reset_password_with_token(
-        self, session: AsyncSession, token: str, new_password: str
-    ) -> bool:
-        """Сбрасывает пароль с использованием JWT токена"""
-        try:
-            # Проверяем токен и получаем payload
-            jwt_strategy = get_jwt_strategy()
-            payload = await jwt_strategy.verify_password_reset_token(token)
-
-            # Получаем пользователя
-            user = await self.get_by_id(session, payload['sub'])
-            if not user:
-                return False
-
-            # Обновляем пароль используя JWT стратегию
-            hashed_password = jwt_strategy.password_helper.hash(new_password)
-            user.hashed_password = hashed_password
-
-            await session.commit()
-            return True
-
-        except ValueError:
-            return False
-
+    # Переопределяем методы, специфичные для админов
     async def reset_password_by_admin(
         self, session: AsyncSession, user_id: UUID, new_password: str
     ) -> bool:
-        """Принудительный сброс пароля администратором"""
+        """Принудительный сброс пароля администратором с проверками"""
         try:
             user = await self.get_or_404(session, user_id)
 
-            # Используем тот же PasswordHelper, что и в менеджерах
-            password_helper = PasswordHelper()
-            hashed_password = password_helper.hash(new_password)
-
-            # Обновляем пароль
-            user.hashed_password = hashed_password
-            session.add(user)
-            await session.commit()
-            logger.debug(f'Пароль: {new_password}')
-            return True
-
-        except Exception as e:
-            await session.rollback()
-            logger.error(f'Ошибка при сбросе пароля: {e}')
-            return False
-
-    async def verify_password(self, session: AsyncSession, user_id: UUID, password: str) -> bool:
-        """Проверка текущего пароля пользователя"""
-        try:
-            user = await self.get_or_404(session, user_id)
-
-            # Проверяем, что у пользователя есть хешированный пароль
-            if not user.hashed_password:
-                logger.warning('У пользователя нет хешированного пароля')
+            # Дополнительная проверка для админов
+            if hasattr(user, 'is_superuser') and user.is_superuser:
+                logger.warning(f'Попытка сброса пароля суперпользователя {user_id}')
                 return False
 
-            # Используем тот же PasswordHelper, что и в менеджерах
-            password_helper = PasswordHelper()
-
-            try:
-                # Проверяем пароль используя правильный метод
-                is_valid, _ = password_helper.verify_and_update(password, user.hashed_password)
-                logger.debug(f'Проверка пароля для пользователя {user_id}: {is_valid}')
-                return is_valid
-
-            except Exception as verify_error:
-                logger.error(f'Ошибка при проверке пароля: {verify_error}')
-                return False
+            # Используем родительский метод
+            return await super().reset_password_by_admin(session, user_id, new_password)
 
         except Exception as e:
-            logger.error(f'Ошибка при проверке пароля: {e}')
+            logger.error(f'Ошибка при сбросе пароля админа: {e}')
             return False
-
-    async def change_password(
-        self, session: AsyncSession, user_id: UUID, new_password: str
-    ) -> bool:
-        """Смена пароля пользователя"""
-        try:
-            logger.info(f'Начинаем смену пароля для пользователя {user_id}')
-            user = await self.get_or_404(session, user_id)
-            logger.debug(f'Пользователь найден: {user.id}')
-
-            # Используем тот же PasswordHelper, что и в менеджерах
-            password_helper = PasswordHelper()
-            hashed_password = password_helper.hash(new_password)
-            logger.debug(f'Новый хеш создан: {hashed_password[:20]}...')
-
-            user.hashed_password = hashed_password
-            session.add(user)
-            logger.debug('Пользователь добавлен в сессию')
-
-            await session.commit()
-            logger.info('Транзакция зафиксирована')
-
-            return True
-
-        except Exception as e:
-            await session.rollback()
-            logger.error(f'Ошибка при смене пароля: {e}')
-            logger.error(f'Тип ошибки: {type(e)}')
-            import traceback
-
-            logger.error(f'Traceback: {traceback.format_exc()}')
-            return False
-
-    def _hash_password(self, password: str) -> str:
-        """Хеширует пароль используя JWT стратегию"""
-        jwt_strategy = get_jwt_strategy()
-        return jwt_strategy.password_helper.hash(password)
-
-    async def debug_password_hash(self, session: AsyncSession, user_id: UUID) -> dict:
-        """Диагностика хеша пароля пользователя"""
-        try:
-            user = await self.get_or_404(session, user_id)
-
-            return {
-                'user_id': str(user_id),
-                'has_password': bool(user.hashed_password),
-                'hash_length': len(user.hashed_password) if user.hashed_password else 0,
-                'hash_prefix': user.hashed_password[:10] if user.hashed_password else None,
-                'is_bcrypt_format': user.hashed_password.startswith('$2b$')
-                if user.hashed_password
-                else False,
-            }
-
-        except Exception as e:
-            return {'error': str(e)}
 
 
 admin_user_crud = CRUDAdminUser(TabitAdminUser)

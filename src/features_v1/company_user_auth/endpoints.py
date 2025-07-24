@@ -191,12 +191,11 @@ async def update_me_user(
 
 
 # Создаем экземпляр миксина для пользователей компаний
-user_password_forgot_reset = PasswordForgotResetMixin(
-    crud_instance=user_crud,
-    user_model=CompanyUser,
+user_password_forgot_reset = PasswordForgotResetMixin()
+user_password_forgot_reset.create_password_forgot_reset_routes(
+    router,
+    crud=user_crud,
     current_user_dependency=current_user_tabit,
     user_type_name='пользователя',
+    prefix='',
 )
-
-# Добавляем роуты восстановления и сброса пароля
-user_password_forgot_reset.create_password_forgot_reset_routes(router, prefix='')

@@ -365,13 +365,14 @@ async def logout(
     return await jwt_auth_backend_admin.logout(strategy, user, token)
 
 
-# Создаем экземпляр миксина для администраторов
-admin_password_forgot_reset = PasswordForgotResetMixin(
-    crud_instance=admin_user_crud,
-    user_model=TabitAdminUser,
-    current_user_dependency=current_admin_tabit,
-    user_type_name='администратора',
-)
+# Создаем экземпляр миксина без аргументов
+admin_password_forgot_reset = PasswordForgotResetMixin()
 
 # Добавляем роуты восстановления и сброса пароля
-admin_password_forgot_reset.create_password_forgot_reset_routes(router, prefix='')
+admin_password_forgot_reset.create_password_forgot_reset_routes(
+    router,
+    crud=admin_user_crud,
+    current_user_dependency=current_admin_tabit,
+    user_type_name='администратора',
+    prefix='',
+)
