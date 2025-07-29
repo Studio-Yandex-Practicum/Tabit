@@ -694,6 +694,10 @@ class UrlConstants:
     PROBLEMS_ENDPOINT: str = '/api/v1/{company_slug}/problems/'
     PROBLEM_ENDPOINT: str = '/api/v1/{company_slug}/problems/{problem_id}'
 
+    LUSCHER_CREATE_RESULT = (
+        '/api/v1/{company_slug}/surveys/cycle/{cycle_company_id}/{cycle_user_id}/luscher_result'
+    )
+
 
 class UserPayloadsConstants:
     """

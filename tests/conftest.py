@@ -2,7 +2,7 @@ import subprocess
 import time
 import uuid
 from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 import psycopg2
@@ -25,14 +25,19 @@ from src.models import (
     CompanyUserRole,
     Department,
     LicenseType,
+    LuscherColorFirst,
+    LuscherColorSecond,
     Meeting,
     MessageFeed,
     Problem,
     ProblemColor,
     ProblemStatus,
     ProblemType,
+    SurveyCycleForCompany,
+    SurveyCycleForUser,
     TabitAdminUser,
 )
+from src.models.enum import LuschersColorEnum, SurveysStatus
 from tests.constants import AuthDataConstants, Test_Database_URLConstants, UrlConstants
 
 
@@ -928,3 +933,241 @@ async def department_for_test(async_session: AsyncSession, company_for_test):
         return department
 
     return _create_department
+
+
+@pytest_asyncio.fixture
+async def survey_cycle_for_company_for_test(async_session: AsyncSession, company_for_test):
+    """
+    Фикстура, создающая цикл опросов для компании с возможностью изменения полей.
+
+    Параметры:
+        - cycle_data (dict, optional): Данные для создания цикла опросов.
+          Если не переданы, используются значения по умолчанию.
+        - return_company (bool, optional): Если True, возвращает кортеж
+          (цикл опросов, компания).
+
+    Возвращает:
+        - SurveyCycleForCompany: Объект созданного цикла опросов для компании.
+        - (SurveyCycleForCompany, Company): Если return_company=True, возвращает кортеж
+          (цикл опросов, компания).
+
+    Примеры использования:
+        # Создание цикла опросов с дефолтными параметрами:
+        cycle = await survey_cycle_for_company_for_test()
+
+        # Создание цикла с кастомными параметрами:
+        cycle = await survey_cycle_for_company_for_test({'status': SurveysStatus.FINISHED})
+
+        # Получение цикла и компании:
+        cycle, company = await survey_cycle_for_company_for_test(return_company=True)
+    """
+
+    async def _create_survey_cycle_for_company(cycle_data=None, return_company=False):
+        company = None
+        if not cycle_data or 'company_id' not in cycle_data:
+            company = await company_for_test()
+
+        company_id = company.id if company else cycle_data.get('company_id')
+
+        default_data = {
+            'company_id': company_id,
+            'date': date.today(),
+            'status': SurveysStatus.IN_PROGRESS,
+        }
+
+        if cycle_data:
+            default_data.update(cycle_data)
+
+        cycle = await make_entry_in_table(async_session, default_data, SurveyCycleForCompany)
+
+        if return_company:
+            return cycle, company
+        return cycle
+
+    return _create_survey_cycle_for_company
+
+
+@pytest_asyncio.fixture
+def survey_cycle_for_user_for_test(
+    async_session, employee_of_company, survey_cycle_for_company_for_test
+):
+    """
+    Фикстура для создания SurveyCycleForUser с возможностью изменения
+    полей и возврата связанных сущностей.
+
+    Параметры:
+        - cycle_data (dict, optional): Данные для создания цикла опросов для пользователя.
+          Если не переданы, используются значения по умолчанию.
+          Можно указать поля модели SurveyCycleForUser, например,
+          'user_id', 'survey_cycle_for_company_id', 'status' и др.
+        - return_related (bool, optional): Если True, возвращает кортеж
+          (цикл опросов пользователя, пользователь, цикл опросов компании).
+
+    Возвращает:
+        - SurveyCycleForUser: Объект созданного цикла опросов для пользователя.
+        - (SurveyCycleForUser, CompanyUser, SurveyCycleForCompany): Если return_related=True,
+          возвращает кортеж с созданным циклом пользователя, пользователем и циклом компании.
+
+    Особенности:
+        - Если в cycle_data не указан 'user_id', автоматически создаётся
+        новый пользователь через фикстуру employee_of_company.
+        - Если в cycle_data не указан 'survey_cycle_for_company_id',
+        автоматически создаётся новый цикл
+        для компании через фикстуру survey_cycle_for_company_for_test.
+        - В новой записи поле 'date' по умолчанию устанавливается в текущую дату,
+        статус — IN_PROGRESS.
+
+    Примеры использования:
+        # Создание цикла опросов пользователя с дефолтными параметрами:
+        cycle = await survey_cycle_for_user_for_test()
+
+        # Создание цикла с кастомными параметрами:
+        cycle = await survey_cycle_for_user_for_test({'status': SurveysStatus.FINISHED})
+
+        # Получение цикла, пользователя и цикла компании:
+        cycle, user, cycle_for_company =
+        await survey_cycle_for_user_for_test(return_related=True)
+    """
+
+    async def _create_survey_cycle_for_user(cycle_data=None, return_related=False):
+        user = None
+        cycle_for_company = None
+
+        if not cycle_data or 'user_id' not in cycle_data:
+            user = await employee_of_company()
+
+        if not cycle_data or 'survey_cycle_for_company_id' not in cycle_data:
+            cycle_for_company = await survey_cycle_for_company_for_test()
+
+        cycle_data = cycle_data or {}
+        user_id = user.id if user else cycle_data.get('user_id')
+        cycle_for_company_id = (
+            cycle_for_company.id
+            if cycle_for_company
+            else cycle_data.get('survey_cycle_for_company_id')
+        )
+
+        new_cycle = SurveyCycleForUser(
+            user_id=user_id,
+            survey_cycle_for_company_id=cycle_for_company_id,
+            date=date.today(),
+            status=SurveysStatus.IN_PROGRESS,
+        )
+
+        async_session.add(new_cycle)
+        await async_session.commit()
+        await async_session.refresh(new_cycle)
+
+        if return_related:
+            return new_cycle, user, cycle_for_company
+        return new_cycle
+
+    return _create_survey_cycle_for_user
+
+
+@pytest_asyncio.fixture
+async def luscher_color_first(async_session: AsyncSession, survey_cycle_for_user_for_test):
+    """
+    Фикстура для создания записи LuscherColorFirst
+    с возможностью переопределения данных.
+
+    Параметры:
+        - data (dict, optional): Словарь с данными для создания записи.
+          Если не переданы, используются значения по умолчанию:
+            - 'survey_cycle_for_user_id' будет создан
+            автоматически через фикстуру survey_cycle_for_user_for_test.
+            - selections (selection_1 - selection_8) заполняются стандартными цветами.
+
+    Возвращает:
+        - LuscherColorFirst: Объект созданной записи LuscherColorFirst.
+
+    Особенности:
+        - Если в data передён 'survey_cycle_for_user_id', используется он,
+        иначе создаётся новый цикл пользователя.
+        - По умолчанию цвета заполнены всеми
+        8 уникальными цветами согласно LuschersColorEnum.
+
+    Примеры использования:
+        # Создание записи с дефолтными значениями:
+        luscher = await luscher_color_first()
+
+        # Создание записи с кастомными значениями:
+        luscher = await luscher_color_first(
+        {'selection_1': LuschersColorEnum.Red, 'selection_2': LuschersColorEnum.Blue})
+    """
+
+    async def _create_luscher(data: dict = None):
+        cycle_user = await survey_cycle_for_user_for_test()
+        default_data = {
+            'survey_cycle_for_user_id': cycle_user.id,
+            'selection_1': LuschersColorEnum.Blue,
+            'selection_2': LuschersColorEnum.Green,
+            'selection_3': LuschersColorEnum.Red,
+            'selection_4': LuschersColorEnum.Yellow,
+            'selection_5': LuschersColorEnum.Violet,
+            'selection_6': LuschersColorEnum.Brown,
+            'selection_7': LuschersColorEnum.Black,
+            'selection_8': LuschersColorEnum.Grey,
+        }
+
+        if data:
+            default_data.update(data)
+
+        luscher = await make_entry_in_table(async_session, default_data, LuscherColorFirst)
+        return luscher
+
+    return _create_luscher
+
+
+@pytest_asyncio.fixture
+async def luscher_color_second(async_session: AsyncSession, survey_cycle_for_user_for_test):
+    """
+    Фикстура для создания записи LuscherColorSecond
+    с возможностью переопределения данных.
+
+    Параметры:
+        - data (dict, optional): Словарь с данными для создания записи.
+          Если не переданы, используются значения по умолчанию:
+            - 'survey_cycle_for_user_id' будет создан
+            автоматически через фикстуру survey_cycle_for_user_for_test.
+            - selections (selection_1 - selection_8) заполняются стандартными цветами.
+
+    Возвращает:
+        - LuscherColorSecond: Объект созданной записи LuscherColorFirst.
+
+    Особенности:
+        - Если в data передён 'survey_cycle_for_user_id',
+        используется он, иначе создаётся новый цикл пользователя.
+        - По умолчанию цвета заполнены всеми
+        8 уникальными цветами согласно LuschersColorEnum.
+
+    Примеры использования:
+        # Создание записи с дефолтными значениями:
+        luscher = await luscher_color_second()
+
+        # Создание записи с кастомными значениями:
+        luscher = await luscher_color_second(
+        {'selection_1': LuschersColorEnum.Red, 'selection_2': LuschersColorEnum.Blue})
+    """
+
+    async def _create_luscher(data: dict = None):
+        cycle_user = await survey_cycle_for_user_for_test()
+        default_data = {
+            'survey_cycle_for_user_id': cycle_user.id,
+            'selection_1': LuschersColorEnum.Blue,
+            'selection_2': LuschersColorEnum.Green,
+            'selection_3': LuschersColorEnum.Red,
+            'selection_4': LuschersColorEnum.Yellow,
+            'selection_5': LuschersColorEnum.Violet,
+            'selection_6': LuschersColorEnum.Brown,
+            'selection_7': LuschersColorEnum.Black,
+            'selection_8': LuschersColorEnum.Grey,
+        }
+
+        if data:
+            default_data.update(data)
+
+        luscher = await make_entry_in_table(async_session, default_data, LuscherColorSecond)
+        return luscher
+
+    return _create_luscher
