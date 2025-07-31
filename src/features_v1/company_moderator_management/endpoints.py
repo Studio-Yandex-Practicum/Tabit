@@ -32,9 +32,7 @@ from src.schemas import (
     UserCreateSchema,
     UserReadSchema,
 )
-
 from src.schemas.user import UserCreateInternalSchema
-from src.services.email_service.email_schema import EmailCreateSchema
 
 router = APIRouter(dependencies=[Depends(current_company_moderator)])
 
