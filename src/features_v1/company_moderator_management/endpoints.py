@@ -32,6 +32,7 @@ from src.schemas import (
     UserCreateSchema,
     UserReadSchema,
 )
+from src.schemas.user import UserCreateInternalSchema
 
 router = APIRouter(dependencies=[Depends(current_company_moderator)])
 
@@ -440,8 +441,11 @@ async def create_company_employee(
     )
     await validate_user_not_exists(create_data, user_manager)
     await validate_password(create_data, user_manager)
-    await check_telegram_username_for_duplicates(create_data.telegram_username, session)
-    created_user = await user_manager.create(create_data)
+
+    internal_data = UserCreateInternalSchema(**create_data.model_dump())
+
+    await check_telegram_username_for_duplicates(internal_data.telegram_username, session)
+    created_user = await user_manager.create(internal_data)
     return created_user
 
 
