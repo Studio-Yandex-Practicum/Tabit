@@ -33,6 +33,8 @@ from .survey import (
     LuscherColorSecond,
     SurveyCycleForCompany,
     SurveyCycleForUser,
+    SociometricCriterion,
+    SociometricChoice,
 )
 from .association_models import (
     AssociationUserComment,
@@ -87,6 +89,8 @@ __all__ = [
     'LuscherColorSecond',
     'SurveyCycleForCompany',
     'SurveyCycleForUser',
+    'SociometricCriterion',
+    'SociometricChoice',
     'LuschersColorEnum',
     'ChoiceType',
 ]
