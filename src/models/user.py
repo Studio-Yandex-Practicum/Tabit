@@ -7,7 +7,7 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
 
-from src.models import BaseUser, CompanyUserRole
+from src.models import BaseUser, CompanyUserRole, SociometryAnswer, SociometryTestResult
 from src.models.annotations import url_link_field
 from src.models.constants import LengthConstants
 
@@ -128,6 +128,13 @@ class CompanyUser(BaseUser):
     department_transition_date: Mapped[Optional[date]]
     employee_position: Mapped[Optional[str]]
     avatar_link: Mapped[url_link_field]
+
+    sociometry_results: Mapped[List['SociometryTestResult']] = relationship(
+        back_populates='user', cascade='all, delete-orphan'
+    )
+    selected_in_answers: Mapped[List['SociometryAnswer']] = relationship(
+        back_populates='selected_user'
+    )
 
     __table_args__ = (
         UniqueConstraint('supervisor', 'current_department_id', name='unique_supervisor'),
