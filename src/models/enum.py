@@ -120,6 +120,14 @@ class SurveysStatus(StrEnum):
     POSTPONED = 'Отложен'
 
 
+class ChoiceType(BaseStrEnum):
+    """Типы социометрических выборов."""
+
+    POSITIVE = 'positive'
+    NEGATIVE = 'negative'
+    NEUTRAL = 'neutral'
+
+
 class LuschersColorEnum(StrEnum):
     """Цветов теста Люшера."""
 

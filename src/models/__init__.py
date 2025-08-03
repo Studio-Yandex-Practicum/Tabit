@@ -17,6 +17,7 @@ from .enum import (
     ProblemType,
     SurveysStatus,
     LuschersColorEnum,
+    ChoiceType,
 )
 from .file import FileMeeting, FileMessage, FileProblem, FileTask
 from .landing_page import LandingPage
@@ -87,4 +88,5 @@ __all__ = [
     'SurveyCycleForCompany',
     'SurveyCycleForUser',
     'LuschersColorEnum',
+    'ChoiceType',
 ]
