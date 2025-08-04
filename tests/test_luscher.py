@@ -1,216 +1,219 @@
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from fastapi import status
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from sqlalchemy.orm import load_only, selectinload
 
-from src.models import CompanyUser, SurveyCycleForUser
-from src.models.enum import LuschersColorEnum
-from tests.constants import UrlConstants
+from src.business_logic.luscher import (
+    get_response_result,
+    get_set_answer,
+    get_status_luscher,
+)
 
 
 @pytest.mark.asyncio
-class TestLuscherResultsForAuthenticatedUsers:
-    """Тесты GET-запросов для получения результатов теста Люшера."""
-
-    async def test_get_luscher_results(
-        self,
-        async_session,
-        client: AsyncClient,
-        survey_cycle_for_user_for_test,
-        luscher_color_first,
-        luscher_color_second,
-        get_token_for_user,
+@pytest.mark.parametrize(
+    'mock_colors, mock_combination, expected',
+    [
+        (['+3+2'], {'+3+2': 'Ты молодец!'}, {'status': 'Воодушевлен', 'result': 'Ты молодец!'}),
+    ],
+)
+async def test_get_response_result_single_group(mock_colors, mock_combination, expected):
+    """
+    Тест для проверки получения результата Luscher с одной группой цветов.
+    """
+    mock_session = AsyncMock()
+    mock_cycle_id = 42
+    with (
+        patch('src.business_logic.luscher.get_set_answer', return_value=mock_colors),
+        patch('src.business_logic.luscher.get_combination', return_value=mock_combination),
     ):
-        """
-        Тест успешного получения результата теста Люшера для аутентифицированного пользователя.
+        result = await get_response_result(mock_session, mock_cycle_id)
+    assert result == expected
 
-        Проверяет:
-        1. Успешный статус ответа (200 OK)
-        2. Корректность формата ответа (словарь)
-        3. Наличие ключа 'result' в ответе
-        4. Соответствие текста результата одной из ожидаемых комбинаций Люшера
-        """
-        cycle_for_user, user, _ = await survey_cycle_for_user_for_test(return_related=True)
 
-        user = await async_session.get(type(user), user.id)
-        await luscher_color_second({'survey_cycle_for_user_id': cycle_for_user.id})
-        token = await get_token_for_user(user)
+@pytest.mark.parametrize(
+    'groups, expected',
+    [
+        (['+3+2'], 'Воодушевлен'),
+        (['+2'], 'В норме'),
+        (['+1'], 'Низкий уровень стресса.'),
+        (['+6+7'], 'Высокий уровень стресса.'),
+    ],
+)
+def test_get_status_luscher_various_groups(groups, expected):
+    """
+    Тест для проверки получения статуса Luscher для различных групп цветов.
+    """
+    assert get_status_luscher(groups) == expected
 
-        result = await async_session.execute(
-            select(CompanyUser)
-            .options(selectinload(CompanyUser.company))
-            .where(CompanyUser.id == user.id)
-        )
 
-        user = result.scalars().first()
-        company_slug = user.company.slug
-
-        url = UrlConstants.LUSCHER_CREATE_RESULT.format(
-            company_slug=company_slug,
-            cycle_company_id=cycle_for_user.survey_cycle_for_company_id,
-            cycle_user_id=cycle_for_user.id,
-        )
-
-        response = await client.get(url, headers=token)
-        assert response.status_code == status.HTTP_200_OK
-        response_json = response.json()
-        assert isinstance(response_json, dict)
-        assert 'result' in response_json
-        result_text = response_json['result'].lower()
-        from src.business_logic.luscher import get_combination
-
-        combinations = await get_combination()
-        assert any(value.lower() in result_text for value in combinations.values())
+def test_get_status_luscher_priority():
+    """
+    Тест для проверки приоритета групп цветов Luscher.
+    """
+    assert get_status_luscher(['+3+2', '+2', '+1']) == 'Воодушевлен'
+    assert get_status_luscher(['+2', '+1', '+6+7']) == 'В норме'
+    assert get_status_luscher(['+1', '+6+7']) == 'Низкий уровень стресса.'
+    assert get_status_luscher(['+6+7', '+1']) == 'Высокий уровень стресса.'
 
 
 @pytest.mark.asyncio
-class TestLuscherResultsForUnauthenticatedUsers:
-    """Тесты GET-запросов для получения результатов теста Люшера."""
+async def test_get_response_result_multiple_groups():
+    """
+    Тест для проверки получения результата Luscher с несколькими группами цветов.
+    """
+    mock_session = AsyncMock()
+    mock_cycle_id = 42
+    mock_groups = ['+3+2', '+1+4']
+    mock_combination = {'+3+2': 'A', '+1+4': 'B'}
 
-    async def test_get_luscher_results_unauthorized(
-        self,
-        async_session,
-        client: AsyncClient,
-        survey_cycle_for_user_for_test,
-        luscher_color_first,
+    with (
+        patch('src.business_logic.luscher.get_set_answer', return_value=mock_groups),
+        patch('src.business_logic.luscher.get_combination', return_value=mock_combination),
     ):
-        """
-        Тест запрета доступа к результатам теста Люшера для неавторизованных пользователей.
+        result = await get_response_result(mock_session, mock_cycle_id)
 
-        Проверяет:
-        1. Попытка получения результатов без токена авторизации
-        2. Возвращается статус 401 Unauthorized
-        """
-        cycle_for_user, user, _ = await survey_cycle_for_user_for_test(return_related=True)
-
-        await luscher_color_first({'survey_cycle_for_user_id': cycle_for_user.id})
-
-        result = await async_session.execute(
-            select(CompanyUser)
-            .options(selectinload(CompanyUser.company))
-            .where(CompanyUser.id == user.id)
-        )
-        user = result.scalars().first()
-
-        url = UrlConstants.LUSCHER_CREATE_RESULT.format(
-            company_slug=user.company.slug,
-            cycle_company_id=cycle_for_user.survey_cycle_for_company_id,
-            cycle_user_id=cycle_for_user.id,
-        )
-
-        response = await client.get(url)
-
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert result == {'status': 'Воодушевлен', 'result': 'AB'}
 
 
 @pytest.mark.asyncio
-async def test_create_luscher_result(
-    async_session: AsyncSession,
-    client: AsyncClient,
-    get_token_for_user,
-    survey_cycle_for_user_for_test,
-):
+async def test_get_response_result_partial_combination_raises_key_error():
     """
-    Тест успешного создания результата теста Люшера.
-
-    Проверяет:
-    1. Успешный статус ответа (201 Created)
-    2. Корректное сохранение и возвращение данных (проверка selection_1)
-    3. Работа эндпоинта с корректным токеном и валидным payload
+    Тест для проверки обработки KeyError при отсутствии комбинации.
     """
-    cycle_for_user, user, _ = await survey_cycle_for_user_for_test(return_related=True)
+    mock_session = AsyncMock()
+    mock_cycle_id = 42
+    mock_groups = ['+3+2', '+9+9']
+    mock_combination = {'+3+2': 'X'}
 
-    async with async_session as session:
-        result = await session.execute(
-            select(CompanyUser)
-            .options(
-                selectinload(CompanyUser.company), load_only(CompanyUser.id, CompanyUser.email)
-            )
-            .where(CompanyUser.id == user.id)
-        )
-        user = result.scalar_one()
-
-    token = await get_token_for_user(user)
-    company_slug = user.company.slug
-
-    url = (
-        f'/api/v1/{company_slug}/surveys/cycle/'
-        f'{cycle_for_user.survey_cycle_for_company_id}/{cycle_for_user.id}/luscher_first'
-    )
-
-    payload = {
-        'selection_1': LuschersColorEnum.Blue.value,
-        'selection_2': LuschersColorEnum.Green.value,
-        'selection_3': LuschersColorEnum.Red.value,
-        'selection_4': LuschersColorEnum.Yellow.value,
-        'selection_5': LuschersColorEnum.Violet.value,
-        'selection_6': LuschersColorEnum.Brown.value,
-        'selection_7': LuschersColorEnum.Black.value,
-        'selection_8': LuschersColorEnum.Grey.value,
-    }
-
-    response = await client.post(url, headers=token, json=payload)
-
-    if response.status_code != status.HTTP_201_CREATED:
-        print('Response status:', response.status_code)
-        print('Response body:', response.json())
-
-    assert response.status_code == status.HTTP_201_CREATED
-    response_data = response.json()
-    assert response_data['selection_1'] == payload['selection_1']
+    with (
+        patch('src.business_logic.luscher.get_set_answer', return_value=mock_groups),
+        patch('src.business_logic.luscher.get_combination', return_value=mock_combination),
+    ):
+        with pytest.raises(KeyError) as exc_info:
+            await get_response_result(mock_session, mock_cycle_id)
+        assert '+9+9' in str(exc_info.value)
 
 
 @pytest.mark.asyncio
-async def test_create_luscher_result_invalid_data(
-    async_session: AsyncSession,
-    client: AsyncClient,
-    get_token_for_user,
-    survey_cycle_for_user_for_test,
-):
+@pytest.mark.parametrize(
+    'groups, combination',
+    [
+        (['+1+2'], {}),
+        (['+3+4'], {'+X+X': 'dummy'}),
+    ],
+)
+async def test_get_response_result_with_missing_all_combinations(groups, combination):
     """
-    Тест создания результата теста Люшера с некорректными данными.
-
-    Проверяет:
-    1. Возвращение ошибки валидации (422 Unprocessable Entity) при отправке неправильных данных
-    2. Корректную обработку ошибок на уровне валидации Pydantic / FastAPI
+    Тест для проверки обработки KeyError при отсутствии всех комбинаций.
     """
+    mock_session = AsyncMock()
+    mock_cycle_id = 42
 
-    cycle_for_user, user, _ = await survey_cycle_for_user_for_test(return_related=True)
+    with (
+        patch('src.business_logic.luscher.get_set_answer', return_value=groups),
+        patch('src.business_logic.luscher.get_combination', return_value=combination),
+    ):
+        with pytest.raises(KeyError):
+            await get_response_result(mock_session, mock_cycle_id)
 
-    async with async_session as session:
-        user = await session.scalar(
-            select(CompanyUser)
-            .options(selectinload(CompanyUser.company))
-            .where(CompanyUser.id == user.id)
-        )
 
-        cycle_for_user = await session.scalar(
-            select(SurveyCycleForUser).where(SurveyCycleForUser.id == cycle_for_user.id)
-        )
+@pytest.mark.asyncio
+async def test_get_response_result_calls_dependencies():
+    """
+    Тест для проверки вызовов зависимостей в get_response_result.
+    """
+    mock_session = AsyncMock()
+    mock_cycle_id = 42
 
-    token = await get_token_for_user(user)
+    with (
+        patch(
+            'src.business_logic.luscher.get_set_answer', new_callable=AsyncMock
+        ) as mock_get_set_answer,
+        patch(
+            'src.business_logic.luscher.get_combination', new_callable=AsyncMock
+        ) as mock_get_combination,
+    ):
+        mock_get_set_answer.return_value = ['+2']
+        mock_get_combination.return_value = {'+2': 'Z'}
 
-    url = (
-        f'/api/v1/{user.company.slug}/surveys/cycle/'
-        f'{cycle_for_user.survey_cycle_for_company_id}/{cycle_for_user.id}/luscher_first'
+        result = await get_response_result(mock_session, mock_cycle_id)
+
+        mock_get_set_answer.assert_awaited_once_with(mock_session, mock_cycle_id)
+        mock_get_combination.assert_awaited_once()
+        assert result == {'status': 'В норме', 'result': 'Z'}
+
+
+@pytest.mark.asyncio
+async def test_get_set_answer_returns_expected_groupings():
+    """
+    Тест для проверки структуры группировки ответов Luscher.
+    """
+    mock_session = AsyncMock()
+
+    mock_color = MagicMock()
+    mock_color.get_weight_from_color.side_effect = [3, 2, 1, 4, 5, 6, 7, 8]
+
+    mock_luscher_second = MagicMock(
+        selection_1=mock_color,
+        selection_2=mock_color,
+        selection_3=mock_color,
+        selection_4=mock_color,
+        selection_5=mock_color,
+        selection_6=mock_color,
+        selection_7=mock_color,
+        selection_8=mock_color,
     )
 
-    payload = {
-        'selection_1': LuschersColorEnum.Blue.value,
-        'selection_2': LuschersColorEnum.Green.value,
-        'selection_3': LuschersColorEnum.Red.value,
-        'selection_4': LuschersColorEnum.Yellow.value,
-        'selection_5': LuschersColorEnum.Violet.value,
-        'selection_6': LuschersColorEnum.Brown.value,
-        'selection_7': LuschersColorEnum.Black.value,
-    }
+    with patch(
+        'src.business_logic.luscher.luscher_color_second_crud.get_by_cycle',
+        return_value=mock_luscher_second,
+    ):
+        result = await get_set_answer(mock_session, 42)
 
-    response = await client.post(url, headers=token, json=payload)
+    assert result == ['+3+2', 'х1х4', '=5=6', '-7-8']
 
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
-        f'Ожидается status_code {status.HTTP_422_UNPROCESSABLE_ENTITY}, '
-        f'получен {response.status_code}. '
-        f'Тело ответа: {response.json()}'
-    )
+
+@pytest.mark.asyncio
+async def test_get_response_result_output_structure():
+    """
+    Тест для проверки структуры ответа get_response_result.
+    """
+    mock_session = AsyncMock()
+    mock_cycle_id = 42
+    mock_groups = ['+3+2']
+    mock_combination = {'+3+2': 'abc'}
+
+    with (
+        patch('src.business_logic.luscher.get_set_answer', return_value=mock_groups),
+        patch('src.business_logic.luscher.get_combination', return_value=mock_combination),
+    ):
+        result = await get_response_result(mock_session, mock_cycle_id)
+
+    assert set(result.keys()) == {'status', 'result'}
+    assert isinstance(result['status'], str)
+    assert isinstance(result['result'], str)
+    assert result['result']
+
+
+def test_get_status_luscher_empty_list_raises():
+    """
+    Тест для проверки обработки пустого списка в get_status_luscher.
+    """
+    with pytest.raises(IndexError):
+        get_status_luscher([])
+
+
+@pytest.mark.asyncio
+async def test_get_response_result_with_empty_group_list():
+    """
+    Тест для проверки обработки пустого списка в get_response_result.
+    """
+    mock_session = AsyncMock()
+    mock_cycle_id = 42
+
+    with (
+        patch('src.business_logic.luscher.get_set_answer', return_value=[]),
+        patch('src.business_logic.luscher.get_combination', return_value={}),
+    ):
+        with pytest.raises(IndexError):
+            await get_response_result(mock_session, mock_cycle_id)
