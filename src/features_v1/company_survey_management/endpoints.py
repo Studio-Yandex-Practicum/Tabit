@@ -10,7 +10,6 @@ from src.constants.sociometric import QuestionSelectionStrategy
 from src.core.auth.dependencies import (
     current_company_moderator,
     current_user_tabit,
-    get_current_user,
 )
 from src.core.database.db_depends import get_async_session
 from src.crud.crud_company import company_crud
@@ -443,6 +442,7 @@ async def get_sociometric_questions(
     cycle_company_id: int,
     cycle_user_id: int,
     session: AsyncSession = Depends(get_async_session),
+    current_user=Depends(current_user_tabit),
 ) -> dict:
     await company_crud.get_by_slug(session, company_slug, raise_404=True)
     await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
@@ -457,7 +457,6 @@ async def get_sociometric_questions(
     previous_questions = list(set(choice.criterion_id for choice in previous_choices))
 
     # Определяем, является ли пользователь модератором
-    current_user = await get_current_user(session)
     is_moderator = await check_user_is_moderator(session, current_user.id, company.id)
 
     # Для обычных пользователей всегда используем сбалансированную стратегию
@@ -612,13 +611,13 @@ async def get_sociometric_completion_status(
     cycle_company_id: int,
     cycle_user_id: int,
     session: AsyncSession = Depends(get_async_session),
+    current_user=Depends(current_user_tabit),
 ) -> dict:
     await company_crud.get_by_slug(session, company_slug, raise_404=True)
     await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
     await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
 
     # Определяем, является ли пользователь модератором
-    current_user = await get_current_user(session)
     company = await company_crud.get_by_slug(session, company_slug, raise_404=True)
     is_moderator = await check_user_is_moderator(session, current_user.id, company.id)
 
