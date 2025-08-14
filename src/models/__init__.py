@@ -36,6 +36,7 @@ from .survey import (
     SurveyCycleForUser,
     SociometricCriterion,
     SociometricChoice,
+    SociometricStrategyPreference,
 )
 from .association_models import (
     AssociationUserComment,
@@ -92,6 +93,7 @@ __all__ = [
     'SurveyCycleForUser',
     'SociometricCriterion',
     'SociometricChoice',
+    'SociometricStrategyPreference',
     'LuschersColorEnum',
     'ChoiceType',
     'SociometricCategoryEnum',
