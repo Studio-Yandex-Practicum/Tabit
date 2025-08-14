@@ -18,6 +18,7 @@ from .enum import (
     SurveysStatus,
     LuschersColorEnum,
     ChoiceType,
+    SociometricCategoryEnum,
 )
 from .file import FileMeeting, FileMessage, FileProblem, FileTask
 from .landing_page import LandingPage
@@ -93,4 +94,5 @@ __all__ = [
     'SociometricChoice',
     'LuschersColorEnum',
     'ChoiceType',
+    'SociometricCategoryEnum',
 ]

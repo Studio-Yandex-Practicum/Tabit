@@ -4,14 +4,9 @@ from uuid import UUID
 from sqlalchemy import Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.models import (
-    BaseTabitModel,
-    ChoiceType,
-    LuschersColorEnum,
-    SociometricCategoryEnum,
-    SurveysStatus,
-)
 from src.models.annotations import int_pk
+from src.models.base import BaseTabitModel
+from src.models.enum import ChoiceType, LuschersColorEnum, SociometricCategoryEnum, SurveysStatus
 
 
 class SurveyCycleForCompany(BaseTabitModel):
