@@ -4,7 +4,13 @@ from uuid import UUID
 from sqlalchemy import Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.models import BaseTabitModel, ChoiceType, LuschersColorEnum, SurveysStatus
+from src.models import (
+    BaseTabitModel,
+    ChoiceType,
+    LuschersColorEnum,
+    SociometricCategoryEnum,
+    SurveysStatus,
+)
 from src.models.annotations import int_pk
 
 
@@ -166,6 +172,12 @@ class SociometricCriterion(BaseTabitModel):
         ForeignKey('company.id', ondelete='CASCADE'),
         nullable=False,
     )
+    # Категория критерия (тактическое/стратегическое лидерство)
+    category: Mapped[SociometricCategoryEnum] = mapped_column(
+        Enum(SociometricCategoryEnum),
+        nullable=False,
+        default=SociometricCategoryEnum.TACTICAL_LEADERSHIP,
+    )
 
     def __repr__(self):
         return (
@@ -224,4 +236,24 @@ class SociometricChoice(BaseTabitModel):
             f'criterion_id={self.criterion_id!r}, '
             f'cycle_user_id={self.cycle_user_id!r}, '
             f'choice_type={self.choice_type!r})'
+        )
+
+
+class SociometricStrategyPreference(BaseTabitModel):
+    """Предпочтение стратегии выбора вопросов модератором для конкретного cycle_user."""
+
+    id: Mapped[int_pk]
+    cycle_user_id: Mapped[int] = mapped_column(
+        ForeignKey('surveycycleforuser.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    # Храним как строковое значение из QuestionSelectionStrategy
+    strategy: Mapped[str] = mapped_column(nullable=False)
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'cycle_user_id={self.cycle_user_id!r}, '
+            f'strategy={self.strategy!r})'
         )

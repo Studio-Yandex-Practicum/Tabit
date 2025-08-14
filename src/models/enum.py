@@ -128,6 +128,13 @@ class ChoiceType(BaseStrEnum):
     NEUTRAL = 'neutral'
 
 
+class SociometricCategoryEnum(BaseStrEnum):
+    """Категории социометрических критериев."""
+
+    TACTICAL_LEADERSHIP = 'tactical_leadership'
+    STRATEGIC_LEADERSHIP = 'strategic_leadership'
+
+
 class LuschersColorEnum(StrEnum):
     """Цветов теста Люшера."""
 

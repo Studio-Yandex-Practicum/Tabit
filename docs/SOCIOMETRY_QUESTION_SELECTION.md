@@ -453,7 +453,7 @@ async def get_sociometric_questions(
     '/cycle/{cycle_company_id}/{cycle_user_id}/sociometric/questions/strategy',
     dependencies=[Depends(current_company_moderator)],  # Только для модераторов
     summary='Изменить стратегию выбора вопросов',
-    description='Изменить стратегию выбора вопросов для социометрического теста. Доступно только модераторам.',
+    description='Сохранить предпочтение стратегии модератора для конкретного пользователя цикла.',
 )
 async def change_question_strategy(
     company_slug: str,
@@ -466,8 +466,8 @@ async def change_question_strategy(
     await survey_cycle_for_company_crud.get_or_404(session, cycle_company_id)
     await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
 
-    # Сохраняем предпочтение модератора
-    await save_moderator_strategy_preference(session, cycle_user_id, strategy)
+    # Персистентное хранение предпочтения стратегии
+    await sociometric_strategy_preference_crud.upsert_preference(session, cycle_user_id, strategy)
 
     return {
         "message": f"Стратегия изменена на {strategy}",

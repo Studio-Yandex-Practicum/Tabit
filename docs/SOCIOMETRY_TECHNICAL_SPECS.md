@@ -38,6 +38,7 @@ class SociometricCriterion(BaseTabitModel):
     - choice_type: Тип выбора (положительный, отрицательный, нейтральный).
     - max_choices: Максимальное количество выборов.
     - company_id: Идентификатор компании.
+    - category: Категория критерия (тактическое/стратегическое лидерство).
     """
 
     id: Mapped[int_pk]
@@ -50,6 +51,9 @@ class SociometricCriterion(BaseTabitModel):
     company_id: Mapped[int] = mapped_column(
         ForeignKey('company.id', ondelete='CASCADE'),
         nullable=False,
+    )
+    category: Mapped[SociometricCategoryEnum] = mapped_column(
+        SQLAlchemyEnum(SociometricCategoryEnum), nullable=False
     )
 
     def __repr__(self):
@@ -110,6 +114,17 @@ class SociometricChoice(BaseTabitModel):
             f'criterion_id={self.criterion_id!r}, '
             f'cycle_user_id={self.cycle_user_id!r})'
         )
+
+
+class SociometricStrategyPreference(BaseTabitModel):
+    """Предпочтение стратегии выбора вопросов модератором для конкретного cycle_user."""
+
+    id: Mapped[int_pk]
+    cycle_user_id: Mapped[int] = mapped_column(
+        ForeignKey('surveycycleforuser.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    strategy: Mapped[str] = mapped_column(nullable=False)
 ```
 
 ### 1.2 Обновление существующих моделей
@@ -147,6 +162,7 @@ class SociometricCriterionBaseSchema(BaseModel):
     description: str
     choice_type: ChoiceTypeEnum
     max_choices: int
+    category: SociometricCategoryEnum
 
 
 class SociometricCriterionCreateSchema(SociometricCriterionBaseSchema):
@@ -786,6 +802,10 @@ async def get_sociometric_questions(
 
     # Для обычных пользователей всегда используем сбалансированную стратегию
     strategy = QuestionSelectionStrategy.BALANCED
+    # Для модератора, если есть сохраненная стратегия — используем её
+    pref = await sociometric_strategy_preference_crud.get_preference(session, cycle_user_id)
+    if is_moderator and pref:
+        strategy = QuestionSelectionStrategy(pref.strategy)
 
     # Выбираем вопросы
     selector = SociometricQuestionSelector(strategy, is_moderator=is_moderator)
@@ -957,8 +977,9 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Создание enum для типов выборов
+    # Создание enum для типов выборов и категории
     op.execute("CREATE TYPE choicetype AS ENUM ('positive', 'negative', 'neutral')")
+    op.execute("CREATE TYPE sociometriccategory AS ENUM ('tactical_leadership', 'strategic_leadership')")
 
     # Создание таблицы критериев социометрии
     op.create_table('sociometriccriterion',
@@ -968,6 +989,7 @@ def upgrade() -> None:
         sa.Column('choice_type', postgresql.ENUM('positive', 'negative', 'neutral', name='choicetype'), nullable=False),
         sa.Column('max_choices', sa.Integer(), nullable=False),
         sa.Column('company_id', sa.Integer(), nullable=False),
+        sa.Column('category', postgresql.ENUM('tactical_leadership', 'strategic_leadership', name='sociometriccategory'), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.ForeignKeyConstraint(['company_id'], ['company.id'], name='sociometriccriterion_company_id_fkey', ondelete='CASCADE'),
@@ -1011,6 +1033,7 @@ def downgrade() -> None:
     op.drop_table('sociometriccriterion')
 
     # Удаление enum
+    op.execute("DROP TYPE sociometriccategory")
     op.execute("DROP TYPE choicetype")
 ```
 
@@ -1211,29 +1234,10 @@ class SociometricSecurityConfig(BaseModel):
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.user import CompanyUser
-from src.models.enum import UserRoleEnum
+from src.business_logic.sociometrics import check_user_is_moderator
 
-
-async def check_user_is_moderator(
-    session: AsyncSession,
-    user_id: int,
-    company_id: int
-) -> bool:
-    """Проверить, является ли пользователь модератором компании."""
-
-    result = await session.execute(
-        select(CompanyUser)
-        .where(
-            and_(
-                CompanyUser.user_id == user_id,
-                CompanyUser.company_id == company_id,
-                CompanyUser.role == UserRoleEnum.MODERATOR
-            )
-        )
-    )
-
-    return result.scalar_one_or_none() is not None
+# Функция check_user_is_moderator теперь использует CRUD операции вместо прямых запросов к БД
+# См. src/business_logic/sociometrics.py для реализации
 
 
 async def validate_user_strategy_access(

@@ -1,6 +1,6 @@
 """Бизнес-логика модуля социометрии для Tabit."""
 
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Literal, Tuple
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -10,129 +10,251 @@ from src.core.config.logging import logger
 from src.crud.crud_surveys import (
     luscher_color_first_crud,
     luscher_color_second_crud,
+    sociometric_choice_crud,
+    survey_cycle_for_company_crud,
     survey_cycle_for_user_crud,
 )
+from src.crud.crud_user import user_crud
 from src.models.enum import ChoiceType
+
+
+async def check_user_is_moderator(session: AsyncSession, user_id: UUID, company_id: int) -> bool:
+    """
+    Проверить, является ли пользователь модератором компании.
+
+    Использует CRUD операции вместо прямых запросов к БД.
+
+    Args:
+        session: Сессия базы данных
+        user_id: ID пользователя
+        company_id: ID компании
+
+    Returns:
+        bool: True если пользователь является модератором компании
+    """
+    return await user_crud.is_user_moderator(session, user_id, company_id)
 
 
 class SociometricIndices:
     """Класс для расчета социометрических индексов."""
 
     @staticmethod
-    def calculate_popularity(choices_data: List[Dict]) -> Dict[UUID, int]:
-        """Расчет популярности (степень входа).
+    def calculate_sociometric_indices(
+        choices_data: List[Any],
+        calculation_type: Literal[
+            'popularity',
+            'rejection',
+            'expansiveness',
+            'mutual_choices',
+            'group_cohesion',
+            'sociometric_report',
+            'all',
+        ] = 'all',
+        total_participants: int = None,
+    ) -> Dict:
+        """
+        Единый метод для расчета социометрических индексов.
 
         Args:
             choices_data: Список словарей с данными выборов
+            calculation_type: Тип расчета ('popularity', 'rejection', 'expansiveness',
+                           'mutual_choices', 'group_cohesion', 'sociometric_report', 'all')
+            total_participants: Общее количество участников (нужно для group_cohesion)
 
         Returns:
-            Словарь {employee_id: количество_положительных_выборов}
+            Словарь с результатами расчетов в зависимости от типа
         """
-        popularity_scores = {}
-        for choice in choices_data:
-            if choice.get('choice_type') == ChoiceType.POSITIVE:
-                chosen_employee_id = choice.get('chosen_employee_id')
-                if chosen_employee_id:
-                    popularity_scores[chosen_employee_id] = (
-                        popularity_scores.get(chosen_employee_id, 0) + 1
+
+        def _get(obj, attr):
+            return obj.get(attr) if isinstance(obj, dict) else getattr(obj, attr, None)
+
+        if calculation_type == 'all' or calculation_type == 'sociometric_report':
+            # Выполняем все расчеты за один проход
+            popularity_scores = {}
+            rejection_scores = {}
+            expansiveness_scores = {}
+            choices_dict = {}
+
+            # Один проход по всем данным
+            for choice in choices_data:
+                participant_id = _get(choice, 'participant_id')
+                chosen_employee_id = _get(choice, 'chosen_employee_id')
+                choice_type = _get(choice, 'choice_type')
+
+                # Расчет экспансивности (количество сделанных выборов)
+                if participant_id:
+                    expansiveness_scores[participant_id] = (
+                        expansiveness_scores.get(participant_id, 0) + 1
                     )
-        return popularity_scores
 
-    @staticmethod
-    def calculate_rejection(choices_data: List[Dict]) -> Dict[UUID, int]:
-        """Расчет отторжения (отрицательная степень входа).
-
-        Args:
-            choices_data: Список словарей с данными выборов
-
-        Returns:
-            Словарь {employee_id: количество_отрицательных_выборов}
-        """
-        rejection_scores = {}
-        for choice in choices_data:
-            if choice.get('choice_type') == ChoiceType.NEGATIVE:
-                chosen_employee_id = choice.get('chosen_employee_id')
+                # Расчет популярности и отторжения
                 if chosen_employee_id:
-                    rejection_scores[chosen_employee_id] = (
-                        rejection_scores.get(chosen_employee_id, 0) + 1
-                    )
-        return rejection_scores
+                    if choice_type == ChoiceType.POSITIVE:
+                        popularity_scores[chosen_employee_id] = (
+                            popularity_scores.get(chosen_employee_id, 0) + 1
+                        )
+                    elif choice_type == ChoiceType.NEGATIVE:
+                        rejection_scores[chosen_employee_id] = (
+                            rejection_scores.get(chosen_employee_id, 0) + 1
+                        )
 
-    @staticmethod
-    def calculate_expansiveness(choices_data: List[Dict]) -> Dict[UUID, int]:
-        """Расчет экспансивности (степень выхода).
+                # Подготовка для расчета взаимных выборов
+                if participant_id and chosen_employee_id:
+                    key = (participant_id, chosen_employee_id)
+                    choices_dict[key] = choice
 
-        Args:
-            choices_data: Список словарей с данными выборов
-
-        Returns:
-            Словарь {participant_id: количество_сделанных_выборов}
-        """
-        expansiveness_scores = {}
-        for choice in choices_data:
-            participant_id = choice.get('participant_id')
-            if participant_id:
-                expansiveness_scores[participant_id] = (
-                    expansiveness_scores.get(participant_id, 0) + 1
-                )
-        return expansiveness_scores
-
-    @staticmethod
-    def calculate_mutual_choices(choices_data: List[Dict]) -> List[Tuple]:
-        """Расчет взаимных выборов.
-
-        Args:
-            choices_data: Список словарей с данными выборов
-
-        Returns:
-            Список кортежей с парами взаимных выборов
-        """
-        mutual_pairs = []
-        choices_dict = {}
-
-        for choice in choices_data:
-            participant_id = choice.get('participant_id')
-            chosen_employee_id = choice.get('chosen_employee_id')
-            choice_type = choice.get('choice_type')
-
-            if participant_id and chosen_employee_id:
-                key = (participant_id, chosen_employee_id)
-                choices_dict[key] = choice
+            # Расчет взаимных выборов
+            mutual_pairs = []
+            for key, choice in choices_dict.items():
+                participant_id, chosen_employee_id = key
+                choice_type = _get(choice, 'choice_type')
 
                 reverse_key = (chosen_employee_id, participant_id)
                 if reverse_key in choices_dict:
                     reverse_choice = choices_dict[reverse_key]
-                    # Проверяем, что оба выбора положительные
                     if (
                         choice_type == ChoiceType.POSITIVE
                         and reverse_choice.get('choice_type') == ChoiceType.POSITIVE
                     ):
                         mutual_pairs.append((key, reverse_key))
 
-        return mutual_pairs
+            # Расчет сплоченности группы
+            group_cohesion = 0.0
+            if total_participants and total_participants > 1:
+                total_possible_choices = total_participants * (total_participants - 1)
+                actual_positive_choices = len(
+                    [c for c in choices_data if _get(c, 'choice_type') == ChoiceType.POSITIVE]
+                )
+                group_cohesion = (
+                    actual_positive_choices / total_possible_choices
+                    if total_possible_choices > 0
+                    else 0.0
+                )
+
+            if calculation_type == 'sociometric_report':
+                return {
+                    'popularity': popularity_scores,
+                    'rejection': rejection_scores,
+                    'expansiveness': expansiveness_scores,
+                    'mutual_choices': mutual_pairs,
+                    'group_cohesion': group_cohesion,
+                    'total_participants': total_participants,
+                }
+            else:  # 'all'
+                return {
+                    'popularity': popularity_scores,
+                    'rejection': rejection_scores,
+                    'expansiveness': expansiveness_scores,
+                    'mutual_choices': mutual_pairs,
+                    'group_cohesion': group_cohesion,
+                }
+
+        elif calculation_type == 'popularity':
+            popularity_scores = {}
+            for choice in choices_data:
+                if _get(choice, 'choice_type') == ChoiceType.POSITIVE:
+                    chosen_employee_id = _get(choice, 'chosen_employee_id')
+                    if chosen_employee_id:
+                        popularity_scores[chosen_employee_id] = (
+                            popularity_scores.get(chosen_employee_id, 0) + 1
+                        )
+            return {'popularity': popularity_scores}
+
+        elif calculation_type == 'rejection':
+            rejection_scores = {}
+            for choice in choices_data:
+                if _get(choice, 'choice_type') == ChoiceType.NEGATIVE:
+                    chosen_employee_id = _get(choice, 'chosen_employee_id')
+                    if chosen_employee_id:
+                        rejection_scores[chosen_employee_id] = (
+                            rejection_scores.get(chosen_employee_id, 0) + 1
+                        )
+            return {'rejection': rejection_scores}
+
+        elif calculation_type == 'expansiveness':
+            expansiveness_scores = {}
+            for choice in choices_data:
+                participant_id = _get(choice, 'participant_id')
+                if participant_id:
+                    expansiveness_scores[participant_id] = (
+                        expansiveness_scores.get(participant_id, 0) + 1
+                    )
+            return {'expansiveness': expansiveness_scores}
+
+        elif calculation_type == 'mutual_choices':
+            mutual_pairs = []
+            choices_dict = {}
+
+            for choice in choices_data:
+                participant_id = _get(choice, 'participant_id')
+                chosen_employee_id = _get(choice, 'chosen_employee_id')
+                choice_type = _get(choice, 'choice_type')
+
+                if participant_id and chosen_employee_id:
+                    key = (participant_id, chosen_employee_id)
+                    choices_dict[key] = choice
+
+                    reverse_key = (chosen_employee_id, participant_id)
+                    if reverse_key in choices_dict:
+                        reverse_choice = choices_dict[reverse_key]
+                        if (
+                            choice_type == ChoiceType.POSITIVE
+                            and _get(reverse_choice, 'choice_type') == ChoiceType.POSITIVE
+                        ):
+                            mutual_pairs.append((key, reverse_key))
+
+            return {'mutual_choices': mutual_pairs}
+
+        elif calculation_type == 'group_cohesion':
+            if not total_participants or total_participants <= 1:
+                return {'group_cohesion': 0.0}
+
+            total_possible_choices = total_participants * (total_participants - 1)
+            actual_positive_choices = len(
+                [c for c in choices_data if _get(c, 'choice_type') == ChoiceType.POSITIVE]
+            )
+            group_cohesion = (
+                actual_positive_choices / total_possible_choices
+                if total_possible_choices > 0
+                else 0.0
+            )
+            return {'group_cohesion': group_cohesion}
+
+        else:
+            raise ValueError(f'Неизвестный тип расчета: {calculation_type}')
+
+    # Оставляем старые методы для обратной совместимости
+    @staticmethod
+    def calculate_popularity(choices_data: List[Dict]) -> Dict[UUID, int]:
+        """Расчет популярности (степень входа)."""
+        result = SociometricIndices.calculate_sociometric_indices(choices_data, 'popularity')
+        return result['popularity']
+
+    @staticmethod
+    def calculate_rejection(choices_data: List[Dict]) -> Dict[UUID, int]:
+        """Расчет отторжения (отрицательная степень входа)."""
+        result = SociometricIndices.calculate_sociometric_indices(choices_data, 'rejection')
+        return result['rejection']
+
+    @staticmethod
+    def calculate_expansiveness(choices_data: List[Dict]) -> Dict[UUID, int]:
+        """Расчет экспансивности (степень выхода)."""
+        result = SociometricIndices.calculate_sociometric_indices(choices_data, 'expansiveness')
+        return result['expansiveness']
+
+    @staticmethod
+    def calculate_mutual_choices(choices_data: List[Dict]) -> List[Tuple]:
+        """Расчет взаимных выборов."""
+        result = SociometricIndices.calculate_sociometric_indices(choices_data, 'mutual_choices')
+        return result['mutual_choices']
 
     @staticmethod
     def calculate_group_cohesion(choices_data: List[Dict], total_participants: int) -> float:
-        """Расчет сплоченности группы.
-
-        Args:
-            choices_data: Список словарей с данными выборов
-            total_participants: Общее количество участников
-
-        Returns:
-            Коэффициент сплоченности группы (0.0 - 1.0)
-        """
-        if total_participants <= 1:
-            return 0.0
-
-        total_possible_choices = total_participants * (total_participants - 1)
-        actual_positive_choices = len(
-            [c for c in choices_data if c.get('choice_type') == ChoiceType.POSITIVE]
+        """Расчет сплоченности группы."""
+        result = SociometricIndices.calculate_sociometric_indices(
+            choices_data, 'group_cohesion', total_participants
         )
-
-        return (
-            actual_positive_choices / total_possible_choices if total_possible_choices > 0 else 0.0
-        )
+        return result['group_cohesion']
 
 
 def identify_sociometric_stars_and_isolates(
@@ -234,6 +356,173 @@ async def analyze_emotional_context(session: AsyncSession, cycle_user_id: int) -
             'emotional_state': 'Ошибка анализа',
             'social_readiness': 'Ошибка анализа',
         }
+
+
+async def analyze_emotional_context_for_cycle(
+    session: AsyncSession, cycle_company_id: int
+) -> dict:
+    """Агрегированный анализ эмоционального контекста по всем пользователям цикла."""
+    try:
+        # Получаем всех пользователей в цикле
+        cycle_users = await survey_cycle_for_company_crud.get_by_cycle_company(
+            session, cycle_company_id
+        )
+        summaries: List[Dict[str, str]] = []
+        for cu in cycle_users:
+            summary = await analyze_emotional_context(session, cu.id)
+            summaries.append(summary)
+
+        def count_by(key: str) -> Dict[str, int]:
+            res: Dict[str, int] = {}
+            for s in summaries:
+                val = s.get(key, 'Не определен')
+                res[val] = res.get(val, 0) + 1
+            return res
+
+        total = len(summaries)
+        return {
+            'total_users': total,
+            'stress_level_distribution': count_by('stress_level'),
+            'emotional_state_distribution': count_by('emotional_state'),
+            'social_readiness_distribution': count_by('social_readiness'),
+        }
+    except Exception as e:
+        logger.error(f'Ошибка при анализе эмоционального контекста цикла: {e}')
+        return {
+            'total_users': 0,
+            'stress_level_distribution': {},
+            'emotional_state_distribution': {},
+            'social_readiness_distribution': {},
+        }
+
+
+async def correlate_emotions_with_sociometric_choices(
+    session: AsyncSession, cycle_company_id: int
+) -> dict:
+    """Простая корреляция эмоционального состояния с социометрическими показателями."""
+    try:
+        # Получаем выборы и участников
+        from src.crud.crud_surveys import sociometric_choice_crud
+
+        choices = await sociometric_choice_crud.get_by_cycle_company(session, cycle_company_id)
+        cycle_users = await survey_cycle_for_company_crud.get_by_cycle_company(
+            session, cycle_company_id
+        )
+        participant_ids = [cu.user_id for cu in cycle_users]
+
+        # Индексы по участникам
+        indices = SociometricIndices.calculate_sociometric_indices(
+            choices, 'all', total_participants=len(participant_ids)
+        )
+        popularity = indices['popularity']
+        rejection = indices['rejection']
+        expansiveness = indices['expansiveness']
+
+        # Эмоциональные статусы по пользователям
+        emotion_map: Dict[UUID, Dict[str, str]] = {}
+        for cu in cycle_users:
+            emotion_map[cu.user_id] = await analyze_emotional_context(session, cu.id)
+
+        # Условные “оценки” эмоций для грубой корреляции
+        def readiness_score(v: str) -> int:
+            if 'Высок' in v:
+                return 2
+            if 'Средн' in v:
+                return 1
+            return 0
+
+        def stress_score(v: str) -> int:
+            if 'Высок' in v:
+                return 2
+            if 'Низк' in v:
+                return 0
+            return 1
+
+        # Собираем массивы для сравнения
+        data = []
+        for uid in participant_ids:
+            emo = emotion_map.get(uid, {})
+            data.append(
+                {
+                    'user_id': uid,
+                    'social_readiness_score': readiness_score(emo.get('social_readiness', '')),
+                    'stress_score': stress_score(emo.get('stress_level', '')),
+                    'popularity': popularity.get(uid, 0),
+                    'rejection': rejection.get(uid, 0),
+                    'expansiveness': expansiveness.get(uid, 0),
+                }
+            )
+
+        # Простые сводки влияния
+        def avg(iterable: List[int]) -> float:
+            return sum(iterable) / len(iterable) if iterable else 0.0
+
+        stress_impact = {
+            'avg_popularity_by_stress': {
+                'low_or_normal': avg([d['popularity'] for d in data if d['stress_score'] <= 1]),
+                'high': avg([d['popularity'] for d in data if d['stress_score'] == 2]),
+            },
+            'avg_rejection_by_stress': {
+                'low_or_normal': avg([d['rejection'] for d in data if d['stress_score'] <= 1]),
+                'high': avg([d['rejection'] for d in data if d['stress_score'] == 2]),
+            },
+        }
+
+        stars_isolates = identify_sociometric_stars_and_isolates(popularity, rejection)
+        social_position_impact = {
+            'stars_readiness_avg': avg(
+                [
+                    readiness_score(
+                        emotion_map.get(u['employee_id'], {}).get('social_readiness', '')
+                    )
+                    for u in stars_isolates['stars']
+                ]
+            ),
+            'isolates_stress_avg': avg(
+                [
+                    stress_score(emotion_map.get(u['employee_id'], {}).get('stress_level', ''))
+                    for u in stars_isolates['isolates']
+                ]
+            ),
+        }
+
+        isolation_effects = {
+            'high_stress_isolate_rate': (
+                len(
+                    [
+                        u
+                        for u in stars_isolates['isolates']
+                        if stress_score(
+                            emotion_map.get(u['employee_id'], {}).get('stress_level', '')
+                        )
+                        == 2
+                    ]
+                )
+                / max(1, len(stars_isolates['isolates']))
+            )
+        }
+
+        return {
+            'stress_impact_on_choices': stress_impact,
+            'social_position_impact': social_position_impact,
+            'isolation_effects': isolation_effects,
+        }
+
+    except Exception as e:
+        logger.error(f'Ошибка при корреляционном анализе: {e}')
+        return {
+            'stress_impact_on_choices': {},
+            'social_position_impact': {},
+            'isolation_effects': {},
+        }
+
+
+def generate_combined_recommendations(
+    emotional_context: dict, sociometric_results: dict, correlations: dict
+) -> list[str]:
+    """Генерация комбинированных рекомендаций (заглушка)."""
+    # TODO: Реализовать генерацию комбинированных рекомендаций
+    return ['Комбинированный анализ находится в разработке']
 
 
 async def compare_emotional_changes(session: AsyncSession, cycle_user_id: int) -> Dict[str, Dict]:
@@ -414,27 +703,68 @@ async def validate_sociometric_choices(
         )
 
 
+async def generate_sociometric_report(session: AsyncSession, cycle_company_id: int) -> dict:
+    """Генерация полного отчета по социометрии."""
+
+    # Получаем все данные
+    choices_data = await sociometric_choice_crud.get_by_cycle_company(session, cycle_company_id)
+
+    # Получаем участников цикла
+    from src.crud.crud_surveys import survey_cycle_for_company_crud
+
+    cycle_users = await survey_cycle_for_company_crud.get_by_cycle_company(
+        session, cycle_company_id
+    )
+    participants = [cycle_user.user_id for cycle_user in cycle_users]
+
+    # Рассчитываем индексы
+    popularity_scores = SociometricIndices.calculate_popularity(choices_data)
+    rejection_scores = SociometricIndices.calculate_rejection(choices_data)
+    expansiveness_scores = SociometricIndices.calculate_expansiveness(choices_data)
+    mutual_choices = SociometricIndices.calculate_mutual_choices(choices_data)
+    group_cohesion = SociometricIndices.calculate_group_cohesion(choices_data, len(participants))
+
+    # Выявляем звезд и изолятов
+    stars_and_isolates = identify_sociometric_stars_and_isolates(
+        popularity_scores, rejection_scores
+    )
+
+    return {
+        'cycle_info': {
+            'cycle_company_id': cycle_company_id,
+            'total_participants': len(participants),
+            'total_choices': len(choices_data),
+        },
+        'individual_scores': {
+            'popularity': popularity_scores,
+            'rejection': rejection_scores,
+            'expansiveness': expansiveness_scores,
+        },
+        'group_metrics': {
+            'cohesion': group_cohesion,
+            'mutual_choices_count': len(mutual_choices),
+            'stars_count': len(stars_and_isolates['stars']),
+            'isolates_count': len(stars_and_isolates['isolates']),
+        },
+        'special_identifications': stars_and_isolates,
+        'recommendations': generate_recommendations(
+            popularity_scores, rejection_scores, stars_and_isolates, group_cohesion
+        ),
+    }
+
+
 def generate_recommendations(
-    popularity_scores: Dict[UUID, int],
-    rejection_scores: Dict[UUID, int],
-    stars_and_isolates: Dict[str, List[Dict]],
+    popularity_scores: dict,
+    rejection_scores: dict,
+    stars_and_isolates: dict,
     group_cohesion: float,
-) -> List[str]:
-    """Генерация рекомендаций для HR на основе социометрических данных.
+) -> list[str]:
+    """Генерация рекомендаций для HR на основе социометрических данных."""
 
-    Args:
-        popularity_scores: Словарь популярности участников
-        rejection_scores: Словарь отторжения участников
-        stars_and_isolates: Данные о звездах и изолятах
-        group_cohesion: Коэффициент сплоченности группы
-
-    Returns:
-        Список рекомендаций
-    """
     recommendations = []
 
     # Анализ изолятов
-    if stars_and_isolates.get('isolates'):
+    if stars_and_isolates['isolates']:
         recommendations.append(
             'Выявлены социально изолированные сотрудники. '
             'Рекомендуется провести индивидуальные беседы и '
@@ -442,7 +772,7 @@ def generate_recommendations(
         )
 
     # Анализ звезд
-    if stars_and_isolates.get('stars'):
+    if stars_and_isolates['stars']:
         recommendations.append(
             'Выявлены неформальные лидеры. '
             'Рекомендуется привлечь их к наставничеству '
@@ -484,17 +814,22 @@ async def get_user_test_completion_status(
         Словарь со статусом завершения теста
     """
     try:
-        # Получаем прогресс теста
-        # TODO: Получить критерии из БД по cycle_user_id
-        # cycle_user = await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
-        # cycle_company = await survey_cycle_for_company_crud.get_or_404(
-        #     session, cycle_user.survey_cycle_for_company_id
-        # )
+        # Получаем прогресс теста из фактических данных
+        cycle_user = await survey_cycle_for_user_crud.get_or_404(session, cycle_user_id)
+        cycle_company = await survey_cycle_for_company_crud.get_or_404(
+            session, cycle_user.survey_cycle_for_company_id
+        )
 
-        # Здесь должна быть логика получения критериев и ответов
-        # Пока возвращаем базовую структуру
-        total_criteria = 5  # Заглушка - должно быть получено из БД
-        answered_count = 3  # Заглушка - должно быть получено из БД
+        from src.crud.crud_surveys import sociometric_choice_crud, sociometric_criterion_crud
+
+        all_criteria = await sociometric_criterion_crud.get_by_company(
+            session, company_id=cycle_company.company_id
+        )
+        total_criteria = len(all_criteria)
+
+        answered_choices = await sociometric_choice_crud.get_by_cycle_user(session, cycle_user_id)
+        answered_criteria = list({choice.criterion_id for choice in answered_choices})
+        answered_count = len(answered_criteria)
         progress_percentage = (answered_count / total_criteria) * 100 if total_criteria > 0 else 0
 
         # Определяем минимальный порог завершения теста
