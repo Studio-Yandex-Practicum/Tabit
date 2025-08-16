@@ -18,6 +18,15 @@ def get_tabit_openapi(app: FastAPI, settings: Settings) -> Callable:
                 version=settings.version,
                 routes=app.routes,
             )
+            # Дополнительные теги для социометрии
+            tags = openapi_schema.get('tags', [])
+            tags.append(
+                {
+                    'name': 'sociometric',
+                    'description': 'Операции с социометрическим тестированием',
+                }
+            )
+            openapi_schema['tags'] = tags
             openapi_schema['components']['securitySchemes']['jwt_auth_backend_admin'] = {
                 'type': 'http',
                 'scheme': 'bearer',
