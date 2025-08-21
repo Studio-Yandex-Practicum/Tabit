@@ -2,13 +2,19 @@
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import Enum
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models import BaseTabitModel
 from src.models.annotations import int_pk, owner
 
 if TYPE_CHECKING:
-    from src.models import CompanyUser, RiskGroupType, SociometricCategoryEnum
+    from src.models import (
+        CommunicationType,
+        CompanyUser,
+        RiskGroupType,
+        SociometricCategoryEnum,
+    )
 
 
 class RiskGroup(BaseTabitModel):
@@ -32,7 +38,7 @@ class RiskGroup(BaseTabitModel):
     id: Mapped[int_pk]
     user_id: Mapped[owner]
     user: Mapped['CompanyUser'] = relationship(back_populates='risk_group_user')
-    risk_group_type: Mapped['RiskGroupType']
+    risk_group_type: Mapped[RiskGroupType] = mapped_column(Enum(RiskGroupType))
 
     def __repr__(self):
         return (
@@ -64,7 +70,7 @@ class Leadership(BaseTabitModel):
     id: Mapped[int_pk]
     user_id: Mapped[owner]
     user: Mapped['CompanyUser'] = relationship(back_populates='leadership')
-    leadership_type: Mapped['SociometricCategoryEnum']
+    leadership_type: Mapped[SociometricCategoryEnum] = mapped_column(Enum(SociometricCategoryEnum))
 
     def __repr__(self):
         return (
@@ -95,7 +101,7 @@ class Communication(BaseTabitModel):
     id: Mapped[int_pk]
     user_id: Mapped[owner]
     user: Mapped['CompanyUser'] = relationship(back_populates='communication')
-    communication_type: Mapped['SociometricCategoryEnum']
+    communication_type: Mapped[CommunicationType] = mapped_column(Enum(CommunicationType))
 
     def __repr__(self):
         return (
