@@ -3,11 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from src.models import (
-    CommunicationType,
-    RiskGroupType,
-    SociometricCategoryEnum
-)
+from src.models import CommunicationType, RiskGroupType, SociometricCategoryEnum
 
 
 class RiskGroupSchema(BaseModel):

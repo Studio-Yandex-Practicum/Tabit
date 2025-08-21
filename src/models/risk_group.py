@@ -7,11 +7,7 @@ from src.models import BaseTabitModel
 from src.models.annotations import int_pk, owner
 
 if TYPE_CHECKING:
-    from src.models import (
-        CompanyUser,
-        RiskGroupType,
-        SociometricCategoryEnum,
-    )
+    from src.models import CompanyUser, RiskGroupType, SociometricCategoryEnum
 
 
 class RiskGroup(BaseTabitModel):
