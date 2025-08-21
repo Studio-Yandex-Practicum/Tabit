@@ -1,4 +1,5 @@
 import logging
+from uuid import UUID  # noqa: F401  # Required for CRUDPasswordMixin methods
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
