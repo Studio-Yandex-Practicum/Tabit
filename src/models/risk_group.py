@@ -8,7 +8,7 @@ from src.models import (
     CommunicationType,
     CompanyUser,
     RiskGroupType,
-    SociometricCategoryEnum
+    SociometricCategoryEnum,
 )
 from src.models.annotations import int_pk, owner
 
