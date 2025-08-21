@@ -17,16 +17,16 @@ class TestGetTabitManagement:
         """Тест для проверки получения списка компаний."""
         ten_companies = [await company_for_test() for _ in range(10)]
         response = await client.get(UrlConstants.ADMIN_GET_COMPANIES, headers=admin_token)
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
         result = response.json()
-        assert isinstance(
-            result, list
-        ), f'В качестве ответа должен быть получен list, пришёл {type(result)}'
-        assert len(result) == len(
-            ten_companies
-        ), f'Длина полученного списка должна быть равна {len(ten_companies)}'
+        assert isinstance(result, list), (
+            f'В качестве ответа должен быть получен list, пришёл {type(result)}'
+        )
+        assert len(result) == len(ten_companies), (
+            f'Длина полученного списка должна быть равна {len(ten_companies)}'
+        )
 
     @pytest.mark.skip(reason='Нет возможности протестировать')
     async def test_get_paginated_companies_info(
@@ -52,16 +52,16 @@ class TestGetTabitManagement:
             for _ in range(10)
         ]
         response = await client.get(UrlConstants.ADMIN_MODS_URL, headers=admin_token)
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
         result = response.json()
-        assert isinstance(
-            result, list
-        ), f'В качестве ответа должен быть получен list, пришёл {type(result)}'
-        assert len(result) == len(
-            ten_mods
-        ), f'Длина полученного списка должна быть равна {len(ten_mods)}'
+        assert isinstance(result, list), (
+            f'В качестве ответа должен быть получен list, пришёл {type(result)}'
+        )
+        assert len(result) == len(ten_mods), (
+            f'Длина полученного списка должна быть равна {len(ten_mods)}'
+        )
 
     @pytest.mark.skip(reason='Нет возможности протестировать')
     async def test_get_paginated_multiple_staff(
@@ -96,9 +96,9 @@ class TestGetTabitManagement:
                 ),
                 headers=admin_token,
             )
-        assert (
-            response.status_code == status_code
-        ), f'В ответе ожидается status_code {status_code}, получен {response.status_code}'
+        assert response.status_code == status_code, (
+            f'В ответе ожидается status_code {status_code}, получен {response.status_code}'
+        )
 
 
 @pytest.mark.asyncio(loop_scope='session')
@@ -118,9 +118,9 @@ class TestPostTabitManagement:
                 **{'company_id': department.company_id, 'current_department_id': department.id},
             },
         )
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
         result = response.json()
         for key in TabitManagementDataConstants.ADMIN_CREATE_MOD_NEW:
             if key != 'password':
@@ -167,7 +167,7 @@ class TestPostTabitManagement:
             UrlConstants.ADMIN_MODS_URL, headers=admin_token, json=payload
         )
         assert response.status_code == expected_status, (
-            f'В ответе ожидается status_code {expected_status}, ' f'получен {response.status_code}'
+            f'В ответе ожидается status_code {expected_status}, получен {response.status_code}'
         )
         new_user_count = await get_count(async_session, CompanyUser)
         assert new_user_count == old_user_count, (
@@ -203,9 +203,9 @@ class TestUpdateTabitManagement:
             headers=admin_token,
             json=payload,
         )
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
         result = response.json()
         for key in payload:
             assert result[key] == payload[key]
@@ -251,9 +251,9 @@ class TestUpdateTabitManagement:
         )
         moderator = await async_session.merge(moderator)
         new_moderator_data = await update_object(async_session, moderator)
-        assert (
-            new_moderator_data == old_moderator_data
-        ), 'При неуспешном PATCH-запросе объект пользователя не должен меняться'
+        assert new_moderator_data == old_moderator_data, (
+            'При неуспешном PATCH-запросе объект пользователя не должен меняться'
+        )
 
     @pytest.mark.parametrize(
         'payload, check_department_change', TabitManagementDataConstants.ADMIN_PUT_MOD
@@ -278,9 +278,9 @@ class TestUpdateTabitManagement:
             headers=admin_token,
             json=payload,
         )
-        assert (
-            response.status_code == status.HTTP_200_OK
-        ), f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        assert response.status_code == status.HTTP_200_OK, (
+            f'В ответе ожидается status_code {status.HTTP_200_OK}, получен {response.status_code}'
+        )
         result = response.json()
         for key in payload:
             if key != 'password':
@@ -327,9 +327,9 @@ class TestUpdateTabitManagement:
         )
         moderator = await async_session.merge(moderator)
         new_moderator_data = await update_object(async_session, moderator)
-        assert (
-            new_moderator_data == old_moderator_data
-        ), 'При неуспешном PUT-запросе объект пользователя не должен меняться'
+        assert new_moderator_data == old_moderator_data, (
+            'При неуспешном PUT-запросе объект пользователя не должен меняться'
+        )
 
     async def test_update_404(self, client: AsyncClient, admin_token):
         """Тест для проверки PATCH- и PUT- запросов к несуществующему пользователю"""

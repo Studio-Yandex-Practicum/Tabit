@@ -369,9 +369,10 @@ class TestGetDepartment:
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN.issubset(
-            data
-        ), f'Компания должна содержать поля: {ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN}'
+        assert ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN.issubset(data), (
+            f'Компания должна содержать поля: '
+            f'{ExpectedFieldsConstants.DEPARTMENT_FIELDS_FOR_ADMIN}'
+        )
 
     async def test_get_department_access(
         self,

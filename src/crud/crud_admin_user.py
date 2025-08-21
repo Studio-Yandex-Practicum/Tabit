@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import UserCreateMixin
-from src.crud.crud_user import CRUDUsers  # Наследуем от CRUDUsers
+from src.crud.crud_user import CRUDUsers
 from src.models import TabitAdminUser
 
 logger = logging.getLogger(__name__)
