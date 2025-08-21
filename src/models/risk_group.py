@@ -6,12 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.models import BaseTabitModel
 from src.models.annotations import int_pk, owner
 
-from src.models import (
-        CommunicationType,
-        CompanyUser,
-        RiskGroupType,
-        SociometricCategoryEnum,
-    )
+from src.models import CommunicationType, CompanyUser, RiskGroupType, SociometricCategoryEnum
 
 
 class RiskGroup(BaseTabitModel):
