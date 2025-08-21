@@ -5,14 +5,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import UserCreateMixin
-from src.crud.crud_password_mixin import CRUDPasswordMixin
 from src.crud.crud_user import CRUDUsers
 from src.models import TabitAdminUser
 
 logger = logging.getLogger(__name__)
 
 
-class CRUDAdminUser(UserCreateMixin, CRUDPasswordMixin, CRUDUsers):
+class CRUDAdminUser(UserCreateMixin, CRUDUsers):
     """CRUD операций для моделей администраторов сервиса Табит."""
 
     async def get_by_email(self, session: AsyncSession, email: str) -> TabitAdminUser | None:
