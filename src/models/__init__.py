@@ -20,6 +20,7 @@ from .enum import (
     ChoiceType,
     SociometricCategoryEnum,
     RiskGroupType,
+    CommunicationType,
 )
 from .file import FileMeeting, FileMessage, FileProblem, FileTask
 from .landing_page import LandingPage
@@ -100,11 +101,12 @@ __all__ = [
     'SociometricCriterion',
     'SociometricChoice',
     'SociometricStrategyPreference',
-    'RiskGroupReason',
+    'RiskGroupType',
     'LuschersColorEnum',
     'ChoiceType',
     'SociometricCategoryEnum',
     'Communication',
     'RiskGroup',
     'Leadership',
+    'CommunicationType',
 ]

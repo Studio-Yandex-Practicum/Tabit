@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, relationship
 
 from src.models import BaseTabitModel
-from src.models.annotations import description, int_pk, owner
+from src.models.annotations import int_pk, owner
 
 if TYPE_CHECKING:
     from src.models import (

@@ -1,7 +1,13 @@
+from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
-from datetime import datetime
+
+from src.models import (
+    CommunicationType,
+    RiskGroupType,
+    SociometricCategoryEnum
+)
 
 
 class RiskGroupSchema(BaseModel):
@@ -18,7 +24,7 @@ class RiskGroupSchema(BaseModel):
     """
     id: int
     user_id: UUID
-    risk_group_type: str
+    risk_group_type: RiskGroupType
     created_at: datetime
     updated_at: datetime
 
@@ -39,7 +45,7 @@ class LeadershipSchema(BaseModel):
     """
     id: int
     user_id: UUID
-    leadership_type: str
+    leadership_type: SociometricCategoryEnum
     created_at: datetime
     updated_at: datetime
 
@@ -60,7 +66,7 @@ class CommunicationSchema(BaseModel):
     """
     id: int
     user_id: UUID
-    communication_type: str
+    communication_type: CommunicationType
     created_at: datetime
     updated_at: datetime
 
