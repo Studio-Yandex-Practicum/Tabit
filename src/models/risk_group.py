@@ -1,0 +1,109 @@
+"""Модели для групп риска."""
+
+from typing import TYPE_CHECKING
+from sqlalchemy.orm import Mapped, relationship
+
+from src.models import BaseTabitModel
+from src.models.annotations import description, int_pk, owner
+
+if TYPE_CHECKING:
+    from src.models import (
+        CompanyUser,
+        RiskGroupType,
+        SociometricCategoryEnum,
+    )
+
+
+class RiskGroup(BaseTabitModel):
+    """
+    Модель группы риска.
+
+    Назначение:
+        Содержит информацию о наличии пользователя в группе риска.
+
+    Поля:
+        id: Идентификатор.
+        owner_id: Сотрудник компании. Внешний ключ.
+        risk_group_type: Пользователю присваивается вид группы риска.
+        created_at: Дата создания записи в таблице. Автозаполнение.
+        updated_at: Дата изменения записи в таблице. Автозаполнение.
+
+    Связи (атрибут - Модель):
+        user - CompanyUser.
+    """
+
+    id: Mapped[int_pk]
+    user_id: Mapped[owner]
+    user: Mapped['CompanyUser'] = relationship(back_populates='risk_group_user')
+    risk_group_type: Mapped['RiskGroupType']
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'user_id={self.user_id!r}, '
+            f'reason={self.risk_group_type!r})'
+        )
+
+
+class Leadership(BaseTabitModel):
+    """
+    Модель лидерства.
+
+    Назначение:
+        Содержит информацию о наличии у пользователя лидерских качеств.
+
+    Поля:
+        id: Идентификатор.
+        owner_id: Сотрудник компании. Внешний ключ.
+        leadership_type: Пользователю присваивается вид лидерства.
+        created_at: Дата создания записи в таблице. Автозаполнение.
+        updated_at: Дата изменения записи в таблице. Автозаполнение.
+
+    Связи (атрибут - Модель):
+        user - CompanyUser.
+    """
+
+    id: Mapped[int_pk]
+    user_id: Mapped[owner]
+    user: Mapped['CompanyUser'] = relationship(back_populates='leadership')
+    leadership_type: Mapped['SociometricCategoryEnum']
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'user_id={self.user_id!r}, '
+            f'type_leadership={self.leadership_type})'
+        )
+
+
+class Communication(BaseTabitModel):
+    """
+    Модель коммуникационной нагрузки пользователей.
+
+    Назначение:
+        Содержит информацию о коммуникационных качествах пользователей.
+
+    Поля:
+        id: Идентификатор.
+        owner_id: Сотрудник компании. Внешний ключ.
+        communication_type: пользователю присваивается вид коммуникационной нагрузки.
+        created_at: Дата создания записи в таблице. Автозаполнение.
+        updated_at: Дата изменения записи в таблице. Автозаполнение.
+
+    Связи (атрибут - Модель):
+        user - CompanyUser.
+    """
+    id: Mapped[int_pk]
+    user_id: Mapped[owner]
+    user: Mapped['CompanyUser'] = relationship(back_populates='communication')
+    communication_type: Mapped['SociometricCategoryEnum']
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'user_id={self.user_id!r}, '
+            f'type_leadership={self.communication_type})'
+        )

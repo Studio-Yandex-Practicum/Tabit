@@ -159,3 +159,23 @@ class LuschersColorEnum(StrEnum):
             'grey': 0,
         }
         return weight[self.value]
+
+
+class RiskGroupType(BaseStrEnum):
+    """Виды причин включения в группу риска."""
+
+    NO_TEST = 'Не прошёл ни одного теста'
+    LAST_FOUR_TEST = 'Не прошёл последние 4 теста'
+    STRESS_FOUR_TEST = 'Результат последних 4 тестов - стресс'
+    SAME_COLOR_LUSCHER = 'В последних 4 тестах в Люшере выбран один и тот же порядок цветов'
+    NOT_CHOSEN_SOCIOMETRIC = 'Никем не был выбран в социометрии  в последних 4 тестах'
+    NEGATIVE_TO_OTHER = 'Негативно настроен к >=50% тех, для кого пользователь выбирал цвет в Эткинде'
+    NEGATIVE_FROM_OTHER = 'Негативно настроены  >=50% тех, кто для пользователя выбирал цвет в Эткинде'
+
+
+class CommunicationType(BaseStrEnum):
+    """Виды коммуникационной нагрузки пользователей."""
+
+    HIGH = 'Высока'
+    MIDDLE = 'Средняя'
+    LOW = 'Низкая'

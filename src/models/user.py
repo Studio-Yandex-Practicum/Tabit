@@ -77,7 +77,10 @@ class CompanyUser(BaseUser):
         tasks - AssociationUserTask -> Task: ответственным за решения каких задач является;
         messages - MessageFeed: автором каких сообщений является;
         comments - CommentFeed: автором каких комментариев к сообщениям является;
-        voting_by - VotingByUser: связь с выбранными вариантами голосования в сообщениях.
+        voting_by - VotingByUser: связь с выбранными вариантами голосования в сообщениях;
+        risk_group_user - RiskGroup: находится ли пользователь в группе риска;
+        leadership - Leadership: находится ли пользователь в группе лидерства;
+        communication - Communication: вид коммуникационной нагрузки пользователя.
     """
 
     birthday: Mapped[Optional[date]]
@@ -131,6 +134,15 @@ class CompanyUser(BaseUser):
 
     __table_args__ = (
         UniqueConstraint('supervisor', 'current_department_id', name='unique_supervisor'),
+    )
+    risk_group_user: Mapped["RiskGroup"] = relationship(
+        back_populates="user", uselist=False
+    )
+    leadership: Mapped["Leadership"] = relationship(
+        back_populates="user", uselist=False
+    )
+    communication: Mapped[List["Communication"]] = relationship(
+        back_populates="user", uselist=False
     )
 
     # TODO: На уровне базы запретить ставить is_superuser = True.
