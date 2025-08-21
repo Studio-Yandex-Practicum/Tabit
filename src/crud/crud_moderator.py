@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.crud import CRUDBase, UserCreateMixin
 from src.crud.constants import TextErrorConstants
+from src.crud.crud_password_mixin import CRUDPasswordMixin
 from src.models import CompanyUser
 from src.schemas import (
     CompanyAdminCreateSchema,
@@ -16,18 +17,20 @@ from src.schemas import (
 )
 
 
-class CRUDModeratorUser(UserCreateMixin, CRUDBase):
+class CRUDModeratorUser(UserCreateMixin, CRUDPasswordMixin, CRUDBase):
     """CRUD операций для моделей модераторов компаний."""
 
     async def get_by_telegram_username(
         self, username: str, session: AsyncSession
     ) -> CompanyUser | None:
         """
-        Функция, возвращающая объект пользователя CompanyUser по переданному telegram_username,
-        или же возвращающая значение None, если пользователь не обнаружен.
+        Функция, возвращающая объект пользователя CompanyUser по переданному
+        telegram_username, или же возвращающая значение None, если пользователь
+        не обнаружен.
 
         Параметры:
-            username: переданное значение telegram_username, по которому будет происходить поиск;
+            username: переданное значение telegram_username, по которому будет
+            происходить поиск;
             session: асинхронная сессия SQLAlchemy;
         """
         user = await session.execute(
@@ -254,8 +257,8 @@ class CRUDModeratorUser(UserCreateMixin, CRUDBase):
         user_manager: BaseUserManager,
     ) -> CompanyUser:
         """
-        Переопределённый метод create от CRUDBase. Возвращает созданный объект UserTabit.
-        В случае возникновения ошибок, выбрасывает исключения.
+        Переопределённый метод create от CRUDBase. Возвращает созданный объект
+        UserTabit. В случае возникновения ошибок, выбрасывает исключения.
 
         Параметры:
             create_data: Валидированные данные схемы CompanyAdminCreateSchema,
@@ -283,9 +286,11 @@ class CRUDModeratorUser(UserCreateMixin, CRUDBase):
         user_manager: BaseUserManager,
     ) -> CompanyUser:
         """
-        Переопределённый метод update от CRUDBase. Функция обновляет данные админа от компании.
+        Переопределённый метод update от CRUDBase. Функция обновляет данные
+        админа от компании.
 
-        Получает объект пользователя по UUID, обновляет его данные в БД и возвращает его.
+        Получает объект пользователя по UUID, обновляет его данные в БД и
+        возвращает его.
         Параметры:
             user_id - UUID пользователя;
             update_date: объект схемы с данными для обновления;
@@ -321,7 +326,8 @@ class CRUDModeratorUser(UserCreateMixin, CRUDBase):
         """
         Переопределённый метод remove от CRUDBase. Функция удалёет из БД запись об
         объекте UserTabit с переданным UUID.
-        Если пользователь с указанным UUID не найден, то выбрасывается исключение HTTP 404.
+        Если пользователь с указанным UUID не найден, то выбрасывается
+        исключение HTTP 404.
 
         Параметры:
             user_id - UUID пользователя;
