@@ -8,8 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.models import BaseTabitModel
 from src.models.annotations import int_pk, owner
 
-if TYPE_CHECKING:
-    from src.models import (
+from src.models import (
         CommunicationType,
         CompanyUser,
         RiskGroupType,
