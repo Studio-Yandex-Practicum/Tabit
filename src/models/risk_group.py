@@ -1,6 +1,7 @@
 """Модели для групп риска."""
 
 from typing import TYPE_CHECKING
+
 from sqlalchemy.orm import Mapped, relationship
 
 from src.models import BaseTabitModel
