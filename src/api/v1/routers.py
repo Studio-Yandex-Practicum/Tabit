@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from src.features_v1 import (
     company_enums_router,
     company_feedback_router,
+    company_moderator_auth_router,
     company_moderator_management_router,
     company_problem_discussion_router,
     company_problem_management_router,
@@ -42,6 +43,11 @@ main_router.include_router(
 
 # Company Endpoints
 main_router.include_router(company_user_auth_router, prefix='/auth', tags=['Company User Auth'])
+main_router.include_router(
+    company_moderator_auth_router,
+    prefix='/{company_slug}/moderator/auth',
+    tags=['Company Moderator Auth'],
+)
 main_router.include_router(
     company_moderator_management_router,
     prefix='/{company_slug}',

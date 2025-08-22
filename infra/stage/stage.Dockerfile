@@ -29,4 +29,5 @@ COPY . /app/
 COPY fake_data_factories/ ./fake_data_factories/
 # =====================================================================┘
 
-CMD ["sh", "-c", "poetry run uvicorn src.main:app_v${APP_VERSION} --host 0.0.0.0 --port ${APP_PORT}"]
+ENTRYPOINT ["/usr/local/bin/poetry", "run"]
+CMD ["uvicorn", "src.main:app_v1", "--host", "0.0.0.0", "--port", "8000"]

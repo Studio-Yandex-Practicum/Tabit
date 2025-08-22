@@ -19,6 +19,8 @@ from .enum import (
     LuschersColorEnum,
     ChoiceType,
     SociometricCategoryEnum,
+    RiskGroupType,
+    CommunicationType,
 )
 from .file import FileMeeting, FileMessage, FileProblem, FileTask
 from .landing_page import LandingPage
@@ -44,6 +46,11 @@ from .association_models import (
     AssociationUserProblem,
     AssociationUserTag,
     AssociationUserTask,
+)
+from .risk_group import (
+    Communication,
+    RiskGroup,
+    Leadership,
 )
 
 
@@ -94,7 +101,12 @@ __all__ = [
     'SociometricCriterion',
     'SociometricChoice',
     'SociometricStrategyPreference',
+    'RiskGroupType',
     'LuschersColorEnum',
     'ChoiceType',
     'SociometricCategoryEnum',
+    'Communication',
+    'RiskGroup',
+    'Leadership',
+    'CommunicationType',
 ]
