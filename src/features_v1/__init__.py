@@ -6,6 +6,7 @@ from .company_problem_discussion.endpoints import router as company_problem_disc
 from .company_problem_management.endpoints import router as company_problem_management_router
 from .company_problem_meetings.endpoints import router as company_problem_meetings_router
 from .company_problem_tasks.endpoints import router as company_problem_tasks_router
+from .company_research_management.endpoints import router as company_research_management_router
 from .company_survey_management.endpoints import router as company_survey_management_router
 from .company_user_auth.endpoints import router as company_user_auth_router
 from .landing_page.endpoints import router as landing_page_router
@@ -25,6 +26,7 @@ __all__ = [
     'company_problem_management_router',
     'company_problem_meetings_router',
     'company_problem_tasks_router',
+    'company_research_management_router',
     'company_survey_management_router',
     'company_user_auth_router',
     'company_user_profile_router',
