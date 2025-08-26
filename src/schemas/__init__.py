@@ -106,6 +106,11 @@ from .voting import (
     VotingCreate,
     VotingInDB
 )
+from .risk_group import (
+    RiskGroupSchema,
+    LeadershipSchema,
+    CommunicationSchema,
+)
 
 __all__ = [
     'GetterSlugMixin',
@@ -124,6 +129,7 @@ __all__ = [
     'CommentCreate',
     'CommentRead',
     'CommentUpdate',
+    'CommunicationSchema',
     'CompanyCreateSchema',
     'CompanyDepartmentCreateSchema',
     'CompanyDepartmentResponseSchema',
@@ -153,6 +159,7 @@ __all__ = [
     'LicenseTypeListResponseSchema',
     'LicenseTypeResponseSchema',
     'LicenseTypeUpdateSchema',
+    'LeadershipSchema',
     'MessageFeedBase',
     'MessageFeedCreate',
     'MessageFeedRead',
@@ -176,6 +183,7 @@ __all__ = [
     'UserTagCreateSchema',
     'UserTagResponseSchema',
     'UserTagUpdateSchema',
+    'RiskGroupSchema',
     'TaskBaseSchema',
     'TaskCreateSchema',
     'TaskResponseSchema',

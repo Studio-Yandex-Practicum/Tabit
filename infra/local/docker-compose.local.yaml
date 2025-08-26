@@ -44,6 +44,7 @@ services:
       - ${PWD}/src:/app/src
       - ${PWD}/alembic:/app/alembic
     profiles:
+      - app_up
       - app_dc
     restart: always
     dns:
@@ -70,7 +71,6 @@ services:
         target: /pgadmin4/.pgpass
     entrypoint: ["/bin/sh", "/create-admin-folder.sh"]
     profiles:
-      - app_dc
       - pgadmin
     restart: always
 

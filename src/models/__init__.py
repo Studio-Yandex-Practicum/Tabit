@@ -17,6 +17,10 @@ from .enum import (
     ProblemType,
     SurveysStatus,
     LuschersColorEnum,
+    ChoiceType,
+    SociometricCategoryEnum,
+    RiskGroupType,
+    CommunicationType,
 )
 from .file import FileMeeting, FileMessage, FileProblem, FileTask
 from .landing_page import LandingPage
@@ -32,6 +36,9 @@ from .survey import (
     LuscherColorSecond,
     SurveyCycleForCompany,
     SurveyCycleForUser,
+    SociometricCriterion,
+    SociometricChoice,
+    SociometricStrategyPreference,
 )
 from .research import ResearchType, ResearchInstance
 from .association_models import (
@@ -40,6 +47,11 @@ from .association_models import (
     AssociationUserProblem,
     AssociationUserTag,
     AssociationUserTask,
+)
+from .risk_group import (
+    Communication,
+    RiskGroup,
+    Leadership,
 )
 
 
@@ -87,7 +99,17 @@ __all__ = [
     'LuscherColorSecond',
     'SurveyCycleForCompany',
     'SurveyCycleForUser',
+    'SociometricCriterion',
+    'SociometricChoice',
+    'SociometricStrategyPreference',
+    'RiskGroupType',
     'LuschersColorEnum',
     'ResearchType',
     'ResearchInstance',
+    'ChoiceType',
+    'SociometricCategoryEnum',
+    'Communication',
+    'RiskGroup',
+    'Leadership',
+    'CommunicationType',
 ]

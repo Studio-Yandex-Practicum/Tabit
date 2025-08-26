@@ -69,6 +69,15 @@ class UserCreateSchema(UserSchemaMixin, BaseUserCreate):
     )
 
 
+class UserCreateInternalSchema(UserCreateSchema):
+    """Внутренняя схема с добавленными системными полями."""
+
+    role: CompanyUserRole = Field(
+        default=CompanyUserRole.EMPLOYEE,
+        title=TitleConstants.ROLE_USER,
+    )
+
+
 class UserUpdateSchema(UserSchemaMixin, BaseUserUpdate):
     """Схема для изменение данных пользователя сервиса."""
 

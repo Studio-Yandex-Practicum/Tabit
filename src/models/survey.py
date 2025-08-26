@@ -4,8 +4,9 @@ from uuid import UUID
 from sqlalchemy import Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.models import BaseTabitModel, LuschersColorEnum, SurveysStatus
 from src.models.annotations import int_pk
+from src.models.base import BaseTabitModel
+from src.models.enum import ChoiceType, LuschersColorEnum, SociometricCategoryEnum, SurveysStatus
 
 
 class SurveyCycleForCompany(BaseTabitModel):
@@ -138,3 +139,116 @@ class LuscherColorSecond(BaseLuscherColor):
     - selection_<number>: Ответы пользователя, где number - номер ответа,
                           а значение - выбранный цвет.
     """
+
+
+class SociometricCriterion(BaseTabitModel):
+    """
+    Критерии социометрического тестирования.
+
+    Назначение:
+    - Содержит критерии для социометрического тестирования в рамках компании.
+    - Каждый критерий определяет тип социального выбора и ограничения.
+
+    Поля:
+    - id: Идентификатор.
+    - name: Название критерия.
+    - description: Описание критерия.
+    - choice_type: Тип выбора (положительный, отрицательный, нейтральный).
+    - max_choices: Максимальное количество выборов по данному критерию.
+    - company_id: Идентификатор компании, к которой относится критерий.
+    """
+
+    id: Mapped[int_pk]
+    name: Mapped[str] = mapped_column(nullable=False)
+    description: Mapped[str] = mapped_column(nullable=False)
+    choice_type: Mapped[ChoiceType] = mapped_column(Enum(ChoiceType), nullable=False)
+    max_choices: Mapped[int] = mapped_column(nullable=False, default=3)
+    company_id: Mapped[int] = mapped_column(
+        ForeignKey('company.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    # Категория критерия (тактическое/стратегическое лидерство)
+    category: Mapped[SociometricCategoryEnum] = mapped_column(
+        Enum(SociometricCategoryEnum),
+        nullable=False,
+        default=SociometricCategoryEnum.TACTICAL_LEADERSHIP,
+    )
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'name={self.name!r}, '
+            f'choice_type={self.choice_type!r}, '
+            f'company_id={self.company_id!r})'
+        )
+
+
+class SociometricChoice(BaseTabitModel):
+    """
+    Выборы в социометрическом тесте.
+
+    Назначение:
+    - Сохраняет социометрические выборы участников.
+    - Каждый выбор связывает участника с выбранным сотрудником по определенному критерию.
+
+    Поля:
+    - id: Идентификатор.
+    - participant_id: Идентификатор участника, делающего выбор.
+    - chosen_employee_id: Идентификатор выбранного сотрудника.
+    - criterion_id: Идентификатор критерия социометрии.
+    - cycle_user_id: Идентификатор цикла опросов пользователя.
+    - preference_rank: Ранг предпочтения (опционально, для ранжированных выборов).
+    - choice_type: Тип выбора (положительный, отрицательный, нейтральный).
+    """
+
+    id: Mapped[int_pk]
+    participant_id: Mapped[UUID] = mapped_column(
+        ForeignKey('companyuser.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    chosen_employee_id: Mapped[UUID] = mapped_column(
+        ForeignKey('companyuser.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    criterion_id: Mapped[int] = mapped_column(
+        ForeignKey('sociometriccriterion.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    cycle_user_id: Mapped[int] = mapped_column(
+        ForeignKey('surveycycleforuser.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    preference_rank: Mapped[int | None] = mapped_column(nullable=True)
+    choice_type: Mapped[ChoiceType] = mapped_column(Enum(ChoiceType), nullable=False)
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'participant_id={self.participant_id!r}, '
+            f'chosen_employee_id={self.chosen_employee_id!r}, '
+            f'criterion_id={self.criterion_id!r}, '
+            f'cycle_user_id={self.cycle_user_id!r}, '
+            f'choice_type={self.choice_type!r})'
+        )
+
+
+class SociometricStrategyPreference(BaseTabitModel):
+    """Предпочтение стратегии выбора вопросов модератором для конкретного cycle_user."""
+
+    id: Mapped[int_pk]
+    cycle_user_id: Mapped[int] = mapped_column(
+        ForeignKey('surveycycleforuser.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    # Храним как строковое значение из QuestionSelectionStrategy
+    strategy: Mapped[str] = mapped_column(nullable=False)
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'id={self.id!r}, '
+            f'cycle_user_id={self.cycle_user_id!r}, '
+            f'strategy={self.strategy!r})'
+        )
