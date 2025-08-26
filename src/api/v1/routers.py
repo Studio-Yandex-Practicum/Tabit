@@ -9,6 +9,7 @@ from src.features_v1 import (
     company_problem_management_router,
     company_problem_meetings_router,
     company_problem_tasks_router,
+    company_research_management_router,
     company_survey_management_router,
     company_user_auth_router,
     landing_page_router,
@@ -81,6 +82,10 @@ main_router.include_router(
 main_router.include_router(
     company_survey_management_router,
     tags=['Company Survey Management'],
+)
+main_router.include_router(
+    company_research_management_router,
+    tags=['Company Research Management'],
 )
 
 # Email Endpoints

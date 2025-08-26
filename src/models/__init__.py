@@ -33,6 +33,7 @@ from .survey import (
     SurveyCycleForCompany,
     SurveyCycleForUser,
 )
+from .research import ResearchType, ResearchInstance
 from .association_models import (
     AssociationUserComment,
     AssociationUserMeeting,
@@ -87,4 +88,6 @@ __all__ = [
     'SurveyCycleForCompany',
     'SurveyCycleForUser',
     'LuschersColorEnum',
+    'ResearchType',
+    'ResearchInstance',
 ]
