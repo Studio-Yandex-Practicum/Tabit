@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
@@ -76,7 +76,7 @@ class CRUDResearchType(CRUDBase):
             if field in update_data:
                 setattr(research_type_db, field, update_data[field])
 
-        research_type_db.updated_at = datetime.utcnow()
+        research_type_db.updated_at = datetime.now(timezone.utc)
 
         try:
             session.add(research_type_db)
@@ -163,7 +163,7 @@ class CRUDResearchInstance(CRUDBase):
 
         # Если статус меняется на завершенный, устанавливаем время завершения
         if update_data.get('status') == 'COMPLETED' and not instance_db.completed_at:
-            update_data['completed_at'] = datetime.utcnow()
+            update_data['completed_at'] = datetime.now(timezone.utc)
 
         for field in instance_data:
             if field in update_data:

@@ -32,7 +32,7 @@ class ResearchTypeBaseSchema(BaseModel):
 
     title: str = Field(..., min_length=1, max_length=255, description='Заголовок опроса')
     description: Optional[str] = Field(None, max_length=1000, description='Описание опроса')
-    questions: List[QuestionSchema] = Field(..., min_items=1, description='Список вопросов')
+    questions: List[QuestionSchema] = Field(..., min_length=1, description='Список вопросов')
     is_active: bool = Field(default=True, description='Активен ли тип опроса')
 
     @field_validator('questions')
@@ -70,7 +70,7 @@ class ResearchTypeUpdateSchema(BaseModel):
 
     title: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = Field(None, max_length=1000)
-    questions: Optional[List[QuestionSchema]] = Field(None, min_items=1)
+    questions: Optional[List[QuestionSchema]] = Field(None, min_length=1)
     is_active: Optional[bool] = None
 
     model_config = ConfigDict(extra='forbid')

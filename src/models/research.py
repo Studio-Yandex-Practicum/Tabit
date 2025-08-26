@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import Enum, ForeignKey, Text
@@ -41,8 +41,10 @@ class ResearchType(BaseTabitModel):
         ForeignKey('companyuser.id', ondelete='SET NULL'),
         nullable=True,
     )
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(
+        default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc)
+    )
 
     def __repr__(self):
         return (
@@ -84,7 +86,7 @@ class ResearchInstance(BaseTabitModel):
     status: Mapped[SurveysStatus] = mapped_column(
         Enum(SurveysStatus), default=SurveysStatus.IN_PROGRESS
     )
-    started_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    started_at: Mapped[datetime] = mapped_column(default=datetime.now(timezone.utc))
     completed_at: Mapped[datetime] = mapped_column(nullable=True)
     answers: Mapped[str] = mapped_column(Text, nullable=True)  # JSON строка с ответами
 
