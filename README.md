@@ -693,9 +693,24 @@ make logs
 make migration-apply-dc
 ```
 
-#### 5. Остановка контейнеров
+#### 5. Наполнение тестовыми данными
+```bash
+make fill-db-dc
+```
+
+#### 6. Создание супер пользователя (параметры в .env FIRST_SUPERUSER_EMAIL FIRST_SUPERUSER_PASSWORD )
+```bash
+make create-superuser-dc
+```
+
+#### 7. Остановка контейнеров
 ```bash
 make down
+```
+
+### 8. Остановка всех контейнеров и удаление томов
+```bash
+make clean-volumes
 ```
 
 #### Особенности отладки CI/CD

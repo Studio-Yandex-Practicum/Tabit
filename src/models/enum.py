@@ -120,6 +120,21 @@ class SurveysStatus(StrEnum):
     POSTPONED = 'Отложен'
 
 
+class ChoiceType(BaseStrEnum):
+    """Типы социометрических выборов."""
+
+    POSITIVE = 'positive'
+    NEGATIVE = 'negative'
+    NEUTRAL = 'neutral'
+
+
+class SociometricCategoryEnum(BaseStrEnum):
+    """Категории социометрических критериев."""
+
+    TACTICAL_LEADERSHIP = 'tactical_leadership'
+    STRATEGIC_LEADERSHIP = 'strategic_leadership'
+
+
 class LuschersColorEnum(StrEnum):
     """Цветов теста Люшера."""
 
@@ -144,3 +159,23 @@ class LuschersColorEnum(StrEnum):
             'grey': 0,
         }
         return weight[self.value]
+
+
+class RiskGroupType(BaseStrEnum):
+    """Виды причин включения в группу риска."""
+
+    A = 'Не прошёл ни одного теста'
+    B = 'Не прошёл последние 4 теста'
+    C = 'Результат последних 4 тестов - стресс'
+    D = 'В последних 4 тестах в Люшере выбран один и тот же порядок цветов'
+    E = 'Никем не был выбран в социометрии  в последних 4 тестах'
+    F = 'Негативно настроен к >=50% тех, для кого пользователь выбирал цвет в Эткинде'
+    G = 'Негативно настроены  >=50% тех, кто для пользователя выбирал цвет в Эткинде'
+
+
+class CommunicationType(BaseStrEnum):
+    """Виды коммуникационной нагрузки пользователей."""
+
+    HIGH = 'Высока'
+    MIDDLE = 'Средняя'
+    LOW = 'Низкая'

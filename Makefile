@@ -56,7 +56,7 @@ up: ## Запуск контейнера с локальной БД в фоно�
 
 up-dc: ## Запуск всех контейнеров, включая приложение в Docker
 	@echo "Запуск всех контейнеров, включая приложение..."
-	$(DOCKER_COMPOSE) --profile app_dc --profile pgadmin up -d --build
+	$(DOCKER_COMPOSE) --profile app_up up -d --build
 
 up-pgadmin: ## Запуск контейнеров с локальной БД и pgAdmin в фоновом режиме
 	@echo "Запуск pgAdmin..."
@@ -105,12 +105,12 @@ migration-apply: ## Применение миграций локально
 
 migration-apply-dc: ## Применение миграций через контейнер
 	@echo "Применяем миграции через контейнер приложения..."
-	$(DOCKER_COMPOSE) exec app poetry run alembic upgrade head
+	$(DOCKER_COMPOSE) exec app /usr/local/bin/poetry run alembic upgrade head
 
 # Откат миграций
 migration-rollback: ## Откатить последнюю миграцию
 	@echo "Откат последней миграции..."
-	$(DOCKER_COMPOSE) exec app poetry run alembic downgrade -1
+	$(DOCKER_COMPOSE) exec app /usr/local/bin/poetry run alembic downgrade -1
 	@echo "Миграция успешно откачена"
 
 # Управление базой данных
@@ -129,8 +129,15 @@ create-superuser: ## Создание суперпользователя
 	@echo "Создание суперпользователя..."
 	python src/main.py -c
 
+create-superuser-dc: ## Создание суперпользователя
+	@echo "Создание суперпользователя..."
+	$(DOCKER_COMPOSE) exec app /usr/local/bin/poetry run python src/main.py -c
+
 fill-db: ## Заполнение базы данных всеми тестовыми данными
 	poetry run python fake_data_factories/fill_db.py
+
+fill-db-dc: ## Заполнение базы данных всеми тестовыми данными через контейнер
+	$(DOCKER_COMPOSE) exec app /usr/local/bin/poetry run python fake_data_factories/fill_db.py
 
 fill-companies: ## Заполнение базы данных данными компаний
 	poetry run python fake_data_factories/company_factories.py
