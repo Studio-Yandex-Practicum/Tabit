@@ -40,6 +40,7 @@ from .survey import (
     SociometricChoice,
     SociometricStrategyPreference,
 )
+from .research import ResearchType, ResearchInstance
 from .association_models import (
     AssociationUserComment,
     AssociationUserMeeting,
@@ -103,6 +104,8 @@ __all__ = [
     'SociometricStrategyPreference',
     'RiskGroupType',
     'LuschersColorEnum',
+    'ResearchType',
+    'ResearchInstance',
     'ChoiceType',
     'SociometricCategoryEnum',
     'Communication',
