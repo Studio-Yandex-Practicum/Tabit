@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from typing import Iterable, List
 
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import (
@@ -38,31 +39,20 @@ class NoLuscherTestsCriterion(RiskCriterion):
         """
         Сотрудники, которые не проходили ни одного теста Люшера.
         """
-        res = await self.session.execute(
-            select(SurveyCycleForUser.id, SurveyCycleForUser.user_id).where(
-                SurveyCycleForUser.survey_cycle_for_company_id == cycle.id
+        query = (
+            select(SurveyCycleForUser.user_id)
+            .outerjoin(
+                LuscherColorSecond,
+                SurveyCycleForUser.id == LuscherColorSecond.survey_cycle_for_user_id,
+            )
+            .where(
+                SurveyCycleForUser.survey_cycle_for_company_id == cycle.id,
+                LuscherColorSecond.survey_cycle_for_user_id.is_(None),
             )
         )
-        cycle_user_rows: list[tuple[int, int]] = res.all()
-        if not cycle_user_rows:
-            return []
 
-        cycle_for_user_ids = [r[0] for r in cycle_user_rows]
-        cycle_user_to_user_id = {r[0]: r[1] for r in cycle_user_rows}
-
-        res = await self.session.execute(
-            select(LuscherColorSecond.survey_cycle_for_user_id)
-            .distinct()
-            .where(LuscherColorSecond.survey_cycle_for_user_id.in_(cycle_for_user_ids))
-        )
-        have_luscher_cycle_ids = {row[0] for row in res.all()}
-
-        risky_user_ids = [
-            cycle_user_to_user_id[cfu_id]
-            for cfu_id in cycle_for_user_ids
-            if cfu_id not in have_luscher_cycle_ids
-        ]
-        return risky_user_ids
+        res = await self.session.execute(query)
+        return [row[0] for row in res.all()]
 
 
 class Last4NotPassedCriterion(RiskCriterion):
@@ -71,45 +61,46 @@ class Last4NotPassedCriterion(RiskCriterion):
         Сотрудники, которые не прошли последние 4 теста Люшера,
         но в прошлом проходили хотя бы один тест успешно.
         """
-        res = await self.session.execute(
-            select(SurveyCycleForUser.id, SurveyCycleForUser.user_id).where(
-                SurveyCycleForUser.survey_cycle_for_company_id == cycle.id
-            )
+        completed_subquery = (
+            select(SurveyCycleForUser.user_id)
+            .where(SurveyCycleForUser.status == SurveysStatus.COMPLETED)
+            .distinct()
+            .subquery()
         )
-        cycle_users = res.all()
-        if not cycle_users:
-            return []
 
-        user_ids = {row[1] for row in cycle_users}
-
-        res = await self.session.execute(
+        last4_subquery = (
             select(
                 SurveyCycleForUser.user_id,
                 SurveyCycleForUser.status,
-                SurveyCycleForUser.date,
+                func.row_number()
+                .over(
+                    partition_by=SurveyCycleForUser.user_id,
+                    order_by=SurveyCycleForUser.date.desc(),
+                )
+                .label('rn'),
             )
-            .where(SurveyCycleForUser.user_id.in_(user_ids))
-            .order_by(SurveyCycleForUser.user_id, SurveyCycleForUser.date.desc())
+            .where(SurveyCycleForUser.survey_cycle_for_company_id == cycle.id)
+            .subquery()
         )
-        all_cycles = res.all()
 
-        user_cycles: dict[int, list[tuple[str, str, str]]] = {}
-        for user_id, status, date in all_cycles:
-            user_cycles.setdefault(user_id, []).append({'status': status, 'date': date})
+        risky_subquery = (
+            select(last4_subquery.c.user_id)
+            .where(last4_subquery.c.rn <= 4)
+            .group_by(last4_subquery.c.user_id)
+            .having(func.count() == 4)
+            .having(
+                func.max(case((last4_subquery.c.status == SurveysStatus.COMPLETED, 1), else_=0))
+                == 0
+            )
+            .subquery()
+        )
 
-        risky_users = []
-        for user_id, cycles in user_cycles.items():
-            passed_exists = any(c['status'] == SurveysStatus.COMPLETED for c in cycles)
-            if not passed_exists:
-                continue
+        query = select(risky_subquery.c.user_id).where(
+            risky_subquery.c.user_id.in_(select(completed_subquery.c.user_id))
+        )
 
-            last4 = cycles[:4]
-            if len(last4) < 4:
-                continue
-            if all(c['status'] != SurveysStatus.COMPLETED for c in last4):
-                risky_users.append(user_id)
-
-        return risky_users
+        result = await self.session.execute(query)
+        return list(result.scalars())
 
 
 class Last4PassedCriterionStress(RiskCriterion):
@@ -117,38 +108,37 @@ class Last4PassedCriterionStress(RiskCriterion):
         """
         Сотрудники, у которых РЕЗУЛЬТАТ последних 4 тестов — стресс.
         """
+        query = (
+            select(SurveyCycleForUser.user_id, LuscherColorSecond)
+            .join(
+                LuscherColorSecond,
+                SurveyCycleForUser.id == LuscherColorSecond.survey_cycle_for_user_id,
+            )
+            .where(SurveyCycleForUser.survey_cycle_for_company_id == cycle.id)
+        )
+        result = await self.session.execute(query)
+        rows: list[tuple[int, LuscherColorSecond]] = result.all()
+
+        user_luschers: dict[int, list[LuscherColorSecond]] = defaultdict(list)
+        for user_id, luscher in rows:
+            user_luschers[user_id].append(luscher)
+
         risky_users: list[int] = []
 
-        res = await self.session.execute(
-            select(SurveyCycleForUser).where(
-                SurveyCycleForUser.survey_cycle_for_company_id == cycle.id
-            )
-        )
-        cycle_for_users: list[SurveyCycleForUser] = res.scalars().all()
+        for user_id, luschers in user_luschers.items():
+            recent_tests = sorted(luschers, key=lambda test: test.created_at, reverse=True)[:4]
 
-        for cycle_for_user in cycle_for_users:
-            res_luscher = await self.session.execute(
-                select(LuscherColorSecond).where(
-                    LuscherColorSecond.survey_cycle_for_user_id == cycle_for_user.id
-                )
-            )
-            luscher_cycles = sorted(
-                res_luscher.scalars().all(),
-                key=lambda c: c.created_at,
-                reverse=True,
-            )
-
-            last_four = luscher_cycles[:4]
-            if len(last_four) < 4:
+            if len(recent_tests) < 4:
                 continue
 
-            results = []
-            for luscher_cycle in last_four:
-                result = await get_response_result(self.session, luscher_cycle)
-                results.append(result['result'])
+            test_results = []
+            for test in recent_tests:
+                result_data = await get_response_result(self.session, test)
+                test_results.append(result_data['result'])
 
-            if all(r == 'стресс' for r in results):
-                risky_users.append(cycle_for_user.user_id)
+            all_stress = all(result == 'стресс' for result in test_results)
+            if all_stress:
+                risky_users.append(user_id)
 
         return risky_users
 
@@ -219,45 +209,43 @@ class Last4NoSocionomySelectionCriterion(RiskCriterion):
         за последние 4 цикла (индивидуальные для каждого пользователя).
         """
 
-        res = await self.session.execute(
-            select(SurveyCycleForUser.user_id, SurveyCycleForUser.id).where(
-                SurveyCycleForUser.survey_cycle_for_company_id == cycle.id
+        all_cycles_subq = (
+            select(
+                SurveyCycleForUser.user_id,
+                SurveyCycleForUser.id.label('cycle_user_id'),
+                SurveyCycleForUser.date,
+                func.row_number()
+                .over(
+                    partition_by=SurveyCycleForUser.user_id,
+                    order_by=SurveyCycleForUser.date.desc(),
+                )
+                .label('rn'),
             )
+            .where(SurveyCycleForUser.survey_cycle_for_company_id == cycle.id)
+            .subquery()
         )
-        users_in_cycle = res.all()
-        if not users_in_cycle:
-            return []
 
-        res = await self.session.execute(
-            select(SurveyCycleForUser.user_id, SurveyCycleForUser.id)
-            .where(SurveyCycleForUser.user_id.in_([u[0] for u in users_in_cycle]))
-            .order_by(SurveyCycleForUser.user_id, SurveyCycleForUser.date.desc())
+        last4_cycles = (
+            select(all_cycles_subq.c.user_id, all_cycles_subq.c.cycle_user_id)
+            .where(all_cycles_subq.c.rn <= 4)
+            .subquery()
         )
-        all_cycles = res.all()
 
-        cycles_per_user: dict[int, list[int]] = {}
-        for user_id, cycle_user_id in all_cycles:
-            cycles_per_user.setdefault(user_id, [])
-            if len(cycles_per_user[user_id]) < 4:
-                cycles_per_user[user_id].append(cycle_user_id)
-
-        all_cycle_ids = [cid for sub in cycles_per_user.values() for cid in sub]
-
-        res = await self.session.execute(
-            select(SociometricChoice.chosen_employee_id).where(
-                SociometricChoice.cycle_user_id.in_(all_cycle_ids)
-            )
+        chosen_employees = (
+            select(SociometricChoice.chosen_employee_id)
+            .where(SociometricChoice.cycle_user_id.in_(select(last4_cycles.c.cycle_user_id)))
+            .distinct()
+            .subquery()
         )
-        choices = res.scalars().all()
 
-        chosen_users: set[int] = set(choices)
+        all_users_in_cycles = select(last4_cycles.c.user_id).distinct().subquery()
 
-        risky_users: list[int] = []
-        for user_id in cycles_per_user.keys():
-            if user_id not in chosen_users:
-                risky_users.append(user_id)
+        query = select(all_users_in_cycles.c.user_id).where(
+            all_users_in_cycles.c.user_id.not_in(select(chosen_employees.c.chosen_employee_id))
+        )
 
-        return risky_users
+        result = await self.session.execute(query)
+        return result.scalars().all()
 
 
 async def persist_risk_group_for_users(
