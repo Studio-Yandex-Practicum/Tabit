@@ -1,7 +1,7 @@
 """Create research tables
 
-Revision ID: 05_research
-Revises: 04_fix_slug_length
+Revision ID: 04_research
+Revises: 03_survey
 Create Date: 2025-01-27 10:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '05_research'
-down_revision = '04_fix_slug_length'
+revision = '04_research'
+down_revision = '03_survey'
 branch_labels = None
 depends_on = None
 
