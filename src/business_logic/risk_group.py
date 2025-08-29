@@ -108,6 +108,7 @@ class Last4PassedCriterionStress(RiskCriterion):
         """
         Сотрудники, у которых РЕЗУЛЬТАТ последних 4 тестов — стресс.
         """
+        # TODO: оптимизировать, чтобы не загружать все опросы в память
         query = (
             select(SurveyCycleForUser.user_id, LuscherColorSecond)
             .join(
