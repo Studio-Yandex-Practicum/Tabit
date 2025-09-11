@@ -353,6 +353,8 @@ logger.error('Ошибка')
 - [Pydantic схемы](./code_examples/schemas_example.py)
 - [Валидаторы схем](./code_examples/schemas_validators_examples.py)
 - [Service-операции](./code_examples/services_example.py)
+- [Тест операции](./code_examples/test_examples.py)
+- [Factory операции](./code_examples/factory_examples.py)
 
 ## Техническая документация
 
