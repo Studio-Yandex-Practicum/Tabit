@@ -36,7 +36,7 @@ class TaskFactory(AsyncSQLAlchemyFactory):
 
     name: factory.LazyFunction = factory.LazyFunction(lambda: choice(DefaultConstants.TASK_NAMES))
     description: factory.Faker = factory.Faker(
-        'text', max_nb_chars=LengthConstants.TASK_DESCRIPTION
+        'text', max_nb_chars=LengthConstants.TASK_DESCRIPTION_LENGTH
     )
     date_completion: factory.Faker = factory.Faker('future_date')
     owner_id: UUID

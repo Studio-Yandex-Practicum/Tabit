@@ -3,7 +3,8 @@
 migration-empty migration-apply migration-apply-dc migration-rollback db-reset db-init \
 create-superuser fill-db fill-companies fill-company-users fill-tabit-admin-users \
 fill-company-departments fill-license-type fill-problems fill-message-feeds \
-fill-voting-feeds fill-voting-by-user fill-tasks fill-tags fill-comments
+fill-voting-feeds fill-voting-by-user fill-tasks fill-tags fill-comments fill-meetings \
+fill-meetings-results
 
 # Определение переменной с именем файла окружения
 ENV_FILE = .env
@@ -156,6 +157,12 @@ fill-license-type: ## Заполнение базы данных типами л
 
 fill-problems: ## Заполнение базы данных тестовыми проблемами
 	poetry run python fake_data_factories/problem_factory.py
+
+fill-meetings: ## Заполнение базы данных тестовыми встречами
+	poetry run python fake_data_factories/meeting_factory.py
+
+fill-meetings-results: ## Заполнение базы данных результатами тестовых встреч
+	poetry run python fake_data_factories/meeting_result_factory.py
 
 fill-message-feeds: ## Заполнение базы данных тестовыми лентами сообщений
 	poetry run python fake_data_factories/message_feed_factory.py

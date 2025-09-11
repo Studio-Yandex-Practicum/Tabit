@@ -42,7 +42,7 @@ async def create_user_problem_associations(
         - `user_id`: uuid пользователя Tabit;
         - `problem_ids`: список id проблем.
 
-    Функция возвращате список созданных записей.
+    Функция возвращает список созданных записей.
     """
     user_problem_associations = []
     for problem_id in problem_ids:

@@ -123,6 +123,31 @@ class DefaultConstants(DefaultBaseConstants):
         'Проблемы возникают на этапе взаимодействия с менеджерами.',
         'Слишком много времени тратится впустую.',
     ]
+    MEETING_TITLES: list[str] = [
+        'Узкие места процессов.',
+        'Технический долг команды.',
+        'Пицца или суши?',
+        'Практики ревью кода.',
+        'Улучшение взаимодействия с клиентом.',
+    ]
+
+    MEETING_FEEDBACK: list[str] = [
+        None,
+        'Всё прошло отлично, разобрали все темы.',
+        'Часть тем не успели разобрать. Сделаем на следующей встрече.',
+        'Было очень мало людей, встречу отменили.',
+        'А где все?',
+    ]
+
+    MEETING_DESCRIPTIONS: list[str | None] = [
+        None,
+        'Будем обсуждать обсуждения.',
+        'Что можем делать немного лучше.',
+        'Окончательное голосование: Coca-cola или Pepsi.',
+        'Как улучшить качество и взаимодействие внутри команды.',
+    ]
+
+    MEETING_PLACES: list[str] = ['Офис 000', 'Офис 422', 'Офис 500', 'Подвал', 'MS Teams']
     PROBLEM_NAMES: list[str] = [
         'Медленный отклик на заявку',
         'Несоблюдение делового стиля общения',
@@ -153,6 +178,8 @@ class FakerConstants:
     - DEPARTMENT_COUNT (int): количество отделов
     - MAX_COMMENT_RATING (int): максимальный рейтинг комментария
     - MESSAGE_FEEDS_COUNT (int): количество лент сообщений
+    - MEETINGS_COUNT (int): количество встреч
+    - MEETINGS_RESULT_COUNT (int): количество результатов встреч
     - MIN_COMMENT_RATING (int): минимальный рейтинг комментария
     - PROBLEMS_COUNT (int): количество проблем
     - TASK_COUNT (int): количество задач
@@ -166,8 +193,10 @@ class FakerConstants:
     COMMENT_WORDS_COUNT: int = 7
     COMPANY_COUNT: int = 5
     DEPARTMENT_COUNT: int = 5
-    MAX_COMMENT_RATING: int = 5
+    MAX_COMMENT_RATING: int = 3
     MESSAGE_FEEDS_COUNT: int = 5
+    MEETINGS_COUNT: int = 5
+    MEETINGS_RESULT_COUNT: int = 5
     MIN_COMMENT_RATING: int = 0
     PROBLEMS_COUNT: int = 5
     TASK_COUNT: int = 5
@@ -193,7 +222,7 @@ class LengthConstants(LengthBaseConstants):
     LICENSE_MAX_ADMINS: int = 100
     LICENSE_MAX_EMPLOYEES: int = 1000
     LICENSE_TYPE_COUNT: int = 5
-    TASK_DESCRIPTION: int = 256
+    TASK_DESCRIPTION_LENGTH: int = 256
 
 
 @dataclass(frozen=True)

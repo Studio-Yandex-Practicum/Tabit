@@ -120,7 +120,7 @@ class MeetingResult(BaseTabitModel):
     """
 
     id: Mapped[int_pk_autoincrement]
-    meeting_id: Mapped[int] = mapped_column(ForeignKey('meeting.id'), primary_key=True)
+    meeting_id: Mapped[int] = mapped_column(ForeignKey('meeting.id'))
     meeting: Mapped['Meeting'] = relationship(back_populates='result', lazy='joined')
     owner_id: Mapped[owner]
     owner: Mapped['CompanyUser'] = relationship(back_populates='meeting_result')
